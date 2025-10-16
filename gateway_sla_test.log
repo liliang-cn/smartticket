@@ -1,0 +1,242 @@
+warning: unused import: `Response`
+ --> crates/gateway/src/auth_middleware.rs:4:22
+  |
+4 | use tonic::{Request, Response, Status};
+  |                      ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `std::collections::HashMap`
+ --> crates/gateway/src/knowledge_service.rs:3:5
+  |
+3 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `tokio::sync::RwLock`
+ --> crates/gateway/src/knowledge_service.rs:5:5
+  |
+5 | use tokio::sync::RwLock;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ArticleRating`
+  --> crates/gateway/src/knowledge_service.rs:11:5
+   |
+11 |     ArticleRating, CreateArticleRequest, CreateArticleResponse, CreateCategoryRequest,
+   |     ^^^^^^^^^^^^^
+
+warning: unused imports: `AuthUser` and `TenantContext`
+  --> crates/gateway/src/knowledge_service.rs:21:35
+   |
+21 | use smartticket_shared_database::{AuthUser, TenantContext};
+   |                                   ^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `PaymentMethod`
+  --> crates/gateway/src/tenant_service.rs:18:68
+   |
+18 |     ListTenantsResponse, NotificationSettings, PaginationResponse, PaymentMethod,
+   |                                                                    ^^^^^^^^^^^^^
+
+warning: unused import: `sqlx::Row`
+ --> crates/gateway/src/auth_service.rs:7:5
+  |
+7 | use sqlx::Row;
+  |     ^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> crates/gateway/src/grpc_service.rs:681:13
+    |
+681 |         let mut update_request = CoreUpdateTicketRequest {
+    |             ----^^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+warning: unreachable pattern
+    --> crates/gateway/src/grpc_service.rs:1047:13
+     |
+1047 |             _ => false,
+     |             ^ no value can reach this
+     |
+note: multiple earlier patterns match some of the same values
+    --> crates/gateway/src/grpc_service.rs:1047:13
+     |
+1032 | /             (smartticket_shared_database::UserRole::CustomerUser, _)
+1033 | |             | (smartticket_shared_database::UserRole::Sales, _) => {
+     | |_______________________________________________________________- matches some of the same values
+...
+1044 | /             (smartticket_shared_database::UserRole::SupportEngineer, _)
+1045 | |             | (smartticket_shared_database::UserRole::TenantAdmin, _)
+1046 | |             | (smartticket_shared_database::UserRole::SuperAdmin, _) => true,
+     | |____________________________________________________________________- matches some of the same values
+1047 |               _ => false,
+     |               ^ collectively making this unreachable
+     = note: `#[warn(unreachable_patterns)]` on by default
+
+warning: unreachable pattern
+    --> crates/gateway/src/grpc_service.rs:1213:13
+     |
+1213 |             _ => false,
+     |             ^ no value can reach this
+     |
+note: multiple earlier patterns match some of the same values
+    --> crates/gateway/src/grpc_service.rs:1213:13
+     |
+1198 | /             (smartticket_shared_database::UserRole::CustomerUser, _)
+1199 | |             | (smartticket_shared_database::UserRole::Sales, _) => {
+     | |_______________________________________________________________- matches some of the same values
+...
+1210 | /             (smartticket_shared_database::UserRole::SupportEngineer, _)
+1211 | |             | (smartticket_shared_database::UserRole::TenantAdmin, _)
+1212 | |             | (smartticket_shared_database::UserRole::SuperAdmin, _) => true,
+     | |____________________________________________________________________- matches some of the same values
+1213 |               _ => false,
+     |               ^ collectively making this unreachable
+
+warning: value assigned to `bind_index` is never read
+   --> crates/gateway/src/knowledge_service.rs:439:13
+    |
+439 |             bind_index += 1;
+    |             ^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` on by default
+
+warning: value assigned to `bind_index` is never read
+   --> crates/gateway/src/knowledge_service.rs:593:13
+    |
+593 |             bind_index += 1;
+    |             ^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: unused variable: `count_query_builder`
+   --> crates/gateway/src/knowledge_service.rs:625:17
+    |
+625 |         let mut count_query_builder = sqlx::query::<sqlx::Postgres>(&count_query).bind(&tenant_id);
+    |                 ^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_count_query_builder`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `value`
+   --> crates/gateway/src/knowledge_service.rs:626:13
+    |
+626 |         for value in &bind_values {
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: variable does not need to be mutable
+   --> crates/gateway/src/knowledge_service.rs:625:13
+    |
+625 |         let mut count_query_builder = sqlx::query::<sqlx::Postgres>(&count_query).bind(&tenant_id);
+    |             ----^^^^^^^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> crates/gateway/src/knowledge_service.rs:637:13
+    |
+637 |         let mut query_builder = sqlx::query(&query_str).bind(&tenant_id);
+    |             ----^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `tag`
+    --> crates/gateway/src/knowledge_service.rs:1075:27
+     |
+1075 |                 .map(|(i, tag)| format!("tags::jsonb ? ${}", bind_index + i))
+     |                           ^^^ help: if this is intentional, prefix it with an underscore: `_tag`
+
+warning: value assigned to `query_builder` is never read
+    --> crates/gateway/src/knowledge_service.rs:1498:17
+     |
+1498 |         let mut query_builder = sqlx::query(query).bind(&tenant_id);
+     |                 ^^^^^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+
+warning: unused variable: `final_query`
+    --> crates/gateway/src/knowledge_service.rs:1501:13
+     |
+1501 |         let final_query = if !req.parent_id.is_empty() {
+     |             ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_final_query`
+
+warning: unused variable: `response`
+   --> crates/gateway/src/tenant_service.rs:331:21
+    |
+331 |                 let response = CreateTenantResponse {
+    |                     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_response`
+
+warning: methods `create_success_response` and `create_error_response` are never used
+  --> crates/gateway/src/knowledge_service.rs:36:8
+   |
+30 | impl KnowledgeGrpcService {
+   | ------------------------- methods in this implementation
+...
+36 |     fn create_success_response(&self, message: &str, request_id: &str) -> ApiResponse {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^
+...
+47 |     fn create_error_response(&self, message: &str, request_id: &str) -> ApiResponse {
+   |        ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: field `tenant_id` is never read
+  --> crates/gateway/src/role_permission_service.rs:19:5
+   |
+17 | struct DbRole {
+   |        ------ field in this struct
+18 |     id: Uuid,
+19 |     tenant_id: Uuid,
+   |     ^^^^^^^^^
+   |
+   = note: `DbRole` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: `smartticket-gateway` (lib) generated 22 warnings (run `cargo fix --lib -p smartticket-gateway` to apply 9 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+warning: the following packages contain code that will be rejected by a future version of Rust: cexpr v0.3.6, nom v4.2.3
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running `target/debug/gateway`
+[2m2025-10-16T14:34:52.946085Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 🚀 Starting SmartTicket Gateway Server...
+[2m2025-10-16T14:34:52.949704Z[0m [32m INFO[0m [2msmartticket_shared_config::app_config[0m[2m:[0m Loaded configuration for environment: development
+[2m2025-10-16T14:34:52.949737Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m ✅ Configuration loaded successfully
+[2m2025-10-16T14:34:52.949752Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 📋 Configuration:
+[2m2025-10-16T14:34:52.949831Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m   - gRPC Port: 6533
+[2m2025-10-16T14:34:52.949844Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m   - HTTP Port: 7218
+[2m2025-10-16T14:34:52.949855Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m   - Database: localhost:5434
+[2m2025-10-16T14:34:52.949866Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m   - Redis: localhost:6380
+[2m2025-10-16T14:34:52.949968Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m ✅ Auth service initialized
+[2m2025-10-16T14:34:52.950005Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 🔗 Connecting to database...
+[2m2025-10-16T14:34:52.950040Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m Database URL: postgresql://postgres:***@localhost:5434/smartticket
+[2m2025-10-16T14:34:53.012386Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m ✅ Database connection established
+[2m2025-10-16T14:34:53.012418Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m ✅ Database connection pool created
+[2m2025-10-16T14:34:53.012440Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m ✅ Ticket service initialized with database connection
+[2m2025-10-16T14:34:53.012504Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 🚀 Starting SmartTicket Gateway Server...
+[2m2025-10-16T14:34:53.012511Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 🌟 SmartTicket Gateway is configured successfully!
+[2m2025-10-16T14:34:53.012530Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 📍 gRPC listening on: 0.0.0.0:6533
+[2m2025-10-16T14:34:53.012537Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 🔧 Available services:
+[2m2025-10-16T14:34:53.012542Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m   - TicketService (✅ database operations)
+[2m2025-10-16T14:34:53.012548Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m   - UserService (✅ database operations)
+[2m2025-10-16T14:34:53.012554Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m   - KnowledgeService (✅ database operations - all 12 interfaces)
+[2m2025-10-16T14:34:53.012560Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m   - TenantService (✅ database operations with real billing calculations)
+[2m2025-10-16T14:34:53.012566Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m   - RolePermissionService (⚠️  mock implementation - needs database rewrite)
+[2m2025-10-16T14:34:53.012585Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 🚀 Starting servers...
+[2m2025-10-16T14:34:53.012684Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m ✅ SmartTicket Gateway servers started successfully
+[2m2025-10-16T14:34:53.012692Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 📍 gRPC listening on: 0.0.0.0:6533
+[2m2025-10-16T14:34:53.012698Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 🌐 HTTP listening on: http://0.0.0.0:7218
+[2m2025-10-16T14:34:53.012703Z[0m [32m INFO[0m [2mgateway[0m[2m:[0m 📚 API Documentation available at: http://0.0.0.0:7218/docs
+[2m2025-10-16T14:34:53.012806Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m Starting Gateway server on gRPC port: 6533
+[2m2025-10-16T14:34:53.012977Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m Registering gRPC services:
+[2m2025-10-16T14:34:53.012986Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - AuthService (Login, RefreshToken, etc.)
+[2m2025-10-16T14:34:53.013027Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - TicketService (CreateTicket, GetTicket, UpdateTicket, etc.)
+[2m2025-10-16T14:34:53.013037Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - UserService (CreateUser, GetUser, UpdateUser, etc.)
+[2m2025-10-16T14:34:53.013045Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - KnowledgeService (CreateArticle, GetArticle, SearchArticles, etc.)
+[2m2025-10-16T14:34:53.013058Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - TenantService (CreateTenant, GetTenant, UpdateTenant, etc.)
+[2m2025-10-16T14:34:53.013064Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - RolePermissionService (CreateRole, AssignPermissions, etc.)
+[2m2025-10-16T14:34:53.013071Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m Creating JWT authentication interceptor...
+[2m2025-10-16T14:34:53.013076Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m JWT interceptor created successfully
+[2m2025-10-16T14:34:53.015089Z[0m [31mERROR[0m [2msmartticket_gateway::server[0m[2m:[0m Gateway server failed: transport error
+[2m2025-10-16T14:34:53.015121Z[0m [32m INFO[0m [2msmartticket_gateway::http_server[0m[2m:[0m 🌐 HTTP Server starting on http://0.0.0.0:7218
+[2m2025-10-16T14:34:53.015114Z[0m [31mERROR[0m [2mgateway[0m[2m:[0m ❌ Failed to start gRPC server: Internal server error: transport error
+[2m2025-10-16T14:34:53.015136Z[0m [32m INFO[0m [2msmartticket_gateway::http_server[0m[2m:[0m 📚 API Documentation available at http://0.0.0.0:7218/docs
+[2m2025-10-16T14:34:53.015185Z[0m [31mERROR[0m [2mgateway[0m[2m:[0m gRPC server stopped
+[2m2025-10-16T14:34:53.015242Z[0m [31mERROR[0m [2mgateway[0m[2m:[0m ❌ Failed to start HTTP server: Address already in use (os error 48)

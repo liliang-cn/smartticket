@@ -1,0 +1,323 @@
+syntax = "proto3";
+
+package smartticket.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "smartticket/common.proto";
+import "smartticket/user.proto";
+import "smartticket/ticket.proto";
+
+option go_package = "github.com/smartticket/proto/smartticket/v1;smartticketv1";
+
+// Tenant service definition
+service TenantService {
+  // Create a new tenant
+  // [HTTP] POST /v1/tenants
+  rpc CreateTenant(CreateTenantRequest) returns (CreateTenantResponse) {
+  }
+
+  // Get a tenant by ID
+  // [HTTP] GET /v1/tenants/{tenant_id}
+  rpc GetTenant(GetTenantRequest) returns (GetTenantResponse) {
+  }
+
+  // Get current tenant
+  // [HTTP] GET /v1/tenants/current
+  rpc GetCurrentTenant(GetCurrentTenantRequest) returns (GetCurrentTenantResponse) {
+  }
+
+  // Update tenant information
+  // [HTTP] PUT /v1/tenants/{tenant_id}
+  rpc UpdateTenant(UpdateTenantRequest) returns (UpdateTenantResponse) {
+  }
+
+  // List tenants with filtering and pagination
+  // [HTTP] GET /v1/tenants
+  rpc ListTenants(ListTenantsRequest) returns (ListTenantsResponse) {
+  }
+
+  // Delete a tenant (soft delete)
+  // [HTTP] DELETE /v1/tenants/{tenant_id}
+  rpc DeleteTenant(DeleteTenantRequest) returns (DeleteTenantResponse) {
+  }
+
+  // Activate/deactivate tenant
+  // [HTTP] PATCH /v1/tenants/{tenant_id}/status
+  rpc UpdateTenantStatus(UpdateTenantStatusRequest) returns (UpdateTenantStatusResponse) {
+  }
+
+  // Update tenant subscription
+  // [HTTP] PUT /v1/tenants/{tenant_id}/subscription
+  rpc UpdateSubscription(UpdateSubscriptionRequest) returns (UpdateSubscriptionResponse) {
+  }
+
+  // Get tenant usage statistics
+  // [HTTP] GET /v1/tenants/{tenant_id}/usage
+  rpc GetTenantUsage(GetTenantUsageRequest) returns (GetTenantUsageResponse) {
+  }
+
+  // Get tenant billing information
+  // [HTTP] GET /v1/tenants/{tenant_id}/billing
+  rpc GetTenantBilling(GetTenantBillingRequest) returns (GetTenantBillingResponse) {
+  }
+}
+
+// Enhanced tenant message with billing and usage
+message TenantInfo {
+  string id = 1;
+  string name = 2;
+  string domain = 3;
+  SubscriptionTier subscription_tier = 4;
+  int32 max_users = 5;
+  string data_residency_region = 6;
+  bool is_active = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  int32 current_user_count = 10;
+  google.protobuf.Timestamp subscription_expires_at = 11;
+  bool is_trial = 12;
+  string contact_email = 13;
+  string billing_address = 14;
+  string phone = 15;
+  TenantSettings settings = 16;
+}
+
+// Tenant settings
+message TenantSettings {
+  string default_timezone = 1;
+  string default_language = 2;
+  bool enable_multi_language = 3;
+  bool allow_user_registration = 4;
+  string branding_logo_url = 5;
+  string branding_color = 6;
+  google.protobuf.Struct custom_fields = 7;
+  SecuritySettings security = 8;
+  NotificationSettings notifications = 9;
+}
+
+// Security settings
+message SecuritySettings {
+  bool require_2fa = 1;
+  int32 password_min_length = 2;
+  bool require_password_change = 3;
+  int32 session_timeout_minutes = 4;
+  bool ip_whitelist_enabled = 5;
+  repeated string allowed_ip_ranges = 6;
+}
+
+// Notification settings
+message NotificationSettings {
+  bool email_notifications = 1;
+  bool sms_notifications = 2;
+  bool push_notifications = 3;
+  string default_from_email = 4;
+  string default_from_name = 5;
+  google.protobuf.Struct notification_templates = 6;
+}
+
+// Tenant usage statistics
+message TenantUsage {
+  string tenant_id = 1;
+  int32 total_users = 2;
+  int32 active_users = 3;
+  int32 total_tickets = 4;
+  int32 open_tickets = 5;
+  int64 storage_used_bytes = 6;
+  int32 api_calls_this_month = 7;
+  google.protobuf.Timestamp period_start = 8;
+  google.protobuf.Timestamp period_end = 9;
+  UsageMetrics metrics = 10;
+}
+
+// Detailed usage metrics
+message UsageMetrics {
+  int32 tickets_created = 1;
+  int32 tickets_resolved = 2;
+  int32 avg_resolution_time_hours = 3;
+  int32 knowledge_articles_created = 4;
+  int32 knowledge_article_views = 5;
+  int32 customer_satisfaction_score = 6;
+  repeated UserActivitySummary top_users = 7;
+}
+
+// User activity summary
+message UserActivitySummary {
+  string user_id = 1;
+  string user_name = 2;
+  int32 tickets_handled = 3;
+  int32 tickets_resolved = 4;
+  int32 avg_resolution_time_hours = 5;
+}
+
+// Billing information
+message TenantBilling {
+  string tenant_id = 1;
+  SubscriptionTier current_tier = 2;
+  google.protobuf.Timestamp billing_cycle_start = 3;
+  google.protobuf.Timestamp billing_cycle_end = 4;
+  string currency = 5;
+  double monthly_cost = 6;
+  double current_usage_cost = 7;
+  repeated BillingLineItem line_items = 8;
+  PaymentMethod payment_method = 9;
+  google.protobuf.Timestamp next_billing_date = 10;
+}
+
+// Billing line item
+message BillingLineItem {
+  string item_type = 1;
+  string description = 2;
+  int32 quantity = 3;
+  double unit_price = 4;
+  double total_price = 5;
+}
+
+// Payment method
+message PaymentMethod {
+  string type = 1; // "credit_card", "bank_transfer", "invoice"
+  string last_four = 2;
+  google.protobuf.Timestamp expires_at = 3;
+  bool is_default = 4;
+  string provider = 5;
+}
+
+// Request messages
+message CreateTenantRequest {
+  RequestMetadata metadata = 1;
+  string name = 2;
+  string domain = 3;
+  SubscriptionTier subscription_tier = 4;
+  int32 max_users = 5;
+  string data_residency_region = 6;
+  string contact_email = 7;
+  string billing_address = 8;
+  string phone = 9;
+  TenantSettings settings = 10;
+  PaymentMethod payment_method = 11;
+  bool is_trial = 12;
+}
+
+message GetTenantRequest {
+  RequestMetadata metadata = 1;
+  string tenant_id = 2;
+}
+
+message GetCurrentTenantRequest {
+  RequestMetadata metadata = 1;
+}
+
+message UpdateTenantRequest {
+  RequestMetadata metadata = 1;
+  string tenant_id = 2;
+  string name = 3;
+  string domain = 4;
+  string contact_email = 5;
+  string billing_address = 6;
+  string phone = 7;
+  TenantSettings settings = 8;
+}
+
+message ListTenantsRequest {
+  RequestMetadata metadata = 1;
+  PaginationRequest pagination = 2;
+  repeated SortRequest sort = 3;
+  repeated FilterRequest filters = 4;
+  repeated SubscriptionTier subscription_tiers = 5;
+  bool is_active = 6;
+  string search = 7;
+  string data_residency_region = 8;
+}
+
+message DeleteTenantRequest {
+  RequestMetadata metadata = 1;
+  string tenant_id = 2;
+}
+
+message UpdateTenantStatusRequest {
+  RequestMetadata metadata = 1;
+  string tenant_id = 2;
+  bool is_active = 3;
+  string reason = 4;
+}
+
+message UpdateSubscriptionRequest {
+  RequestMetadata metadata = 1;
+  string tenant_id = 2;
+  SubscriptionTier new_tier = 3;
+  int32 new_max_users = 4;
+  google.protobuf.Timestamp effective_date = 5;
+  bool prorate = 6;
+  string billing_change_reason = 7;
+}
+
+message GetTenantUsageRequest {
+  RequestMetadata metadata = 1;
+  string tenant_id = 2;
+  google.protobuf.Timestamp period_start = 3;
+  google.protobuf.Timestamp period_end = 4;
+  bool include_detailed_metrics = 5;
+}
+
+message GetTenantBillingRequest {
+  RequestMetadata metadata = 1;
+  string tenant_id = 2;
+  google.protobuf.Timestamp billing_period = 3;
+  bool include_line_items = 4;
+}
+
+// Response messages
+message CreateTenantResponse {
+  Response response = 1;
+  TenantInfo tenant = 2;
+  string setup_token = 3; // For initial admin setup
+}
+
+message GetTenantResponse {
+  Response response = 1;
+  TenantInfo tenant = 2;
+}
+
+message GetCurrentTenantResponse {
+  Response response = 1;
+  TenantInfo tenant = 2;
+  repeated User recent_users = 3;
+}
+
+message UpdateTenantResponse {
+  Response response = 1;
+  TenantInfo tenant = 2;
+}
+
+message ListTenantsResponse {
+  Response response = 1;
+  repeated TenantInfo tenants = 2;
+  PaginationResponse pagination = 3;
+}
+
+message DeleteTenantResponse {
+  Response response = 1;
+}
+
+message UpdateTenantStatusResponse {
+  Response response = 1;
+  TenantInfo tenant = 2;
+}
+
+message UpdateSubscriptionResponse {
+  Response response = 1;
+  TenantInfo tenant = 2;
+  TenantBilling billing = 3;
+  bool will_invoice = 4;
+}
+
+message GetTenantUsageResponse {
+  Response response = 1;
+  TenantUsage usage = 2;
+}
+
+message GetTenantBillingResponse {
+  Response response = 1;
+  TenantBilling billing = 2;
+  repeated BillingLineItem upcoming_charges = 3;
+}

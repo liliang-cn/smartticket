@@ -1,0 +1,30 @@
+[package]
+name = "smartticket-notification"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+smartticket-shared-config = { path = "../shared/config" }
+smartticket-shared-error = { path = "../shared/error" }
+smartticket-shared-auth = { path = "../shared/auth" }
+smartticket-shared-database = { path = "../shared/database" }
+
+tonic = { workspace = true }
+tokio = { workspace = true }
+sqlx = { workspace = true }
+redis = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+
+# Notification dependencies
+lettre = "0.11"
+tokio-cron-scheduler = { workspace = true }
+
+[build-dependencies]
+tonic-build = "0.10"

@@ -1,0 +1,283 @@
+syntax = "proto3";
+
+package smartticket.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+import "smartticket/common.proto";
+import "smartticket/ticket.proto";
+
+option go_package = "github.com/smartticket/proto/smartticket/v1;smartticketv1";
+
+// User service definition
+service UserService {
+  // Create a new user
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+  }
+
+  // Get a user by ID
+  // [HTTP] GET /v1/users/{user_id}
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+  }
+
+  // Get current user profile
+  // [HTTP] GET /v1/users/current
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse) {
+  }
+
+  // Update user profile
+  // [HTTP] PUT /v1/users/{user_id}
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+  }
+
+  // Update current user profile
+  // [HTTP] PUT /v1/users/current
+  rpc UpdateCurrentUser(UpdateCurrentUserRequest) returns (UpdateCurrentUserResponse) {
+  }
+
+  // List users with filtering and pagination
+  // [HTTP] GET /v1/users
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+  }
+
+  // Delete a user (soft delete)
+  // [HTTP] DELETE /v1/users/{user_id}
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+  }
+
+  // Activate/deactivate user
+  // [HTTP] PATCH /v1/users/{user_id}/status
+  rpc UpdateUserStatus(UpdateUserStatusRequest) returns (UpdateUserStatusResponse) {
+  }
+
+  // Change user password
+  // [HTTP] POST /v1/auth/change-password
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {
+  }
+
+  // Reset user password (admin only)
+  // [HTTP] POST /v1/auth/reset-password
+  rpc ResetPassword(ResetPasswordRequest) returns (ResetPasswordResponse) {
+  }
+
+  // Get user permissions
+  // [HTTP] GET /v1/users/{user_id}/permissions
+  rpc GetUserPermissions(GetUserPermissionsRequest) returns (GetUserPermissionsResponse) {
+  }
+}
+
+// Authentication service definition
+service AuthService {
+  // User login
+  // [HTTP] POST /v1/auth/login
+  rpc Login(LoginRequest) returns (LoginResponse) {
+  }
+
+  // Refresh access token
+  // [HTTP] POST /v1/auth/refresh
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+  }
+}
+
+// Tenant message
+message Tenant {
+  string id = 1;
+  string name = 2;
+  string domain = 3;
+  SubscriptionTier subscription_tier = 4;
+  int32 max_users = 5;
+  string data_residency_region = 6;
+  bool is_active = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// User profile
+message UserProfile {
+  string user_id = 1;
+  string email = 3;
+  string username = 4;
+  string full_name = 5;
+  string phone = 6;
+  string timezone = 7;
+  string language = 8;
+  google.protobuf.Struct preferences = 9;
+  google.protobuf.Timestamp created_at = 10;
+  google.protobuf.Timestamp updated_at = 11;
+}
+
+// Permission
+message Permission {
+  string resource = 1;
+  repeated string actions = 2;
+}
+
+// Authentication request/response
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+  string tenant_domain = 3;
+  bool remember_me = 4;
+}
+
+message LoginResponse {
+  Response response = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+  User user = 4;
+  google.protobuf.Timestamp expires_at = 5;
+}
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  Response response = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+  google.protobuf.Timestamp expires_at = 4;
+}
+
+// Request messages
+message CreateUserRequest {
+  RequestMetadata metadata = 1;
+  string email = 2;
+  string username = 3;
+  string full_name = 4;
+  string password = 5;
+  UserRole role = 6;
+  string phone = 7;
+  string timezone = 8;
+  string language = 9;
+  google.protobuf.Struct preferences = 10;
+}
+
+message GetUserRequest {
+  RequestMetadata metadata = 1;
+  string user_id = 2;
+}
+
+message GetCurrentUserRequest {
+  RequestMetadata metadata = 1;
+}
+
+message UpdateUserRequest {
+  RequestMetadata metadata = 1;
+  string user_id = 2;
+  string email = 3;
+  string username = 4;
+  string full_name = 5;
+  UserRole role = 6;
+  string phone = 7;
+  string timezone = 8;
+  string language = 9;
+  google.protobuf.Struct preferences = 10;
+}
+
+message UpdateCurrentUserRequest {
+  RequestMetadata metadata = 1;
+  string full_name = 2;
+  string phone = 3;
+  string timezone = 4;
+  string language = 5;
+  google.protobuf.Struct preferences = 6;
+}
+
+message ListUsersRequest {
+  RequestMetadata metadata = 1;
+  PaginationRequest pagination = 2;
+  repeated SortRequest sort = 3;
+  repeated FilterRequest filters = 4;
+  repeated UserRole roles = 5;
+  bool is_active = 6;
+  string search = 7;
+}
+
+message DeleteUserRequest {
+  RequestMetadata metadata = 1;
+  string user_id = 2;
+}
+
+message UpdateUserStatusRequest {
+  RequestMetadata metadata = 1;
+  string user_id = 2;
+  bool is_active = 3;
+  string reason = 4;
+}
+
+message ChangePasswordRequest {
+  RequestMetadata metadata = 1;
+  string current_password = 2;
+  string new_password = 3;
+}
+
+message ResetPasswordRequest {
+  RequestMetadata metadata = 1;
+  string user_id = 2;
+  string temporary_password = 3;
+  bool send_email = 4;
+}
+
+message GetUserPermissionsRequest {
+  RequestMetadata metadata = 1;
+  string user_id = 2;
+}
+
+// Response messages
+message CreateUserResponse {
+  Response response = 1;
+  User user = 2;
+}
+
+message GetUserResponse {
+  Response response = 1;
+  User user = 2;
+  UserProfile profile = 3;
+}
+
+message GetCurrentUserResponse {
+  Response response = 1;
+  User user = 2;
+  UserProfile profile = 3;
+  repeated Permission permissions = 4;
+}
+
+message UpdateUserResponse {
+  Response response = 1;
+  User user = 2;
+}
+
+message UpdateCurrentUserResponse {
+  Response response = 1;
+  UserProfile profile = 2;
+}
+
+message ListUsersResponse {
+  Response response = 1;
+  repeated User users = 2;
+  PaginationResponse pagination = 3;
+}
+
+message DeleteUserResponse {
+  Response response = 1;
+}
+
+message UpdateUserStatusResponse {
+  Response response = 1;
+  User user = 2;
+}
+
+message ChangePasswordResponse {
+  Response response = 1;
+}
+
+message ResetPasswordResponse {
+  Response response = 1;
+  string temporary_password = 2;
+}
+
+message GetUserPermissionsResponse {
+  Response response = 1;
+  repeated Permission permissions = 2;
+}

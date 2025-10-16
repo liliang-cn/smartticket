@@ -1,0 +1,269 @@
+syntax = "proto3";
+
+package smartticket.v1;
+
+import "google/protobuf/timestamp.proto";
+import "smartticket/common.proto";
+
+option go_package = "github.com/smartticket/proto/smartticket/v1;smartticketv1";
+
+// Ticket service definition
+service TicketService {
+  // Create a new ticket
+  rpc CreateTicket(CreateTicketRequest) returns (CreateTicketResponse);
+
+  // Get a ticket by ID
+  rpc GetTicket(GetTicketRequest) returns (GetTicketResponse);
+
+  // Update a ticket
+  rpc UpdateTicket(UpdateTicketRequest) returns (UpdateTicketResponse);
+
+  // List tickets with filtering and pagination
+  rpc ListTickets(ListTicketsRequest) returns (ListTicketsResponse);
+
+  // Delete a ticket (soft delete)
+  rpc DeleteTicket(DeleteTicketRequest) returns (DeleteTicketResponse);
+
+  // Update ticket status
+  rpc UpdateTicketStatus(UpdateTicketStatusRequest) returns (UpdateTicketStatusResponse);
+
+  // Assign ticket to user
+  rpc AssignTicket(AssignTicketRequest) returns (AssignTicketResponse);
+
+  // Add comment to ticket
+  rpc AddComment(AddCommentRequest) returns (AddCommentResponse);
+
+  // Get ticket comments
+  rpc GetComments(GetCommentsRequest) returns (GetCommentsResponse);
+
+  // Search tickets
+  rpc SearchTickets(SearchTicketsRequest) returns (SearchTicketsResponse);
+
+  // Get ticket statistics
+  rpc GetTicketStatistics(GetTicketStatisticsRequest) returns (GetTicketStatisticsResponse);
+}
+
+// Ticket message
+message Ticket {
+  string id = 1;
+  string tenant_id = 2;
+  string ticket_number = 3;
+  string title = 4;
+  string description = 5;
+  TicketStatus status = 6;
+  TicketPriority priority = 7;
+  TicketSeverity severity = 8;
+  string category_id = 9;
+  string contact_id = 10;
+  string assigned_to_id = 11;
+  string created_by_id = 12;
+  google.protobuf.Timestamp resolved_at = 13;
+  google.protobuf.Timestamp closed_at = 14;
+  google.protobuf.Timestamp due_at = 15;
+  string resolution = 16;
+  repeated string tags = 17;
+  google.protobuf.Timestamp created_at = 18;
+  google.protobuf.Timestamp updated_at = 19;
+  User contact = 20;
+  User assigned_to = 21;
+  User created_by = 22;
+  TicketCategory category = 23;
+}
+
+// Ticket category
+message TicketCategory {
+  string id = 1;
+  string tenant_id = 2;
+  string name = 3;
+  string description = 4;
+  string parent_id = 5;
+  string color = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+// Ticket comment
+message TicketComment {
+  string id = 1;
+  string ticket_id = 2;
+  string user_id = 3;
+  string content = 4;
+  bool is_internal = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  User author = 8;
+}
+
+// User message (simplified version)
+message User {
+  string id = 1;
+  string tenant_id = 2;
+  string email = 3;
+  string username = 4;
+  string full_name = 5;
+  UserRole role = 6;
+  bool is_active = 7;
+  google.protobuf.Timestamp last_login_at = 8;
+}
+
+// Request messages
+message CreateTicketRequest {
+  RequestMetadata metadata = 1;
+  string title = 2;
+  string description = 3;
+  TicketPriority priority = 4;
+  TicketSeverity severity = 5;
+  string category_id = 6;
+  string contact_id = 7;
+  repeated string tags = 8;
+}
+
+message GetTicketRequest {
+  RequestMetadata metadata = 1;
+  string ticket_id = 2;
+  bool include_comments = 3;
+}
+
+message UpdateTicketRequest {
+  RequestMetadata metadata = 1;
+  string ticket_id = 2;
+  string title = 3;
+  string description = 4;
+  TicketPriority priority = 5;
+  TicketSeverity severity = 6;
+  string category_id = 7;
+  repeated string tags = 8;
+}
+
+message ListTicketsRequest {
+  RequestMetadata metadata = 1;
+  PaginationRequest pagination = 2;
+  repeated SortRequest sort = 3;
+  repeated FilterRequest filters = 4;
+  repeated string statuses = 5;
+  repeated string priorities = 6;
+  repeated string severities = 7;
+  string assigned_to_id = 8;
+  string contact_id = 9;
+  string category_id = 10;
+  google.protobuf.Timestamp created_after = 11;
+  google.protobuf.Timestamp created_before = 12;
+  google.protobuf.Timestamp due_after = 13;
+  google.protobuf.Timestamp due_before = 14;
+}
+
+message DeleteTicketRequest {
+  RequestMetadata metadata = 1;
+  string ticket_id = 2;
+}
+
+message UpdateTicketStatusRequest {
+  RequestMetadata metadata = 1;
+  string ticket_id = 2;
+  TicketStatus status = 3;
+  string comment = 4;
+}
+
+message AssignTicketRequest {
+  RequestMetadata metadata = 1;
+  string ticket_id = 2;
+  string assigned_to_id = 3;
+  string comment = 4;
+}
+
+message AddCommentRequest {
+  RequestMetadata metadata = 1;
+  string ticket_id = 2;
+  string content = 3;
+  bool is_internal = 4;
+}
+
+message GetCommentsRequest {
+  RequestMetadata metadata = 1;
+  string ticket_id = 2;
+  PaginationRequest pagination = 3;
+}
+
+message SearchTicketsRequest {
+  RequestMetadata metadata = 1;
+  string query = 2;
+  PaginationRequest pagination = 3;
+  repeated FilterRequest filters = 4;
+}
+
+message GetTicketStatisticsRequest {
+  RequestMetadata metadata = 1;
+  string date_from = 2;
+  string date_to = 3;
+}
+
+// Response messages
+message CreateTicketResponse {
+  Response response = 1;
+  Ticket ticket = 2;
+}
+
+message GetTicketResponse {
+  Response response = 1;
+  Ticket ticket = 2;
+  repeated TicketComment comments = 3;
+}
+
+message UpdateTicketResponse {
+  Response response = 1;
+  Ticket ticket = 2;
+}
+
+message ListTicketsResponse {
+  Response response = 1;
+  repeated Ticket tickets = 2;
+  PaginationResponse pagination = 3;
+}
+
+message DeleteTicketResponse {
+  Response response = 1;
+}
+
+message UpdateTicketStatusResponse {
+  Response response = 1;
+  Ticket ticket = 2;
+}
+
+message AssignTicketResponse {
+  Response response = 1;
+  Ticket ticket = 2;
+}
+
+message AddCommentResponse {
+  Response response = 1;
+  TicketComment comment = 2;
+}
+
+message GetCommentsResponse {
+  Response response = 1;
+  repeated TicketComment comments = 2;
+  PaginationResponse pagination = 3;
+}
+
+message SearchTicketsResponse {
+  Response response = 1;
+  repeated Ticket tickets = 2;
+  PaginationResponse pagination = 3;
+  int32 total_matches = 4;
+}
+
+message TicketStatistics {
+  int32 total_tickets = 1;
+  int32 open_tickets = 2;
+  int32 in_progress_tickets = 3;
+  int32 resolved_tickets = 4;
+  int32 closed_tickets = 5;
+  int32 overdue_tickets = 6;
+  double average_resolution_time_hours = 7;
+  double average_response_time_hours = 8;
+}
+
+message GetTicketStatisticsResponse {
+  Response response = 1;
+  TicketStatistics statistics = 2;
+}

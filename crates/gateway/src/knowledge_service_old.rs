@@ -1,0 +1,804 @@
+use std::sync::Arc;
+use tonic::{Request, Response, Status};
+use uuid::Uuid;
+use chrono::{DateTime, Utc};
+
+use crate::smartticket_v1::{
+    knowledge_service_server::KnowledgeService,
+    CreateArticleRequest, CreateArticleResponse,
+    GetArticleRequest, GetArticleResponse,
+    UpdateArticleRequest, UpdateArticleResponse,
+    ListArticlesRequest, ListArticlesResponse,
+    DeleteArticleRequest, DeleteArticleResponse,
+    PublishArticleRequest, PublishArticleResponse,
+    ArchiveArticleRequest, ArchiveArticleResponse,
+    SearchArticlesRequest, SearchArticlesResponse,
+    GetArticleSuggestionsRequest, GetArticleSuggestionsResponse,
+    RateArticleRequest, RateArticleResponse,
+    GetCategoriesRequest, GetCategoriesResponse,
+    CreateCategoryRequest, CreateCategoryResponse,
+    KnowledgeArticle, KnowledgeCategory, ArticleRating,
+    RequestMetadata, Response as ApiResponse,
+    KnowledgeStatus, KnowledgeVisibility,
+    PaginationResponse,
+};
+
+/// Knowledge service implementation
+#[derive(Debug, Clone)]
+pub struct KnowledgeGrpcService {
+    // In a real implementation, this would include database connections, etc.
+    // For now, we'll use in-memory storage for demonstration
+    articles: Arc<tokio::sync::RwLock<std::collections::HashMap<String, KnowledgeArticle>>>,
+    categories: Arc<tokio::sync::RwLock<std::collections::HashMap<String, KnowledgeCategory>>>,
+    ratings: Arc<tokio::sync::RwLock<std::collections::HashMap<String, Vec<ArticleRating>>>>,
+}
+
+impl KnowledgeGrpcService {
+    pub fn new() -> Self {
+        Self {
+            articles: Arc::new(tokio::sync::RwLock::new(std::collections::HashMap::new())),
+            categories: Arc::new(tokio::sync::RwLock::new(std::collections::HashMap::new())),
+            ratings: Arc::new(tokio::sync::RwLock::new(std::collections::HashMap::new())),
+        }
+    }
+
+    /// Extract tenant context from request metadata
+    fn extract_tenant_context(&self, metadata: &RequestMetadata) -> Result<(String, String), Status> {
+        if metadata.tenant_id.is_empty() {
+            return Err(Status::invalid_argument("Missing tenant_id"));
+        }
+        if metadata.user_id.is_empty() {
+            return Err(Status::invalid_argument("Missing user_id"));
+        }
+        Ok((metadata.tenant_id.clone(), metadata.user_id.clone()))
+    }
+
+    /// Generate a new article ID
+    fn generate_article_id(&self) -> String {
+        Uuid::new_v4().to_string()
+    }
+
+    /// Generate a new category ID
+    fn generate_category_id(&self) -> String {
+        Uuid::new_v4().to_string()
+    }
+
+    /// Create response wrapper
+    fn create_response(&self, success: bool, message: &str, request_id: &str) -> ApiResponse {
+        ApiResponse {
+            success,
+            message: message.to_string(),
+            data: None,
+            errors: vec![],
+            request_id: request_id.to_string(),
+        }
+    }
+
+    /// Get request ID from metadata
+    fn get_request_id(&self, metadata: &Option<RequestMetadata>) -> String {
+        metadata.as_ref()
+            .and_then(|m| if m.request_id.is_empty() { None } else { Some(m.request_id.clone()) })
+            .unwrap_or_else(|| Uuid::new_v4().to_string())
+    }
+
+    /// Convert proto KnowledgeStatus to i32
+    fn status_to_i32(&self, status: KnowledgeStatus) -> i32 {
+        status as i32
+    }
+
+    /// Convert proto KnowledgeVisibility to i32
+    fn visibility_to_i32(&self, visibility: KnowledgeVisibility) -> i32 {
+        visibility as i32
+    }
+
+    /// Convert timestamp to protobuf timestamp
+    fn timestamp_to_proto(&self, ts: DateTime<Utc>) -> ::prost_types::Timestamp {
+        ::prost_types::Timestamp {
+            seconds: ts.timestamp(),
+            nanos: ts.timestamp_subsec_nanos() as i32,
+        }
+    }
+
+    /// Convert protobuf timestamp to DateTime<Utc>
+    fn proto_to_timestamp(&self, ts: &::prost_types::Timestamp) -> DateTime<Utc> {
+        DateTime::from_timestamp(ts.seconds, ts.nanos as u32)
+            .unwrap_or_else(|| Utc::now())
+    }
+}
+
+#[tonic::async_trait]
+impl KnowledgeService for KnowledgeGrpcService {
+    /// Create a new knowledge article
+    async fn create_article(
+        &self,
+        request: Request<CreateArticleRequest>,
+    ) -> Result<Response<CreateArticleResponse>, Status> {
+        let req = request.into_inner();
+
+        let request_id = self.get_request_id(&req.metadata);
+
+        // Extract tenant context
+        let (tenant_id, user_id) = match req.metadata.as_ref().ok_or("Missing metadata").and_then(|m| self.extract_tenant_context(m)) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(CreateArticleResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &request_id)),
+                    article: None,
+                }));
+            }
+        };
+
+        // Validate required fields
+        if req.title.is_empty() {
+            return Ok(Response::new(CreateArticleResponse {
+                response: Some(self.create_response(false, "Title is required", &request_id)),
+                article: None,
+            }));
+        }
+
+        // Generate new article
+        let article_id = self.generate_article_id();
+        let now = Utc::now();
+
+        let article = KnowledgeArticle {
+            id: article_id.clone(),
+            tenant_id,
+            title: req.title,
+            content: req.content,
+            summary: req.summary,
+            category_id: req.category_id,
+            author_id: user_id,
+            status: self.status_to_i32(KnowledgeStatus::Draft),
+            visibility: self.visibility_to_i32(req.visibility),
+            language: req.language,
+            tags: req.tags,
+            view_count: 0,
+            helpful_count: 0,
+            not_helpful_count: 0,
+            version: 1,
+            published_at: None,
+            expires_at: req.expires_at,
+            created_at: Some(self.timestamp_to_proto(now)),
+            updated_at: Some(self.timestamp_to_proto(now)),
+            author: None, // Would be populated by joining with users
+            category: None, // Would be populated by joining with categories
+        };
+
+        // Store article
+        let mut articles = self.articles.write().await;
+        articles.insert(article_id.clone(), article.clone());
+
+        Ok(Response::new(CreateArticleResponse {
+            response: Some(self.create_response(true, "Article created successfully", &request_id)),
+            article: Some(article),
+        }))
+    }
+
+    /// Get an article by ID
+    async fn get_article(
+        &self,
+        request: Request<GetArticleRequest>,
+    ) -> Result<Response<GetArticleResponse>, Status> {
+        let req = request.into_inner();
+
+        let request_id = self.get_request_id(&req.metadata);
+
+        // Extract tenant context
+        let (tenant_id, _user_id) = match req.metadata.as_ref().ok_or("Missing metadata").and_then(|m| self.extract_tenant_context(m)) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(GetArticleResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    article: None,
+                    related_articles: vec![],
+                }));
+            }
+        };
+
+        // Get article
+        let articles = self.articles.read().await;
+        if let Some(article) = articles.get(&req.article_id) {
+            // Check tenant access
+            if article.tenant_id != tenant_id {
+                return Ok(Response::new(GetArticleResponse {
+                    response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                    article: None,
+                    related_articles: vec![],
+                }));
+            }
+
+            // TODO: Implement related articles logic
+            let related_articles = vec![];
+
+            Ok(Response::new(GetArticleResponse {
+                response: Some(self.create_response(true, "Article retrieved successfully", &req.metadata.request_id)),
+                article: Some(article.clone()),
+                related_articles,
+            }))
+        } else {
+            Ok(Response::new(GetArticleResponse {
+                response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                article: None,
+                related_articles: vec![],
+            }))
+        }
+    }
+
+    /// Update an article
+    async fn update_article(
+        &self,
+        request: Request<UpdateArticleRequest>,
+    ) -> Result<Response<UpdateArticleResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(UpdateArticleResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    article: None,
+                }));
+            }
+        };
+
+        // Update article
+        let mut articles = self.articles.write().await;
+        if let Some(article) = articles.get_mut(&req.article_id) {
+            // Check tenant access
+            if article.tenant_id != tenant_id {
+                return Ok(Response::new(UpdateArticleResponse {
+                    response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                    article: None,
+                }));
+            }
+
+            // Check permissions (only author or admin can update)
+            if article.author_id != user_id {
+                return Ok(Response::new(UpdateArticleResponse {
+                    response: Some(self.create_response(false, "Permission denied", &req.metadata.request_id)),
+                    article: None,
+                }));
+            }
+
+            // Update fields
+            if !req.title.is_empty() {
+                article.title = req.title;
+            }
+            article.content = req.content;
+            article.summary = req.summary;
+            article.category_id = req.category_id;
+            article.visibility = self.visibility_to_i32(req.visibility);
+            article.language = req.language;
+            article.tags = req.tags;
+            article.expires_at = req.expires_at;
+            article.version += 1;
+            article.updated_at = Some(self.timestamp_to_proto(Utc::now()));
+
+            Ok(Response::new(UpdateArticleResponse {
+                response: Some(self.create_response(true, "Article updated successfully", &req.metadata.request_id)),
+                article: Some(article.clone()),
+            }))
+        } else {
+            Ok(Response::new(UpdateArticleResponse {
+                response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                article: None,
+            }))
+        }
+    }
+
+    /// List articles with filtering and pagination
+    async fn list_articles(
+        &self,
+        request: Request<ListArticlesRequest>,
+    ) -> Result<Response<ListArticlesResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, _user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(ListArticlesResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    articles: vec![],
+                    pagination: None,
+                }));
+            }
+        };
+
+        // Get all articles for tenant
+        let articles = self.articles.read().await;
+        let mut filtered_articles: Vec<&KnowledgeArticle> = articles
+            .values()
+            .filter(|article| article.tenant_id == tenant_id)
+            .collect();
+
+        // Apply filters
+        if !req.statuses.is_empty() {
+            filtered_articles.retain(|article| req.statuses.contains(&article.status));
+        }
+
+        if !req.visibilities.is_empty() {
+            filtered_articles.retain(|article| req.visibilities.contains(&article.visibility));
+        }
+
+        if !req.category_id.is_empty() {
+            filtered_articles.retain(|article| article.category_id == req.category_id);
+        }
+
+        if !req.author_id.is_empty() {
+            filtered_articles.retain(|article| article.author_id == req.author_id);
+        }
+
+        // TODO: Implement pagination
+        let page_size = req.pagination.as_ref().map_or(20, |p| p.page_size);
+        let start_index = 0;
+        let end_index = std::cmp::min(start_index + page_size as usize, filtered_articles.len());
+
+        let paginated_articles: Vec<KnowledgeArticle> = filtered_articles[start_index..end_index]
+            .iter()
+            .map(|article| (*article).clone())
+            .collect();
+
+        let pagination_response = PaginationResponse {
+            total_count: filtered_articles.len() as i32,
+            page_size: req.pagination.as_ref().map_or(20, |p| p.page_size),
+            next_page_token: if end_index < filtered_articles.len() {
+                format!("{}", end_index)
+            } else {
+                String::new()
+            },
+            prev_page_token: String::new(),
+        };
+
+        Ok(Response::new(ListArticlesResponse {
+            response: Some(self.create_response(true, "Articles retrieved successfully", &req.metadata.request_id)),
+            articles: paginated_articles,
+            pagination: Some(pagination_response),
+        }))
+    }
+
+    /// Delete an article (soft delete)
+    async fn delete_article(
+        &self,
+        request: Request<DeleteArticleRequest>,
+    ) -> Result<Response<DeleteArticleResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(DeleteArticleResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                }));
+            }
+        };
+
+        // Delete article
+        let mut articles = self.articles.write().await;
+        if let Some(article) = articles.get_mut(&req.article_id) {
+            // Check tenant access
+            if article.tenant_id != tenant_id {
+                return Ok(Response::new(DeleteArticleResponse {
+                    response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                }));
+            }
+
+            // Check permissions (only author or admin can delete)
+            if article.author_id != user_id {
+                return Ok(Response::new(DeleteArticleResponse {
+                    response: Some(self.create_response(false, "Permission denied", &req.metadata.request_id)),
+                }));
+            }
+
+            // Soft delete by changing status to archived
+            article.status = self.status_to_i32(KnowledgeStatus::Archived);
+            article.updated_at = Some(self.timestamp_to_proto(Utc::now()));
+
+            Ok(Response::new(DeleteArticleResponse {
+                response: Some(self.create_response(true, "Article deleted successfully", &req.metadata.request_id)),
+            }))
+        } else {
+            Ok(Response::new(DeleteArticleResponse {
+                response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+            }))
+        }
+    }
+
+    /// Publish an article
+    async fn publish_article(
+        &self,
+        request: Request<PublishArticleRequest>,
+    ) -> Result<Response<PublishArticleResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(PublishArticleResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    article: None,
+                }));
+            }
+        };
+
+        // Publish article
+        let mut articles = self.articles.write().await;
+        if let Some(article) = articles.get_mut(&req.article_id) {
+            // Check tenant access
+            if article.tenant_id != tenant_id {
+                return Ok(Response::new(PublishArticleResponse {
+                    response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                    article: None,
+                }));
+            }
+
+            // Check permissions (only author or admin can publish)
+            if article.author_id != user_id {
+                return Ok(Response::new(PublishArticleResponse {
+                    response: Some(self.create_response(false, "Permission denied", &req.metadata.request_id)),
+                    article: None,
+                }));
+            }
+
+            // Publish article
+            article.status = self.status_to_i32(KnowledgeStatus::Published);
+            article.published_at = Some(self.timestamp_to_proto(Utc::now()));
+            article.updated_at = Some(self.timestamp_to_proto(Utc::now()));
+
+            Ok(Response::new(PublishArticleResponse {
+                response: Some(self.create_response(true, "Article published successfully", &req.metadata.request_id)),
+                article: Some(article.clone()),
+            }))
+        } else {
+            Ok(Response::new(PublishArticleResponse {
+                response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                article: None,
+            }))
+        }
+    }
+
+    /// Archive an article
+    async fn archive_article(
+        &self,
+        request: Request<ArchiveArticleRequest>,
+    ) -> Result<Response<ArchiveArticleResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(ArchiveArticleResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    article: None,
+                }));
+            }
+        };
+
+        // Archive article
+        let mut articles = self.articles.write().await;
+        if let Some(article) = articles.get_mut(&req.article_id) {
+            // Check tenant access
+            if article.tenant_id != tenant_id {
+                return Ok(Response::new(ArchiveArticleResponse {
+                    response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                    article: None,
+                }));
+            }
+
+            // Check permissions (only author or admin can archive)
+            if article.author_id != user_id {
+                return Ok(Response::new(ArchiveArticleResponse {
+                    response: Some(self.create_response(false, "Permission denied", &req.metadata.request_id)),
+                    article: None,
+                }));
+            }
+
+            // Archive article
+            article.status = self.status_to_i32(KnowledgeStatus::Archived);
+            article.updated_at = Some(self.timestamp_to_proto(Utc::now()));
+
+            Ok(Response::new(ArchiveArticleResponse {
+                response: Some(self.create_response(true, "Article archived successfully", &req.metadata.request_id)),
+                article: Some(article.clone()),
+            }))
+        } else {
+            Ok(Response::new(ArchiveArticleResponse {
+                response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                article: None,
+            }))
+        }
+    }
+
+    /// Search knowledge articles
+    async fn search_articles(
+        &self,
+        request: Request<SearchArticlesRequest>,
+    ) -> Result<Response<SearchArticlesResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, _user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(SearchArticlesResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    articles: vec![],
+                    pagination: None,
+                    total_matches: 0,
+                }));
+            }
+        };
+
+        // Simple text search implementation
+        let articles = self.articles.read().await;
+        let search_terms: Vec<String> = req.query
+            .split_whitespace()
+            .map(|term| term.to_lowercase())
+            .collect();
+
+        let mut matched_articles: Vec<&KnowledgeArticle> = articles
+            .values()
+            .filter(|article| {
+                article.tenant_id == tenant_id &&
+                (req.only_published && article.status == self.status_to_i32(KnowledgeStatus::Published) || !req.only_published)
+            })
+            .filter(|article| {
+                if search_terms.is_empty() {
+                    return true;
+                }
+
+                let title_lower = article.title.to_lowercase();
+                let content_lower = article.content.to_lowercase();
+                let summary_lower = article.summary.to_lowercase();
+
+                search_terms.iter().all(|term| {
+                    title_lower.contains(term) || content_lower.contains(term) || summary_lower.contains(term)
+                })
+            })
+            .collect();
+
+        // Apply additional filters
+        if !req.category_id.is_empty() {
+            matched_articles.retain(|article| article.category_id == req.category_id);
+        }
+
+        if !req.language.is_empty() {
+            matched_articles.retain(|article| article.language == req.language);
+        }
+
+        if !req.tags.is_empty() {
+            matched_articles.retain(|article| {
+                req.tags.iter().any(|tag| article.tags.contains(tag))
+            });
+        }
+
+        // TODO: Implement proper search ranking and pagination
+        let total_matches = matched_articles.len();
+        let page_size = req.pagination.as_ref().map_or(10, |p| p.page_size);
+        let start_index = 0;
+        let end_index = std::cmp::min(start_index + page_size as usize, matched_articles.len());
+
+        let paginated_articles: Vec<KnowledgeArticle> = matched_articles[start_index..end_index]
+            .iter()
+            .map(|article| (*article).clone())
+            .collect();
+
+        let pagination_response = PaginationResponse {
+            total_count: total_matches as i32,
+            page_size: req.pagination.as_ref().map_or(10, |p| p.page_size),
+            next_page_token: if end_index < matched_articles.len() {
+                format!("{}", end_index)
+            } else {
+                String::new()
+            },
+            prev_page_token: String::new(),
+        };
+
+        Ok(Response::new(SearchArticlesResponse {
+            response: Some(self.create_response(true, "Search completed successfully", &req.metadata.request_id)),
+            articles: paginated_articles,
+            pagination: Some(pagination_response),
+            total_matches: total_matches as i32,
+        }))
+    }
+
+    /// Get article suggestions for a ticket
+    async fn get_article_suggestions(
+        &self,
+        request: Request<GetArticleSuggestionsRequest>,
+    ) -> Result<Response<GetArticleSuggestionsResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, _user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(GetArticleSuggestionsResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    suggestions: vec![],
+                }));
+            }
+        };
+
+        // Simple suggestion implementation based on title and description
+        let articles = self.articles.read().await;
+        let search_text = format!("{} {}", req.ticket_title, req.ticket_description).to_lowercase();
+
+        let suggestions: Vec<&KnowledgeArticle> = articles
+            .values()
+            .filter(|article| {
+                article.tenant_id == tenant_id &&
+                article.status == self.status_to_i32(KnowledgeStatus::Published)
+            })
+            .filter(|article| {
+                let title_lower = article.title.to_lowercase();
+                let content_lower = article.content.to_lowercase();
+
+                // Check if any search terms match
+                let search_terms: Vec<&str> = search_text.split_whitespace().collect();
+                search_terms.iter().any(|term| {
+                    title_lower.contains(term) || content_lower.contains(term)
+                })
+            })
+            .take(req.limit.max(1) as usize) // Ensure limit is at least 1
+            .collect();
+
+        Ok(Response::new(GetArticleSuggestionsResponse {
+            response: Some(self.create_response(true, "Suggestions retrieved successfully", &req.metadata.request_id)),
+            suggestions: suggestions.into_iter().cloned().collect(),
+        }))
+    }
+
+    /// Rate article helpfulness
+    async fn rate_article(
+        &self,
+        request: Request<RateArticleRequest>,
+    ) -> Result<Response<RateArticleResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(RateArticleResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    helpful_count: 0,
+                    not_helpful_count: 0,
+                }));
+            }
+        };
+
+        // Check if article exists and user can access it
+        let articles = self.articles.read().await;
+        if let Some(article) = articles.get(&req.article_id) {
+            if article.tenant_id != tenant_id {
+                return Ok(Response::new(RateArticleResponse {
+                    response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                    helpful_count: 0,
+                    not_helpful_count: 0,
+                }));
+            }
+
+            // Create rating
+            let rating = ArticleRating {
+                id: Uuid::new_v4().to_string(),
+                article_id: req.article_id,
+                user_id,
+                is_helpful: req.is_helpful,
+                comment: req.comment,
+                created_at: Some(self.timestamp_to_proto(Utc::now())),
+            };
+
+            // Store rating
+            let mut ratings = self.ratings.write().await;
+            let article_ratings = ratings.entry(req.article_id.clone()).or_insert_with(Vec::new);
+            article_ratings.push(rating);
+
+            // Count ratings
+            let helpful_count = article_ratings.iter().filter(|r| r.is_helpful).count() as i32;
+            let not_helpful_count = article_ratings.iter().filter(|r| !r.is_helpful).count() as i32;
+
+            Ok(Response::new(RateArticleResponse {
+                response: Some(self.create_response(true, "Rating submitted successfully", &req.metadata.request_id)),
+                helpful_count,
+                not_helpful_count,
+            }))
+        } else {
+            Ok(Response::new(RateArticleResponse {
+                response: Some(self.create_response(false, "Article not found", &req.metadata.request_id)),
+                helpful_count: 0,
+                not_helpful_count: 0,
+            }))
+        }
+    }
+
+    /// Get article categories
+    async fn get_categories(
+        &self,
+        request: Request<GetCategoriesRequest>,
+    ) -> Result<Response<GetCategoriesResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, _user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(GetCategoriesResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    categories: vec![],
+                }));
+            }
+        };
+
+        // Get categories for tenant
+        let categories = self.categories.read().await;
+        let tenant_categories: Vec<&KnowledgeCategory> = categories
+            .values()
+            .filter(|category| category.tenant_id == tenant_id)
+            .filter(|category| {
+                req.parent_id.is_empty() || category.parent_id == req.parent_id
+            })
+            .collect();
+
+        Ok(Response::new(GetCategoriesResponse {
+            response: Some(self.create_response(true, "Categories retrieved successfully", &req.metadata.request_id)),
+            categories: tenant_categories.iter().cloned().collect(),
+        }))
+    }
+
+    /// Create article category
+    async fn create_category(
+        &self,
+        request: Request<CreateCategoryRequest>,
+    ) -> Result<Response<CreateCategoryResponse>, Status> {
+        let req = request.into_inner();
+
+        // Extract tenant context
+        let (tenant_id, _user_id) = match self.extract_tenant_context(&req.metadata) {
+            Ok(ctx) => ctx,
+            Err(e) => {
+                return Ok(Response::new(CreateCategoryResponse {
+                    response: Some(self.create_response(false, &e.to_string(), &req.metadata.request_id)),
+                    category: None,
+                }));
+            }
+        };
+
+        // Validate required fields
+        if req.name.is_empty() {
+            return Ok(Response::new(CreateCategoryResponse {
+                response: Some(self.create_response(false, "Category name is required", &req.metadata.request_id)),
+                category: None,
+            }));
+        }
+
+        // Create new category
+        let category_id = self.generate_category_id();
+        let now = Utc::now();
+
+        let category = KnowledgeCategory {
+            id: category_id.clone(),
+            tenant_id,
+            name: req.name,
+            description: req.description,
+            parent_id: req.parent_id,
+            icon: req.icon,
+            created_at: Some(self.timestamp_to_proto(now)),
+            updated_at: Some(self.timestamp_to_proto(now)),
+            children: vec![], // TODO: Implement hierarchy
+        };
+
+        // Store category
+        let mut categories = self.categories.write().await;
+        categories.insert(category_id.clone(), category.clone());
+
+        Ok(Response::new(CreateCategoryResponse {
+            response: Some(self.create_response(true, "Category created successfully", &req.metadata.request_id)),
+            category: Some(category),
+        }))
+    }
+}

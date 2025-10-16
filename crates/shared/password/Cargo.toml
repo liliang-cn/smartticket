@@ -1,0 +1,16 @@
+[package]
+name = "smartticket-shared-password"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+smartticket-shared-error = { path = "../error" }
+smartticket-shared-config = { path = "../config" }
+
+argon2 = "0.5"
+rand = "0.8"
+thiserror = { workspace = true }
+tracing = { workspace = true }
+validator = { workspace = true }

@@ -1,0 +1,93 @@
+[workspace]
+members = [
+    "crates/gateway",
+    "crates/core",
+    "crates/ai",
+    "crates/platform",
+    "crates/notification",
+    "crates/shared/config",
+    "crates/shared/database",
+    "crates/shared/auth",
+    "crates/shared/metrics",
+    "crates/shared/error",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["SmartTicket Team"]
+license = "MIT"
+homepage = "https://github.com/smartticket/smartticket"
+repository = "https://github.com/smartticket/smartticket"
+rust-version = "1.75"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+tokio-util = "0.7"
+
+# gRPC and HTTP
+tonic = "0.10"
+prost = "0.12"
+prost-types = "0.12"
+hyper = "1.0"
+axum = "0.7"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
+# Database
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "json", "migrate"] }
+redis = { version = "0.24", features = ["tokio-comp"] }
+pgvector = { version = "0.3", features = ["sqlx"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Time and UUID
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.6", features = ["v4", "serde"] }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Tracing and logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-opentelemetry = "0.21"
+opentelemetry = { version = "0.21", features = ["rt-tokio"] }
+opentelemetry_sdk = { version = "0.21", features = ["rt-tokio"] }
+opentelemetry-jaeger = { version = "0.20", features = ["rt-tokio"] }
+
+# Metrics
+prometheus = "0.13"
+metrics = "0.22"
+metrics-exporter-prometheus = "0.13"
+
+# Authentication
+jsonwebtoken = "9.2"
+argonautica = "0.2"
+
+# Configuration
+config = "0.14"
+dotenvy = "0.15"
+
+# HTTP client (for external services)
+reqwest = { version = "0.11", features = ["json"] }
+
+# Background jobs
+tokio-cron-scheduler = "0.10"
+
+# Validation
+validator = { version = "0.18", features = ["derive"] }
+
+# Testing
+mockall = "0.12"
+tempfile = "3.8"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

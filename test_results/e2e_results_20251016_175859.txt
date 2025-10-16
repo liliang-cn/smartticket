@@ -1,0 +1,342 @@
+SmartTicket E2E Test Results
+Generated: 2025年10月16日 星期四 17时58分59秒 CST
+Environment: localhost:50051
+Test Tenant: test.smartticket.com
+
+RESULT: FAILED
+
+[0;34m[INFO][0m Starting Authentication Service E2E Tests
+[0;34m[INFO][0m ==========================================
+[0;34m[INFO][0m Running test suite: Authentication Service Tests
+[0;34m[INFO][0m ==================================
+[0;34m[INFO][0m Running test: test_user_login_valid_credentials
+[0;34m[INFO][0m Testing user login with valid credentials
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making unauthenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Access token should not be empty
+[0;32m[SUCCESS][0m Refresh token should not be empty
+[0;32m[SUCCESS][0m User ID should not be empty
+[0;32m[SUCCESS][0m Email should match
+[0;32m[SUCCESS][0m Login with valid credentials successful
+[0;32m[SUCCESS][0m ✓ test_user_login_valid_credentials - PASSED
+
+[0;34m[INFO][0m Running test: test_user_login_invalid_password
+[0;34m[INFO][0m Testing user login with invalid password
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making unauthenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Login with invalid password correctly failed
+[0;32m[SUCCESS][0m ✓ test_user_login_invalid_password - PASSED
+
+[0;34m[INFO][0m Running test: test_user_login_nonexistent_user
+[0;34m[INFO][0m Testing user login with non-existent user
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making unauthenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Login with non-existent user correctly failed
+[0;32m[SUCCESS][0m ✓ test_user_login_nonexistent_user - PASSED
+
+[0;34m[INFO][0m Running test: test_user_login_invalid_tenant
+[0;34m[INFO][0m Testing user login with invalid tenant domain
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making unauthenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Login with invalid tenant domain correctly failed
+[0;32m[SUCCESS][0m ✓ test_user_login_invalid_tenant - PASSED
+
+[0;34m[INFO][0m Running test: test_token_refresh
+[0;34m[INFO][0m Testing token refresh
+[0;34m[INFO][0m Logging in user: admin@test.smartticket.com
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making unauthenticated gRPC call to localhost:50051
+gRPC call successful
+[0;34m[INFO][0m Login response: {
+  "response": {
+    "success": true,
+    "message": "Login successful",
+    "requestId": "51036ca1-0111-4a0e-ab9a-ecb10199f4f1"
+  },
+  "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NDE2IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQyLCJpYXQiOjE3NjA2MDg3NDIsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.gyd32wvo7yNXzWoVsIflDkTJU4Cx6D8U_UMzcoB5F4U",
+  "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NDE2IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQyLCJpYXQiOjE3NjA2MDg3NDIsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.gyd32wvo7yNXzWoVsIflDkTJU4Cx6D8U_UMzcoB5F4U",
+  "user": {
+    "id": "94243c31-f2a0-4b61-8fd1-9e0aba93f7a3",
+    "tenantId": "3775b83c-f1f8-469f-b323-1be5b1c94a56",
+    "email": "admin@test.smartticket.com",
+    "username": "admin",
+    "fullName": "Updated Admin Name 1760608416",
+    "role": "USER_ROLE_TENANT_ADMIN",
+    "isActive": true,
+    "lastLoginAt": "2025-10-16T09:59:00.663304Z"
+  },
+  "expiresAt": "2025-10-17T09:59:02.284819Z"
+}
+[0;32m[SUCCESS][0m Login successful - User ID: 94243c31-f2a0-4b61-8fd1-9e0aba93f7a3, Tenant ID: 3775b83c-f1f8-469f-b323-1be5b1c94a56
+[0;34m[INFO][0m Refreshing access token
+Calling gRPC: smartticket.v1.AuthService.RefreshToken
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Token refreshed successfully
+[0;32m[SUCCESS][0m Access token was refreshed correctly
+[0;32m[SUCCESS][0m ✓ test_token_refresh - PASSED
+
+[0;34m[INFO][0m Running test: test_token_refresh_invalid_token
+[0;34m[INFO][0m Testing token refresh with invalid token
+Calling gRPC: smartticket.v1.AuthService.RefreshToken
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Token refresh with invalid token correctly failed
+[0;32m[SUCCESS][0m ✓ test_token_refresh_invalid_token - PASSED
+
+[0;34m[INFO][0m Running test: test_create_user
+[0;34m[INFO][0m Testing user creation
+[0;34m[INFO][0m Logging in user: admin@test.smartticket.com
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;34m[INFO][0m Login response: {
+  "response": {
+    "success": true,
+    "message": "Login successful",
+    "requestId": "8b4e02f1-6f5c-412c-ae85-08702073eb24"
+  },
+  "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NDE2IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ1LCJpYXQiOjE3NjA2MDg3NDUsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.eJgkRlk4Lz78bOZPKozDkISESpzTrd3h6TUmeI1Bt00",
+  "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NDE2IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ1LCJpYXQiOjE3NjA2MDg3NDUsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.eJgkRlk4Lz78bOZPKozDkISESpzTrd3h6TUmeI1Bt00",
+  "user": {
+    "id": "94243c31-f2a0-4b61-8fd1-9e0aba93f7a3",
+    "tenantId": "3775b83c-f1f8-469f-b323-1be5b1c94a56",
+    "email": "admin@test.smartticket.com",
+    "username": "admin",
+    "fullName": "Updated Admin Name 1760608416",
+    "role": "USER_ROLE_TENANT_ADMIN",
+    "isActive": true,
+    "lastLoginAt": "2025-10-16T09:59:02.280753Z"
+  },
+  "expiresAt": "2025-10-17T09:59:05.159250Z"
+}
+[0;32m[SUCCESS][0m Login successful - User ID: 94243c31-f2a0-4b61-8fd1-9e0aba93f7a3, Tenant ID: 3775b83c-f1f8-469f-b323-1be5b1c94a56
+Calling gRPC: smartticket.v1.UserService.CreateUser
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Created user ID should not be empty
+[0;32m[SUCCESS][0m Created user email should match
+[0;32m[SUCCESS][0m Created user username should match
+[0;32m[SUCCESS][0m User creation successful
+[0;32m[SUCCESS][0m ✓ test_create_user - PASSED
+
+[0;34m[INFO][0m Running test: test_get_current_user
+[0;34m[INFO][0m Testing get current user
+[0;34m[INFO][0m Logging in user: admin@test.smartticket.com
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;34m[INFO][0m Login response: {
+  "response": {
+    "success": true,
+    "message": "Login successful",
+    "requestId": "68682c4b-ebd7-47d8-96b3-e0e28aaf23b4"
+  },
+  "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NDE2IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ2LCJpYXQiOjE3NjA2MDg3NDYsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.dG-xbyeiBnaAeo89H7UyE4a0PkOOJ_KSYsMEg_G7Oek",
+  "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NDE2IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ2LCJpYXQiOjE3NjA2MDg3NDYsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.dG-xbyeiBnaAeo89H7UyE4a0PkOOJ_KSYsMEg_G7Oek",
+  "user": {
+    "id": "94243c31-f2a0-4b61-8fd1-9e0aba93f7a3",
+    "tenantId": "3775b83c-f1f8-469f-b323-1be5b1c94a56",
+    "email": "admin@test.smartticket.com",
+    "username": "admin",
+    "fullName": "Updated Admin Name 1760608416",
+    "role": "USER_ROLE_TENANT_ADMIN",
+    "isActive": true,
+    "lastLoginAt": "2025-10-16T09:59:05.156511Z"
+  },
+  "expiresAt": "2025-10-17T09:59:06.725274Z"
+}
+[0;32m[SUCCESS][0m Login successful - User ID: 94243c31-f2a0-4b61-8fd1-9e0aba93f7a3, Tenant ID: 3775b83c-f1f8-469f-b323-1be5b1c94a56
+Calling gRPC: smartticket.v1.UserService.GetCurrentUser
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Current user ID should match
+[0;32m[SUCCESS][0m Current user email should match
+[0;32m[SUCCESS][0m Current user full name should not be empty
+[0;32m[SUCCESS][0m Get current user successful
+[0;32m[SUCCESS][0m ✓ test_get_current_user - PASSED
+
+[0;34m[INFO][0m Running test: test_update_current_user
+[0;34m[INFO][0m Testing update current user profile
+[0;34m[INFO][0m Logging in user: admin@test.smartticket.com
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;34m[INFO][0m Login response: {
+  "response": {
+    "success": true,
+    "message": "Login successful",
+    "requestId": "97233d83-f2d9-4de9-89c7-96e5b72823df"
+  },
+  "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NDE2IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ3LCJpYXQiOjE3NjA2MDg3NDcsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.nnjmi1Ft4sOlOmHknPk9ZEB2ZsaRVqNgIUUArYlO5Eo",
+  "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NDE2IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ3LCJpYXQiOjE3NjA2MDg3NDcsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.nnjmi1Ft4sOlOmHknPk9ZEB2ZsaRVqNgIUUArYlO5Eo",
+  "user": {
+    "id": "94243c31-f2a0-4b61-8fd1-9e0aba93f7a3",
+    "tenantId": "3775b83c-f1f8-469f-b323-1be5b1c94a56",
+    "email": "admin@test.smartticket.com",
+    "username": "admin",
+    "fullName": "Updated Admin Name 1760608416",
+    "role": "USER_ROLE_TENANT_ADMIN",
+    "isActive": true,
+    "lastLoginAt": "2025-10-16T09:59:06.722774Z"
+  },
+  "expiresAt": "2025-10-17T09:59:07.544341Z"
+}
+[0;32m[SUCCESS][0m Login successful - User ID: 94243c31-f2a0-4b61-8fd1-9e0aba93f7a3, Tenant ID: 3775b83c-f1f8-469f-b323-1be5b1c94a56
+Calling gRPC: smartticket.v1.UserService.UpdateCurrentUser
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;31m[ERROR][0m Updated full name should match: Expected 'Updated Admin Name 1760608747', got 'null'
+[0;31m[ERROR][0m ✗ test_update_current_user - FAILED
+
+[0;34m[INFO][0m Running test: test_change_password
+[0;34m[INFO][0m Testing password change
+[0;34m[INFO][0m Logging in user: admin@test.smartticket.com
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;34m[INFO][0m Login response: {
+  "response": {
+    "success": true,
+    "message": "Login successful",
+    "requestId": "8507e5e9-bac3-4c04-bfc6-dacdce435575"
+  },
+  "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NzQ3IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ4LCJpYXQiOjE3NjA2MDg3NDgsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.KQjaTyLMA7zJR-iTP6Q9DMFqUbcUgWuwBWl2oFRwJGM",
+  "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NzQ3IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ4LCJpYXQiOjE3NjA2MDg3NDgsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.KQjaTyLMA7zJR-iTP6Q9DMFqUbcUgWuwBWl2oFRwJGM",
+  "user": {
+    "id": "94243c31-f2a0-4b61-8fd1-9e0aba93f7a3",
+    "tenantId": "3775b83c-f1f8-469f-b323-1be5b1c94a56",
+    "email": "admin@test.smartticket.com",
+    "username": "admin",
+    "fullName": "Updated Admin Name 1760608747",
+    "role": "USER_ROLE_TENANT_ADMIN",
+    "isActive": true,
+    "lastLoginAt": "2025-10-16T09:59:07.541897Z"
+  },
+  "expiresAt": "2025-10-17T09:59:08.362356Z"
+}
+[0;32m[SUCCESS][0m Login successful - User ID: 94243c31-f2a0-4b61-8fd1-9e0aba93f7a3, Tenant ID: 3775b83c-f1f8-469f-b323-1be5b1c94a56
+Calling gRPC: smartticket.v1.UserService.ChangePassword
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Password change successful
+[0;34m[INFO][0m Logging out user
+[0;34m[INFO][0m Logging in user: admin@test.smartticket.com
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making unauthenticated gRPC call to localhost:50051
+gRPC call successful
+[0;34m[INFO][0m Login response: {
+  "response": {
+    "success": true,
+    "message": "Login successful",
+    "requestId": "f9179f02-a7bc-451d-b0a1-6d9b579fa829"
+  },
+  "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NzQ3IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ5LCJpYXQiOjE3NjA2MDg3NDksImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.UL8wGA3_orp7PTnKoOfHXltNMXtRl-kZHoQU4a39Hq4",
+  "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NzQ3IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTQ5LCJpYXQiOjE3NjA2MDg3NDksImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.UL8wGA3_orp7PTnKoOfHXltNMXtRl-kZHoQU4a39Hq4",
+  "user": {
+    "id": "94243c31-f2a0-4b61-8fd1-9e0aba93f7a3",
+    "tenantId": "3775b83c-f1f8-469f-b323-1be5b1c94a56",
+    "email": "admin@test.smartticket.com",
+    "username": "admin",
+    "fullName": "Updated Admin Name 1760608747",
+    "role": "USER_ROLE_TENANT_ADMIN",
+    "isActive": true,
+    "lastLoginAt": "2025-10-16T09:59:08.358495Z"
+  },
+  "expiresAt": "2025-10-17T09:59:09.915045Z"
+}
+[0;32m[SUCCESS][0m Login successful - User ID: 94243c31-f2a0-4b61-8fd1-9e0aba93f7a3, Tenant ID: 3775b83c-f1f8-469f-b323-1be5b1c94a56
+[0;32m[SUCCESS][0m Login with new password successful
+[0;32m[SUCCESS][0m ✓ test_change_password - PASSED
+
+[0;34m[INFO][0m Running test: test_get_user_permissions
+[0;34m[INFO][0m Testing get user permissions
+[0;34m[INFO][0m Logging in user: admin@test.smartticket.com
+Calling gRPC: smartticket.v1.AuthService.Login
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;34m[INFO][0m Login response: {
+  "response": {
+    "success": true,
+    "message": "Login successful",
+    "requestId": "d2f96759-59a9-4934-aa95-1ccd09c722dd"
+  },
+  "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NzQ3IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTUxLCJpYXQiOjE3NjA2MDg3NTEsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.en_PN_rNRsG9wU9n-Bz2jHyQuOei28KCZDnIbRyFjRk",
+  "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5NDI0M2MzMS1mMmEwLTRiNjEtOGZkMS05ZTBhYmE5M2Y3YTMiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlVwZGF0ZWQgQWRtaW4gTmFtZSAxNzYwNjA4NzQ3IiwidGVuYW50X2lkIjoiMzc3NWI4M2MtZjFmOC00NjlmLWIzMjMtMWJlNWIxYzk0YTU2Iiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInRpY2tldDpjcmVhdGUiLCJ0aWNrZXQ6dmlldyIsInRpY2tldDp1cGRhdGUiLCJ0aWNrZXQ6ZGVsZXRlIiwidGlja2V0OmFzc2lnbiIsImtub3dsZWRnZTpjcmVhdGUiLCJrbm93bGVkZ2U6dmlldyIsImtub3dsZWRnZTp1cGRhdGUiLCJrbm93bGVkZ2U6ZGVsZXRlIiwia25vd2xlZGdlOnB1Ymxpc2giXSwiZXhwIjoxNzYwNjk1MTUxLCJpYXQiOjE3NjA2MDg3NTEsImlzcyI6InNtYXJ0dGlja2V0IiwiYXVkIjoic21hcnR0aWNrZXQtY2xpZW50In0.en_PN_rNRsG9wU9n-Bz2jHyQuOei28KCZDnIbRyFjRk",
+  "user": {
+    "id": "94243c31-f2a0-4b61-8fd1-9e0aba93f7a3",
+    "tenantId": "3775b83c-f1f8-469f-b323-1be5b1c94a56",
+    "email": "admin@test.smartticket.com",
+    "username": "admin",
+    "fullName": "Updated Admin Name 1760608747",
+    "role": "USER_ROLE_TENANT_ADMIN",
+    "isActive": true,
+    "lastLoginAt": "2025-10-16T09:59:09.912487Z"
+  },
+  "expiresAt": "2025-10-17T09:59:11.463991Z"
+}
+[0;32m[SUCCESS][0m Login successful - User ID: 94243c31-f2a0-4b61-8fd1-9e0aba93f7a3, Tenant ID: 3775b83c-f1f8-469f-b323-1be5b1c94a56
+Calling gRPC: smartticket.v1.UserService.GetUserPermissions
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making authenticated gRPC call to localhost:50051
+gRPC call successful
+[0;32m[SUCCESS][0m Get user permissions successful - found 3 permissions
+[0;32m[SUCCESS][0m ✓ test_get_user_permissions - PASSED
+
+[0;34m[INFO][0m Running test: test_access_without_token
+[0;34m[INFO][0m Testing access to protected resource without token
+Calling gRPC: smartticket.v1.UserService.GetCurrentUser
+Proto directory: ./tests/e2e/../../proto/smartticket
+GRPC args: -plaintext -import-path ./tests/e2e/../../proto/smartticket/../ -proto smartticket/user.proto -proto smartticket/ticket.proto -proto smartticket/knowledge.proto -proto smartticket/tenant.proto -proto smartticket/role_permission.proto
+Making unauthenticated gRPC call to localhost:50051
+gRPC call failed as expected
+[0;32m[SUCCESS][0m Access without token correctly failed
+[0;32m[SUCCESS][0m ✓ test_access_without_token - PASSED
+
+[0;34m[INFO][0m ==================================
+[0;34m[INFO][0m Test suite completed: 11 passed, 1 failed
+[0;31m[ERROR][0m Some tests in suite failed!
+[0;34m[INFO][0m Cleaning up test data...
+[0;34m[INFO][0m Logging out user
+[0;32m[SUCCESS][0m Test data cleanup completed
+[0;32m[SUCCESS][0m Test environment teardown completed
+

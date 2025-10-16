@@ -1,0 +1,311 @@
+warning: unused import: `Response`
+ --> crates/gateway/src/auth_middleware.rs:4:22
+  |
+4 | use tonic::{Request, Response, Status};
+  |                      ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `std::collections::HashMap`
+ --> crates/gateway/src/knowledge_service.rs:3:5
+  |
+3 | use std::collections::HashMap;
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `tokio::sync::RwLock`
+ --> crates/gateway/src/knowledge_service.rs:5:5
+  |
+5 | use tokio::sync::RwLock;
+  |     ^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ArticleRating`
+  --> crates/gateway/src/knowledge_service.rs:11:5
+   |
+11 |     ArticleRating, CreateArticleRequest, CreateArticleResponse, CreateCategoryRequest,
+   |     ^^^^^^^^^^^^^
+
+warning: unused imports: `AuthUser` and `TenantContext`
+  --> crates/gateway/src/knowledge_service.rs:21:35
+   |
+21 | use smartticket_shared_database::{AuthUser, TenantContext};
+   |                                   ^^^^^^^^  ^^^^^^^^^^^^^
+
+warning: unused import: `RequestMetadata`
+  --> crates/gateway/src/sla_service.rs:21:50
+   |
+21 |     Response as ApiResponse, PaginationResponse, RequestMetadata,
+   |                                                  ^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::auth_middleware::extract_request_metadata`
+  --> crates/gateway/src/sla_service.rs:25:5
+   |
+25 | use crate::auth_middleware::extract_request_metadata;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PaymentMethod`
+  --> crates/gateway/src/tenant_service.rs:18:68
+   |
+18 |     ListTenantsResponse, NotificationSettings, PaginationResponse, PaymentMethod,
+   |                                                                    ^^^^^^^^^^^^^
+
+warning: unused import: `sqlx::Row`
+ --> crates/gateway/src/auth_service.rs:7:5
+  |
+7 | use sqlx::Row;
+  |     ^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> crates/gateway/src/grpc_service.rs:681:13
+    |
+681 |         let mut update_request = CoreUpdateTicketRequest {
+    |             ----^^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` on by default
+
+warning: unreachable pattern
+    --> crates/gateway/src/grpc_service.rs:1047:13
+     |
+1047 |             _ => false,
+     |             ^ no value can reach this
+     |
+note: multiple earlier patterns match some of the same values
+    --> crates/gateway/src/grpc_service.rs:1047:13
+     |
+1032 | /             (smartticket_shared_database::UserRole::CustomerUser, _)
+1033 | |             | (smartticket_shared_database::UserRole::Sales, _) => {
+     | |_______________________________________________________________- matches some of the same values
+...
+1044 | /             (smartticket_shared_database::UserRole::SupportEngineer, _)
+1045 | |             | (smartticket_shared_database::UserRole::TenantAdmin, _)
+1046 | |             | (smartticket_shared_database::UserRole::SuperAdmin, _) => true,
+     | |____________________________________________________________________- matches some of the same values
+1047 |               _ => false,
+     |               ^ collectively making this unreachable
+     = note: `#[warn(unreachable_patterns)]` on by default
+
+warning: unreachable pattern
+    --> crates/gateway/src/grpc_service.rs:1213:13
+     |
+1213 |             _ => false,
+     |             ^ no value can reach this
+     |
+note: multiple earlier patterns match some of the same values
+    --> crates/gateway/src/grpc_service.rs:1213:13
+     |
+1198 | /             (smartticket_shared_database::UserRole::CustomerUser, _)
+1199 | |             | (smartticket_shared_database::UserRole::Sales, _) => {
+     | |_______________________________________________________________- matches some of the same values
+...
+1210 | /             (smartticket_shared_database::UserRole::SupportEngineer, _)
+1211 | |             | (smartticket_shared_database::UserRole::TenantAdmin, _)
+1212 | |             | (smartticket_shared_database::UserRole::SuperAdmin, _) => true,
+     | |____________________________________________________________________- matches some of the same values
+1213 |               _ => false,
+     |               ^ collectively making this unreachable
+
+warning: value assigned to `bind_index` is never read
+   --> crates/gateway/src/knowledge_service.rs:439:13
+    |
+439 |             bind_index += 1;
+    |             ^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+    = note: `#[warn(unused_assignments)]` on by default
+
+warning: value assigned to `bind_index` is never read
+   --> crates/gateway/src/knowledge_service.rs:593:13
+    |
+593 |             bind_index += 1;
+    |             ^^^^^^^^^^
+    |
+    = help: maybe it is overwritten before being read?
+
+warning: unused variable: `count_query_builder`
+   --> crates/gateway/src/knowledge_service.rs:625:17
+    |
+625 |         let mut count_query_builder = sqlx::query::<sqlx::Postgres>(&count_query).bind(&tenant_id);
+    |                 ^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_count_query_builder`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `value`
+   --> crates/gateway/src/knowledge_service.rs:626:13
+    |
+626 |         for value in &bind_values {
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_value`
+
+warning: variable does not need to be mutable
+   --> crates/gateway/src/knowledge_service.rs:625:13
+    |
+625 |         let mut count_query_builder = sqlx::query::<sqlx::Postgres>(&count_query).bind(&tenant_id);
+    |             ----^^^^^^^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> crates/gateway/src/knowledge_service.rs:637:13
+    |
+637 |         let mut query_builder = sqlx::query(&query_str).bind(&tenant_id);
+    |             ----^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `tag`
+    --> crates/gateway/src/knowledge_service.rs:1075:27
+     |
+1075 |                 .map(|(i, tag)| format!("tags::jsonb ? ${}", bind_index + i))
+     |                           ^^^ help: if this is intentional, prefix it with an underscore: `_tag`
+
+warning: value assigned to `query_builder` is never read
+    --> crates/gateway/src/knowledge_service.rs:1498:17
+     |
+1498 |         let mut query_builder = sqlx::query(query).bind(&tenant_id);
+     |                 ^^^^^^^^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+
+warning: unused variable: `final_query`
+    --> crates/gateway/src/knowledge_service.rs:1501:13
+     |
+1501 |         let final_query = if !req.parent_id.is_empty() {
+     |             ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_final_query`
+
+warning: unused variable: `priority_filter`
+   --> crates/gateway/src/sla_service.rs:479:25
+    |
+479 |             if let Some(priority_filter) = req.priorities.first() {
+    |                         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_priority_filter`
+
+warning: unused variable: `severity_filter`
+   --> crates/gateway/src/sla_service.rs:487:25
+    |
+487 |             if let Some(severity_filter) = req.severities.first() {
+    |                         ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_severity_filter`
+
+warning: unused variable: `next_page_token`
+   --> crates/gateway/src/sla_service.rs:570:13
+    |
+570 |         let next_page_token = if (page_token + page_size as i64) < total_count {
+    |             ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_next_page_token`
+
+warning: unused variable: `resolution_percentage`
+   --> crates/gateway/src/sla_service.rs:835:21
+    |
+835 |                 let resolution_percentage = (resolution_met as f64 / total as f64) * 100.0;
+    |                     ^^^^^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_resolution_percentage`
+
+warning: unused variable: `next_page_token`
+    --> crates/gateway/src/sla_service.rs:1081:13
+     |
+1081 |         let next_page_token = if (page_token + page_size as i64) < total_count {
+     |             ^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_next_page_token`
+
+warning: unused variable: `ticket_created_at`
+    --> crates/gateway/src/sla_service.rs:1036:21
+     |
+1036 |                 let ticket_created_at: DateTime<Utc> = row.get("ticket_created_at");
+     |                     ^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_ticket_created_at`
+
+warning: variable does not need to be mutable
+   --> crates/gateway/src/sla_service.rs:977:13
+    |
+977 |         let mut bind_count = 2;
+    |             ----^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+   --> crates/gateway/src/sla_service.rs:992:13
+    |
+992 |         let mut count_query_builder = sqlx::query(&count_query).bind(tenant_context.tenant_id);
+    |             ----^^^^^^^^^^^^^^^^^^^
+    |             |
+    |             help: remove this `mut`
+
+warning: unused variable: `response`
+   --> crates/gateway/src/tenant_service.rs:331:21
+    |
+331 |                 let response = CreateTenantResponse {
+    |                     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_response`
+
+warning: methods `create_success_response` and `create_error_response` are never used
+  --> crates/gateway/src/knowledge_service.rs:36:8
+   |
+30 | impl KnowledgeGrpcService {
+   | ------------------------- methods in this implementation
+...
+36 |     fn create_success_response(&self, message: &str, request_id: &str) -> ApiResponse {
+   |        ^^^^^^^^^^^^^^^^^^^^^^^
+...
+47 |     fn create_error_response(&self, message: &str, request_id: &str) -> ApiResponse {
+   |        ^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+warning: field `tenant_id` is never read
+  --> crates/gateway/src/role_permission_service.rs:19:5
+   |
+17 | struct DbRole {
+   |        ------ field in this struct
+18 |     id: Uuid,
+19 |     tenant_id: Uuid,
+   |     ^^^^^^^^^
+   |
+   = note: `DbRole` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: associated functions `error_response` and `calculate_business_hours_due` are never used
+   --> crates/gateway/src/sla_service.rs:47:8
+    |
+32  | impl SlaGrpcService {
+    | ------------------- associated functions in this implementation
+...
+47  |     fn error_response(message: &str, request_id: &str) -> ApiResponse {
+    |        ^^^^^^^^^^^^^^
+...
+104 |     fn calculate_business_hours_due(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `smartticket-gateway` (lib) generated 33 warnings (run `cargo fix --lib -p smartticket-gateway` to apply 13 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s
+warning: the following packages contain code that will be rejected by a future version of Rust: cexpr v0.3.6, nom v4.2.3
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running `target/debug/gateway`
+[2m2025-10-16T19:55:31.805012Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m Starting Gateway server on gRPC port: 6533
+[2m2025-10-16T19:55:31.805222Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m Registering gRPC services:
+[2m2025-10-16T19:55:31.805233Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - AuthService (Login, RefreshToken, etc.)
+[2m2025-10-16T19:55:31.805241Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - TicketService (CreateTicket, GetTicket, UpdateTicket, etc.)
+[2m2025-10-16T19:55:31.805248Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - UserService (CreateUser, GetUser, UpdateUser, etc.)
+[2m2025-10-16T19:55:31.805279Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - KnowledgeService (CreateArticle, GetArticle, SearchArticles, etc.)
+[2m2025-10-16T19:55:31.805288Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - TenantService (CreateTenant, GetTenant, UpdateTenant, etc.)
+[2m2025-10-16T19:55:31.805307Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - RolePermissionService (CreateRole, AssignPermissions, etc.)
+[2m2025-10-16T19:55:31.805313Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m   - SlaService (CreateSlaPolicy, GetSlaPolicy, UpdateSlaPolicy, etc.)
+[2m2025-10-16T19:55:31.805320Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m Creating JWT authentication interceptor...
+[2m2025-10-16T19:55:31.805325Z[0m [32m INFO[0m [2msmartticket_gateway::server[0m[2m:[0m JWT interceptor created successfully
+[2m2025-10-16T19:55:31.806758Z[0m [32m INFO[0m [2msmartticket_gateway::http_server[0m[2m:[0m 🌐 HTTP Server starting on http://0.0.0.0:7218
+[2m2025-10-16T19:55:31.806791Z[0m [32m INFO[0m [2msmartticket_gateway::http_server[0m[2m:[0m 📚 API Documentation available at http://0.0.0.0:7218/docs
+[2m2025-10-16T19:57:35.512567Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mGET [3muri[0m[2m=[0m/health [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mtower_http::trace::on_request[0m[2m:[0m started processing request
+[2m2025-10-16T19:57:35.512840Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mGET [3muri[0m[2m=[0m/health [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mtower_http::trace::on_response[0m[2m:[0m finished processing request [3mlatency[0m[2m=[0m0 ms [3mstatus[0m[2m=[0m404
+[2m2025-10-16T19:57:35.528698Z[0m [32m INFO[0m [1mlogin[0m[1m{[0m[3mrequest[0m[2m=[0mRequest { metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip"} }, message: LoginRequest { email: "admin@test.smartticket.com", password: "admin123", tenant_domain: "test.smartticket.com", remember_me: false }, extensions: Extensions }[1m}[0m[2m:[0m [2msmartticket_gateway::auth_service[0m[2m:[0m Login attempt for email: admin@test.smartticket.com in tenant: test.smartticket.com
+[2m2025-10-16T19:57:35.528742Z[0m [32m INFO[0m [1mlogin[0m[1m{[0m[3mrequest[0m[2m=[0mRequest { metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip"} }, message: LoginRequest { email: "admin@test.smartticket.com", password: "admin123", tenant_domain: "test.smartticket.com", remember_me: false }, extensions: Extensions }[1m}[0m[2m:[0m [2msmartticket_gateway::auth_service[0m[2m:[0m Debug: Starting authentication for email: admin@test.smartticket.com
+[2m2025-10-16T19:57:35.582460Z[0m [32m INFO[0m [1mlogin[0m[1m{[0m[3mrequest[0m[2m=[0mRequest { metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip"} }, message: LoginRequest { email: "admin@test.smartticket.com", password: "admin123", tenant_domain: "test.smartticket.com", remember_me: false }, extensions: Extensions }[1m}[0m[2m:[0m [2msmartticket_gateway::auth_service[0m[2m:[0m Debug: User found in database, verifying password for email: admin@test.smartticket.com
+[2m2025-10-16T19:57:35.582491Z[0m [32m INFO[0m [1mlogin[0m[1m{[0m[3mrequest[0m[2m=[0mRequest { metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip"} }, message: LoginRequest { email: "admin@test.smartticket.com", password: "admin123", tenant_domain: "test.smartticket.com", remember_me: false }, extensions: Extensions }[1m}[0m[2m:[0m [2msmartticket_gateway::auth_service[0m[2m:[0m Debug: Password hash from DB: $2b$12$ccMKUQJI7wyZSVEknzCqpufE5yjrEj13J.PzQDos7Do8J1alGqIq2
+[2m2025-10-16T19:57:35.582517Z[0m [32m INFO[0m [1mlogin[0m[1m{[0m[3mrequest[0m[2m=[0mRequest { metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip"} }, message: LoginRequest { email: "admin@test.smartticket.com", password: "admin123", tenant_domain: "test.smartticket.com", remember_me: false }, extensions: Extensions }[1m}[0m[2m:[0m [2msmartticket_gateway::auth_service[0m[2m:[0m Debug: Input password length: 8
+[2m2025-10-16T19:57:36.306265Z[0m [32m INFO[0m [1mlogin[0m[1m{[0m[3mrequest[0m[2m=[0mRequest { metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip"} }, message: LoginRequest { email: "admin@test.smartticket.com", password: "admin123", tenant_domain: "test.smartticket.com", remember_me: false }, extensions: Extensions }[1m}[0m[2m:[0m [2msmartticket_gateway::auth_service[0m[2m:[0m Debug: Password verification SUCCESS for email: admin@test.smartticket.com
+[2m2025-10-16T19:57:36.306300Z[0m [32m INFO[0m [1mlogin[0m[1m{[0m[3mrequest[0m[2m=[0mRequest { metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip"} }, message: LoginRequest { email: "admin@test.smartticket.com", password: "admin123", tenant_domain: "test.smartticket.com", remember_me: false }, extensions: Extensions }[1m}[0m[2m:[0m [2msmartticket_gateway::auth_service[0m[2m:[0m Debug: User found: admin@test.smartticket.com
+[2m2025-10-16T19:57:36.315566Z[0m [32m INFO[0m [1mlogin[0m[1m{[0m[3mrequest[0m[2m=[0mRequest { metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip"} }, message: LoginRequest { email: "admin@test.smartticket.com", password: "admin123", tenant_domain: "test.smartticket.com", remember_me: false }, extensions: Extensions }[1m}[0m[2m:[0m [2msmartticket_gateway::auth_service[0m[2m:[0m User logged in successfully: admin@test.smartticket.com
+[2m2025-10-16T19:57:36.345093Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: JWT interceptor is being called!
+[2m2025-10-16T19:57:36.345131Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Request metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip", "x-user-id": "c0b789d2-5fee-4359-aabd-522ae462158b", "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjMGI3ODlkMi01ZmVlLTQzNTktYWFiZC01MjJhZTQ2MjE1OGIiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlN5c3RlbSBBZG1pbmlzdHJhdG9yIiwidGVuYW50X2lkIjoiZGU1N2Y2MGUtODBhMy00YTg3LWFmNDAtM2Y5OTcyM2M2NTMwIiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6dmlldyIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInVzZXI6dmlld19vd24iLCJ0aWNrZXQ6Y3JlYXRlIiwidGlja2V0OnZpZXciLCJ0aWNrZXQ6dXBkYXRlIiwidGlja2V0OmRlbGV0ZSIsInRpY2tldDphc3NpZ24iLCJrbm93bGVkZ2U6Y3JlYXRlIiwia25vd2xlZGdlOnZpZXciLCJrbm93bGVkZ2U6dXBkYXRlIiwia25vd2xlZGdlOmRlbGV0ZSIsImtub3dsZWRnZTpwdWJsaXNoIl0sImV4cCI6MTc2MDczMTA1NiwiaWF0IjoxNzYwNjQ0NjU2LCJpc3MiOiJzbWFydHRpY2tldCIsImF1ZCI6InNtYXJ0dGlja2V0LWNsaWVudCJ9.OS6WaULnAoCRKYWKXLb-_IQ1Bva16Yq8rUfNMf9fyqA", "x-tenant-id": "de57f60e-80a3-4a87-af40-3f99723c6530"} }
+[2m2025-10-16T19:57:36.345196Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Successfully extracted token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjMGI3ODlkMi01ZmVlLTQzNTktYWFiZC01MjJhZTQ2MjE1OGIiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlN5c3RlbSBBZG1pbmlzdHJhdG9yIiwidGVuYW50X2lkIjoiZGU1N2Y2MGUtODBhMy00YTg3LWFmNDAtM2Y5OTcyM2M2NTMwIiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6dmlldyIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInVzZXI6dmlld19vd24iLCJ0aWNrZXQ6Y3JlYXRlIiwidGlja2V0OnZpZXciLCJ0aWNrZXQ6dXBkYXRlIiwidGlja2V0OmRlbGV0ZSIsInRpY2tldDphc3NpZ24iLCJrbm93bGVkZ2U6Y3JlYXRlIiwia25vd2xlZGdlOnZpZXciLCJrbm93bGVkZ2U6dXBkYXRlIiwia25vd2xlZGdlOmRlbGV0ZSIsImtub3dsZWRnZTpwdWJsaXNoIl0sImV4cCI6MTc2MDczMTA1NiwiaWF0IjoxNzYwNjQ0NjU2LCJpc3MiOiJzbWFydHRpY2tldCIsImF1ZCI6InNtYXJ0dGlja2V0LWNsaWVudCJ9.OS6WaULnAoCRKYWKXLb-_IQ1Bva16Yq8rUfNMf9fyqA
+[2m2025-10-16T19:57:36.345354Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Successfully validated token for user: c0b789d2-5fee-4359-aabd-522ae462158b
+[2m2025-10-16T19:57:36.345370Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Created AuthUser: id=c0b789d2-5fee-4359-aabd-522ae462158b, email=admin@test.smartticket.com, role=TenantAdmin
+[2m2025-10-16T19:57:36.345383Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Added AuthUser and TenantContext to request extensions
+[2m2025-10-16T19:57:36.374585Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: JWT interceptor is being called!
+[2m2025-10-16T19:57:36.374613Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Request metadata: MetadataMap { headers: {"content-type": "application/grpc", "user-agent": "grpcurl/1.9.3 grpc-go/1.61.0", "te": "trailers", "grpc-accept-encoding": "gzip", "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjMGI3ODlkMi01ZmVlLTQzNTktYWFiZC01MjJhZTQ2MjE1OGIiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlN5c3RlbSBBZG1pbmlzdHJhdG9yIiwidGVuYW50X2lkIjoiZGU1N2Y2MGUtODBhMy00YTg3LWFmNDAtM2Y5OTcyM2M2NTMwIiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6dmlldyIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInVzZXI6dmlld19vd24iLCJ0aWNrZXQ6Y3JlYXRlIiwidGlja2V0OnZpZXciLCJ0aWNrZXQ6dXBkYXRlIiwidGlja2V0OmRlbGV0ZSIsInRpY2tldDphc3NpZ24iLCJrbm93bGVkZ2U6Y3JlYXRlIiwia25vd2xlZGdlOnZpZXciLCJrbm93bGVkZ2U6dXBkYXRlIiwia25vd2xlZGdlOmRlbGV0ZSIsImtub3dsZWRnZTpwdWJsaXNoIl0sImV4cCI6MTc2MDczMTA1NiwiaWF0IjoxNzYwNjQ0NjU2LCJpc3MiOiJzbWFydHRpY2tldCIsImF1ZCI6InNtYXJ0dGlja2V0LWNsaWVudCJ9.OS6WaULnAoCRKYWKXLb-_IQ1Bva16Yq8rUfNMf9fyqA"} }
+[2m2025-10-16T19:57:36.374652Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Successfully extracted token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjMGI3ODlkMi01ZmVlLTQzNTktYWFiZC01MjJhZTQ2MjE1OGIiLCJlbWFpbCI6ImFkbWluQHRlc3Quc21hcnR0aWNrZXQuY29tIiwidXNlcm5hbWUiOiJhZG1pbiIsImZ1bGxfbmFtZSI6IlN5c3RlbSBBZG1pbmlzdHJhdG9yIiwidGVuYW50X2lkIjoiZGU1N2Y2MGUtODBhMy00YTg3LWFmNDAtM2Y5OTcyM2M2NTMwIiwicm9sZSI6IlRlbmFudEFkbWluIiwicGVybWlzc2lvbnMiOlsidGVuYW50OnVwZGF0ZSIsInVzZXI6dmlldyIsInVzZXI6Y3JlYXRlIiwidXNlcjp1cGRhdGUiLCJ1c2VyOmRlbGV0ZSIsInVzZXI6dmlld19vd24iLCJ0aWNrZXQ6Y3JlYXRlIiwidGlja2V0OnZpZXciLCJ0aWNrZXQ6dXBkYXRlIiwidGlja2V0OmRlbGV0ZSIsInRpY2tldDphc3NpZ24iLCJrbm93bGVkZ2U6Y3JlYXRlIiwia25vd2xlZGdlOnZpZXciLCJrbm93bGVkZ2U6dXBkYXRlIiwia25vd2xlZGdlOmRlbGV0ZSIsImtub3dsZWRnZTpwdWJsaXNoIl0sImV4cCI6MTc2MDczMTA1NiwiaWF0IjoxNzYwNjQ0NjU2LCJpc3MiOiJzbWFydHRpY2tldCIsImF1ZCI6InNtYXJ0dGlja2V0LWNsaWVudCJ9.OS6WaULnAoCRKYWKXLb-_IQ1Bva16Yq8rUfNMf9fyqA
+[2m2025-10-16T19:57:36.374749Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Successfully validated token for user: c0b789d2-5fee-4359-aabd-522ae462158b
+[2m2025-10-16T19:57:36.374761Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Created AuthUser: id=c0b789d2-5fee-4359-aabd-522ae462158b, email=admin@test.smartticket.com, role=TenantAdmin
+[2m2025-10-16T19:57:36.374772Z[0m [32m INFO[0m [2msmartticket_gateway::auth_middleware[0m[2m:[0m DEBUG: Added AuthUser and TenantContext to request extensions
+[2m2025-10-16T19:59:07.355385Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mGET [3muri[0m[2m=[0m/health [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mtower_http::trace::on_request[0m[2m:[0m started processing request
+[2m2025-10-16T19:59:07.355464Z[0m [34mDEBUG[0m [1mrequest[0m[1m{[0m[3mmethod[0m[2m=[0mGET [3muri[0m[2m=[0m/health [3mversion[0m[2m=[0mHTTP/1.1[1m}[0m[2m:[0m [2mtower_http::trace::on_response[0m[2m:[0m finished processing request [3mlatency[0m[2m=[0m0 ms [3mstatus[0m[2m=[0m404

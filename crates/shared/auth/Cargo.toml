@@ -1,0 +1,32 @@
+[package]
+name = "smartticket-shared-auth"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+smartticket-shared-error = { path = "../error" }
+smartticket-shared-config = { path = "../config" }
+
+jsonwebtoken = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+argonautica = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true }
+async-trait = "0.1"
+tower = { workspace = true }
+tower-http = { workspace = true }
+axum = { workspace = true }
+tonic = { workspace = true }
+once_cell = "1.19"
+base64 = "0.21"
+sqlx = { workspace = true }
+futures = "0.3"
+bcrypt = "0.15"
+rand = "0.8"
+validator = "0.18"

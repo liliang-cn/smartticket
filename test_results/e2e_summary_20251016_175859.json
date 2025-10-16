@@ -1,0 +1,44 @@
+{
+  "summary": {
+    "timestamp": "2025-10-16T17:59:11+08:00",
+    "total_duration_seconds": 12,
+    "total_suites": 2,
+    "passed_suites": 0,
+    "failed_suites": 1,
+    "total_tests": 12,
+    "passed_tests": 11,
+    "failed_tests": 1,
+    "success_rate": "91.66%"
+  },
+  "environment": {
+    "grpc_server": "localhost:50051",
+    "test_tenant": "test.smartticket.com",
+    "test_admin_email": "admin@test.smartticket.com"
+  },
+  "test_suites": [
+    {
+      "name": "Authentication",
+      "status": "PASSED"
+    }
+,
+    {
+      "name": "Ticket Management",
+      "status": "PASSED"
+    }
+,
+    {
+      "name": "Knowledge Base",
+      "status": "PASSED"
+    }
+,
+    {
+      "name": "Multi-Tenant Isolation",
+      "status": "PASSED"
+    }
+,
+    {
+      "name": "Performance",
+      "status": "PASSED"
+    }
+  ]
+}
