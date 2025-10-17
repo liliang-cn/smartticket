@@ -1,6 +1,5 @@
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::claims::{ApiKeyClaims, TenantContext, UserClaims};
     use crate::jwt::UserData;
     use crate::JwtService;
@@ -81,12 +80,12 @@ mod tests {
 
     #[test]
     fn test_expired_token_verification() {
-        let jwt_service = create_test_jwt_service();
+        let _jwt_service = create_test_jwt_service();
         let user_data = create_test_user_data();
         let user_id = "user-123";
 
         // Create a config with negative expiration to simulate expired token
-        let mut config = AuthConfig {
+        let config = AuthConfig {
             jwt_secret: "test-secret-key-must-be-at-least-32-characters-for-security".to_string(),
             jwt_expiration: 1, // Very short expiration
             refresh_expiration: 1,
@@ -107,12 +106,15 @@ mod tests {
             .generate_token_pair(user_id, &user_data)
             .expect("Failed to generate expired token pair");
 
+        // Wait for token to expire (need to wait longer than the expiration time)
+        std::thread::sleep(std::time::Duration::from_secs(2));
+
         // Try to verify expired access token - should fail
-        let result = jwt_service.verify_user_token(&token_pair.access_token);
+        let result = expired_jwt_service.verify_user_token(&token_pair.access_token);
         assert!(result.is_err(), "Expired token should not be verifiable");
 
         // Try to verify expired refresh token - should fail
-        let result = jwt_service.verify_refresh_token(&token_pair.refresh_token);
+        let result = expired_jwt_service.verify_refresh_token(&token_pair.refresh_token);
         assert!(
             result.is_err(),
             "Expired refresh token should not be verifiable"

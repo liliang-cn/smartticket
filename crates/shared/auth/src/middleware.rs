@@ -139,7 +139,7 @@ pub fn create_error_response(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use axum::http::{HeaderMap, Method};
+    use axum::http::HeaderMap;
 
     #[tokio::test]
     async fn test_token_extraction() {

@@ -15,7 +15,9 @@ use uuid::Uuid;
 // Database Role struct for sqlx queries
 #[derive(Debug)]
 struct DbRole {
+    #[allow(dead_code)]
     id: Uuid,
+    #[allow(dead_code)]
     tenant_id: Uuid,
     name: String,
     description: Option<String>,

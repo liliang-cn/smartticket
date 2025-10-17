@@ -42,7 +42,7 @@ impl MigrationManager {
             // entry is already a Result<DirEntry, io::Error> that was unwrapped by Ok()
 
             let path = entry.path();
-            if path.extension().map_or(false, |ext| ext == "sql") {
+            if path.extension().is_some_and(|ext| ext == "sql") {
                 migrations.push(path);
             }
         }

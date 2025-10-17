@@ -134,7 +134,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 测试Redis连接
     println!("\n=== Redis 缓存状态 ===");
     match std::process::Command::new("docker")
-        .args(&["exec", "smartticket-redis-test", "redis-cli", "ping"])
+        .args(["exec", "smartticket-redis-test", "redis-cli", "ping"])
         .output()
     {
         Ok(output) => {

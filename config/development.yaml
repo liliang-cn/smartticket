@@ -1,6 +1,8 @@
-environment: "development"
-service_name: "smartticket"
+environment: development
+service_name: smartticket
 version: "0.1.0"
+log_level: info
+data_dir: ./data
 
 database:
   host: "localhost"
@@ -16,51 +18,34 @@ database:
 
 redis:
   host: "localhost"
-  port: 6380
+  port: 6379
+  database: 0
   username: null
   password: null
-  database: 0
   max_connections: 10
-  connection_timeout: 5
-  command_timeout: 5
 
 server:
   grpc_port: 6533
   http_port: 7218
   host: "0.0.0.0"
-  max_request_size: 10485760  # 10MB
-  request_timeout: 30
-  keep_alive: 60
 
 auth:
-  jwt_secret: "development-jwt-secret-change-in-production"
-  jwt_expiration: 3600  # 1 hour
-  refresh_expiration: 604800  # 7 days
+  jwt_secret: "your-secret-key-here-for-testing-only"
+  jwt_expiration: 3600
+  refresh_expiration: 86400
   issuer: "smartticket"
-  bcrypt_cost: 10
-  password_min_length: 8
-  password_require_special: true
-  password_require_numbers: true
-  password_require_uppercase: true
+  audience: "smartticket-client"
+  bcrypt_cost: 4
+  password_min_length: 6
+  password_require_special: false
+  password_require_numbers: false
+  password_require_uppercase: false
   rate_limit:
-    enabled: true
     requests_per_minute: 60
     burst_size: 10
 
 telemetry:
-  tracing:
-    enabled: true
-    level: "debug"
-    format: "pretty"
-    output: "stdout"
-  metrics:
-    enabled: true
-    port: 9090
-    path: "/metrics"
-  jaeger:
-    endpoint: "localhost"
-    port: 6831
-    service_name: "smartticket"
-
-log_level: "debug"
-data_dir: "./data"
+  enable_tracing: false
+  enable_metrics: false
+  jaeger_endpoint: "http://localhost:14268/api/traces"
+  prometheus_port: 9090

@@ -4,7 +4,7 @@ use tracing::{error, info, instrument};
 use uuid::Uuid;
 
 use crate::models::ticket::*;
-use smartticket_shared_database::{TenantContext, models::TicketSeverity};
+use smartticket_shared_database::TenantContext;
 use smartticket_shared_error::{Result, SmartTicketError};
 
 /// Ticket service for managing tickets
@@ -46,7 +46,7 @@ impl TicketService {
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
                 $11, $12, $13, $14, $15, $16, $17, $18, $19,
-                $20, $21, $22, $23
+                $20, $21, $22, $23, $24
             ) RETURNING *
         "#;
 
@@ -58,7 +58,7 @@ impl TicketService {
             .bind(&ticket.description)
             .bind(ticket.status) // Use enum directly
             .bind(ticket.priority) // Use enum directly
-            .bind(TicketSeverity::Low) // Default severity
+            .bind(ticket.severity) // Use severity from ticket
             .bind(ticket.category_id)
             .bind(ticket.customer_id) // Maps to contact_id in database
             .bind(ticket.assigned_agent_id) // Maps to assigned_to_id in database
@@ -92,6 +92,7 @@ impl TicketService {
             description: row.get("description"),
             status: row.get("status"),
             priority: row.get("priority"),
+            severity: row.get("severity"), // Get severity from database
             ticket_type: row.get("ticket_type"),
             category_id: row.get("category_id"),
             tags: row.get("tags"),
@@ -137,14 +138,14 @@ impl TicketService {
         let query = r#"
             SELECT
                 id, tenant_id,
-                COALESCE(customer_id, contact_id) as customer_id,
+                contact_id as customer_id,
                 assigned_to_id as assigned_agent_id,
-                team_id, title, description, status, priority,
+                title, description, status, priority, severity,
                 ticket_type, category_id, tags, external_reference,
                 due_at as due_date, resolved_at, closed_at, resolution,
-                satisfaction_rating, is_deleted, created_at, updated_at,
+                is_deleted, created_at, updated_at,
                 created_by, updated_by, created_by_id,
-                ticket_number, severity, custom_fields
+                ticket_number, custom_fields
             FROM tickets
             WHERE id = $1 AND tenant_id = $2 AND is_deleted = false
         "#;
@@ -680,13 +681,13 @@ impl TicketService {
         let counts_query = r#"
             SELECT
                 COUNT(*) as total_tickets,
-                COUNT(*) FILTER (WHERE status = 'open') as open_tickets,
-                COUNT(*) FILTER (WHERE status = 'in_progress') as in_progress_tickets,
-                COUNT(*) FILTER (WHERE status = 'resolved') as resolved_tickets,
-                COUNT(*) FILTER (WHERE status = 'closed') as closed_tickets,
+                COUNT(*) FILTER (WHERE status = 'Open') as open_tickets,
+                COUNT(*) FILTER (WHERE status = 'InProgress') as in_progress_tickets,
+                COUNT(*) FILTER (WHERE status = 'Resolved') as resolved_tickets,
+                COUNT(*) FILTER (WHERE status = 'Closed') as closed_tickets,
                 COUNT(*) FILTER (WHERE is_deleted = false AND
-                    due_date IS NOT NULL AND due_date < NOW() AND
-                    status NOT IN ('resolved', 'closed')) as overdue_tickets
+                    due_at IS NOT NULL AND due_at < NOW() AND
+                    status NOT IN ('Resolved', 'Closed')) as overdue_tickets
             FROM tickets
             WHERE tenant_id = $1 AND is_deleted = false
         "#;
@@ -773,13 +774,11 @@ impl TicketService {
         let time_query = r#"
             SELECT
                 AVG(EXTRACT(EPOCH FROM (resolved_at - created_at)) / 60) as avg_resolution_minutes,
-                AVG(EXTRACT(EPOCH FROM (actual_response_time - created_at)) / 60) as avg_response_minutes,
                 AVG(satisfaction_rating) as avg_satisfaction
             FROM tickets
-            LEFT JOIN ticket_sla ON tickets.id = ticket_sla.ticket_id
             WHERE tickets.tenant_id = $1
                 AND tickets.is_deleted = false
-                AND tickets.status IN ('resolved', 'closed')
+                AND tickets.status IN ('Resolved', 'Closed')
         "#;
 
         let time_row = sqlx::query(time_query)
@@ -832,14 +831,14 @@ impl TicketService {
             r#"
             SELECT DISTINCT
                 tickets.id, tickets.tenant_id,
-                COALESCE(tickets.customer_id, tickets.contact_id) as customer_id,
+                tickets.contact_id as customer_id,
                 tickets.assigned_to_id as assigned_agent_id,
-                tickets.team_id, tickets.title, tickets.description, tickets.status, tickets.priority,
+                tickets.title, tickets.description, tickets.status, tickets.priority, tickets.severity,
                 tickets.ticket_type, tickets.category_id, tickets.tags, tickets.external_reference,
                 tickets.due_at as due_date, tickets.resolved_at, tickets.closed_at, tickets.resolution,
-                tickets.satisfaction_rating, tickets.is_deleted, tickets.created_at, tickets.updated_at,
+                tickets.is_deleted, tickets.created_at, tickets.updated_at,
                 tickets.created_by, tickets.updated_by, tickets.created_by_id,
-                tickets.ticket_number, tickets.severity, tickets.custom_fields
+                tickets.ticket_number, tickets.custom_fields
             FROM tickets
             LEFT JOIN ticket_comments ON tickets.id = ticket_comments.ticket_id
             WHERE tickets.tenant_id = $1
@@ -941,14 +940,14 @@ impl TicketService {
         let base_query = r#"
             SELECT
                 id, tenant_id,
-                COALESCE(customer_id, contact_id) as customer_id,
+                contact_id as customer_id,
                 assigned_to_id as assigned_agent_id,
-                team_id, title, description, status, priority,
+                title, description, status, priority, severity,
                 ticket_type, category_id, tags, external_reference,
                 due_at as due_date, resolved_at, closed_at, resolution,
-                satisfaction_rating, is_deleted, created_at, updated_at,
+                is_deleted, created_at, updated_at,
                 created_by, updated_by, created_by_id,
-                ticket_number, severity, custom_fields
+                ticket_number, custom_fields
             FROM tickets
             WHERE tenant_id = $1 AND is_deleted = false
         "#.to_string();

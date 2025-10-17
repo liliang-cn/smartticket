@@ -9,13 +9,14 @@ use std::sync::Arc;
 use tonic::{Request, Response, Status};
 use tracing::{error, info, instrument};
 use uuid::Uuid;
+use sqlx::Row;
 
 use crate::smartticket_v1::{
     tenant_service_server::TenantService, BillingLineItem, CreateTenantRequest,
     CreateTenantResponse, DeleteTenantRequest, DeleteTenantResponse, GetCurrentTenantRequest,
     GetCurrentTenantResponse, GetTenantBillingRequest, GetTenantBillingResponse, GetTenantRequest,
     GetTenantResponse, GetTenantUsageRequest, GetTenantUsageResponse, ListTenantsRequest,
-    ListTenantsResponse, NotificationSettings, PaginationResponse, PaymentMethod,
+    ListTenantsResponse, NotificationSettings, PaginationResponse,
     Response as ApiResponse, SecuritySettings, SubscriptionTier as GrpcSubscriptionTier,
     TenantBilling, TenantInfo, TenantSettings, TenantUsage, UpdateSubscriptionRequest,
     UpdateSubscriptionResponse, UpdateTenantRequest, UpdateTenantResponse,
@@ -24,7 +25,6 @@ use crate::smartticket_v1::{
 use crate::{PermissionCheck, RequestExt};
 use smartticket_shared_database::{AuthService, SubscriptionTier, Tenant};
 use smartticket_shared_error::{Result, SmartTicketError};
-use sqlx::Row;
 
 /// gRPC Tenant Service implementation
 pub struct TenantGrpcService {
@@ -328,14 +328,6 @@ impl TenantService for TenantGrpcService {
             Ok(tenant) => tenant,
             Err(e) => {
                 error!("Failed to create tenant: {}", e);
-                let response = CreateTenantResponse {
-                    response: Some(Self::create_error_response(
-                        "Failed to create tenant",
-                        &request_id,
-                    )),
-                    tenant: None,
-                    setup_token: String::new(),
-                };
                 return Err(Status::internal(format!("Database error: {}", e)));
             }
         };

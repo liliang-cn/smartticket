@@ -45,7 +45,7 @@ impl DatabaseConnection {
         sqlx::query("SELECT 1")
             .fetch_one(&pool)
             .await
-            .map_err(|e| SmartTicketError::Database(e))?;
+            .map_err(SmartTicketError::Database)?;
 
         info!("Successfully connected to database");
 
@@ -60,7 +60,7 @@ impl DatabaseConnection {
         let result = sqlx::query("SELECT version()")
             .fetch_one(&self.pool)
             .await
-            .map_err(|e| SmartTicketError::Database(e))?;
+            .map_err(SmartTicketError::Database)?;
 
         let version: String = result.get("version");
         info!("Database health check - version: {}", version);

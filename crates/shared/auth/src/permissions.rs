@@ -199,7 +199,7 @@ impl PermissionService {
     pub fn has_permission(&self, user_permissions: &[String], permission: &Permission) -> bool {
         user_permissions
             .iter()
-            .any(|p| Permission::from_str(p).map_or(false, |perm| perm == *permission))
+            .any(|p| Permission::from_str(p).is_ok_and(|perm| perm == *permission))
     }
 
     /// Check if a user has any of the specified permissions

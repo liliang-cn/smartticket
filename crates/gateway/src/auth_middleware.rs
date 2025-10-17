@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use tonic::metadata::MetadataMap;
 use tonic::service::Interceptor;
-use tonic::{Request, Response, Status};
+use tonic::{Request, Status};
 
 use crate::smartticket_v1::RequestMetadata;
 use smartticket_shared_database::{AuthService, AuthUser, Claims};
@@ -406,7 +406,6 @@ impl Interceptor for JwtAuthInterceptor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tonic::metadata::MetadataValue;
 
     #[test]
     fn test_tenant_context_permissions() {

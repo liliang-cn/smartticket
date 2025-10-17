@@ -693,8 +693,8 @@ mod tests {
             external_reference: None,
             custom_fields: None,
             is_deleted: false,
-            created_by: "test".to_string(),
-            updated_by: "test".to_string(),
+            created_by: Some("test".to_string()),
+            updated_by: Some("test".to_string()),
         };
 
         assert!(machine.should_auto_close(&ticket));

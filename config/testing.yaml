@@ -1,0 +1,62 @@
+environment: testing
+service_name: smartticket
+version: "0.1.0"
+log_level: debug
+data_dir: ./data
+
+database:
+  host: "localhost"
+  port: 5435
+  database_name: "smartticket_test"
+  username: "postgres"
+  password: "postgres"
+  ssl_mode: "prefer"
+  max_connections: 20
+  min_connections: 5
+  connect_timeout: 30
+  idle_timeout: 600
+
+redis:
+  host: "localhost"
+  port: 6380
+  database: 0
+  username: null
+  password: null
+  max_connections: 10
+
+server:
+  grpc_port: 6533
+  http_port: 7218
+  host: "0.0.0.0"
+
+auth:
+  jwt_secret: "your-secret-key-here-for-testing-only"
+  jwt_expiration: 3600
+  refresh_expiration: 86400
+  issuer: "smartticket"
+  audience: "smartticket-client"
+  bcrypt_cost: 4
+  password_min_length: 6
+  password_require_special: false
+  password_require_numbers: false
+  password_require_uppercase: false
+  rate_limit:
+    requests_per_minute: 120
+    burst_size: 20
+
+telemetry:
+  enable_tracing: true
+  enable_metrics: true
+  jaeger_endpoint: "http://localhost:14268/api/traces"
+  prometheus_port: 9090
+
+# Test-specific settings
+test:
+  database:
+    clean_after_test: true
+    migrate_before_test: true
+  redis:
+    flush_before_test: true
+  auth:
+      use_test_users: true
+      auto_create_users: true

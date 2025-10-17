@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
+use smartticket_shared_database::models::TicketSeverity;
 
 /// Ticket status enumeration
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
@@ -105,6 +106,7 @@ pub struct Ticket {
     pub description: String,
     pub status: TicketStatus,
     pub priority: TicketPriority,
+    pub severity: TicketSeverity,
     pub ticket_type: TicketType,
     pub category_id: Option<Uuid>,
     pub tags: Vec<String>,
@@ -348,6 +350,7 @@ impl Ticket {
             description: request.description,
             status: TicketStatus::Open,
             priority: request.priority,
+            severity: TicketSeverity::Low, // Default severity
             ticket_type: request.ticket_type,
             category_id: request.category_id,
             tags: request.tags,
@@ -776,6 +779,7 @@ mod tests {
             description: "Test".to_string(),
             status: TicketStatus::Open,
             priority: TicketPriority::Normal,
+            severity: TicketSeverity::Low,
             ticket_type: TicketType::Incident,
             category_id: None,
             tags: vec![],
@@ -829,6 +833,7 @@ mod tests {
             description: "Test".to_string(),
             status: TicketStatus::Open,
             priority: TicketPriority::Normal,
+            severity: TicketSeverity::Low,
             ticket_type: TicketType::Incident,
             category_id: None,
             tags: vec![],

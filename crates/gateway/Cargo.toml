@@ -36,17 +36,5 @@ anyhow = { workspace = true }
 name = "gateway"
 path = "src/main.rs"
 
-[[example]]
-name = "demo_knowledge_service"
-path = "../../examples/demo_knowledge_service.rs"
-
-[[example]]
-name = "demo_knowledge_simple"
-path = "../../examples/demo_knowledge_simple.rs"
-
-[[example]]
-name = "fix_password"
-path = "../../examples/fix_password.rs"
-
 [build-dependencies]
 tonic-build = "0.10"

@@ -18,11 +18,9 @@ use crate::smartticket_v1::{
     GetSlaBreachesRequest, GetSlaBreachesResponse,
     UpdateSlaMetricsRequest, UpdateSlaMetricsResponse,
     SlaPolicy, SlaMetrics, SlaDashboard, SlaBreachAlert,
-    Response as ApiResponse, PaginationResponse, RequestMetadata,
+    Response as ApiResponse, PaginationResponse,
     SlaDashboardItem, SlaSummary, SlaTrend,
 };
-
-use crate::auth_middleware::extract_request_metadata;
 
 #[derive(Debug, Clone)]
 pub struct SlaGrpcService {
@@ -44,6 +42,7 @@ impl SlaGrpcService {
         }
     }
 
+    #[allow(dead_code)]
     fn error_response(message: &str, request_id: &str) -> ApiResponse {
         ApiResponse {
             success: false,
@@ -64,6 +63,7 @@ impl SlaGrpcService {
         }
     }
 
+    #[allow(dead_code)]
     fn map_string_to_priority_enum(priority: &str) -> i32 {
         match priority {
             "Low" => 1,
@@ -84,6 +84,7 @@ impl SlaGrpcService {
         }
     }
 
+    #[allow(dead_code)]
     fn map_string_to_severity_enum(severity: &str) -> i32 {
         match severity {
             "Low" => 1,
@@ -128,6 +129,7 @@ impl SlaGrpcService {
         }
     }
 
+    #[allow(dead_code)]
     fn calculate_business_hours_due(
         start_time: DateTime<Utc>,
         minutes: i32,
@@ -512,7 +514,7 @@ impl SlaService for SlaGrpcService {
 
         if !req.priorities.is_empty() {
             // For simplicity, only handle first priority in list
-            if let Some(priority_filter) = req.priorities.first() {
+            if let Some(_priority_filter) = req.priorities.first() {
                 where_conditions.push(format!("priority = ${}", bind_count));
                 bind_count += 1;
             }
@@ -520,7 +522,7 @@ impl SlaService for SlaGrpcService {
 
         if !req.severities.is_empty() {
             // For simplicity, only handle first severity in list
-            if let Some(severity_filter) = req.severities.first() {
+            if let Some(_severity_filter) = req.severities.first() {
                 where_conditions.push(format!("severity = ${}", bind_count));
                 bind_count += 1;
             }
@@ -603,7 +605,7 @@ impl SlaService for SlaGrpcService {
             })
             .collect();
 
-        let next_page_token = if (page_token + page_size as i64) < total_count {
+        let _next_page_token = if (page_token + page_size as i64) < total_count {
             (page_token + page_size as i64).to_string()
         } else {
             String::new()
@@ -868,7 +870,7 @@ impl SlaService for SlaGrpcService {
 
             if total > 0 {
                 let response_percentage = (response_met as f64 / total as f64) * 100.0;
-                let resolution_percentage = (resolution_met as f64 / total as f64) * 100.0;
+                let _resolution_percentage = (resolution_met as f64 / total as f64) * 100.0;
 
                 compliance.push(SlaDashboardItem {
                     category: Self::ticket_priority_to_string(&row.get::<TicketPriority, _>("priority")),
@@ -1010,7 +1012,7 @@ impl SlaService for SlaGrpcService {
 
         // Build WHERE clause
         let mut where_conditions = vec!["t.tenant_id = $1".to_string()];
-        let mut bind_count = 2;
+        let bind_count = 2;
 
         where_conditions.push("(ts.response_breached = true OR ts.resolution_breached = true)".to_string());
 
@@ -1025,7 +1027,7 @@ impl SlaService for SlaGrpcService {
              WHERE {}", where_clause
         );
 
-        let mut count_query_builder = sqlx::query(&count_query).bind(tenant_context.tenant_id);
+        let count_query_builder = sqlx::query(&count_query).bind(tenant_context.tenant_id);
 
         // No additional filters based on current proto definition
 
@@ -1069,7 +1071,7 @@ impl SlaService for SlaGrpcService {
             .into_iter()
             .map(|row| {
                 let created_at: DateTime<Utc> = row.get("created_at");
-                let ticket_created_at: DateTime<Utc> = row.get("ticket_created_at");
+                let _ticket_created_at: DateTime<Utc> = row.get("ticket_created_at");
                 let now = Utc::now();
 
                 // Determine breach type
@@ -1114,7 +1116,7 @@ impl SlaService for SlaGrpcService {
             })
             .collect();
 
-        let next_page_token = if (page_token + page_size as i64) < total_count {
+        let _next_page_token = if (page_token + page_size as i64) < total_count {
             (page_token + page_size as i64).to_string()
         } else {
             String::new()

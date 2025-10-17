@@ -176,11 +176,25 @@ impl JwtService {
             ));
         }
 
-        let token = auth_header.strip_prefix("Bearer ").ok_or_else(|| {
+        let token_part = auth_header.strip_prefix("Bearer ").ok_or_else(|| {
             SmartTicketError::Unauthorized("Invalid authorization header".to_string())
         })?;
 
-        Ok(token.to_string())
+        // Ensure there's exactly one token (no extra spaces or content)
+        if token_part.trim().is_empty() {
+            return Err(SmartTicketError::Unauthorized(
+                "Missing token in authorization header".to_string(),
+            ));
+        }
+
+        // Check if there are extra spaces or content after the token
+        if token_part.chars().any(|c| c.is_whitespace()) {
+            return Err(SmartTicketError::Unauthorized(
+                "Invalid authorization header format - too many parts".to_string(),
+            ));
+        }
+
+        Ok(token_part.to_string())
     }
 }
 
@@ -214,7 +228,7 @@ pub struct TokenInfo {
 
 impl JwtService {
     pub fn get_token_info(&self, token: &str) -> Result<TokenInfo> {
-        let _header = jsonwebtoken::decode_header(token).map_err(|e| SmartTicketError::Jwt(e))?;
+        let _header = jsonwebtoken::decode_header(token).map_err(SmartTicketError::Jwt)?;
 
         // We can't decode without knowing the exact structure, so we'll extract basic info
         let token_parts: Vec<&str> = token.split('.').collect();
@@ -325,6 +339,9 @@ mod tests {
         let token_pair = jwt_service
             .generate_token_pair("user-123", &user_data)
             .unwrap();
+
+        // Wait for token to expire
+        std::thread::sleep(std::time::Duration::from_secs(2));
 
         // Should fail to verify expired token
         let result = jwt_service.verify_user_token(&token_pair.access_token);

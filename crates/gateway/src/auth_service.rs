@@ -4,7 +4,6 @@
 //! including login and token refresh.
 
 use bcrypt::verify;
-use sqlx::Row;
 use std::result::Result as StdResult;
 use std::str::FromStr;
 use std::sync::Arc;

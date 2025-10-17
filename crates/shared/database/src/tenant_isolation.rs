@@ -137,7 +137,7 @@ impl TenantIsolation {
             .bind(tenant_id)
             .fetch_optional(pool)
             .await
-            .map_err(|e| SmartTicketError::Database(e))?;
+            .map_err(SmartTicketError::Database)?;
 
         if result.is_none() {
             return Err(SmartTicketError::TenantNotFound(tenant_id));
@@ -154,7 +154,7 @@ impl TenantIsolation {
         .bind(tenant_id)
         .fetch_optional(pool)
         .await
-        .map_err(|e| SmartTicketError::Database(e))?;
+        .map_err(SmartTicketError::Database)?;
 
         Ok(result.is_some())
     }

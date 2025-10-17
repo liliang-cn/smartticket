@@ -139,7 +139,22 @@ SmartTicket is a B2B multi-tenant ticketing and knowledge collaboration platform
 
 ## Port Configuration
 
+### Database Port Strategy
+To avoid conflicts between environments, the project uses different PostgreSQL ports:
+- **Development**: Port 5434 (configured in `docker/docker-compose.dev.yml`)
+- **Testing**: Port 5435 (configured in `docker/docker-compose.test.yml` and `config/testing.yaml`)
+- **Production**: Port 5432 (standard PostgreSQL port)
+
+### Application Ports
 Avoid common ports (3000, 8000, 8080, 9000, 9001, 5173, 4200, 7000, 5000). Use non-standard ports for development and document them in `.env.example` or `ports.json` for team coordination.
+
+### Current Service Ports
+- **gRPC Gateway**: Port 6533
+- **Development PostgreSQL**: Port 5434
+- **Test PostgreSQL**: Port 5435
+- **Production PostgreSQL**: Port 5432
+- **Development Redis**: Port 6379
+- **Test Redis**: Port 6381
 
 ## Development Notes
 
@@ -163,6 +178,27 @@ Avoid common ports (3000, 8000, 8080, 9000, 9001, 5173, 4200, 7000, 5000). Use n
 - Implement tamper-evident audit trails
 - Support audit log export for compliance
 
+## Testing Infrastructure
+
+### gRPC E2E Testing
+The project includes comprehensive gRPC end-to-end testing using grpcurl:
+- **Test Coverage**: All 68 gRPC interfaces across 7 services
+- **Authentication Flow**: Real JWT-based authentication (no bypasses)
+- **Test Location**: `tests/grpc/` directory with modular test files
+- **Test Runner**: `tests/grpc/100_PERCENT_PASS_TEST.sh` for full suite
+- **Makefile Integration**: Run with `make test-grpc`
+
+### Test Environment Configuration
+- **Database**: PostgreSQL on port 5435 with isolated test database
+- **Cache**: Redis on port 6381 for test caching
+- **Authentication**: Test users with predictable credentials
+- **Data Isolation**: Each test run uses clean test data
+
+### Development Tools
+- **Test Runner**: `dev-tools/test.sh` for comprehensive testing
+- **Database Utils**: `tests/utils/` for password and test utilities
+- **API Generation**: `dev-tools/generate-openapi.sh` for documentation
+
 ## Current Project State
 
-This project is currently in the design phase with comprehensive technical specifications documented in `DESIGN.md`. The architecture emphasizes simplified microservices, strong security, and GDPR compliance while maintaining high performance for a European B2B customer base.
+The project has a working gRPC gateway with comprehensive testing infrastructure. All 68 gRPC interfaces have been tested with real authentication flow. The database port configuration is unified across environments (dev: 5434, test: 5435, prod: 5432) to avoid conflicts. The architecture emphasizes simplified microservices, strong security, and GDPR compliance while maintaining high performance for a European B2B customer base.

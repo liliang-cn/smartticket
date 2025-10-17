@@ -2,7 +2,7 @@
 //!
 //! 这个示例展示了如何连接到数据库并执行基本操作
 
-use smartticket_shared_config::database::DatabaseConfig;
+use smartticket_shared_config::database::{DatabaseConfig, SslMode};
 use smartticket_shared_database::DatabaseConnection;
 use sqlx::Row;
 use uuid::Uuid;
@@ -10,9 +10,13 @@ use uuid::Uuid;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 初始化数据库连接
-    let database_url = "postgres://postgres:postgres@localhost:5434/smartticket";
     let config = DatabaseConfig {
-        url: database_url.to_string(),
+        host: "localhost".to_string(),
+        port: 5434,
+        database_name: "smartticket".to_string(),
+        username: "postgres".to_string(),
+        password: "postgres".to_string(),
+        ssl_mode: SslMode::Disable,
         max_connections: 10,
         min_connections: 1,
         connect_timeout: 30,
@@ -24,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 测试数据库连接
     let result = sqlx::query("SELECT 1 as test")
-        .fetch_one(&db_connection.pool())
+        .fetch_one(db_connection.pool())
         .await?;
 
     let test_value: i32 = result.get("test");
@@ -37,13 +41,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), NOW())
         RETURNING id
     ")
-    .bind(&new_tenant_id)
+    .bind(new_tenant_id)
     .bind("Demo Company")
     .bind("demo.smartticket.com")
     .bind("Enterprise")
     .bind(500i32)
     .bind("EU")
-    .fetch_one(&db_connection.pool())
+    .fetch_one(db_connection.pool())
     .await?;
 
     let tenant_id: Uuid = tenant_result.get("id");
@@ -51,8 +55,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 查询租户信息
     let tenant_info = sqlx::query("SELECT name, subscription_tier FROM tenants WHERE id = $1")
-        .bind(&tenant_id)
-        .fetch_one(&db_connection.pool())
+        .bind(tenant_id)
+        .fetch_one(db_connection.pool())
         .await?;
 
     let tenant_name: String = tenant_info.get("name");
@@ -66,13 +70,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), NOW())
         RETURNING id
     ")
-    .bind(&new_user_id)
-    .bind(&tenant_id)
+    .bind(new_user_id)
+    .bind(tenant_id)
     .bind("demo@company.com")
     .bind("demo_user")
     .bind("Demo User")
     .bind("CustomerUser")
-    .fetch_one(&db_connection.pool())
+    .fetch_one(db_connection.pool())
     .await?;
 
     let user_id: Uuid = user_result.get("id");
@@ -80,8 +84,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // 查询用户数量
     let user_count_result = sqlx::query("SELECT COUNT(*) as count FROM users WHERE tenant_id = $1")
-        .bind(&tenant_id)
-        .fetch_one(&db_connection.pool())
+        .bind(tenant_id)
+        .fetch_one(db_connection.pool())
         .await?;
 
     let user_count: i64 = user_count_result.get("count");

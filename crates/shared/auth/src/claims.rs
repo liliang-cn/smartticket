@@ -72,7 +72,7 @@ impl UserClaims {
     pub fn is_support(&self) -> bool {
         matches!(
             self.role.as_str(),
-            "SuperAdmin" | "TenantAdmin" | "SupportEngineer"
+            "SuperAdmin" | "SupportEngineer"  // TenantAdmin is not considered support
         )
     }
 
@@ -174,7 +174,7 @@ impl TenantContext {
     }
 
     pub fn can_view_audit_logs(&self) -> bool {
-        self.is_admin()
+        matches!(self.user_role.as_str(), "SuperAdmin")
     }
 }
 

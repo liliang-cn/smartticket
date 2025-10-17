@@ -7,12 +7,21 @@
 ```
 tests/
 ├── common/                    # 通用测试工具和配置
-│   └── mod.rs                # 测试上下文、夹具、断言
+│   ├── mod.rs                # 测试上下文和核心功能
+│   ├── fixtures.rs           # 测试数据夹具
+│   └── assertions.rs         # 自定义断言函数
 ├── integration/              # 集成测试
 │   └── multi_tenant_isolation_test.rs
 ├── performance/              # 性能测试
 │   └── concurrent_ticket_operations_test.rs
-└── README.md                 # 本文档
+├── e2e/                     # 端到端测试 (Shell脚本)
+│   ├── config/              # E2E配置文件
+│   ├── utils/               # E2E工具函数
+│   ├── integration/         # 集成测试脚本
+│   ├── single-service/      # 单服务测试脚本
+│   ├── performance/         # 性能测试脚本
+│   └── reports/             # 测试报告
+└── README.md                # 本文档
 ```
 
 ## 🚀 快速开始
@@ -26,6 +35,28 @@ tests/
 
 ### 2. 运行所有测试
 
+#### 使用统一测试运行器（推荐）
+```bash
+# 运行所有测试（单元测试 + 集成测试 + 性能测试）
+./tests/run_all_tests.sh
+
+# 包含 E2E 测试
+./tests/run_all_tests.sh --include-e2e
+
+# 快速测试（跳过性能测试）
+./tests/run_all_tests.sh --fast
+
+# 详细输出
+./tests/run_all_tests.sh --verbose
+
+# 仅运行特定类型的测试
+./tests/run_all_tests.sh --unit-only
+./tests/run_all_tests.sh --integration-only
+./tests/run_all_tests.sh --performance-only
+./tests/run_all_tests.sh --e2e-only
+```
+
+#### 传统方式
 ```bash
 # 运行所有测试（单元测试 + 集成测试 + 性能测试）
 ./scripts/test.sh all
@@ -34,6 +65,11 @@ tests/
 ./scripts/test.sh unit          # 只运行单元测试
 ./scripts/test.sh integration   # 只运行集成测试
 ./scripts/test.sh performance   # 只运行性能测试
+
+# 运行 E2E 测试
+cd tests/e2e
+./run_e2e_master.sh            # 运行所有 E2E 测试
+./run_e2e_master.sh --fast     # 运行快速 E2E 测试
 ```
 
 ### 3. 查看测试覆盖率
@@ -50,6 +86,14 @@ tests/
 ```bash
 # 停止容器并清理测试数据
 ./scripts/test.sh clean
+
+# 或使用统一的清理工具
+./tests/cleanup_tests.sh --all
+
+# 仅清理特定内容
+./tests/cleanup_tests.sh --db      # 清理数据库
+./tests/cleanup_tests.sh --e2e     # 清理 E2E 结果
+./tests/cleanup_tests.sh --cache   # 清理缓存
 ```
 
 ## 🧪 测试组件

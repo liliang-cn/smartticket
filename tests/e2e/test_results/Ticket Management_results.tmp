@@ -1,6 +1,0 @@
-./ticket_tests.sh: line 459: syntax error near unexpected token `)'
-./ticket_tests.sh: line 459: `    log_success "✓ Step 1: Ticket created")'
-[0;34m[INFO][0m Cleaning up test data...
-[0;34m[INFO][0m Logging out user
-[0;32m[SUCCESS][0m Test data cleanup completed
-[0;32m[SUCCESS][0m Test environment teardown completed

@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432"  # Different port for tests
+      - "5435:5432"  # Different port for tests
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
       - ./init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql
@@ -23,7 +23,7 @@ services:
     image: m.daocloud.io/docker.io/library/redis:7-alpine
     container_name: smartticket-redis-test
     ports:
-      - "6380:6379"  # Different port for tests
+      - "6381:6379"  # Different port for tests
     volumes:
       - redis_test_data:/data
     healthcheck:

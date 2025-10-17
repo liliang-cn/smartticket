@@ -1,5 +1,0 @@
-SmartTicket E2E Test Results
-Generated: 2025年10月16日 星期四 21时44分37秒 CST
-Environment: localhost:6533
-Test Tenant: test.smartticket.com
-

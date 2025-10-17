@@ -2,7 +2,6 @@
 //!
 //! This module implements the gRPC service handlers for ticket management.
 
-use sqlx::Row;
 use std::result::Result as StdResult;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -31,6 +30,7 @@ use smartticket_shared_database::{AuthUser, TenantContext};
 /// gRPC Ticket Service implementation
 pub struct TicketGrpcService {
     core_service: Arc<CoreTicketService>,
+    #[allow(dead_code)]
     db_pool: Arc<sqlx::PgPool>,
 }
 
@@ -648,7 +648,7 @@ impl TicketService for TicketGrpcService {
         }
 
         // Build update request
-        let mut update_request = CoreUpdateTicketRequest {
+        let update_request = CoreUpdateTicketRequest {
             id: ticket_id,
             tenant_id: context.tenant_id,
             title: if req.title.is_empty() {
@@ -1014,7 +1014,6 @@ impl TicketService for TicketGrpcService {
             (smartticket_shared_database::UserRole::SupportEngineer, _)
             | (smartticket_shared_database::UserRole::TenantAdmin, _)
             | (smartticket_shared_database::UserRole::SuperAdmin, _) => true,
-            _ => false,
         };
 
         if !can_comment {
@@ -1180,7 +1179,6 @@ impl TicketService for TicketGrpcService {
             (smartticket_shared_database::UserRole::SupportEngineer, _)
             | (smartticket_shared_database::UserRole::TenantAdmin, _)
             | (smartticket_shared_database::UserRole::SuperAdmin, _) => true,
-            _ => false,
         };
 
         if !can_view_comments {

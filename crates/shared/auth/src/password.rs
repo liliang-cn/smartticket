@@ -40,16 +40,43 @@ impl PasswordService {
     /// Generate a secure random password
     pub fn generate_password(&self, length: usize) -> String {
         use rand::Rng;
-        const CHARSET: &[u8] =
-            b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+        const LOWERCASE: &[u8] = b"abcdefghijklmnopqrstuvwxyz";
+        const UPPERCASE: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const DIGITS: &[u8] = b"0123456789";
+        const SPECIAL: &[u8] = b"!@#$%^&*()";
+        const ALL_CHARS: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
         let mut rng = rand::thread_rng();
 
-        (0..length)
-            .map(|_| {
-                let idx = rng.gen_range(0..CHARSET.len());
-                CHARSET[idx] as char
-            })
-            .collect()
+        if length < 4 {
+            // For very short passwords, just use random characters from all sets
+            return (0..length)
+                .map(|_| {
+                    let idx = rng.gen_range(0..ALL_CHARS.len());
+                    ALL_CHARS[idx] as char
+                })
+                .collect();
+        }
+
+        // Ensure at least one of each character type
+        let mut password_chars = Vec::with_capacity(length);
+
+        // Add one guaranteed character from each set
+        password_chars.push(LOWERCASE[rng.gen_range(0..LOWERCASE.len())] as char);
+        password_chars.push(UPPERCASE[rng.gen_range(0..UPPERCASE.len())] as char);
+        password_chars.push(DIGITS[rng.gen_range(0..DIGITS.len())] as char);
+        password_chars.push(SPECIAL[rng.gen_range(0..SPECIAL.len())] as char);
+
+        // Fill the rest with random characters from all sets
+        for _ in 4..length {
+            let idx = rng.gen_range(0..ALL_CHARS.len());
+            password_chars.push(ALL_CHARS[idx] as char);
+        }
+
+        // Shuffle the characters to avoid predictable patterns
+        use rand::seq::SliceRandom;
+        password_chars.shuffle(&mut rng);
+
+        password_chars.into_iter().collect()
     }
 
     /// Validate password strength

@@ -1,6 +1,5 @@
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::smartticket_v1::*;
 
     #[tokio::test]
