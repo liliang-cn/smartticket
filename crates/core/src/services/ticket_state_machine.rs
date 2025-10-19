@@ -602,6 +602,7 @@ pub enum EscalationType {
 
 #[cfg(test)]
 mod tests {
+    use smartticket_shared_database::TicketSeverity;
     use super::*;
 
     #[test]
@@ -680,6 +681,7 @@ mod tests {
             description: "Test".to_string(),
             status: TicketStatus::Resolved,
             priority: TicketPriority::Normal,
+            severity: TicketSeverity::Low,
             ticket_type: TicketType::Incident,
             category_id: None,
             tags: vec![],

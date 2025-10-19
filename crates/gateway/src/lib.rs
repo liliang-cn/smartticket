@@ -22,7 +22,7 @@ pub use user_service::UserGrpcService;
 
 // Include generated proto code directly
 pub mod smartticket_v1 {
-    include!("proto/smartticket.v1.rs");
+    include!("proto/smartticket_v1.rs");
 }
 
 // Include tests module
