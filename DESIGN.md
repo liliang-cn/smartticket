@@ -1,17 +1,23 @@
 SmartTicket 设计文档（草案）
 
-更新时间：2025-10-15
+更新时间：2025-10-19
 
 概览
 
-SmartTicket 是一款面向 B2B 软件服务商的多租户工单与知识协作平台，目标用户是一家位于欧洲、约 40 人规模的软件公司，为企业客户提供如“高可用存储”等产品与服务，并按照不同支持层级（如铂金/标准）交付 SLA。系统为其客户与内部工程师/售前/销售提供端到端的问题受理、协同处理、知识沉淀与 AI 辅助（原生 RAG/LLM）能力，同时满足 GDPR 与审计合规。
+SmartTicket 是一款面向企业自主部署的多租户工单与知识协作平台，核心特色在于**企业完全掌控自己的数据**、**灵活的导入导出功能**以及**可自定义的 LLM Provider**。系统为企业客户提供端到端的问题受理、协同处理、知识沉淀与 AI 辅助（原生 RAG/LLM）能力，同时满足 GDPR 与审计合规要求。
+
+## 核心特色
+
+1. **企业自主部署**：单文件部署，无需外部依赖，支持私有化部署
+2. **数据自主可控**：完善的导入导出功能，用户可随时备份和迁移所有数据
+3. **自定义 LLM Provider**：支持接入任意 LLM 服务，包括公有云、私有部署或本地模型
 
 目标与非目标
 
 - 目标
   - 降低平均首次响应时间（FRT）与平均解决时间（MTTR），提升 SLA 兑现率
   - 让客户在创建工单前通过 RAG 自助排查，减少无效/重复工单
-  - 支持按“产品/版本/支持层级/合同”细粒度的 SLA 策略、升级路径与排班
+  - 支持按"产品/版本/支持层级/合同"细粒度的 SLA 策略、升级路径与排班
   - 全角色协同：Admin、客户（Customer）、工程师（Support Engineer）、售前（SE/SA）、销售（Sales）
   - 原生知识沉淀：帖子/解决方案/运行手册/已解决 Ticket 摘要自动入库并可被 RAG 检索
   - 强审计与数据隔离，满足欧洲客户的数据驻留与 GDPR 要求
@@ -53,8 +59,21 @@ SmartTicket 是一款面向 B2B 软件服务商的多租户工单与知识协作
   - 合同与定价：合同（多产品/席位/支持层级）、折扣（客户级/产品级/临时活动）、发票与计费集成
   - 集成：SSO、邮件入单、Webhook、Jira/GitHub、Slack/Teams、PagerDuty、CRM
   - 合规与安全：审计日志、数据导出/删改请求（GDPR DSR）、PII 策略、加密与密钥轮转
-  - 数据管理：批量导入/导出工单、知识库、用户数据；支持CSV/JSON/XML格式；增量同步与冲突处理
-  - LLM 配置：管理 LLM 供应商（OpenAI、Azure OpenAI、DeepSeek、本地/私有化），设置/轮换 API Key/EndPoint/Region，模型白名单与默认模型，任务到模型映射（检索/重排/生成/函数调用），配额与费用上限，速率限制
+  - **数据管理与备份**：
+    - 全量数据导出：支持一键导出所有工单、知识库、用户、配置等数据
+    - 增量数据导出：按时间范围导出新增或变更的数据
+    - 多格式支持：CSV、JSON、XML、Markdown 格式，适配不同系统需求
+    - 数据导入：支持从外部系统批量导入历史数据，字段映射与冲突处理
+    - 自动备份：定时自动备份，支持本地存储和云存储
+    - 数据迁移：完整的数据迁移工具，支持版本升级和数据迁移
+
+  - **自定义 LLM Provider 管理**：
+    - 多 Provider 支持：OpenAI、Azure OpenAI、DeepSeek、Anthropic Claude、本地部署模型等
+    - 灵活配置：自定义 API 端点、认证方式、模型参数、重试策略
+    - 任务模型映射：为不同 AI 任务（检索、重排、生成、函数调用）配置专用模型
+    - 成本控制：设置配额限制、费用监控、使用统计
+    - 密钥管理：加密存储 API 密钥，支持密钥轮换
+    - 私有化支持：支持企业内部部署的 LLM 服务和本地模型
 - 客户
   - 工单：创建/查看/回复/评价、附件、授权支持联系人、按合同级别查看 SLA
   - 自助：RAG 检索、智能表单（产品/版本/日志片段/环境）、状态订阅
@@ -84,1372 +103,1057 @@ SmartTicket 是一款面向 B2B 软件服务商的多租户工单与知识协作
 
 系统架构
 
+### 部署架构特色
+
+**企业自主部署模式**：
+- **单二进制部署**：整个系统编译为单个可执行文件，无需额外依赖
+- **零依赖安装**：内置 SQLite 数据库，无需数据库服务器配置
+- **即插即用**：解压即可运行，5分钟完成部署
+- **私有化支持**：支持完全离线环境部署，满足安全合规要求
+- **资源占用低**：内存占用 < 512MB，适合中小企业部署
+
+### 技术架构
+
 - 前端
   - 客户门户（Web，移动友好）：创建工单、自助 RAG、查看进度、知识库
   - 内部控制台（Web）：工作台、队列、排班、知识编辑、集成配置、审计
-- 后端服务（Rust + gRPC）- 简化架构
-  - gRPC 网关：统一入口（mTLS、JWT/OIDC/SAML 会话注入），通过 Envoy/Traefik 支持 gRPC-Web；提供可选 JSON 转码以便第三方系统集成
-  - Core Service：合并 Ticket + Knowledge 服务，统一处理工单生命周期、知识库管理、SLA 引擎、智能路由
-  - AI Service：RAG/LLM 文档摄取、分片、嵌入、混合检索（BM25+向量）、重排、提示编排与安全；内置 AI Provider Adapter 与路由策略
-  - Platform Service：合并 Identity + Integration，处理多租户、SSO、RBAC、审计拦截器和外部系统集成
-  - Notification Service：邮件/聊天/Push 模板、节流与重试
+  - 数据管理界面：导入导出向导、备份恢复、LLM 配置
+- 后端服务（Golang + GIN）- 单体架构
+  - Web API 服务：基于 Gin 框架的 REST API，处理 HTTP 请求和响应
+  - 认证中间件：JWT/OIDC/SAML 会话注入，租户隔离
+  - 业务逻辑层：工单生命周期、知识库管理、SLA 引擎、智能路由
+  - **AI 服务集成**：灵活的 LLM Provider 适配器，支持多种 AI 服务
+  - **数据管理服务**：导入导出引擎、备份服务、数据转换器
+  - 通知服务：邮件/通知模板、节流与重试
 - 数据层
-  - 关系型数据库：PostgreSQL（多租户隔离：tenant_id + RLS；支持强一致事务）
-  - 全文检索：OpenSearch/Elasticsearch（标题/描述/备注/知识全文搜索）
-  - 向量数据库：PgVector/Weaviate/Qdrant（多租户命名空间 + 细粒度 ACL）
-  - 对象存储：S3 兼容（附件、导出、模型缓存）
-  - 缓存与队列：Redis（缓存/会话/限流/分布式锁）、Kafka/NATS（异步事件总线）
+  - SQLite 数据库：嵌入式数据库，支持 ACID 事务，数据文件可直接备份
+  - 多租户隔离：使用 tenant_id 字段和数据库查询过滤
+  - 文件存储：本地文件系统存储附件和文档，支持加密存储
+  - 向量存储：简化的内存向量检索（基础版本），可扩展至专业向量数据库
 - 可观测与运维
-  - Metrics/Tracing/Logging：Prometheus + Grafana，OpenTelemetry
+  - 结构化日志：logrus 或 zap
+  - 基础指标：运行时指标收集
   - 审计与合规：不可变日志、签名与留存策略（按租户与法规）
-  - 备份恢复：数据库/索引/对象存储快照，演练 Runbook
+  - 备份恢复：SQLite 数据库文件定期备份
 
-数据模型（核心实体草图）
+数据模型（核心实体）
+
+GORM 模型定义：
+```go
+// Tenant 租户
+type Tenant struct {
+    ID           string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    Name         string    `gorm:"type:varchar(255);not null" json:"name"`
+    Region       string    `gorm:"type:varchar(100)" json:"region"`
+    DataResidency string   `gorm:"type:varchar(100)" json:"data_residency"`
+    Settings     string    `gorm:"type:text" json:"settings"` // JSON
+    CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+}
+
+// User 用户
+type User struct {
+    ID        string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID  string    `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    Email     string    `gorm:"type:varchar(255);not null;uniqueIndex" json:"email"`
+    Role      string    `gorm:"type:varchar(50);not null" json:"role"` // admin/customer/engineer/se/sales
+    Profile   string    `gorm:"type:text" json:"profile"` // JSON
+    Status    string    `gorm:"type:varchar(20);default:'active'" json:"status"`
+    CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    Tenant Tenant `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+}
+
+// CustomerOrg 客户组织
+type CustomerOrg struct {
+    ID           string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID     string    `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    Name         string    `gorm:"type:varchar(255);not null" json:"name"`
+    Domain       string    `gorm:"type:varchar(255)" json:"domain"`
+    BillingInfo  string    `gorm:"type:text" json:"billing_info"` // JSON
+    CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    Tenant Tenant `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+}
+
+// Product 产品
+type Product struct {
+    ID              string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID        string    `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    Name            string    `gorm:"type:varchar(255);not null" json:"name"`
+    VersioningPolicy string   `gorm:"type:text" json:"versioning_policy"`
+    CreatedAt       time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt       time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    Tenant       Tenant         `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+    Versions     []ProductVersion `gorm:"foreignKey:ProductID" json:"versions,omitempty"`
+}
+
+// ProductVersion 产品版本
+type ProductVersion struct {
+    ID         string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    ProductID  string    `gorm:"type:varchar(36);not null;index" json:"product_id"`
+    Version    string    `gorm:"type:varchar(100);not null" json:"version"`
+    Status     string    `gorm:"type:varchar(20);default:'GA'" json:"status"` // GA/LTS/EOL
+    CreatedAt  time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt  time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    Product Product `gorm:"foreignKey:ProductID" json:"product,omitempty"`
+}
+
+// SupportPlan 支持计划
+type SupportPlan struct {
+    ID           string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID     string    `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    Name         string    `gorm:"type:varchar(255);not null" json:"name"`
+    Description  string    `gorm:"type:text" json:"description"`
+    SlaPolicies  string    `gorm:"type:text" json:"sla_policies"` // JSON
+    Channels     string    `gorm:"type:text" json:"channels"` // JSON
+    Features     string    `gorm:"type:text" json:"features"` // JSON
+    PricingModel string    `gorm:"type:varchar(100)" json:"pricing_model"`
+    IsActive     bool      `gorm:"default:true" json:"is_active"`
+    CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    Tenant Tenant `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+}
+
+// Contract 合同
+type Contract struct {
+    ID             string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID       string    `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    CustomerOrgID  string    `gorm:"type:varchar(36);not null;index" json:"customer_org_id"`
+    Products       string    `gorm:"type:text" json:"products"` // JSON array
+    Seats          int       `gorm:"default:10" json:"seats"`
+    SupportPlanID  string    `gorm:"type:varchar(36);index" json:"support_plan_id"`
+    StartAt        time.Time `gorm:"not null" json:"start_at"`
+    EndAt          time.Time `gorm:"not null" json:"end_at"`
+    Discounts      string    `gorm:"type:text" json:"discounts"` // JSON
+    CreatedAt      time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt      time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    Tenant       Tenant      `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+    CustomerOrg  CustomerOrg `gorm:"foreignKey:CustomerOrgID" json:"customer_org,omitempty"`
+    SupportPlan  SupportPlan `gorm:"foreignKey:SupportPlanID" json:"support_plan,omitempty"`
+}
+
+// Ticket 工单
+type Ticket struct {
+    ID                string     `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID          string     `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    CustomerOrgID     string     `gorm:"type:varchar(36);not null;index" json:"customer_org_id"`
+    ContractID        string     `gorm:"type:varchar(36);index" json:"contract_id"`
+    ProductID         string     `gorm:"type:varchar(36);index" json:"product_id"`
+    ProductVersionID  string     `gorm:"type:varchar(36);index" json:"product_version_id"`
+    Priority          string     `gorm:"type:varchar(20);default:'medium'" json:"priority"` // low/medium/high/critical
+    Severity          string     `gorm:"type:varchar(20);default:'minor'" json:"severity"` // minor/major/critical
+    Status            string     `gorm:"type:varchar(20);default:'new'" json:"status"` // new/in_progress/resolved/closed
+    AssigneeGroupID   *string    `gorm:"type:varchar(36);index" json:"assignee_group_id"`
+    AssigneeID        *string    `gorm:"type:varchar(36);index" json:"assignee_id"`
+    CreatedBy         string     `gorm:"type:varchar(36);not null" json:"created_by"`
+    CreatedAt         time.Time  `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt         time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
+    DueAt             *time.Time `json:"due_at"`
+    IsDeleted         bool       `gorm:"default:false" json:"is_deleted"`
+
+    Tenant           Tenant         `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+    CustomerOrg      CustomerOrg    `gorm:"foreignKey:CustomerOrgID" json:"customer_org,omitempty"`
+    Contract         Contract       `gorm:"foreignKey:ContractID" json:"contract,omitempty"`
+    Product          Product        `gorm:"foreignKey:ProductID" json:"product,omitempty"`
+    ProductVersion   ProductVersion `gorm:"foreignKey:ProductVersionID" json:"product_version,omitempty"`
+    Assignee         *User          `gorm:"foreignKey:AssigneeID" json:"assignee,omitempty"`
+    Messages         []TicketMessage `gorm:"foreignKey:TicketID" json:"messages,omitempty"`
+    Events           []TicketEvent  `gorm:"foreignKey:TicketID" json:"events,omitempty"`
+}
+
+// TicketMessage 工单消息
+type TicketMessage struct {
+    ID          string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TicketID    string    `gorm:"type:varchar(36);not null;index" json:"ticket_id"`
+    AuthorID    string    `gorm:"type:varchar(36);not null" json:"author_id"`
+    Type        string    `gorm:"type:varchar(20);default:'public'" json:"type"` // public/internal
+    Content     string    `gorm:"type:text;not null" json:"content"`
+    Attachments string    `gorm:"type:text" json:"attachments"` // JSON
+    CreatedAt   time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    Ticket Ticket `gorm:"foreignKey:TicketID" json:"ticket,omitempty"`
+    Author User   `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
+}
+
+// TicketEvent 工单事件/审计
+type TicketEvent struct {
+    ID        string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TicketID  string    `gorm:"type:varchar(36);not null;index" json:"ticket_id"`
+    Type      string    `gorm:"type:varchar(50);not null" json:"type"`
+    Payload   string    `gorm:"type:text" json:"payload"` // JSON
+    CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+    Actor     string    `gorm:"type:varchar(36);not null" json:"actor"`
+    TenantID  string    `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+
+    Ticket Ticket `gorm:"foreignKey:TicketID" json:"ticket,omitempty"`
+    User   User   `gorm:"foreignKey:Actor" json:"user,omitempty"`
+}
+
+// KnowledgeArticle 知识文章
+type KnowledgeArticle struct {
+    ID             string     `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID       string     `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    Title          string     `gorm:"type:varchar(500);not null" json:"title"`
+    Body           string     `gorm:"type:text;not null" json:"body"`
+    Tags           string     `gorm:"type:text" json:"tags"` // JSON
+    Visibility     string     `gorm:"type:varchar(20);default:'internal'" json:"visibility"` // internal/customer/public
+    Status         string     `gorm:"type:varchar(20);default:'draft'" json:"status"` // draft/published/archived
+    RelatedProducts string    `gorm:"type:text" json:"related_products"` // JSON
+    Version        int        `gorm:"default:1" json:"version"`
+    CreatedAt      time.Time  `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt      time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
+    PublishedAt    *time.Time `json:"published_at"`
+    AuthorID       string     `gorm:"type:varchar(36);not null" json:"author_id"`
+
+    Tenant Tenant `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+    Author User   `gorm:"foreignKey:AuthorID" json:"author,omitempty"`
+}
+
+// ImportExportJob 导入导出任务
+type ImportExportJob struct {
+    ID              string     `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID        string     `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    JobType         string     `gorm:"type:varchar(20);not null" json:"job_type"` // import/export
+    EntityType      string     `gorm:"type:varchar(50);not null" json:"entity_type"`
+    SourceFormat    string     `gorm:"type:varchar(20);not null" json:"source_format"`
+    Status          string     `gorm:"type:varchar(20);default:'pending'" json:"status"`
+    Progress        int        `gorm:"default:0" json:"progress"`
+    TotalRecords    int        `gorm:"default:0" json:"total_records"`
+    ProcessedRecords int       `gorm:"default:0" json:"processed_records"`
+    FailedRecords   int        `gorm:"default:0" json:"failed_records"`
+    ErrorLog        string     `gorm:"type:text" json:"error_log"`
+    CreatedBy       string     `gorm:"type:varchar(36);not null" json:"created_by"`
+    CreatedAt       time.Time  `gorm:"autoCreateTime" json:"created_at"`
+    StartedAt       *time.Time `json:"started_at"`
+    CompletedAt     *time.Time `json:"completed_at"`
+    FilePath        string     `gorm:"type:varchar(500)" json:"file_path"`
+
+    Tenant Tenant `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+    Creator User   `gorm:"foreignKey:CreatedBy" json:"creator,omitempty"`
+}
+```
 
 关键索引策略：
 ```sql
 -- 高频查询优化
 CREATE INDEX idx_tickets_tenant_status_created ON tickets(tenant_id, status, created_at DESC);
 CREATE INDEX idx_tickets_assignee_status ON tickets(assignee_id, status) WHERE status != 'closed';
-CREATE INDEX idx_contracts_tenant_expiry ON contracts(tenant_id, end_at) WHERE end_at > NOW();
+CREATE INDEX idx_contracts_tenant_expiry ON contracts(tenant_id, end_at) WHERE end_at > datetime('now');
 CREATE INDEX idx_knowledge_tenant_visibility ON knowledge_articles(tenant_id, visibility) WHERE status = 'published';
-CREATE INDEX idx_embedding_tenant_source ON embedding_chunks(tenant_id, source_type, source_id);
 
 -- 审计查询优化
-CREATE INDEX idx_audit_tenant_created ON ticket_events(tenant_id, created_at DESC);
-CREATE INDEX idx_llm_usage_tenant_date ON llm_usage(tenant_id, created_at DESC);
+CREATE INDEX idx_ticket_events_tenant_created ON ticket_events(tenant_id, created_at DESC);
 ```
 
 数据完整性约束：
-```sql
--- 业务规则约束
-ALTER TABLE tickets ADD CONSTRAINT check_priority CHECK (priority IN ('low','medium','high','critical'));
-ALTER TABLE tickets ADD CONSTRAINT check_severity CHECK (severity IN ('minor','major','critical'));
-ALTER TABLE tickets ADD CONSTRAINT check_status CHECK (status IN ('new','in_progress','resolved','closed'));
-ALTER TABLE knowledge_articles ADD CONSTRAINT check_visibility CHECK (visibility IN ('internal','customer','public'));
+```go
+// GORM 验证器
+func (t *Ticket) BeforeSave(tx *gorm.DB) error {
+    // 验证优先级
+    validPriorities := []string{"low", "medium", "high", "critical"}
+    if !contains(validPriorities, t.Priority) {
+        return fmt.Errorf("invalid priority: %s", t.Priority)
+    }
 
--- 外键级联删除
-ALTER TABLE tickets ADD CONSTRAINT fk_tickets_contract FOREIGN KEY (contract_id) REFERENCES contracts(id) ON DELETE RESTRICT;
-ALTER TABLE ticket_messages ADD CONSTRAINT fk_messages_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE;
-```
+    // 验证严重程度
+    validSeverities := []string{"minor", "major", "critical"}
+    if !contains(validSeverities, t.Severity) {
+        return fmt.Errorf("invalid severity: %s", t.Severity)
+    }
 
-- Tenant（租户）: id, name, region, data_residency, settings
-- User: id, tenant_id, email, role(admin/customer/engineer/se/sales), profile, status
-- CustomerOrg（客户组织）: id, tenant_id, name, domain, billing_info
-- Product: id, tenant_id, name, versioning_policy
-- ProductVersion: id, product_id, version, lifecycle(status: GA/LTS/EOL)
-- SupportPlan: id, tenant_id, name, description, sla_policies(json), channels, features(json), pricing_model, is_active
-- Contract: id, tenant_id, customer_org_id, products[], seats, support_plan_id, start_at, end_at, discounts[]
-- SLA Policy: id, tenant_id, response_time, restore_time, resolve_time, calendar_id, priority_mapping
-- Schedule/Calendar: id, tenant_id, business_hours, holidays, oncall_rotations
-- Ticket: id, tenant_id, customer_org_id, contract_id, product_id, product_version_id, priority(enum: low/medium/high/critical), severity(enum: minor/major/critical), status(enum: new/in_progress/resolved/closed), assignee_group_id, assignee_id, created_by, created_at, updated_at, due_at, is_deleted(default: false)
-- TicketMessage: id, ticket_id, author_id, type(enum: public/internal), content, attachments[], created_at, updated_at
-- TicketEvent/Audit: id, ticket_id, type, payload(json), created_at, actor, tenant_id
-- KnowledgeArticle(Post): id, tenant_id, title, body, tags[], visibility(enum: internal/customer/public), status(enum: draft/published/archived), related_products[], version(integer), created_at, updated_at, published_at, author_id
-- EmbeddingChunk: id, tenant_id, source_type(article/ticket/faq/doc), source_id, chunk_index, vector, metadata(json)
-- LlmProvider: id, tenant_id, name(OpenAI/Azure/DeepSeek/local), endpoint, region, status
-- LlmCredential: id, tenant_id, provider_id, key_ciphertext, key_kms_ref, created_at, rotated_at, expires_at
-- LlmModelConfig: id, tenant_id, provider_id, model_name, purpose(embedding/rerank/generation/tool), default(bool), rate_limits, cost_policy
-- PromptTemplate: id, tenant_id, name, content, variables[], version, status
-- LlmUsage: id, tenant_id, provider_id, model_name, tokens_in, tokens_out, cost, trace_id, created_at
-- IntegrationMapping: id, tenant_id, external_system, external_id, local_ref, direction
-- Notification: id, tenant_id, channel, template_id, payload, status, retries
-- ImportExportJob: id, tenant_id, job_type(enum: import/export), entity_type, source_format, status, progress, total_records, processed_records, failed_records, error_log, created_by, created_at, started_at, completed_at, file_path
+    // 验证状态
+    validStatuses := []string{"new", "in_progress", "resolved", "closed"}
+    if !contains(validStatuses, t.Status) {
+        return fmt.Errorf("invalid status: %s", t.Status)
+    }
 
-RAG/LLM 方案
-
-- 文档来源
-  - 产品手册、部署指南、FAQ、Runbook、历史已解决 Ticket 摘要、变更公告
-- 摄取与预处理
-  - 支持 PDF/HTML/Markdown/Confluence/Jira/Repo 内 README；统一抽取 → 清洗 → 分片（如 500-1000 tokens overlap）→ 元数据标注（产品/版本/可见性/租户）
-  - PII/密钥脱敏，客户私有与公共知识分域
-- 嵌入与索引
-  - 向量模型：开源或商用（支持欧盟区域托管）；多租户命名空间隔离；配合 BM25 全文检索做 Hybrid Search
-  - 定期重建/增量更新；embedding 版本治理
-- 检索与重排
-  - 先基于意图分类选择索引/命名空间 → 向量召回若干段落 → 语义重排 → 构造上下文包
-  - 基于模板的提示编排，控制引用、格式与安全边界（避免泄露其他租户数据）
-- 生成与安全
-  - 生成回复草稿/RCA/下一步建议；要求带可点击引用；对外回复需人工审核或阈值门控
-  - 审计与反馈：用户对 AI 结果打分，自动回流训练与规则优化
-  - 供应商与密钥管理：Admin 在控制台配置 OpenAI/DeepSeek 等 Provider 与 API Key；密钥加密存储（KMS/Vault），按租户/环境隔离；为不同任务选择最优/最经济模型；跨境数据流评估与开关（禁止将特定数据发往非 EU 区域）
-RAG/LLM 质量评估体系
-
-检索质量指标：
-```rust
-#[derive(Debug, Serialize)]
-struct RAGMetrics {
-    // 检索准确性
-    precision_at_k: f64,        // Top-K准确率
-    recall_at_k: f64,           // Top-K召回率
-    mean_reciprocal_rank: f64,  // 平均倒数排名
-
-    // 引用质量
-    citation_accuracy: f64,     // 引用准确率
-    source_relevance: f64,      // 源文档相关性
-
-    // 业务影响
-    deflection_rate: f64,       // 工单自助化率
-    user_satisfaction: f64,     // 用户满意度
-    time_to_resolution: Duration, // 解决时间改善
+    return nil
 }
 ```
 
-幻觉检测机制：
-```python
-class HallucinationDetector:
-    def __init__(self):
-        self.fact_checker = FactCheckModel()
-        self.contradiction_detector = ContradictionModel()
+## 自定义 LLM Provider 系统
 
-    def detect_hallucination(self, response: str, sources: List[str]) -> float:
-        # 1. 事实一致性检查
-        factual_score = self.fact_checker.verify(response, sources)
+### 设计理念
+**AI 能力完全可控** - 企业可以自由选择和配置任何 LLM Provider，包括公有云服务、私有化部署或本地模型，确保 AI 功能符合企业安全和合规要求。
 
-        # 2. 逻辑矛盾检测
-        contradiction_score = self.contradiction_detector.detect(response)
+### 支持的 LLM Provider 类型
 
-        # 3. 源文覆盖率检查
-        coverage_score = self.calculate_coverage(response, sources)
+**公有云服务**：
+- **OpenAI**：GPT-4、GPT-3.5-Turbo、Embedding 模型
+- **Azure OpenAI**：企业级 OpenAI 服务，支持私有部署
+- **Anthropic Claude**：Claude-3 系列（Opus、Sonnet、Haiku）
+- **Google Gemini**：Gemini Pro、Gemini Pro Vision
+- **DeepSeek**：DeepSeek-V2、DeepSeek-Coder 系列
+- **百度文心一言**：ERNIE-4.0、ERNIE-3.5
+- **阿里通义千问**：Qwen-Max、Qwen-Plus
 
-        return self.aggregate_score(factual_score, contradiction_score, coverage_score)
+**私有化部署**：
+- **Ollama**：本地部署的开源模型（Llama、Mistral、Qwen 等）
+- **vLLM**：高性能推理引擎，支持自定义模型
+- **Text Generation Inference**：Hugging Face 推理框架
+- **LocalAI**：本地 AI 模型服务，兼容 OpenAI API
+- **FastChat**：开源对话模型训练和部署平台
+
+**企业专属模型**：
+- **微调模型**：基于企业数据微调的专属模型
+- **行业模型**：针对特定行业优化的专业模型
+- **本地部署大模型**：企业内部部署的闭源或开源模型
+
+### Provider 配置管理
+
+**配置模型设计**：
+```go
+// LLM Provider 配置
+type LlmProvider struct {
+    ID          string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID    string    `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    Name        string    `gorm:"type:varchar(100);not null" json:"name"`
+    Type        string    `gorm:"type:varchar(50);not null" json:"type"` // openai/azure/anthropic/local
+
+    // API 配置
+    Endpoint    string    `gorm:"type:varchar(500)" json:"endpoint"`
+    ApiKey      string    `gorm:"type:varchar(1000)" json:"api_key"` // 加密存储
+    ApiSecret   string    `gorm:"type:varchar(1000)" json:"api_secret"` // 加密存储
+    Region      string    `gorm:"type:varchar(100)" json:"region"`
+
+    // 模型配置
+    ModelName   string    `gorm:"type:varchar(200)" json:"model_name"`
+    ModelConfig string    `gorm:"type:text" json:"model_config"` // JSON
+
+    // 高级配置
+    MaxTokens   int       `gorm:"default:4096" json:"max_tokens"`
+    Temperature float64   `gorm:"default:0.7" json:"temperature"`
+    TopP        float64   `gorm:"default:1.0" json:"top_p"`
+
+    // 认证与安全
+    AuthType    string    `gorm:"type:varchar(50);default:'api_key'" json:"auth_type"`
+    CustomHeaders string  `gorm:"type:text" json:"custom_headers"` // JSON
+
+    // 限制与监控
+    RateLimit   int       `gorm:"default:100" json:"rate_limit"` // 每分钟请求数
+    CostLimit   float64   `gorm:"default:0" json:"cost_limit"` // 每日费用限制
+
+    Status      string    `gorm:"type:varchar(20);default:'active'" json:"status"`
+    IsDefault   bool      `gorm:"default:false" json:"is_default"`
+    CreatedAt   time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+
+    Tenant Tenant `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+}
+
+// 模型配置
+type ModelConfig struct {
+    // 任务类型映射
+    ChatModel      string `json:"chat_model"`       // 对话模型
+    EmbeddingModel string `json:"embedding_model"`  // 嵌入模型
+    RerankModel    string `json:"rerank_model"`     // 重排模型
+
+    // 性能配置
+    Timeout        int    `json:"timeout"`          // 请求超时时间（秒）
+    RetryAttempts  int    `json:"retry_attempts"`   // 重试次数
+    RetryDelay     int    `json:"retry_delay"`      // 重试延迟（秒）
+
+    // 功能开关
+    SupportStream  bool   `json:"support_stream"`   // 支持流式输出
+    SupportVision  bool   `json:"support_vision"`   // 支持多模态
+    SupportTools   bool   `json:"support_tools"`    // 支持函数调用
+
+    // 安全配置
+    ContentFilter  bool   `json:"content_filter"`   // 内容过滤
+    DataMasking    bool   `json:"data_masking"`     // 数据脱敏
+}
 ```
 
-A/B测试框架：
-```yaml
-ab_test_config:
-  rag_experiment:
-    name: "embedding_model_comparison"
-    variants:
-      - name: "control"
-        embedding_model: "text-embedding-ada-002"
-        rerank_model: "none"
-        traffic: 50%
-      - name: "treatment"
-        embedding_model: "bge-m3"
-        rerank_model: "cross-encoder"
-        traffic: 50%
-    success_metrics:
-      - "deflection_rate"
-      - "user_satisfaction"
-      - "response_time_p95"
-    duration: "14_days"
+### 任务-模型映射系统
+
+**智能任务分配**：
+```go
+type TaskType string
+
+const (
+    TaskChat          TaskType = "chat"           // 对话问答
+    TaskEmbedding     TaskType = "embedding"      // 文本嵌入
+    TaskRerank        TaskType = "rerank"         // 结果重排
+    TaskSummarization TaskType = "summarization"  // 文本摘要
+    TaskTranslation   TaskType = "translation"    // 文本翻译
+    TaskClassification TaskType = "classification" // 文本分类
+    TaskGeneration    TaskType = "generation"     // 内容生成
+    TaskRCA           TaskType = "rca"            // 根因分析
+)
+
+// 任务路由配置
+type TaskRouting struct {
+    TenantID     string    `gorm:"primaryKey" json:"tenant_id"`
+    TaskType     TaskType  `gorm:"primaryKey" json:"task_type"`
+    ProviderID   string    `gorm:"not null" json:"provider_id"`
+    Priority     int       `gorm:"default:1" json:"priority"`
+    Enabled      bool      `gorm:"default:true" json:"enabled"`
+    FallbackProviders []string `json:"fallback_providers"`
+
+    Tenant   Tenant      `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+    Provider LlmProvider `gorm:"foreignKey:ProviderID" json:"provider,omitempty"`
+}
 ```
+
+### 成本监控与优化
+
+**使用统计**：
+```go
+type LlmUsage struct {
+    ID          string    `gorm:"primaryKey" json:"id"`
+    TenantID    string    `gorm:"not null;index" json:"tenant_id"`
+    ProviderID  string    `gorm:"not null;index" json:"provider_id"`
+    TaskType    TaskType  `gorm:"not null" json:"task_type"`
+    ModelName   string    `gorm:"not null" json:"model_name"`
+
+    // Token 使用量
+    InputTokens  int  `json:"input_tokens"`
+    OutputTokens int  `json:"output_tokens"`
+    TotalTokens  int  `json:"total_tokens"`
+
+    // 成本计算
+    InputCost    float64 `json:"input_cost"`
+    OutputCost   float64 `json:"output_cost"`
+    TotalCost    float64 `json:"total_cost"`
+
+    // 性能指标
+    ResponseTime int     `json:"response_time"` // 毫秒
+    Success      bool    `json:"success"`
+    ErrorMessage string  `json:"error_message"`
+
+    // 关联信息
+    TicketID     *string `gorm:"index" json:"ticket_id"`
+    UserID       string  `gorm:"index" json:"user_id"`
+    CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+}
+```
+
+**成本控制策略**：
+- **预算限制**：按租户设置每日/每月使用预算
+- **智能路由**：根据任务复杂度选择合适的模型
+- **缓存优化**：缓存常用查询结果，减少 API 调用
+- **批量处理**：合并相似请求，提高效率
+- **降级策略**：当达到限制时自动切换到免费模型
+
+### 私有化部署支持
+
+**本地模型部署**：
+```go
+// 本地模型服务配置
+type LocalModelService struct {
+    ID           string    `gorm:"primaryKey" json:"id"`
+    TenantID     string    `gorm:"not null;index" json:"tenant_id"`
+    Name         string    `gorm:"not null" json:"name"`
+    Endpoint     string    `gorm:"not null" json:"endpoint"`
+    ModelPath    string    `json:"model_path"`
+
+    // 硬件配置
+    GPURequired  bool    `gorm:"default:false" json:"gpu_required"`
+    MemoryRequired int   `json:"memory_required"` // MB
+    DiskRequired   int   `json:"disk_required"`   // MB
+
+    // 模型信息
+    ModelSize    int     `json:"model_size"`      // 参数量（亿）
+    ContextSize  int     `gorm:"default:4096" json:"context_size"`
+    Quantization string  `json:"quantization"`   // 量化方式
+
+    Status       string  `gorm:"default:'stopped'" json:"status"`
+    HealthCheck  string  `gorm:"default:'unknown'" json:"health_check"`
+    CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+    UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+}
+```
+
+**部署方式**：
+- **Docker 容器**：提供预配置的 Docker 镜像
+- **二进制文件**：独立的可执行文件，无需额外依赖
+- **Kubernetes**：支持 K8s 集群部署
+- **云原生**：支持各种云平台部署
+
+### 安全与合规
+
+**数据安全**：
+- **端到端加密**：API 密钥和传输数据全程加密
+- **访问控制**：基于角色的 Provider 管理权限
+- **审计日志**：记录所有 AI 调用和配置变更
+- **数据脱敏**：自动识别和脱敏敏感信息
+
+**合规支持**：
+- **数据驻留**：支持数据本地化部署
+- **GDPR 合规**：符合欧盟数据保护法规
+- **行业认证**：支持各种行业合规要求
+- **审计支持**：提供详细的审计报告
+
+### API 接口设计
+
+```go
+// LLM Provider 管理 API
+type LlmProviderAPI struct {
+    // Provider 管理
+    POST   /api/v1/llm/providers           -> CreateProvider
+    GET    /api/v1/llm/providers           -> ListProviders
+    GET    /api/v1/llm/providers/{id}      -> GetProvider
+    PUT    /api/v1/llm/providers/{id}      -> UpdateProvider
+    DELETE /api/v1/llm/providers/{id}      -> DeleteProvider
+
+    // 模型配置
+    POST   /api/v1/llm/providers/{id}/test -> TestProvider
+    GET    /api/v1/llm/providers/{id}/models -> ListModels
+
+    // 使用统计
+    GET    /api/v1/llm/usage               -> GetUsageStats
+    GET    /api/v1/llm/costs               -> GetCostReport
+
+    // 任务路由
+    GET    /api/v1/llm/routing             -> GetTaskRouting
+    PUT    /api/v1/llm/routing             -> UpdateTaskRouting
+}
+
+// RAG 功能 API
+type RAGAPI struct {
+    // 文档管理
+    POST   /api/v1/rag/documents           -> UploadDocument
+    GET    /api/v1/rag/documents           -> ListDocuments
+    DELETE /api/v1/rag/documents/{id}      -> DeleteDocument
+
+    // 知识检索
+    POST   /api/v1/rag/query               -> QueryRAG
+    POST   /api/v1/rag/suggest             -> SuggestReply
+    POST   /api/v1/rag/generate-rca        -> GenerateRCA
+
+    // 向量管理
+    POST   /api/v1/rag/reindex             -> ReindexAll
+    GET    /api/v1/rag/embeddings/{id}     -> GetEmbedding
+}
+```
+
+### 用户界面
+
+**Provider 配置界面**：
+1. **Provider 向导**：引导式配置各种 LLM Provider
+2. **连接测试**：实时测试 Provider 连接状态
+3. **模型选择**：可视化模型配置和参数调整
+4. **成本预估**：实时显示使用成本预估
+5. **性能监控**：图表化展示响应时间和成功率
+
+**使用统计仪表盘**：
+1. **使用概览**：Token 使用量、费用统计
+2. **趋势分析**：时间序列图表展示使用趋势
+3. **成本分析**：按部门、用户、任务类型分析成本
+4. **告警设置**：预算超支告警和异常监控
+
+这个自定义 LLM Provider 系统确保企业能够：
+- 完全控制 AI 能力的选择和配置
+- 根据安全和合规要求选择合适的 Provider
+- 优化 AI 使用成本
+- 保持技术灵活性和可扩展性
 
 SLA 与路由
 
 - 按用户自定义支持计划与优先级定义响应/恢复/解决时限；工作时段感知（非工作时暂停或不同阈值）
-- 智能路由：技能标签、负载均衡、排班/值班；根据支持计划级别加权；相似工单聚类优先同一工程师处理
-- 升级策略：超过阈值自动提醒 Team Lead/值班；触发 PagerDuty；必要时升级到研发
+- 智能路由：基于产品匹配、负载均衡；根据支持计划级别加权；相似工单聚类优先同一工程师处理
+- 升级策略：超过阈值自动提醒 Team Lead/值班；必要时升级到研发
 
-支持计划配置示例：
-```json
-{
-  "support_plans": [
-    {
-      "name": "企业VIP",
-      "description": "24x7全天候企业级支持",
-      "features": {
-        "response_time": {
-          "critical": "15分钟",
-          "high": "30分钟",
-          "medium": "1小时",
-          "low": "2小时"
-        },
-        "channels": ["电话", "邮件", "在线聊天", "专属客服"],
-        "escalation": "直达技术专家",
-        "business_hours": "24x7",
-        "extra_features": ["月度健康报告", "专属技术经理", "现场支持"]
-      }
-    },
-    {
-      "name": "技术支持Plus",
-      "description": "工作日 extended hours 支持",
-      "features": {
-        "response_time": {
-          "critical": "1小时",
-          "high": "2小时",
-          "medium": "4小时",
-          "low": "8小时"
-        },
-        "channels": ["邮件", "在线聊天"],
-        "escalation": "二级技术支持",
-        "business_hours": "周一至周五 8:00-20:00",
-        "extra_features": ["季度报告", "电话回访"]
-      }
-    },
-    {
-      "name": "基础支持",
-      "description": "标准工作时间支持",
-      "features": {
-        "response_time": {
-          "critical": "4小时",
-          "high": "8小时",
-          "medium": "1个工作日",
-          "low": "2个工作日"
-        },
-        "channels": ["邮件"],
-        "escalation": "标准升级流程",
-        "business_hours": "周一至周五 9:00-17:00"
-      }
-    }
-  ]
-}
-```
+## 数据导入导出系统（核心功能）
 
-数据导入导出系统
+### 设计理念
+**用户数据用户做主** - SmartTicket 确保企业用户能够完全控制自己的数据，随时导出、备份和迁移所有业务数据。
 
-支持的格式与实体：
+### 全量数据导出功能
+
+**支持的数据实体**：
+- **工单数据**：工单、消息、事件、附件、SLA 记录
+- **知识库**：文章、版本、标签、分类、访问日志
+- **用户管理**：用户信息、权限分配、组织架构
+- **配置数据**：产品目录、支持计划、SLA 策略、集成配置
+- **审计日志**：操作记录、登录日志、数据变更历史
+
+**导出格式支持**：
 ```yaml
-supported_formats:
-  tickets:
-    csv:
-      schema: "ticket_id,title,description,priority,severity,status,customer_email,product,version,created_at"
-      encoding: "UTF-8"
-      max_size: "100MB"
-    json:
-      schema: "ticket_schema_v1.json"
-      validation: "json_schema"
-    xml:
-      schema: "ticket_schema_v1.xsd"
+export_formats:
+  csv:
+    description: "Excel 兼容格式，适合数据分析"
+    encoding: "UTF-8"
+    delimiter: ","
+    max_size: "500MB"
 
-  knowledge_articles:
-    csv:
-      schema: "article_id,title,category,tags,status,visibility,created_at"
-      encoding: "UTF-8"
-    json:
-      schema: "article_schema_v1.json"
-    markdown:
-      front_matter: true
-      image_handling: "base64_or_url"
+  json:
+    description: "完整数据结构，适合系统迁移"
+    compression: "gzip"
+    schema_validation: true
 
-  users:
-    csv:
-      schema: "user_id,email,role,name,department,status"
-      encoding: "UTF-8"
-    json:
-      schema: "user_schema_v1.json"
+  xml:
+    description: "标准化格式，适合企业集成"
+    schema: "smartticket_v1.xsd"
 
-  contracts:
-    csv:
-      schema: "contract_id,customer_name,product,start_date,end_date,support_plan"
-      encoding: "UTF-8"
-    json:
-      schema: "contract_schema_v1.json"
+  markdown:
+    description: "知识文章导出，支持前端元数据"
+    front_matter: true
+    image_handling: "embed_or_link"
+
+  sqlite:
+    description: "完整数据库副本，可直接用于系统恢复"
+    encryption: "optional"
 ```
 
-导入流程设计：
-```rust
-pub struct ImportJob {
-    pub id: UUID,
-    pub tenant_id: UUID,
-    pub entity_type: EntityType,
-    pub source_format: Format,
-    pub validation_strategy: ValidationStrategy,
-    pub conflict_resolution: ConflictResolution,
+### 智能导入功能
+
+**数据源适配**：
+- **第三方系统**：Zendesk、Jira Service Management、Freshdesk
+- **通用格式**：CSV、JSON、XML 文件导入
+- **数据库迁移**：MySQL、PostgreSQL、SQL Server 数据迁移
+- **历史数据**：邮件、Excel 表格、遗留系统数据
+
+**导入处理流程**：
+```go
+type ImportProcessor struct {
+    // 数据检测与清理
+    DataValidator    *DataValidator
+    PIIDetector      *PIIDetector
+    ConflictResolver *ConflictResolver
+
+    // 字段映射与转换
+    FieldMapper      *FieldMapper
+    DataTransformer  *DataTransformer
+
+    // 错误处理与报告
+    ErrorHandler     *ErrorHandler
+    ProgressReporter *ProgressReporter
 }
 
-#[derive(Debug)]
-pub enum ConflictResolution {
-    Skip,                    // 跳过冲突记录
-    Overwrite,              // 覆盖现有记录
-    CreateNew,              // 创建新记录
-    Merge,                  // 智能合并
-    RequireManual,          // 需要人工处理
-}
-
-#[derive(Debug)]
-pub enum ValidationStrategy {
-    Strict,                 // 严格模式，任何错误都停止
-    Lenient,                // 宽松模式，跳过错误记录
-    Interactive,            // 交互模式，逐条确认
+// 导入策略配置
+type ImportStrategy struct {
+    ConflictResolution string // skip/overwrite/merge/manual
+    ValidationLevel    string // strict/lenient/interactive
+    BatchSize         int    // 批处理大小
+    ProgressCallback  func(progress *ImportProgress)
 }
 ```
 
-导出功能设计：
-```rust
-pub struct ExportRequest {
-    pub entity_type: EntityType,
-    pub filters: ExportFilters,
-    pub format: ExportFormat,
-    pub fields: Vec<String>,        // 选择导出字段
-    pub pagination: Option<Pagination>,
-    pub compression: CompressionType,
+### 自动备份与恢复
+
+**备份策略**：
+- **定时备份**：每日、每周、每月自动备份
+- **增量备份**：仅备份变更数据，节省存储空间
+- **全量备份**：定期完整备份，确保数据完整性
+- **异地备份**：支持云存储、NAS、移动设备备份
+
+**备份内容**：
+- **数据库文件**：SQLite 数据库完整副本
+- **文件存储**：附件、文档、导出文件
+- **配置文件**：系统配置、环境变量、证书文件
+- **日志文件**：操作日志、错误日志、审计日志
+
+**恢复功能**：
+- **时间点恢复**：恢复到指定时间点的数据状态
+- **选择性恢复**：仅恢复特定租户或特定数据类型
+- **灾难恢复**：完整的系统恢复流程
+- **数据验证**：恢复后数据完整性验证
+
+### API 接口设计
+
+```go
+// 数据导出 API
+type ExportAPI struct {
+    // 创建导出任务
+    POST   /api/v1/data/export      -> CreateExportJob
+
+    // 获取导出进度
+    GET    /api/v1/data/export/{id} -> GetExportStatus
+
+    // 下载导出文件
+    GET    /api/v1/data/export/{id}/download -> DownloadExportFile
+
+    // 取消导出任务
+    DELETE /api/v1/data/export/{id} -> CancelExportJob
 }
 
-#[derive(Debug)]
-pub struct ExportFilters {
-    pub date_range: Option<DateRange>,
-    pub status_filter: Option<Vec<String>>,
-    pub customer_filter: Option<Vec<String>>,
-    pub product_filter: Option<Vec<String>>,
-    pub custom_filters: HashMap<String, String>,
-}
-```
+// 数据导入 API
+type ImportAPI struct {
+    // 上传导入文件
+    POST   /api/v1/data/import/upload -> UploadImportFile
 
-批量操作限制：
-```yaml
-batch_limits:
-  max_records_per_file: 50000
-  max_file_size: "500MB"
-  max_concurrent_jobs: 3
-  timeout_per_job: "2 hours"
-  rate_limiting: "1000 requests/minute"
-```
+    // 创建导入任务
+    POST   /api/v1/data/import      -> CreateImportJob
 
-导入导出API设计：
-```protobuf
-// gRPC Service Definition
-service DataManagementService {
-  // 导入操作
-  rpc CreateImportJob(CreateImportJobRequest) returns (ImportJob);
-  rpc UploadImportFile(stream UploadImportFileRequest) returns (UploadResponse);
-  rpc StartImportJob(StartImportJobRequest) returns (ImportJobStatus);
-  rpc GetImportJobStatus(GetImportJobStatusRequest) returns (ImportJobStatus);
-  rpc CancelImportJob(CancelImportJobRequest) returns (CancelResponse);
+    // 预览导入数据
+    POST   /api/v1/data/import/preview -> PreviewImportData
 
-  // 导出操作
-  rpc CreateExportJob(CreateExportJobRequest) returns (ExportJob);
-  rpc GetExportJobStatus(GetExportJobStatusRequest) returns (ExportJobStatus);
-  rpc DownloadExportFile(DownloadExportFileRequest) returns (stream FileChunk);
-  rpc CancelExportJob(CancelExportJobRequest) returns (CancelResponse);
-
-  // 模板和验证
-  rpc GetImportTemplate(GetImportTemplateRequest) returns (ImportTemplate);
-  rpc ValidateImportFile(ValidateImportFileRequest) returns (ValidationResult);
-}
-```
-
-用户界面设计：
-```typescript
-// 导入界面组件
-interface ImportWizardProps {
-  entityType: EntityType;
-  onImportComplete: (jobId: string) => void;
+    // 执行导入
+    POST   /api/v1/data/import/{id}/execute -> ExecuteImport
 }
 
-// 导出界面组件
-interface ExportWizardProps {
-  entityType: EntityType;
-  availableFilters: FilterDefinition[];
-  onExportComplete: (downloadUrl: string) => void;
-}
+// 备份恢复 API
+type BackupAPI struct {
+    // 创建备份
+    POST   /api/v1/data/backup      -> CreateBackup
 
-// 进度追踪组件
-interface JobProgressProps {
-  jobId: string;
-  showRealTimeUpdates: boolean;
+    // 列出备份
+    GET    /api/v1/data/backup      -> ListBackups
+
+    // 恢复备份
+    POST   /api/v1/data/backup/{id}/restore -> RestoreBackup
+
+    // 下载备份
+    GET    /api/v1/data/backup/{id}/download -> DownloadBackup
 }
 ```
+
+### 用户界面设计
+
+**导入向导**：
+1. **数据源选择**：选择文件类型或第三方系统
+2. **字段映射**：可视化字段映射界面
+3. **预览确认**：数据预览和导入配置确认
+4. **进度监控**：实时导入进度和错误报告
+5. **结果查看**：导入结果统计和错误详情
+
+**导出向导**：
+1. **数据选择**：选择要导出的数据类型和时间范围
+2. **格式配置**：选择导出格式和编码选项
+3. **过滤条件**：设置数据过滤和排序条件
+4. **执行导出**：后台执行导出任务
+5. **下载管理**：导出文件下载和管理
+
+**备份管理**：
+1. **备份计划**：配置自动备份策略
+2. **备份监控**：查看备份状态和历史记录
+3. **恢复向导**：引导式数据恢复流程
+4. **存储管理**：管理备份文件存储位置和清理策略
+
+### 性能与安全
+
+**性能优化**：
+- **并行处理**：多线程处理大批量数据
+- **内存管理**：流式处理避免内存溢出
+- **压缩存储**：压缩导出文件节省存储空间
+- **缓存机制**：缓存常用的映射配置和验证规则
+
+**安全保障**：
+- **权限控制**：基于角色的数据导出权限管理
+- **数据脱敏**：自动检测和脱敏敏感信息
+- **加密存储**：敏感数据加密存储和传输
+- **审计记录**：完整的数据操作审计日志
 
 集成接口（概要）
 
-- 身份与访问：SAML/OIDC SSO；SCIM 用户同步
+- 身份与访问：SAML/OIDC SSO（通过 JWT）
 - 工单入口：Email to Ticket（解析主题/正文/签名/附件）、API、Webhook
 - 研发与项目管理：Jira/GitHub Issues 双向链接与状态同步
 - 协作：Slack/Teams 机器人（创建/查询/订阅、内外部通道隔离）
-- On-Call：PagerDuty 事件联动
-- CRM/计费：Salesforce/HubSpot、Stripe；合同/续费/折扣联动
+- CRM/计费：Salesforce/HubSpot；合同/续费/折扣联动
 
 安全与合规增强
 
 密钥管理与加密：
-```rust
-// 密钥分层加密策略
-struct EncryptionConfig {
-    // 数据库字段级加密（敏感信息）
-    field_encryption: AEAD256Config,
-    // API密钥存储加密
-    key_encryption: RSAKeyEnvelope,
-    // 传输中数据加密
-    transport: TLSConfig,
-    // 备份加密
-    backup: AES256GCMConfig,
-}
-```
+```go
+type Config struct {
+    // 数据库密钥
+    DatabaseEncryptionKey string `json:"database_encryption_key"`
 
-审计追踪完整性：
-```sql
--- 审计日志防篡改设计
-CREATE TABLE audit_logs (
-    id UUID PRIMARY KEY,
-    tenant_id UUID NOT NULL,
-    entity_type VARCHAR(50) NOT NULL,
-    entity_id UUID NOT NULL,
-    action VARCHAR(50) NOT NULL,
-    old_values JSONB,
-    new_values JSONB,
-    actor_id UUID NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    hash VARCHAR(64) NOT NULL, -- SHA256哈希防篡改
-    prev_hash VARCHAR(64), -- 链式哈希
-    CONSTRAINT uq_entity_action UNIQUE (entity_type, entity_id, action, created_at)
-);
+    // JWT 密钥
+    JWTSecret string `json:"jwt_secret"`
 
--- 每日哈希校验
-CREATE TABLE audit_integrity (
-    date DATE PRIMARY KEY,
-    daily_hash VARCHAR(64) NOT NULL,
-    verified_at TIMESTAMP
-);
-```
-
-数据脱敏策略：
-```yaml
-pii_masking:
-  email: "partial"      # user***@domain.com
-  phone: "partial"      # +1***-***-1234
-  ip_address: "hash"    # SHA256哈希
-  name: "initial"       # John D. -> J. D.
-  custom_fields:
-    contract_number: "mask_middle"
-    license_key: "hash"
-```
-
-GDPR 合规实现：
-- 数据主体权利自动化：30天内响应DSR请求
-- 数据映射与血缘追踪：完整的数据流图
-- 影响评估自动化：DPIA模板与风险评估
-- 违约通知自动化：72小时内通知机制
-
-导入导出安全控制：
-
-数据验证与清理：
-```rust
-pub struct DataValidator {
-    pub pii_detector: PIIDetector,
-    pub malicious_content_scanner: MaliciousContentScanner,
-    pub schema_validator: SchemaValidator,
-}
-
-#[derive(Debug)]
-pub struct ImportSecurityContext {
-    pub max_records_per_batch: usize,
-    pub allowed_file_types: Vec<String>,
-    pub scan_for_malware: bool,
-    pub detect_pii: bool,
-    pub quarantine_suspicious: bool,
-}
-```
-
-权限控制矩阵：
-```yaml
-import_export_permissions:
-  admin:
-    can_import: ["tickets", "knowledge_articles", "users", "contracts"]
-    can_export: ["tickets", "knowledge_articles", "users", "contracts"]
-    max_records: 100000
-    can_include_pii: true
-
-  support_manager:
-    can_import: ["tickets", "knowledge_articles"]
-    can_export: ["tickets", "knowledge_articles"]
-    max_records: 50000
-    can_include_pii: false
-
-  knowledge_manager:
-    can_import: ["knowledge_articles"]
-    can_export: ["knowledge_articles"]
-    max_records: 20000
-    can_include_pii: false
-
-  customer_admin:
-    can_import: ["users"]
-    can_export: ["tickets", "users"]
-    max_records: 10000
-    can_include_pii: false
-```
-
-数据脱敏与过滤：
-```rust
-pub struct DataFilter {
-    pub exclude_fields: Vec<String>,           // 排除敏感字段
-    pub anonymize_fields: Vec<String>,         // 匿名字段
-    pub pseudonymize_fields: Vec<String>,      // 假名化字段
-    pub exclude_internal_notes: bool,          // 排除内部备注
-    pub date_range_limit: Option<DateRange>,   // 限制日期范围
+    // API 密钥加密
+    ApiKeyEncryptionKey string `json:"api_key_encryption_key"`
 }
 ```
 
 审计追踪：
-```sql
-CREATE TABLE import_export_audit (
-    id UUID PRIMARY KEY,
-    tenant_id UUID NOT NULL,
-    job_id UUID REFERENCES import_export_jobs(id),
-    operation_type VARCHAR(20) NOT NULL, -- import/export
-    entity_type VARCHAR(50) NOT NULL,
-    record_count INTEGER,
-    file_hash VARCHAR(64),
-    pii_detected BOOLEAN DEFAULT FALSE,
-    malicious_content_detected BOOLEAN DEFAULT FALSE,
-    user_id UUID NOT NULL,
-    ip_address INET,
-    user_agent TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
-);
+```go
+type AuditLog struct {
+    ID        string    `gorm:"type:varchar(36);primaryKey" json:"id"`
+    TenantID  string    `gorm:"type:varchar(36);not null;index" json:"tenant_id"`
+    EntityID  string    `gorm:"type:varchar(36);not null" json:"entity_id"`
+    Action    string    `gorm:"type:varchar(50);not null" json:"action"`
+    OldValues string    `gorm:"type:text" json:"old_values"` // JSON
+    NewValues string    `gorm:"type:text" json:"new_values"` // JSON
+    ActorID   string    `gorm:"type:varchar(36);not null" json:"actor_id"`
+    CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+    Hash      string    `gorm:"type:varchar(64);not null;index" json:"hash"` // SHA256
+
+    Tenant Tenant `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+    Actor  User   `gorm:"foreignKey:ActorID" json:"actor,omitempty"`
+}
 ```
 
 性能优化策略
 
-缓存分层架构：
-```rust
-// L1: 应用内存缓存 (热点数据)
-struct L1Cache {
-    user_sessions: LruCache<UserId, Session>,
-    tenant_config: LruCache<TenantId, TenantConfig>,
-    sla_policies: LruCache<ContractId, SLAPolicy>,
-}
+内存缓存策略：
+```go
+type Cache struct {
+    // 用户会话缓存
+    UserSessions map[string]*UserSession
 
-// L2: Redis分布式缓存 (查询结果)
-struct L2Cache {
-    ticket_search: RedisCache<SearchQuery, SearchResult>,
-    rag_results: RedisCache<RAGQuery, RAGResult>,
-    user_permissions: RedisCache<UserId, PermissionSet>,
-}
+    // 租户配置缓存
+    TenantConfigs map[string]*TenantConfig
 
-// L3: 数据库查询缓存 (复杂查询)
-struct L3Cache {
-    materialized_views: MaterializedViewCache,
-    analytics_queries: QueryResultCache,
+    // SLA 策略缓存
+    SLAPolicies map[string]*SLAPolicy
+
+    // 文章缓存
+    ArticleCache map[string]*KnowledgeArticle
+
+    mutex sync.RWMutex
 }
 ```
 
 数据库优化：
 ```sql
--- 分区表策略 (按租户+时间)
-CREATE TABLE tickets (
-    id UUID,
-    tenant_id UUID NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    -- 其他字段
-) PARTITION BY RANGE (created_at);
+-- VACUUM 优化
+PRAGMA journal_mode = WAL;
+PRAGMA synchronous = NORMAL;
+PRAGMA cache_size = 10000;
+PRAGMA temp_store = memory;
 
--- 按月分区
-CREATE TABLE tickets_2024_01 PARTITION OF tickets
-    FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
-
--- 连接池配置
-ALTER SYSTEM SET max_connections = 200;
-ALTER SYSTEM SET shared_buffers = '4GB';
-ALTER SYSTEM SET effective_cache_size = '12GB';
-ALTER SYSTEM SET work_mem = '64MB';
+-- 索引优化
+CREATE INDEX IF NOT EXISTS idx_tickets_search ON tickets(title, description, tenant_id);
+CREATE INDEX IF NOT EXISTS idx_knowledge_search ON knowledge_articles(title, body, tenant_id);
 ```
 
 异步处理策略：
-```rust
-#[derive(Debug)]
-pub struct AsyncTaskQueue {
-    // 高优先级队列 (SLA相关)
-    sla_notifications: PriorityQueue<SLANotification>,
-
-    // 中优先级队列 (AI处理)
-    rag_processing: PriorityQueue<RAGTask>,
-
-    // 低优先级队列 (报告生成)
-    report_generation: Queue<ReportTask>,
+```go
+type TaskQueue struct {
+    tasks chan Task
+    workers int
+    wg     sync.WaitGroup
 }
 
-// 背压控制
-impl BackpressureControl for AsyncTaskQueue {
-    fn should_throttle(&self) -> bool {
-        self.queue_size() > self.max_queue_size * 0.8
+type Task struct {
+    ID     string
+    Type   string // sla_notification, rag_processing, report_generation
+    Data   interface{}
+    Status string // pending, processing, completed, failed
+}
+```
+
+API 设计（REST）
+
+基础路由结构：
+```go
+// API 路由定义
+func setupRoutes(r *gin.Engine) {
+    v1 := r.Group("/api/v1")
+
+    // 认证中间件
+    v1.Use(authMiddleware())
+    v1.Use(tenantMiddleware())
+
+    // 工单管理
+    tickets := v1.Group("/tickets")
+    {
+        tickets.POST("", createTicket)
+        tickets.GET("", listTickets)
+        tickets.GET("/:id", getTicket)
+        tickets.PUT("/:id", updateTicket)
+        tickets.POST("/:id/messages", addMessage)
+        tickets.POST("/:id/assign", assignTicket)
+        tickets.POST("/:id/resolve", resolveTicket)
+        tickets.POST("/:id/close", closeTicket)
+    }
+
+    // 知识库
+    knowledge := v1.Group("/knowledge")
+    {
+        knowledge.POST("", createArticle)
+        knowledge.GET("", listArticles)
+        knowledge.GET("/:id", getArticle)
+        knowledge.PUT("/:id", updateArticle)
+        knowledge.POST("/:id/publish", publishArticle)
+        knowledge.GET("/search", searchArticles)
+    }
+
+    // RAG 查询
+    rag := v1.Group("/rag")
+    {
+        rag.POST("/query", queryRAG)
+        rag.POST("/suggest", suggestReply)
+        rag.POST("/generate-rca", generateRCA)
+    }
+
+    // 数据管理
+    data := v1.Group("/data")
+    {
+        data.POST("/import", createImportJob)
+        data.POST("/export", createExportJob)
+        data.GET("/jobs/:id/status", getJobStatus)
+        data.GET("/jobs/:id/download", downloadFile)
+    }
+
+    // 管理接口
+    admin := v1.Group("/admin")
+    {
+        admin.Use(adminMiddleware())
+        admin.GET("/tenants", listTenants)
+        admin.POST("/tenants", createTenant)
+        admin.PUT("/tenants/:id", updateTenant)
+        admin.GET("/users", listUsers)
+        admin.POST("/users", createUser)
+        admin.PUT("/users/:id", updateUser)
+        admin.GET("/audit-logs", getAuditLogs)
     }
 }
 ```
 
-CDN与静态资源优化：
-```yaml
-cdn_config:
-  static_assets:
-    js_css: "CloudFront"     # 全球CDN
-    images: "CloudFront"     # 图片压缩+WebP
-    fonts: "Google Fonts"    # 字体CDN
+API 响应格式：
+```go
+type APIResponse struct {
+    Success bool        `json:"success"`
+    Data    interface{} `json:"data,omitempty"`
+    Error   *APIError   `json:"error,omitempty"`
+    Meta    *Meta       `json:"meta,omitempty"`
+}
 
-  api_caching:
-    knowledge_articles: "1_hour"
-    user_profiles: "30_minutes"
-    tenant_settings: "5_minutes"
+type APIError struct {
+    Code    string `json:"code"`
+    Message string `json:"message"`
+    Details string `json:"details,omitempty"`
+}
 
-  edge_locations:
-    - "eu-west-1"  # 爱尔兰
-    - "eu-central-1" # 法兰克福
-    - "eu-north-1"  # 斯德哥尔摩
+type Meta struct {
+    Total      int `json:"total,omitempty"`
+    Page       int `json:"page,omitempty"`
+    PageSize   int `json:"page_size,omitempty"`
+    TotalPages int `json:"total_pages,omitempty"`
+}
 ```
-
-- 可靠性：核心服务 SLO 99.9%；关键路径冗余；幂等与重试；限流与熔断
-- 性能：典型规模（40 人内部 + 百家客户）下工单检索 P95 < 300ms；RAG 响应 P95 < 2s（不含生成）
-- 扩展性：水平扩展支持，分区分片策略，缓存优化，异步处理
-- 安全：字段级与记录级访问控制；多层加密策略；零信任架构；审计不可篡改
-- 合规：GDPR 数据主体请求（导出/删除）、数据驻留（EU 区域优先），处理者协议与日志留存策略
-- 备份恢复：RPO<=15min，RTO<=1h，定期演练
 
 实施路线（MVP → GA）
 
-实施路线（MVP → GA）- 优化依赖关系
-
-阶段 0：基础设施与多租户基座（4-6周）
+阶段 0：基础设施与多租户基座（2-3周）
 
 **核心交付物：**
-- 用户认证与SSO集成（Keycloak/Auth0）
-- 多租户架构（PostgreSQL RLS + Redis缓存）
-- 基础RBAC权限系统
-- 审计日志框架
-- gRPC服务基础架构
-
-**关键依赖：**
-- 云环境配置（AWS/Azure EU区域）
-- 数据库schema设计
-- 身份提供商集成
+- 基础 Golang 项目结构
+- SQLite 数据库设计与 GORM 模型
+- 基础认证与租户中间件
+- REST API 基础框架
+- 基础审计日志功能
 
 **成功标准：**
-- 用户可通过SSO登录
-- 租户数据完全隔离
-- 基础审计功能正常
+- API 服务可以启动并响应基本请求
+- 数据库连接和基础 CRUD 操作正常
+- 租户隔离功能正常
 
-阶段 1：工单与SLA核心功能（6-8周）
+阶段 1：工单与SLA核心功能（3-4周）
 
 **核心交付物：**
-- 工单CRUD操作与状态机
-- SLA策略引擎与计时器
-- 智能路由算法（基础版）
-- 邮件通知系统
-- 客户门户基础界面
-
-**并行开发：**
-- 前端工单管理界面
-- 后端Core Service开发
-- SLA监控仪表盘
-
-**关键依赖：**
-- 阶段0的认证系统
-- 产品与合同数据模型
+- 工单 CRUD API 完整实现
+- SLA 策略引擎
+- 基础通知功能
+- 工单状态流转
+- 前端基础界面
 
 **成功标准：**
 - 端到端工单流程可用
-- SLA监控准确
-- 邮件通知及时送达
+- SLA 监控准确
+- 基础邮件通知功能正常
 
-阶段 2：知识库与基础RAG（8-10周）
-
-**核心交付物：**
-- 知识库管理系统
-- 文档摄取管道
-- 基础向量检索
-- RAG查询接口
-- AI Provider抽象层
-
-**并行开发：**
-- 文档解析器开发
-- 向量数据库集成
-- 检索算法优化
-
-**关键依赖：**
-- 阶段1的工单系统（用于知识关联）
-- LLM API集成（OpenAI/DeepSeek）
-
-**成功标准：**
-- 支持常见文档格式摄取
-- 检索响应时间 < 1秒
-- 基础RAG功能可用
-
-阶段 3：智能路由与集成（6-8周）
+阶段 2：知识库与基础RAG（4-5周）
 
 **核心交付物：**
-- 高级智能路由（ML增强）
-- Jira/GitHub双向集成
-- Slack/Teams机器人
-- PagerDuty集成
-- 相似工单聚类
-
-**并行开发：**
-- 外部API适配器
-- 机器学习模型训练
-- 自动化规则引擎
-
-**关键依赖：**
-- 阶段2的RAG系统
-- 外部系统API访问权限
+- 知识库管理 API
+- 文档摄取功能
+- 简化向量检索
+- RAG 查询接口
+- LLM 集成（外部 API）
 
 **成功标准：**
-- 自动路由准确率 > 80%
+- 支持基础文档格式摄取
+- 检索响应时间 < 2 秒
+- 基础 RAG 功能可用
+
+阶段 3：集成与优化（3-4周）
+
+**核心交付物：**
+- 外部系统集成（Jira/GitHub）
+- 通知系统完善
+- 批量操作功能
+- 性能优化
+- 基础报表功能
+
+**成功标准：**
 - 外部集成稳定可用
-- 智能建议功能上线
+- 系统性能满足要求
+- 批量操作功能正常
 
-阶段 4：数据管理与生产优化（6-8周）
+阶段 4：生产部署与完善（2-3周）
 
 **核心交付物：**
-- 数据导入导出系统（支持CSV/JSON/XML格式）
-- 批量操作与作业调度
-- 性能优化与缓存策略
-- 高级安全功能（字段加密、审计增强）
-- GDPR合规工具包
-- 监控与告警系统
-- 备份与恢复流程
-
-**并行开发：**
-- 导入导出界面开发
-- 批量处理队列实现
-- 性能测试与调优
-- 安全审计与渗透测试
-- 文档与培训材料
-
-**关键依赖：**
-- 前序阶段功能稳定
-- 生产环境部署就绪
-- 数据处理管道优化
+- 数据导入导出系统
+- 安全加固
+- 监控与日志完善
+- 部署文档
+- 用户文档
 
 **成功标准：**
-- 支持大规模数据导入导出（5万+记录）
-- 批量作业成功率 > 99%
-- 性能指标达到设计目标
-- 安全合规认证通过
 - 系统具备生产就绪性
+- 安全认证通过
+- 文档完整
 
-**总体时间线：30-40周（7.5-10个月）**
+**总体时间线：14-19周（3.5-4.5个月）**
 
 **资源分配建议：**
-- 后端开发：2-3人
-- 前端开发：1-2人
-- DevOps/基础设施：1人
+- 后端开发：1-2人
+- 前端开发：1人
+- DevOps/基础设施：0.5人（兼职）
 - 产品管理：1人（兼职）
 
-**风险缓解：**
-- 每阶段末进行Go/No-Go决策
-- 保持MVP功能最小化
-- 建立用户反馈循环机制
+技术栈总结
 
-技术栈建议（示例）
+- **后端**：Golang 1.21+
+- **Web 框架**：Gin v1.9+
+- **ORM**：GORM v1.25+
+- **数据库**：SQLite 3.41+
+- **认证**：JWT (golang-jwt/jwt)
+- **配置**：Viper
+- **日志**：Logrus 或 Zap
+- **测试**：Go 标准库 + Testify
+- **构建**：Go modules + Docker
+- **前端**：React + TypeScript（可选）
+- **部署**：Docker + Docker Compose
 
-- 前端：React + TypeScript（Next.js/SPA），Ant Design 或 MUI
-- 后端：Rust（tonic gRPC + prost + tokio）
-  - 接入：gRPC + gRPC-Web（经 Envoy/Traefik 转发）；可选 JSON 转码供第三方 HTTP 客户端
-  - 数据访问：sqlx（异步）、或 sea-orm（可选）；PostgreSQL + RLS
-  - 缓存：Redis；消息：Kafka/NATS；任务：tokio + cron/队列
-  - 安全：mTLS、JWT/OIDC、SAML（Keycloak/Auth0），tonic 拦截器注入 tenant_id/user_id/roles
-- 数据库：PostgreSQL + RLS，多租户；PgVector 作为向量索引（或 Qdrant/Weaviate）
-- 检索：OpenSearch/Elasticsearch；缓存：Redis；消息：Kafka/NATS
-- 身份：Keycloak/Auth0（SAML/OIDC、SCIM）；对象存储：S3 兼容（AWS/GCP/MinIO）
-- 可观测：OpenTelemetry + Prometheus + Grafana；日志：Loki/ELK
-- 基础 AI：本地/区域 LLM 推理或 API（EU 区域），开源嵌入模型（bge/multilingual）
+端口配置
 
-gRPC 接口与 proto 纲要（示例）
+- **API 服务**：6533
+- **开发数据库**：SQLite 文件路径
+- **测试数据库**：独立的 SQLite 文件
 
-- 公共约定
-  - Metadata：x-tenant-id、x-user-id、x-roles；所有服务要求元数据用于租户隔离与审计；支持请求 ID 与幂等键
-  - 错误模型：统一 status code + details（含可本地化 message、可操作建议）
-  - 分页：page_size、page_token；排序：order_by、order
-- TicketService
-  - CreateTicket, GetTicket, ListTickets, UpdateTicket, AddMessage, AssignTicket, MergeTickets, SplitTicket, ResolveTicket, CloseTicket
-- KnowledgeService
-  - CreateArticle, UpdateArticle, PublishArticle, GetArticle, SearchArticles, LinkTickets
-- RAGService
-  - IngestDocument, BatchIngest, Reindex, QueryRAG（返回段落+引用）、SuggestReply、GenerateRCA
-- IdentityService
-  - Authenticate（OIDC/SAML 交换）、WhoAmI、ListUsers、AssignRoles
-- IntegrationService
-  - ConfigureWebhook, SyncJiraIssue, LinkGitHubIssue, EmailToTicket
-- NotificationService
+开发环境要求
 
-  - Send, TemplatePreview, Subscribe, Unsubscribe
+- Go 1.21+
+- Docker & Docker Compose
+- Git
+- SQLite 命令行工具（可选）
 
-- LlmConfigService
-  - ListProviders, UpsertProvider, RotateCredential, ListModels, SetDefaultModel, GetUsage, SetRateLimit, TestConnectivity
-- DataManagementService
-  - CreateImportJob, UploadImportFile, StartImportJob, GetImportJobStatus, CancelImportJob
-  - CreateExportJob, GetExportJobStatus, DownloadExportFile, CancelExportJob
-  - GetImportTemplate, ValidateImportFile
+性能目标
 
-关键页面草图
-
-- 客户门户
-  - 创建工单页：智能表单 + RAG 建议 + 相似工单提示
-  - 工单详情：时间线（客户/内部分层显示）、SLA 计时、引用与附件
-  - 知识库：搜索/筛选（产品/版本/可见性），文章与票据摘要
-- 内部控制台
-  - 工单工作台：队列、SLA 红黄灯、批量操作、宏
-  - 知识编辑器：所见即所得 + 引用校验 + 审核发布
-  - 配置中心：产品/版本/支持计划、合同与折扣、集成、排班
-
-度量与 OKR 样例
-
-- KR1：客户自助化率 ≥ 25%（由 RAG 引导无须创建工单）
-- KR2：铂金客户 FRT P50 ≤ 10 分钟，MTTR P50 ≤ 4 小时
-- KR3：知识复用率（月内被引用 ≥1 次的文章比例）≥ 40%
-- KR4：AI 建议采用率 ≥ 50%，且用户评分 ≥4/5
-
-后端技术要求规范
-
-代码质量与开发标准
-
-1. 测试覆盖率要求
-   - 单元测试覆盖率 ≥ 75%（关键模块 ≥ 85%）
-   - 集成测试覆盖所有公共 API 端点
-   - 端到端测试覆盖核心业务流程
-   - 性能测试覆盖所有数据库查询和 API 调用
-   - 安全测试覆盖所有认证和授权路径
-
-2. 测试策略与工具
-```rust
-// 测试分层结构
-tests/
-├── unit/                    # 单元测试
-│   ├── services/
-│   ├── repositories/
-│   └── utils/
-├── integration/             # 集成测试
-│   ├── api/
-│   ├── database/
-│   └── external_services/
-├── e2e/                     # 端到端测试
-│   ├── ticket_lifecycle/
-│   ├── sla_monitoring/
-│   └── rag_pipeline/
-├── performance/             # 性能测试
-│   ├── load_tests/
-│   └── benchmarks/
-└── security/                # 安全测试
-    ├── auth_flows/
-    └── data_isolation/
-```
-
-3. 测试工具配置
-```toml
-# Cargo.toml
-[dev-dependencies]
-tokio-test = "0.4"
-wiremock = "0.5"
-testcontainers = "0.15"
-criterion = "0.5"
-proptest = "1.0"
-mockall = "0.11"
-quickcheck = "1.0"
-
-[[bench]]
-name = "ticket_processing"
-harness = false
-
-[[bench]]
-name = "rag_performance"
-harness = false
-```
-
-API 文档与 Swagger 规范
-
-1. gRPC 到 OpenAPI 映射
-```protobuf
-// 使用 gRPC-Gateway 生成 OpenAPI 规范
-syntax = "proto3";
-
-package smartticket.v1;
-
-import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
-
-service TicketService {
-  rpc CreateTicket(CreateTicketRequest) returns (CreateTicketResponse) {
-    option (google.api.http) = {
-      post: "/api/v1/tickets"
-      body: "*"
-    };
-  }
-
-  rpc ListTickets(ListTicketsRequest) returns (ListTicketsResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/tickets"
-    };
-  }
-}
-
-message CreateTicketRequest {
-  string title = 1;
-  string description = 2;
-  Priority priority = 3;
-  string customer_org_id = 4;
-  string product_id = 5;
-  map<string, string> metadata = 6;
-}
-```
-
-2. OpenAPI 配置
-```yaml
-# openapi.yaml
-openapi: 3.0.3
-info:
-  title: SmartTicket API
-  description: B2B Multi-tenant Ticketing and Knowledge Platform
-  version: 1.0.0
-  contact:
-    name: SmartTicket Team
-    email: support@smartticket.com
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
-
-servers:
-  - url: https://api.smartticket.com/v1
-    description: Production server
-  - url: https://staging-api.smartticket.com/v1
-    description: Staging server
-  - url: http://localhost:8080/v1
-    description: Development server
-
-security:
-  - BearerAuth: []
-  - ApiKeyAuth: []
-
-paths:
-  /tickets:
-    post:
-      tags:
-        - Tickets
-      summary: Create a new ticket
-      description: Create a new support ticket with automatic SLA calculation
-      operationId: createTicket
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateTicketRequest'
-      responses:
-        '201':
-          description: Ticket created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Ticket'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-```
-
-3. 组件定义
-```yaml
-components:
-  schemas:
-    Ticket:
-      type: object
-      required:
-        - id
-        - title
-        - status
-        - created_at
-        - tenant_id
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: "550e8400-e29b-41d4-a716-446655440000"
-        title:
-          type: string
-          minLength: 1
-          maxLength: 200
-          example: "Database connection issues in production"
-        description:
-          type: string
-          maxLength: 5000
-          example: "Cannot connect to PostgreSQL database from application server"
-        status:
-          $ref: '#/components/schemas/TicketStatus'
-        priority:
-          $ref: '#/components/schemas/Priority'
-        severity:
-          $ref: '#/components/schemas/Severity'
-        assignee_id:
-          type: string
-          format: uuid
-          nullable: true
-        created_at:
-          type: string
-          format: date-time
-          example: "2024-01-15T10:30:00Z"
-        updated_at:
-          type: string
-          format: date-time
-          example: "2024-01-15T11:45:00Z"
-        due_at:
-          type: string
-          format: date-time
-          nullable: true
-          example: "2024-01-15T14:30:00Z"
-
-    TicketStatus:
-      type: string
-      enum: [new, in_progress, resolved, closed]
-      description: |
-        - `new`: Newly created ticket, not yet assigned
-        - `in_progress`: Ticket is being worked on
-        - `resolved`: Ticket has been resolved, waiting for customer confirmation
-        - `closed`: Ticket is closed and confirmed
-      example: "new"
-
-    Priority:
-      type: string
-      enum: [low, medium, high, critical]
-      description: |
-        - `low`: Minor issue, no business impact
-        - `medium`: Issue affecting some functionality
-        - `high`: Major issue affecting business operations
-        - `critical`: Critical issue requiring immediate attention
-      example: "high"
-```
-
-性能要求
-
-1. 响应时间指标
-```rust
-// 性能基准测试
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
-
-fn benchmark_ticket_creation(c: &mut Criterion) {
-    c.bench_function("create_ticket", |b| {
-        b.iter(|| {
-            // 创建工单的性能测试
-            let request = CreateTicketRequest {
-                title: "Test Ticket".to_string(),
-                description: "Performance test ticket".to_string(),
-                priority: Priority::Medium,
-                ..Default::default()
-            };
-
-            let start = std::time::Instant::now();
-            let result = ticket_service.create_ticket(black_box(request));
-            let duration = start.elapsed();
-
-            assert!(duration.as_millis() < 100); // < 100ms
-            result
-        })
-    });
-}
-
-fn benchmark_rag_query(c: &mut Criterion) {
-    c.bench_function("rag_query", |b| {
-        b.iter(|| {
-            // RAG 查询性能测试
-            let query = RAGQuery {
-                text: "How to configure database connection?",
-                max_results: 5,
-                tenant_id: "test-tenant".to_string(),
-            };
-
-            let start = std::time::Instant::now();
-            let result = rag_service.query(black_box(query));
-            let duration = start.elapsed();
-
-            assert!(duration.as_millis() < 2000); // < 2s
-            result
-        })
-    });
-}
-```
-
-2. 负载测试要求
-```yaml
-# load-test-config.yml
-load_tests:
-  ticket_creation:
-    concurrent_users: 100
-    duration: "5m"
-    ramp_up: "30s"
-    target_rps: 50
-    success_rate: 99.5
-    p95_response_time: "200ms"
-    p99_response_time: "500ms"
-
-  rag_query:
-    concurrent_users: 50
-    duration: "3m"
-    ramp_up: "15s"
-    target_rps: 20
-    success_rate: 99.0
-    p95_response_time: "1500ms"
-    p99_response_time: "3000ms"
-
-  concurrent_tickets:
-    scenario: "mixed_operations"
-    concurrent_users: 200
-    duration: "10m"
-    operations:
-      - create_ticket: 40%
-      - list_tickets: 30%
-      - update_ticket: 20%
-      - search_knowledge: 10%
-```
+- API 响应时间 P95 < 200ms
+- 工单搜索 P95 < 300ms
+- RAG 查询 P95 < 2s
+- 支持并发用户数 100+
+- 数据库大小支持到 10GB
 
 安全要求
 
-1. 代码安全扫描
-```yaml
-# .github/workflows/security.yml
-name: Security Scan
-on: [push, pull_request]
-
-jobs:
-  security:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Run security audit
-        run: cargo audit
-
-      - name: Run cargo-deny
-        uses: EmbarkStudios/cargo-deny-action@v1
-
-      - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
-
-      - name: Run cargo check
-        run: cargo check --all-targets --all-features
-
-      - name: Security static analysis
-        uses: github/super-linter@v4
-        env:
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_RUST: true
-```
-
-2. 认证与授权测试
-```rust
-#[cfg(test)]
-mod auth_tests {
-    use super::*;
-    use reqwest::StatusCode;
-
-    #[tokio::test]
-    async fn test_unauthorized_access() {
-        let app = test_app().await;
-
-        let response = app
-            .request(http::Method::GET, "/api/v1/tickets")
-            .send()
-            .await;
-
-        assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
-    }
-
-    #[tokio::test]
-    async fn test_tenant_isolation() {
-        let app = test_app().await;
-
-        // 租户 A 创建工单
-        let tenant_a_token = create_test_token("tenant-a");
-        let response = app
-            .request(http::Method::POST, "/api/v1/tickets")
-            .header("Authorization", format!("Bearer {}", tenant_a_token))
-            .json(&test_ticket_request())
-            .send()
-            .await;
-
-        assert_eq!(response.status(), StatusCode::CREATED);
-
-        // 租户 B 尝试访问租户 A 的工单
-        let tenant_b_token = create_test_token("tenant-b");
-        let ticket_id = response.json::<TicketResponse>().await.id;
-
-        let response = app
-            .request(http::Method::GET, &format!("/api/v1/tickets/{}", ticket_id))
-            .header("Authorization", format!("Bearer {}", tenant_b_token))
-            .send()
-            .await;
-
-        assert_eq!(response.status(), StatusCode::FORBIDDEN);
-    }
-}
-```
-
-监控与日志
-
-1. 结构化日志配置
-```rust
-use tracing::{info, warn, error, debug, instrument};
-use serde_json::json;
-
-#[instrument(skip(self))]
-impl TicketService {
-    pub async fn create_ticket(&self, request: CreateTicketRequest) -> Result<Ticket> {
-        let start = std::time::Instant::now();
-
-        info!(
-            tenant_id = %request.tenant_id,
-            title = %request.title,
-            priority = ?request.priority,
-            "Creating new ticket"
-        );
-
-        match self.internal_create_ticket(request).await {
-            Ok(ticket) => {
-                let duration = start.elapsed();
-                info!(
-                    ticket_id = %ticket.id,
-                    duration_ms = duration.as_millis(),
-                    "Ticket created successfully"
-                );
-                Ok(ticket)
-            }
-            Err(e) => {
-                error!(
-                    error = %e,
-                    duration_ms = start.elapsed().as_millis(),
-                    "Failed to create ticket"
-                );
-                Err(e)
-            }
-        }
-    }
-}
-```
-
-2. 指标收集
-```rust
-use prometheus::{Counter, Histogram, Gauge, register_counter, register_histogram, register_gauge};
-
-lazy_static! {
-    static ref TICKET_CREATED_TOTAL: Counter = register_counter!(
-        "smartticket_tickets_created_total",
-        "Total number of tickets created"
-    ).unwrap();
-
-    static ref TICKET_PROCESSING_DURATION: Histogram = register_histogram!(
-        "smartticket_ticket_processing_duration_seconds",
-        "Time spent processing tickets"
-    ).unwrap();
-
-    static ref ACTIVE_TICKETS: Gauge = register_gauge!(
-        "smartticket_active_tickets",
-        "Number of currently active tickets"
-    ).unwrap();
-}
-
-impl TicketService {
-    pub async fn create_ticket(&self, request: CreateTicketRequest) -> Result<Ticket> {
-        let timer = TICKET_PROCESSING_DURATION.start_timer();
-
-        let result = self.internal_create_ticket(request).await;
-
-        timer.observe_duration();
-
-        if result.is_ok() {
-            TICKET_CREATED_TOTAL.inc();
-            ACTIVE_TICKETS.inc();
-        }
-
-        result
-    }
-}
-```
-
-部署与 CI/CD 要求
-
-1. Docker 镜像优化
-```dockerfile
-# Dockerfile
-FROM rust:1.75 as builder
-
-WORKDIR /app
-COPY Cargo.toml Cargo.lock ./
-RUN mkdir src && echo "fn main() {}" > src/main.rs
-RUN cargo build --release && rm -rf src
-
-COPY . .
-RUN touch src/main.rs && cargo build --release
-
-FROM debian:bookworm-slim as runtime
-
-RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    libssl3 \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY --from=builder /app/target/release/smartticket /usr/local/bin/
-
-EXPOSE 8080
-CMD ["smartticket"]
-```
-
-2. 健康检查端点
-```rust
-#[derive(Serialize)]
-struct HealthResponse {
-    status: String,
-    timestamp: chrono::DateTime<chrono::Utc>,
-    version: String,
-    dependencies: HashMap<String, DependencyStatus>,
-}
-
-#[derive(Serialize)]
-struct DependencyStatus {
-    status: String,
-    response_time_ms: Option<u64>,
-    error: Option<String>,
-}
-
-#[get("/health")]
-async fn health_check(
-    app_state: web::Data<AppState>,
-) -> impl Responder {
-    let mut dependencies = HashMap::new();
-
-    // 检查数据库连接
-    match sqlx::query("SELECT 1").fetch_one(&app_state.db).await {
-        Ok(_) => {
-            dependencies.insert("database".to_string(), DependencyStatus {
-                status: "healthy".to_string(),
-                response_time_ms: Some(10),
-                error: None,
-            });
-        }
-        Err(e) => {
-            dependencies.insert("database".to_string(), DependencyStatus {
-                status: "unhealthy".to_string(),
-                response_time_ms: None,
-                error: Some(e.to_string()),
-            });
-        }
-    }
-
-    // 检查 Redis 连接
-    match app_state.redis.get("health_check").await {
-        Ok(_) => {
-            dependencies.insert("redis".to_string(), DependencyStatus {
-                status: "healthy".to_string(),
-                response_time_ms: Some(5),
-                error: None,
-            });
-        }
-        Err(e) => {
-            dependencies.insert("redis".to_string(), DependencyStatus {
-                status: "unhealthy".to_string(),
-                response_time_ms: None,
-                error: Some(e.to_string()),
-            });
-        }
-    }
-
-    let response = HealthResponse {
-        status: "healthy".to_string(),
-        timestamp: chrono::Utc::now(),
-        version: env!("CARGO_PKG_VERSION").to_string(),
-        dependencies,
-    };
-
-    HttpResponse::Ok().json(response)
-}
-```
+- JWT 认证
+- API 密钥加密存储
+- 输入验证与 SQL 注入防护
+- CORS 配置
+- 审计日志记录
+- 数据加密存储
 
 后续工作
 
-- 细化 API 契约与事件模型；出 ER 图与序列图
-- 出最小可行 Schema 与迁移脚本；脚手架项目仓库
-- RAG 基线评测集与自动化回归；提示模板库
-- 安全部署基线（EU 区域），数据驻留策略落地
-- 实施后端技术规范，包括测试覆盖率、API 文档、性能基准
+- 细化 API 契约与数据库设计
+- 建立项目仓库与 CI/CD 流水线
+- 实施基础 UI 界面
+- 建立测试策略与自动化测试
+- 制定部署计划与运维文档

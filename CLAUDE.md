@@ -4,39 +4,124 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SmartTicket is a B2B multi-tenant ticketing and knowledge collaboration platform designed for a 40-person European software company. The system serves enterprise customers with different support tiers (Platinum/Standard) and provides end-to-end issue handling, knowledge collaboration, and AI-powered assistance (native RAG/LLM) while maintaining GDPR compliance.
+SmartTicket is a self-hosted multi-tenant ticketing and knowledge collaboration platform designed for enterprise deployment. The system serves enterprise customers with different support tiers and provides end-to-end issue handling, knowledge collaboration, and AI-powered assistance (custom RAG/LLM integration) while maintaining GDPR compliance.
 
-## High-Level Architecture
+## Core Features
 
-### Service Architecture (Simplified)
-- **gRPC Gateway**: Unified entry point with mTLS, JWT/OIDC/SAML session injection
-- **Core Service**: Combined Ticket + Knowledge management, SLA engine, intelligent routing
-- **AI Service**: RAG/LLM document ingestion, embedding, hybrid search, prompt orchestration
-- **Platform Service**: Multi-tenant, SSO, RBAC, audit, and external system integrations
-- **Notification Service**: Email/chat/Push templates with throttling and retry
+### 🏢 **Enterprise Self-Deployment**
+- **Single Binary Deployment**: One executable file, zero external dependencies
+- **Zero-Dependency Installation**: Built-in SQLite database, 5-minute deployment
+- **Private Network Support**: Complete offline deployment capability
+- **Low Resource Usage**: Memory usage < 512MB, suitable for SME deployment
 
-### Data Layer
-- **PostgreSQL**: Multi-tenant with RLS (Row Level Security), strong consistency
-- **OpenSearch/Elasticsearch**: Full-text search for tickets and knowledge
-- **PgVector/Weaviate/Qdrant**: Vector database with multi-tenant namespace isolation
-- **Redis**: Caching, sessions, rate limiting, distributed locks
-- **Kafka/NATS**: Async event bus
-- **S3**: Object storage for attachments and exports
+### 📊 **Data Sovereignty & Control**
+- **Complete Data Export**: Full export of tickets, knowledge base, users, configurations
+- **Multi-Format Support**: CSV, JSON, XML, Markdown, SQLite formats
+- **Intelligent Import**: Third-party system migration (Zendesk, Jira, etc.)
+- **Automated Backup**: Scheduled backups with point-in-time recovery
 
-### Key Design Principles
-- Multi-tenant data isolation using `tenant_id` and RLS
-- Zero-trust security architecture
-- EU data residency compliance
-- High-performance with P95 < 300ms for ticket search, P95 < 2s for RAG responses
+### 🤖 **Custom LLM Provider Integration**
+- **Multi-Provider Support**: OpenAI, Azure OpenAI, Anthropic Claude, DeepSeek, local models
+- **Flexible Configuration**: Custom API endpoints, authentication, model parameters
+- **Task-Model Mapping**: Configure specific models for different AI tasks
+- **Cost Control**: Quota limits, usage monitoring, expense optimization
 
 ## Technology Stack
 
-- **Backend**: Rust (tonic gRPC + prost + tokio)
-- **Frontend**: React + TypeScript (Next.js/SPA), Ant Design or MUI
-- **Database**: PostgreSQL + RLS, PgVector for vector indexing
-- **Authentication**: Keycloak/Auth0 (SAML/OIDC, SCIM)
-- **Monitoring**: OpenTelemetry + Prometheus + Grafana
-- **AI**: EU-region LLM inference/API, open-source embedding models
+### Backend Architecture
+- **Language**: Golang 1.21+
+- **Web Framework**: GIN v1.9+ (REST API)
+- **ORM**: GORM v1.25+
+- **Database**: SQLite 3.41+ (embedded database)
+- **Authentication**: JWT (golang-jwt/jwt)
+- **Configuration**: Viper
+- **Logging**: Logrus/Zap
+- **Testing**: Go standard library + Testify
+
+### Frontend (Optional)
+- **Framework**: React + TypeScript (Next.js/SPA)
+- **UI Library**: Ant Design or MUI
+- **Build**: Vite or Create React App
+
+### Deployment
+- **Container**: Docker + Docker Compose
+- **Process**: Systemd service
+- **Reverse Proxy**: Nginx (optional)
+- **Monitoring**: Prometheus + Grafana (optional)
+
+## System Architecture
+
+### Monolithic Design
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SmartTicket Backend                        │
+│                   (Single Binary Executable)                     │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐  │
+│  │   API Layer      │ │  Middleware      │ │  Business Logic  │  │
+│  │                │ │                │ │                │  │
+│  │ • REST API     │ │ • JWT Auth       │ │ • Ticket Mgmt    │  │
+│  │ • Validation    │ │ • Tenant Isolation│ │ • Knowledge Base │  │
+│  │ • Error Handling│ │ • RBAC Control   │ │ • SLA Engine     │  │
+│  │ • Response Format│ │ • Logging        │ │ • AI Integration  │  │
+│  └─────────────────┘ └─────────────────┘ └─────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐  │
+│  │  Data Access    │ │   Services       │ │   Utilities      │  │
+│  │                │ │                │ │                │  │
+│  │ • GORM Models  │ │ • Import/Export  │ │ • Crypto Tools   │  │
+│  │ • Database Ops  │ │ • Backup/Recovery│ │ • Validation     │  │
+│  │ • Transaction   │ │ • Notifications  │ │ • File Processing│  │
+│  │ • Connection Pool│ │ • LLM Providers  │ │ • Cache Manager  │  │
+│  └─────────────────┘ └─────────────────┘ └─────────────────┘  │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐  │
+│  │  SQLite DB      │ │  File Storage    │ │ External APIs    │  │
+│  │                │ │                │ │                │  │
+│  │ • Primary DB    │ │ • Attachments    │ │ • Email Service  │  │
+│  │ • Vector Data   │ │ • Export Files   │ │ • LLM APIs       │  │
+│  │ • Config Data   │ │ • Backup Files   │ │ • Webhooks       │  │
+│  │ • Audit Logs    │ │ • Temp Files     │ │ • 3rd Party Sys  │  │
+│  └─────────────────┘ └─────────────────┘ └─────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Project Structure
+
+```
+smartticket/
+├── cmd/
+│   └── server/
+│       └── main.go              # Application entry point
+├── internal/
+│   ├── api/                     # API layer
+│   │   ├── handlers/            # HTTP handlers
+│   │   ├── middleware/          # Middlewares
+│   │   ├── routes/              # Route definitions
+│   │   └── validators/          # Request validation
+│   ├── models/                  # Data models (GORM)
+│   ├── services/                # Business logic
+│   ├── repositories/            # Data access layer
+│   ├── database/                # Database configuration
+│   ├── config/                  # Configuration management
+│   ├── utils/                   # Utility functions
+│   └── errors/                  # Error definitions
+├── pkg/                         # Public libraries
+│   ├── logger/
+│   ├── cache/
+│   └── validator/
+├── api/                         # API specifications
+│   └── openapi/
+├── docs/                        # Documentation
+├── tests/                       # Tests
+├── configs/                     # Configuration files
+├── deployments/                 # Deployment configs
+├── scripts/                     # Build/deployment scripts
+├── go.mod
+├── go.sum
+├── Makefile
+└── README.md
+```
 
 ## Core Data Models
 
@@ -45,29 +130,29 @@ SmartTicket is a B2B multi-tenant ticketing and knowledge collaboration platform
 - **User**: Role-based access (admin/customer/engineer/se/sales)
 - **Ticket**: Full lifecycle with SLA tracking and priority/severity enums
 - **KnowledgeArticle**: Versioned content with visibility controls
-- **EmbeddingChunk**: Vector search with tenant isolation
+- **LlmProvider**: Custom LLM provider configurations
 - **ImportExportJob**: Batch data processing with progress tracking
 
 ### Important Constraints
-- All tables include `tenant_id` for multi-tenant isolation
+- All models include `tenant_id` for multi-tenant isolation
 - Tickets use soft deletes (`is_deleted` flag)
 - Audit logs are immutable with hash-based integrity
 - All timestamp fields use Unix time format
 
 ## Development Phases
 
-1. **Phase 0**: Infrastructure & multi-tenant foundation (4-6 weeks)
-2. **Phase 1**: Core ticketing & SLA functionality (6-8 weeks)
-3. **Phase 2**: Knowledge base & basic RAG (8-10 weeks)
-4. **Phase 3**: Smart routing & integrations (6-8 weeks)
-5. **Phase 4**: Data management & production optimization (6-8 weeks)
+1. **Phase 0**: Infrastructure & multi-tenant foundation (2-3 weeks)
+2. **Phase 1**: Core ticketing & SLA functionality (3-4 weeks)
+3. **Phase 2**: Data management & backup systems (2-3 weeks)
+4. **Phase 3**: AI service integration & custom LLM providers (4-5 weeks)
+5. **Phase 4**: System optimization & production readiness (2-3 weeks)
 
 ## Security & Compliance
 
 ### Multi-Layer Security
 - Field-level and record-level access control
 - Encryption at rest and in transit
-- Key management with KMS/Vault integration
+- API key encryption with key rotation
 - Immutable audit logs with hash chaining
 
 ### GDPR Features
@@ -79,126 +164,285 @@ SmartTicket is a B2B multi-tenant ticketing and knowledge collaboration platform
 ### Import/Export Security
 - Role-based permissions for data access
 - PII detection and anonymization
-- Malware scanning for uploaded files
 - Comprehensive audit trails
+- Encrypted backup storage
 
-## RAG/LLM Integration
+## Custom LLM Provider System
 
-### Quality Metrics
-- Retrieval accuracy (precision@k, recall@k)
-- Citation accuracy and source relevance
-- Business impact (deflection rate, user satisfaction)
-- Hallucination detection mechanisms
+### Supported Providers
+- **Public Cloud**: OpenAI, Azure OpenAI, Anthropic Claude, Google Gemini, DeepSeek
+- **Private Deployment**: Ollama, vLLM, Text Generation Inference, LocalAI, FastChat
+- **Enterprise Models**: Fine-tuned models, industry-specific models, local deployments
 
-### AI Provider Management
-- Multi-provider support (OpenAI, Azure OpenAI, DeepSeek, local)
-- Encrypted credential storage with key rotation
-- Task-to-model mapping with cost optimization
-- Rate limiting and quota management
+### Configuration Management
+- Multi-provider support with flexible configuration
+- Task-to-model mapping for different AI tasks
+- Cost monitoring and quota management
+- Encrypted credential storage with rotation
 
-## Performance Optimization
-
-### Caching Strategy
-- **L1**: Application memory cache for hot data
-- **L2**: Redis distributed cache for query results
-- **L3**: Database query cache for complex analytics
-
-### Database Optimization
-- Partitioning by tenant and time ranges
-- Strategic indexing for high-frequency queries
-- Connection pooling configuration
-- Materialized views for analytics
-
-## gRPC API Design
-
-### Common Patterns
-- All services require `x-tenant-id`, `x-user-id`, `x-roles` metadata
-- Unified error model with localized messages
-- Pagination with `page_size` and `page_token`
-- Request ID and idempotency key support
-
-### Key Services
-- **TicketService**: Full ticket lifecycle management
-- **KnowledgeService**: Article CRUD, search, and publishing
-- **RAGService**: Document ingestion, search, and AI generation
-- **DataManagementService**: Import/export operations with progress tracking
+### AI Task Types
+- **Chat**: Conversational AI and Q&A
+- **Embedding**: Text vectorization
+- **Rerank**: Result re-ranking
+- **Summarization**: Text summarization
+- **Generation**: Content generation
+- **Classification**: Text classification
 
 ## Data Import/Export
 
 ### Supported Formats
-- **Tickets**: CSV, JSON, XML
-- **Knowledge Articles**: CSV, JSON, Markdown
+- **Tickets**: CSV, JSON, XML, Markdown
+- **Knowledge Articles**: CSV, JSON, Markdown with front matter
 - **Users**: CSV, JSON
 - **Contracts**: CSV, JSON
+- **Complete Export**: SQLite database file
 
 ### Batch Operations
-- Maximum 50,000 records per file
-- 500MB file size limit
-- Concurrent job limit of 3
+- Maximum 10,000 records per file (configurable)
+- 100MB file size limit (configurable)
+- Concurrent job limit of 2
 - Comprehensive validation and error handling
+- Progress tracking and real-time status updates
+
+### Third-Party Integrations
+- **Zendesk**: Full data migration support
+- **Jira Service Management**: Ticket and project data sync
+- **Freshdesk**: Customer support data import
+- **Custom Sources**: Generic CSV/JSON import with field mapping
 
 ## Port Configuration
 
-### Database Port Strategy
-To avoid conflicts between environments, the project uses different PostgreSQL ports:
-- **Development**: Port 5434 (configured in `docker/docker-compose.dev.yml`)
-- **Testing**: Port 5435 (configured in `docker/docker-compose.test.yml` and `config/testing.yaml`)
-- **Production**: Port 5432 (standard PostgreSQL port)
+### Application Port
+- **Main API Service**: Port 6533 (non-standard port to avoid conflicts)
+- **Health Check**: Same port as main service
+- **Metrics**: Optional, configurable port
 
-### Application Ports
-Avoid common ports (3000, 8000, 8080, 9000, 9001, 5173, 4200, 7000, 5000). Use non-standard ports for development and document them in `.env.example` or `ports.json` for team coordination.
+### Database Strategy
+- **Development**: SQLite file at `./data/smartticket_dev.db`
+- **Testing**: SQLite file at `./data/smartticket_test.db`
+- **Production**: SQLite file at `./data/smartticket.db`
+- **Backups**: SQLite files in `./data/backups/`
 
-### Current Service Ports
-- **gRPC Gateway**: Port 6533
-- **Development PostgreSQL**: Port 5434
-- **Test PostgreSQL**: Port 5435
-- **Production PostgreSQL**: Port 5432
-- **Development Redis**: Port 6379
-- **Test Redis**: Port 6381
+### Avoid Common Ports
+Do not use: 3000, 8000, 8080, 9000, 9001, 5173, 4200, 7000, 5000
 
-## Development Notes
+## Development Environment Setup
 
-### Multi-Tenant Development
-- Always include `tenant_id` in queries and operations
-- Test data isolation thoroughly
-- Consider cross-tenant data leakage in all implementations
+### Prerequisites
+```bash
+# Install Go 1.21+
+go version
 
-### SLA Implementation
-- Implement calendar-aware timing (business hours only)
-- Support different SLA policies by contract tier
-- Provide upgrade paths for SLA breaches
+# Install SQLite
+# macOS
+brew install sqlite
 
-### AI Integration
-- Implement fallback mechanisms for AI failures
-- Rate limit AI calls to control costs
-- Provide human review workflows for AI-generated content
+# Ubuntu/Debian
+sudo apt-get install sqlite3 libsqlite3-dev
 
-### Audit Requirements
-- Log all data mutations with user context
-- Implement tamper-evident audit trails
-- Support audit log export for compliance
+# Install Docker (optional)
+docker --version
+```
+
+### Quick Start
+```bash
+# 1. Clone repository
+git clone <repository-url>
+cd smartticket
+
+# 2. Install dependencies
+go mod download
+
+# 3. Run database migrations
+go run cmd/server/main.go migrate
+
+# 4. Start development server
+go run cmd/server/main.go serve
+
+# Or use Makefile
+make dev
+```
+
+### Development Commands
+```bash
+# Run tests
+go test ./...
+
+# Run tests with coverage
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
+
+# Build binary
+go build -o smartticket cmd/server/main.go
+
+# Run with configuration
+./smartticket serve --config configs/config.dev.yaml
+```
 
 ## Testing Infrastructure
 
-### gRPC E2E Testing
-The project includes comprehensive gRPC end-to-end testing using grpcurl:
-- **Test Coverage**: All 68 gRPC interfaces across 7 services
-- **Authentication Flow**: Real JWT-based authentication (no bypasses)
-- **Test Location**: `tests/grpc/` directory with modular test files
-- **Test Runner**: `tests/grpc/100_PERCENT_PASS_TEST.sh` for full suite
-- **Makefile Integration**: Run with `make test-grpc`
+### Test Structure
+- **Unit Tests**: `internal/*/..._test.go`
+- **Integration Tests**: `tests/integration/`
+- **End-to-End Tests**: `tests/e2e/`
+- **Test Fixtures**: `tests/fixtures/`
 
-### Test Environment Configuration
-- **Database**: PostgreSQL on port 5435 with isolated test database
-- **Cache**: Redis on port 6381 for test caching
-- **Authentication**: Test users with predictable credentials
-- **Data Isolation**: Each test run uses clean test data
+### Test Database
+- **Isolated Test Database**: Separate SQLite file for testing
+- **Clean State**: Each test run uses clean data
+- **Test Data**: Predefined test users and organizations
+- **Mock Services**: Mock external API calls for testing
 
-### Development Tools
-- **Test Runner**: `dev-tools/test.sh` for comprehensive testing
-- **Database Utils**: `tests/utils/` for password and test utilities
-- **API Generation**: `dev-tools/generate-openapi.sh` for documentation
+### Testing Commands
+```bash
+# Run all tests
+make test
+
+# Run integration tests
+make test-integration
+
+# Run E2E tests
+make test-e2e
+
+# Generate coverage report
+make coverage
+```
+
+## API Design
+
+### RESTful API Structure
+```
+/api/v1/
+├── auth/          # Authentication endpoints
+├── tickets/       # Ticket management
+├── knowledge/     # Knowledge base
+├── users/         # User management
+├── data/          # Import/export operations
+├── llm/           # LLM provider management
+├── admin/         # Administrative functions
+└── health/        # Health checks
+```
+
+### Authentication
+- **JWT Tokens**: Bearer token authentication
+- **Multi-tenant**: `x-tenant-id` header required
+- **Role-based**: Permissions checked per endpoint
+- **Session Management**: Token refresh and expiration
+
+### Response Format
+```json
+{
+  "success": true,
+  "data": { ... },
+  "error": null,
+  "meta": {
+    "total": 100,
+    "page": 1,
+    "page_size": 20
+  }
+}
+```
+
+## Performance Optimization
+
+### Database Optimization
+- **Indexing Strategy**: Optimized indexes for common queries
+- **Query Optimization**: Efficient GORM queries with proper joins
+- **Connection Pooling**: SQLite connection management
+- **WAL Mode**: Write-Ahead Logging for better concurrency
+
+### Caching Strategy
+- **In-Memory Cache**: Hot data caching in application memory
+- **Query Result Cache**: Cache frequently accessed data
+- **Static Asset Cache**: Cache knowledge articles and templates
+
+### Performance Targets
+- **API Response Time**: P95 < 200ms
+- **Database Query**: P95 < 100ms
+- **AI/LLM Response**: P95 < 2s
+- **Concurrent Users**: 100+ simultaneous users
+- **Throughput**: 1000+ QPS
+
+## Deployment
+
+### Single Binary Deployment
+```bash
+# Build production binary
+go build -ldflags="-s -w" -o smartticket cmd/server/main.go
+
+# Run with configuration
+./smartticket serve --config /path/to/config.yaml
+```
+
+### Docker Deployment
+```bash
+# Build Docker image
+docker build -t smartticket:latest .
+
+# Run with Docker Compose
+docker-compose up -d
+```
+
+### System Service Deployment
+```bash
+# Install as systemd service
+sudo cp deployments/smartticket.service /etc/systemd/system/
+sudo systemctl enable smartticket
+sudo systemctl start smartticket
+```
+
+## Monitoring & Observability
+
+### Health Checks
+- **Application Health**: `/api/v1/health` endpoint
+- **Database Health**: SQLite connection status
+- **External API Health**: LLM provider connectivity
+- **System Health**: Memory usage, disk space, etc.
+
+### Logging
+- **Structured Logging**: JSON format with correlation IDs
+- **Log Levels**: Debug, Info, Warn, Error
+- **Request Tracing**: Request ID tracking across components
+- **Audit Logging**: All data mutations with user context
+
+### Metrics (Optional)
+- **HTTP Metrics**: Request count, response time, error rate
+- **Business Metrics**: Tickets created, SLA compliance, user activity
+- **System Metrics**: Memory usage, CPU usage, disk I/O
+- **AI Metrics**: LLM usage, cost tracking, response times
+
+## Development Guidelines
+
+### Code Standards
+- **Go Formatting**: Use `gofmt` and `golint`
+- **Error Handling**: Explicit error handling with proper error types
+- **Testing**: Minimum 75% test coverage
+- **Documentation**: Public functions must have documentation
+- **Security**: Follow secure coding practices
+
+### Git Workflow
+- **Main Branch**: Production-ready code
+- **Develop Branch**: Integration branch
+- **Feature Branches**: `feature/description`
+- **Hotfix Branches**: `hotfix/description`
+
+### Commit Messages
+- **Format**: `type(scope): description`
+- **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+- **Examples**:
+  - `feat(api): add ticket export endpoint`
+  - `fix(db): resolve tenant isolation issue`
+  - `docs(readme): update deployment instructions`
 
 ## Current Project State
 
-The project has a working gRPC gateway with comprehensive testing infrastructure. All 68 gRPC interfaces have been tested with real authentication flow. The database port configuration is unified across environments (dev: 5434, test: 5435, prod: 5432) to avoid conflicts. The architecture emphasizes simplified microservices, strong security, and GDPR compliance while maintaining high performance for a European B2B customer base.
+The project is designed for enterprise self-deployment with a focus on data sovereignty and AI integration flexibility. The architecture emphasizes simplicity, security, and maintainability while providing enterprise-grade features for multi-tenant ticketing and knowledge management.
+
+### Key Differentiators
+1. **Self-Hosted**: Complete control over data and infrastructure
+2. **Data Export**: Comprehensive data portability features
+3. **AI Flexibility**: Support for any LLM provider or local models
+4. **Simple Deployment**: Single binary with minimal dependencies
+5. **Enterprise Features**: Multi-tenant, RBAC, audit logs, GDPR compliance
+
+The technology stack prioritizes reliability and ease of deployment while maintaining the flexibility needed for enterprise integration and customization.
