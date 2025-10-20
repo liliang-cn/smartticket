@@ -1,0 +1,48 @@
+# SmartTicket Development Dockerfile
+# Includes development tools and hot reload support
+
+FROM m.daocloud.io/docker.io/library/golang:1.25-alpine AS development
+
+# Install development dependencies
+RUN apk add --no-cache \
+    git \
+    ca-certificates \
+    tzdata \
+    sqlite \
+    make \
+    gcc \
+    musl-dev \
+    wget \
+    curl \
+    air \
+    delve
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download && go mod verify
+
+# Copy source code
+COPY . .
+
+# Install air for hot reload
+RUN go install github.com/cosmtrek/air@latest
+
+# Create necessary directories
+RUN mkdir -p data logs backups
+
+# Expose ports
+EXPOSE 6533 4000
+
+# Set environment variables
+ENV GIN_MODE=debug
+ENV LOG_LEVEL=debug
+ENV PORT=6533
+ENV ENVIRONMENT=development
+
+# Default command for development with hot reload
+CMD ["air", "-c", ".air.toml"]

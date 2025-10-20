@@ -63,6 +63,22 @@ Dockerfile*
 docker-compose*.yml
 .dockerignore
 
+# Go specific
+vendor/
+build/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.prof
+coverage.out
+coverage.html
+
+# Go development
+.air.toml
+
 # Backup files
 *.bak
 *.backup

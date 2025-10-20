@@ -1,0 +1,434 @@
+# Configuration Schema
+# This file defines the structure and validation rules for SmartTicket configurations
+
+# Root schema
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "SmartTicket Configuration"
+description: "Configuration schema for SmartTicket application"
+type: object
+
+# Required top-level fields
+required:
+  - environment
+  - server
+  - database
+  - jwt
+
+# Configuration sections
+properties:
+  environment:
+    type: string
+    enum: [development, test, staging, production, local]
+    description: "Application environment"
+
+  server:
+    type: object
+    required: [host, port]
+    properties:
+      host:
+        type: string
+        description: "Server bind address"
+      port:
+        type: integer
+        minimum: 1
+        maximum: 65535
+        description: "Server port"
+      read_timeout:
+        type: integer
+        minimum: 1
+        description: "Read timeout in seconds"
+      write_timeout:
+        type: integer
+        minimum: 1
+        description: "Write timeout in seconds"
+      idle_timeout:
+        type: integer
+        minimum: 1
+        description: "Idle timeout in seconds"
+      max_header_bytes:
+        type: integer
+        minimum: 1024
+        description: "Maximum header size in bytes"
+
+  database:
+    type: object
+    required: [type, connection_url]
+    properties:
+      type:
+        type: string
+        enum: [sqlite, postgres, mysql]
+        description: "Database type"
+      connection_url:
+        type: string
+        description: "Database connection URL"
+      max_connections:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        description: "Maximum database connections"
+      max_idle_conns:
+        type: integer
+        minimum: 0
+        description: "Maximum idle connections"
+      conn_max_lifetime:
+        type: integer
+        minimum: 0
+        description: "Connection max lifetime in seconds"
+      log_level:
+        type: string
+        enum: [debug, info, warn, error, silent]
+        description: "Database log level"
+      enable_wal_mode:
+        type: boolean
+        description: "Enable WAL mode (SQLite only)"
+      enable_foreign_keys:
+        type: boolean
+        description: "Enable foreign keys (SQLite only)"
+
+  jwt:
+    type: object
+    required: [secret, expiration_time, refresh_time, issuer]
+    properties:
+      secret:
+        type: string
+        minLength: 32
+        description: "JWT signing secret (min 32 characters)"
+      expiration_time:
+        type: string
+        pattern: "^[0-9]+[smhd]$"
+        description: "Token expiration time (e.g., 1h, 30m)"
+      refresh_time:
+        type: string
+        pattern: "^[0-9]+[smhd]$"
+        description: "Token refresh time"
+      issuer:
+        type: string
+        description: "JWT issuer"
+
+  cors:
+    type: object
+    required: [allowed_origins, allowed_methods]
+    properties:
+      allowed_origins:
+        type: array
+        items:
+          type: string
+        description: "Allowed CORS origins"
+      allowed_methods:
+        type: array
+        items:
+          type: string
+          enum: [GET, POST, PUT, DELETE, OPTIONS, PATCH]
+        description: "Allowed CORS methods"
+      exposed_headers:
+        type: array
+        items:
+          type: string
+        description: "Exposed CORS headers"
+      allow_credentials:
+        type: boolean
+        description: "Allow CORS credentials"
+      max_age:
+        type: integer
+        minimum: 0
+        description: "CORS max age in seconds"
+
+  logger:
+    type: object
+    properties:
+      level:
+        type: string
+        enum: [debug, info, warn, error]
+        description: "Log level"
+      format:
+        type: string
+        enum: [json, text, console]
+        description: "Log format"
+      output:
+        type: string
+        enum: [stdout, stderr, file]
+        description: "Log output destination"
+      file_path:
+        type: string
+        description: "Log file path (when output=file)"
+      max_size_mb:
+        type: integer
+        minimum: 1
+        description: "Maximum log file size in MB"
+      max_backups:
+        type: integer
+        minimum: 0
+        description: "Maximum log backup files"
+      max_age_days:
+        type: integer
+        minimum: 1
+        description: "Maximum log age in days"
+      compress:
+        type: boolean
+        description: "Compress log files"
+
+  rate_limit:
+    type: object
+    properties:
+      requests_per_second:
+        type: integer
+        minimum: 1
+        description: "Requests per second limit"
+      burst:
+        type: integer
+        minimum: 1
+        description: "Burst size for rate limiting"
+
+  security:
+    type: object
+    properties:
+      enable_csrf:
+        type: boolean
+        description: "Enable CSRF protection"
+      enable_content_type_check:
+        type: boolean
+        description: "Enable content type checking"
+      max_request_size:
+        type: integer
+        minimum: 1024
+        description: "Maximum request size in bytes"
+      allowed_hosts:
+        type: array
+        items:
+          type: string
+        description: "Allowed hostnames"
+
+  storage:
+    type: object
+    properties:
+      data_path:
+        type: string
+        description: "Data storage path"
+      backup_path:
+        type: string
+        description: "Backup storage path"
+      temp_path:
+        type: string
+        description: "Temporary files path"
+      max_file_size:
+        type: integer
+        minimum: 1024
+        description: "Maximum file size in bytes"
+      allowed_extensions:
+        type: array
+        items:
+          type: string
+          pattern: "^\\.[a-zA-Z0-9]+$"
+        description: "Allowed file extensions"
+
+  email:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        description: "Enable email sending"
+      smtp_host:
+        type: string
+        description: "SMTP server host"
+      smtp_port:
+        type: integer
+        minimum: 1
+        maximum: 65535
+        description: "SMTP server port"
+      username:
+        type: string
+        description: "SMTP username"
+      password:
+        type: string
+        description: "SMTP password"
+      from_address:
+        type: string
+        format: email
+        description: "From email address"
+      use_tls:
+        type: boolean
+        description: "Use TLS for SMTP"
+
+  cache:
+    type: object
+    properties:
+      type:
+        type: string
+        enum: [memory, redis, memcached]
+        description: "Cache type"
+      redis_url:
+        type: string
+        description: "Redis connection URL"
+      default_ttl:
+        type: string
+        pattern: "^[0-9]+[smhd]$"
+        description: "Default cache TTL"
+      enable_cluster:
+        type: boolean
+        description: "Enable Redis cluster"
+
+  monitoring:
+    type: object
+    properties:
+      enable_metrics:
+        type: boolean
+        description: "Enable metrics collection"
+      metrics_path:
+        type: string
+        description: "Metrics endpoint path"
+      enable_pprof:
+        type: boolean
+        description: "Enable pprof profiling"
+      pprof_path:
+        type: string
+        description: "pprof endpoint path"
+      health_check_interval:
+        type: string
+        pattern: "^[0-9]+[smhd]$"
+        description: "Health check interval"
+
+  features:
+    type: object
+    properties:
+      enable_user_registration:
+        type: boolean
+        description: "Enable user registration"
+      enable_email_verification:
+        type: boolean
+        description: "Enable email verification"
+      enable_password_reset:
+        type: boolean
+        description: "Enable password reset"
+      enable_ticket_exports:
+        type: boolean
+        description: "Enable ticket exports"
+      enable_knowledge_base:
+        type: boolean
+        description: "Enable knowledge base"
+      enable_ai_features:
+        type: boolean
+        description: "Enable AI features"
+      enable_multi_tenancy:
+        type: boolean
+        description: "Enable multi-tenancy"
+      enable_analytics:
+        type: boolean
+        description: "Enable analytics"
+      enable_debug_endpoints:
+        type: boolean
+        description: "Enable debug endpoints"
+
+  development:
+    type: object
+    properties:
+      enable_swagger:
+        type: boolean
+        description: "Enable Swagger documentation"
+      enable_debug_endpoints:
+        type: boolean
+        description: "Enable debug endpoints"
+      mock_external_apis:
+        type: boolean
+        description: "Mock external APIs"
+      enable_hot_reload:
+        type: boolean
+        description: "Enable hot reload"
+
+  backup:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        description: "Enable automatic backups"
+      schedule:
+        type: string
+        description: "Backup schedule (cron format)"
+      retention_days:
+        type: integer
+        minimum: 1
+        description: "Backup retention in days"
+      compression:
+        type: boolean
+        description: "Compress backups"
+      encryption:
+        type: boolean
+        description: "Encrypt backups"
+
+  performance:
+    type: object
+    properties:
+      connection_pool_size:
+        type: integer
+        minimum: 1
+        description: "Database connection pool size"
+      max_concurrent_requests:
+        type: integer
+        minimum: 1
+        description: "Maximum concurrent requests"
+      request_timeout:
+        type: string
+        pattern: "^[0-9]+[smhd]$"
+        description: "Request timeout"
+      enable_compression:
+        type: boolean
+        description: "Enable response compression"
+
+  llm:
+    type: object
+    properties:
+      default_provider:
+        type: string
+        description: "Default LLM provider"
+      providers:
+        type: object
+        patternProperties:
+          "^[a-zA-Z0-9_-]+$":
+            type: object
+            properties:
+              name:
+                type: string
+              provider_type:
+                type: string
+                enum: [openai, ollama, anthropic, azure, mock]
+              api_endpoint:
+                type: string
+              api_key:
+                type: string
+              model:
+                type: string
+              max_tokens:
+                type: integer
+                minimum: 1
+              temperature:
+                type: number
+                minimum: 0
+                maximum: 2
+              task_types:
+                type: array
+                items:
+                  type: string
+                  enum: [chat, embedding, generation, summarization, classification, rerank]
+              is_default:
+                type: boolean
+              is_enabled:
+                type: boolean
+              quota_limit:
+                type: integer
+                minimum: 0
+              quota_used:
+                type: integer
+                minimum: 0
+      task_mapping:
+        type: object
+        patternProperties:
+          "^(chat|embedding|generation|summarization|classification|rerank)$":
+            type: string
+      rate_limit:
+        type: object
+        properties:
+          requests_per_minute:
+            type: integer
+            minimum: 0
+          tokens_per_minute:
+            type: integer
+            minimum: 0

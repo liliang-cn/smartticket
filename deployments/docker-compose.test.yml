@@ -1,0 +1,46 @@
+version: '3.8'
+
+# SmartTicket Testing Docker Compose
+# Optimized for automated testing and CI/CD
+
+services:
+  # SmartTicket Test Environment
+  smartticket-test:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      target: builder
+    container_name: smartticket-test
+    environment:
+      - GIN_MODE=test
+      - LOG_LEVEL=error
+      - PORT=6533
+      - ENVIRONMENT=test
+      - DB_PATH=/tmp/smartticket_test.db
+    volumes:
+      - ../../:/app/src
+      - test-results:/app/test-results
+    working_dir: /app/src
+    command: go test -v -race -coverprofile=/app/test-results/coverage.out ./...
+    networks:
+      - smartticket-test-network
+    no_log_prefix: true
+
+  # Redis Test Instance
+  redis-test:
+    image: m.daocloud.io/docker.io/library/redis:7-alpine
+    container_name: smartticket-redis-test
+    tmpfs:
+      - /data
+    restart: "no"
+    command: redis-server --save ""
+    networks:
+      - smartticket-test-network
+
+volumes:
+  test-results:
+    driver: local
+
+networks:
+  smartticket-test-network:
+    driver: bridge

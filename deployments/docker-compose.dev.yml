@@ -1,0 +1,83 @@
+version: '3.8'
+
+# SmartTicket Development Docker Compose
+# Optimized for development with hot reload and debugging
+
+services:
+  # SmartTicket Development Server
+  smartticket-dev:
+    build:
+      context: ../..
+      dockerfile: Dockerfile.dev
+    container_name: smartticket-dev
+    ports:
+      - "6533:6533"
+      - "4000:4000"  # Debug port (if using delve)
+    environment:
+      - GIN_MODE=debug
+      - LOG_LEVEL=debug
+      - PORT=6533
+      - ENVIRONMENT=development
+      - ENABLE_PPROF=true
+    volumes:
+      - ../..:/app/src
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ../../configs:/app/configs
+    working_dir: /app/src
+    command: air -c .air.toml  # Hot reload with air
+    restart: unless-stopped
+    depends_on:
+      - redis-dev
+    networks:
+      - smartticket-dev-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:6533/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Redis Development Instance
+  redis-dev:
+    image: m.daocloud.io/docker.io/library/redis:7-alpine
+    container_name: smartticket-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-dev-data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes --notify-keyspace-events Ex
+    networks:
+      - smartticket-dev-network
+
+  # Database Admin Tool (optional)
+  adminer:
+    image: adminer:latest
+    container_name: smartticket-adminer
+    ports:
+      - "8080:8080"  # Different port to avoid conflicts
+    environment:
+      - ADMINER_DEFAULT_SERVER=smartticket-dev
+    restart: unless-stopped
+    networks:
+      - smartticket-dev-network
+
+  # Development Mail Catcher (for testing emails)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: smartticket-mailhog
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+    restart: unless-stopped
+    networks:
+      - smartticket-dev-network
+
+volumes:
+  redis-dev-data:
+    driver: local
+
+networks:
+  smartticket-dev-network:
+    driver: bridge

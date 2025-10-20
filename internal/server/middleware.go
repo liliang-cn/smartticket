@@ -1,0 +1,323 @@
+package server
+
+import (
+	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"golang.org/x/time/rate"
+
+	"github.com/company/smartticket/internal/errors"
+	"github.com/company/smartticket/internal/logger"
+)
+
+// rateLimiter represents a rate limiter for client IPs
+type rateLimiter struct {
+	ips map[string]*rate.Limiter
+	mu  sync.RWMutex
+	r   rate.Limit
+	b   int
+}
+
+// newRateLimiter creates a new rate limiter
+func newRateLimiter(rps int, burst int) *rateLimiter {
+	return &rateLimiter{
+		ips: make(map[string]*rate.Limiter),
+		r:   rate.Limit(rps),
+		b:   burst,
+	}
+}
+
+// Allow checks if a request from the given IP is allowed
+func (rl *rateLimiter) Allow(ip string) bool {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	limiter, exists := rl.ips[ip]
+	if !exists {
+		limiter = rate.NewLimiter(rl.r, rl.b)
+		rl.ips[ip] = limiter
+	}
+
+	return limiter.Allow()
+}
+
+// setupCORS configures CORS middleware
+func (s *Server) setupCORS() {
+	s.router.Use(func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
+
+		// Check if origin is allowed
+		allowed := false
+		for _, allowedOrigin := range s.config.CORS.AllowedOrigins {
+			if allowedOrigin == "*" || allowedOrigin == origin {
+				allowed = true
+				break
+			}
+		}
+
+		if allowed {
+			c.Header("Access-Control-Allow-Origin", origin)
+		}
+
+		// Set other CORS headers
+		c.Header("Access-Control-Allow-Methods", strings.Join(s.config.CORS.AllowedMethods, ", "))
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Tenant-ID, X-Request-ID")
+		c.Header("Access-Control-Expose-Headers", strings.Join(s.config.CORS.ExposedHeaders, ", "))
+		c.Header("Access-Control-Allow-Credentials", strconv.FormatBool(s.config.CORS.AllowCredentials))
+		c.Header("Access-Control-Max-Age", strconv.Itoa(s.config.CORS.MaxAge))
+
+		// Handle preflight requests
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+
+		c.Next()
+	})
+}
+
+// setupRateLimiting configures rate limiting middleware
+func (s *Server) setupRateLimiting() {
+	limiter := newRateLimiter(s.config.RateLimit.RequestsPerSecond, s.config.RateLimit.Burst)
+
+	s.router.Use(func(c *gin.Context) {
+		clientIP := c.ClientIP()
+		requestID, exists := c.Get("request_id")
+		var log *logger.Logger
+		if !exists {
+			log = logger.GetGlobalLogger()
+		} else {
+			_ = requestID // Could extract requestID for logging if needed
+			log = logger.GetGlobalLogger()
+		}
+
+		if !limiter.Allow(clientIP) {
+			log.Warn("Rate limit exceeded",
+				zap.String("client_ip", clientIP),
+				zap.String("path", c.Request.URL.Path),
+				zap.String("method", c.Request.Method),
+			)
+			var requestIDStr string
+			if requestIDVal, ok := requestID.(string); ok {
+				requestIDStr = requestIDVal
+			}
+			appErr := errors.NewRateLimitError("Rate limit exceeded. Please try again later.").
+				WithRequestID(requestIDStr).
+				WithContext("client_ip", clientIP).
+				WithContext("path", c.Request.URL.Path).
+				WithContext("method", c.Request.Method)
+			errors.ErrorHandler(c, appErr)
+			return
+		}
+
+		c.Next()
+	})
+}
+
+// setupSecurityHeaders configures security headers middleware
+func (s *Server) setupSecurityHeaders() {
+	s.router.Use(func(c *gin.Context) {
+		// Security headers
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("X-Frame-Options", "DENY")
+		c.Header("X-XSS-Protection", "1; mode=block")
+		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
+		c.Header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+
+		// Hide server information
+		c.Header("Server", "SmartTicket")
+
+		// Content Security Policy (basic)
+		if s.config.IsProduction() {
+			c.Header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
+		}
+
+		c.Next()
+	})
+}
+
+// requestIDMiddleware adds a unique request ID to each request
+func (s *Server) requestIDMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		requestID := c.GetHeader("X-Request-ID")
+		if requestID == "" {
+			requestID = generateRequestID()
+		}
+
+		c.Set("request_id", requestID)
+		c.Header("X-Request-ID", requestID)
+		c.Next()
+	}
+}
+
+// tenantIsolationMiddleware extracts and validates tenant information
+func (s *Server) tenantIsolationMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Get tenant ID from header or path parameter
+		tenantIDStr := c.GetHeader("X-Tenant-ID")
+		if tenantIDStr == "" {
+			// Try to get from query parameter (for development)
+			tenantIDStr = c.Query("tenant_id")
+		}
+
+		if tenantIDStr == "" {
+			appErr := errors.NewValidationError("Tenant ID is required").
+				WithRequestID(c.GetString("request_id"))
+			errors.ErrorHandler(c, appErr)
+			return
+		}
+
+		tenantID, err := strconv.ParseUint(tenantIDStr, 10, 32)
+		if err != nil {
+			appErr := errors.NewInvalidInputError("tenant_id", tenantIDStr).
+				WithRequestID(c.GetString("request_id")).
+				WithDetails(err.Error())
+			errors.ErrorHandler(c, appErr)
+			return
+		}
+
+		// Set tenant ID in context
+		c.Set("tenant_id", uint(tenantID))
+		c.Next()
+	}
+}
+
+// authMiddleware validates JWT tokens
+func (s *Server) authMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		requestID, exists := c.Get("request_id")
+		var log *logger.Logger
+		if !exists {
+			log = logger.GetGlobalLogger()
+		} else {
+			_ = requestID // Could extract requestID for logging if needed
+			log = logger.GetGlobalLogger()
+		}
+		clientIP := c.ClientIP()
+		userAgent := c.GetHeader("User-Agent")
+
+		// Skip auth for development mode if needed
+		if s.config.IsDevelopment() && c.GetHeader("X-Skip-Auth") == "true" {
+			log.Debug("Skipping authentication for development")
+			// Set a mock user for development
+			c.Set("user_id", uint(1))
+			c.Set("user_role", "admin")
+			c.Next()
+			return
+		}
+
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			appErr := errors.NewUnauthorizedError("Authorization header is required").
+				WithRequestID(c.GetString("request_id"))
+			logger.LogSecurityEvent("auth_missing_header", "", clientIP, userAgent, false)
+			errors.ErrorHandler(c, appErr)
+			return
+		}
+
+		// Validate Bearer token format
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			appErr := errors.NewValidationError("Authorization header must be in format 'Bearer {token}'").
+				WithRequestID(c.GetString("request_id"))
+			logger.LogSecurityEvent("auth_invalid_format", "", clientIP, userAgent, false)
+			errors.ErrorHandler(c, appErr)
+			return
+		}
+
+		token := parts[1]
+
+		// TODO: Implement actual JWT validation
+		// For now, we'll use a mock implementation
+		userID, userRole, err := s.validateJWTToken(token)
+		if err != nil {
+			appErr := errors.NewUnauthorizedError("Invalid or expired token").
+				WithRequestID(c.GetString("request_id"))
+			logger.LogSecurityEvent("auth_invalid_token", "", clientIP, userAgent, false)
+			errors.ErrorHandler(c, appErr)
+			return
+		}
+
+		// Log successful authentication
+		logger.LogSecurityEvent("auth_success", fmt.Sprintf("%d", userID), clientIP, userAgent, true)
+
+		// Set user information in context
+		c.Set("user_id", userID)
+		c.Set("user_role", userRole)
+		c.Next()
+	}
+}
+
+// adminMiddleware checks if user has admin privileges
+func (s *Server) adminMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRole, exists := c.Get("user_role")
+		if !exists {
+			// Debug: Check what keys are available in context
+			userID, userIDExists := c.Get("user_id")
+			tenantID, tenantIDExists := c.Get("tenant_id")
+			logger.Debug("adminMiddleware: user_role not found",
+				zap.Bool("userID_exists", userIDExists),
+				zap.Bool("tenantID_exists", tenantIDExists),
+				zap.Any("userID", userID),
+				zap.Any("tenantID", tenantID))
+
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"error": gin.H{
+					"code":    "UNAUTHORIZED",
+					"message": "User authentication required",
+				},
+			})
+			c.Abort()
+			return
+		}
+
+		role, ok := userRole.(string)
+		if !ok || role != "admin" {
+			logger.Debug("adminMiddleware: user_role found but not admin",
+				zap.String("role", role),
+				zap.Bool("ok", ok))
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"error": gin.H{
+					"code":    "INSUFFICIENT_PERMISSIONS",
+					"message": "Admin privileges required",
+				},
+			})
+			c.Abort()
+			return
+		}
+
+		logger.Debug("adminMiddleware: admin check passed",
+			zap.String("role", role))
+		c.Next()
+	}
+}
+
+// Helper functions
+
+// generateRequestID generates a unique request ID
+func generateRequestID() string {
+	return fmt.Sprintf("req_%d", time.Now().UnixNano())
+}
+
+// validateJWTToken validates a JWT token and returns user information
+func (s *Server) validateJWTToken(token string) (uint, string, error) {
+	if s.authService == nil {
+		return 0, "", fmt.Errorf("auth service not available")
+	}
+
+	claims, err := s.authService.ValidateToken(token)
+	if err != nil {
+		return 0, "", err
+	}
+
+	return claims.UserID, claims.Role, nil
+}

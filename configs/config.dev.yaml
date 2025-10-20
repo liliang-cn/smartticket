@@ -1,0 +1,180 @@
+# Development Configuration
+
+environment: development
+
+# Server Configuration
+server:
+  host: "localhost"
+  port: 6533
+  read_timeout: 30
+  write_timeout: 30
+  idle_timeout: 120
+  max_header_bytes: 1048576
+
+# Database Configuration
+database:
+  type: sqlite
+  connection_url: "./data/smartticket_dev.db"
+  max_connections: 25
+  max_idle_conns: 5
+  conn_max_lifetime: 3600
+  log_level: debug
+  enable_wal_mode: true
+  enable_foreign_keys: true
+
+# JWT Configuration
+jwt:
+  secret: "dev-secret-key-not-for-production-change-this-in-real-deployment-32-chars"
+  expiration_time: 24h
+  refresh_time: 168h
+  issuer: "smartticket-dev"
+
+# CORS Configuration
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://localhost:7218"
+    - "http://127.0.0.1:3000"
+    - "http://127.0.0.1:7218"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+    - "PATCH"
+  exposed_headers:
+    - "X-Total-Count"
+    - "X-Request-ID"
+    - "X-Tenant-ID"
+  allow_credentials: true
+  max_age: 86400
+
+# Logger Configuration
+logger:
+  level: debug
+  format: json
+  output: stdout
+  # file_path: "./logs/smartticket_dev.log"
+  # max_size_mb: 100
+  # max_backups: 5
+  # max_age_days: 30
+
+# Rate Limiting Configuration
+rate_limit:
+  requests_per_second: 100
+  burst: 200
+
+# LLM Configuration
+llm:
+  default_provider: "openai"
+  providers:
+    openai:
+      name: "OpenAI GPT"
+      provider_type: "openai"
+      api_endpoint: "https://api.openai.com/v1"
+      api_key: ""
+      model: "gpt-3.5-turbo"
+      max_tokens: 4096
+      temperature: 0.7
+      task_types:
+        - "chat"
+        - "generation"
+        - "summarization"
+      is_default: true
+      is_enabled: false
+      quota_limit: 1000
+      quota_used: 0
+
+    ollama:
+      name: "Local Ollama"
+      provider_type: "ollama"
+      api_endpoint: "http://localhost:11434"
+      model: "llama2"
+      max_tokens: 2048
+      temperature: 0.8
+      task_types:
+        - "chat"
+        - "generation"
+      is_default: false
+      is_enabled: true
+      quota_limit: 100
+      quota_used: 0
+
+  task_mapping:
+    chat: "openai"
+    embedding: "openai"
+    generation: "openai"
+    summarization: "openai"
+    classification: "openai"
+
+  rate_limit:
+    requests_per_minute: 60
+    tokens_per_minute: 10000
+
+# Security Configuration
+security:
+  enable_csrf: true
+  enable_content_type_check: true
+  max_request_size: 10485760  # 10MB
+  allowed_hosts:
+    - "localhost"
+    - "127.0.0.1"
+
+# File Storage Configuration
+storage:
+  data_path: "./data"
+  backup_path: "./backups"
+  temp_path: "./tmp"
+  max_file_size: 52428800  # 50MB
+  allowed_extensions:
+    - ".txt"
+    - ".pdf"
+    - ".doc"
+    - ".docx"
+    - ".jpg"
+    - ".jpeg"
+    - ".png"
+    - ".gif"
+    - ".zip"
+    - ".csv"
+
+# Email Configuration (for development - uses MailHog)
+email:
+  enabled: true
+  smtp_host: "localhost"
+  smtp_port: 1025
+  username: ""
+  password: ""
+  from_address: "noreply@smartticket.dev"
+  use_tls: false
+
+# Cache Configuration (development)
+cache:
+  type: "memory"
+  default_ttl: 300s  # 5 minutes
+
+# Monitoring Configuration
+monitoring:
+  enable_metrics: true
+  metrics_path: "/metrics"
+  enable_pprof: true
+  pprof_path: "/debug/pprof"
+
+# Feature Flags
+features:
+  enable_user_registration: true
+  enable_email_verification: false
+  enable_password_reset: true
+  enable_ticket_exports: true
+  enable_knowledge_base: true
+  enable_ai_features: true
+  enable_multi_tenancy: true
+  enable_debug_endpoints: true
+
+# Development Settings
+development:
+  enable_swagger: true
+  enable_debug_endpoints: true
+  mock_external_apis: false
+  enable_hot_reload: true

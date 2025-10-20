@@ -1,0 +1,30 @@
+internal/importexport/handlers.go:1: : # github.com/company/smartticket/internal/importexport
+internal/importexport/service.go:11:2: errors redeclared in this block
+	internal/importexport/service.go:5:2: other declaration of errors
+internal/importexport/service.go:118:22: undefined: errors.NewValidationError
+internal/importexport/service.go:138:22: undefined: errors.NewInternalError
+internal/importexport/service.go:168:22: undefined: errors.NewInternalError
+internal/importexport/service.go:187:23: undefined: errors.NewNotFoundError
+internal/importexport/service.go:189:22: undefined: errors.NewInternalError
+internal/importexport/service.go:215:22: undefined: errors.NewInternalError
+internal/importexport/service.go:224:22: undefined: errors.NewInternalError
+internal/importexport/service.go:254:18: undefined: errors.NewNotFoundError
+internal/importexport/service.go:256:17: undefined: errors.NewInternalError
+internal/importexport/service.go:256:17: too many errors (typecheck)
+package importexport
+internal/knowledge/handlers.go:1: : # github.com/company/smartticket/internal/knowledge
+internal/knowledge/service.go:9:2: errors redeclared in this block
+	internal/knowledge/service.go:4:2: other declaration of errors
+internal/knowledge/service.go:118:23: undefined: errors.NewUnauthorizedError
+internal/knowledge/service.go:120:22: undefined: errors.NewInternalError
+internal/knowledge/service.go:144:22: undefined: errors.NewInternalError
+internal/knowledge/service.go:167:23: undefined: errors.NewNotFoundError
+internal/knowledge/service.go:169:22: undefined: errors.NewInternalError
+internal/knowledge/service.go:214:22: undefined: errors.NewInternalError
+internal/knowledge/service.go:223:22: undefined: errors.NewInternalError
+internal/knowledge/service.go:253:23: undefined: errors.NewNotFoundError
+internal/knowledge/service.go:255:22: undefined: errors.NewInternalError
+internal/knowledge/service.go:255:22: too many errors (typecheck)
+package knowledge
+2 issues:
+* typecheck: 2

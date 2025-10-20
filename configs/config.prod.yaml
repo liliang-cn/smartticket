@@ -1,0 +1,188 @@
+# Production Configuration
+
+environment: production
+
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 6533
+  read_timeout: 30
+  write_timeout: 30
+  idle_timeout: 60
+  max_header_bytes: 1048576
+
+# Database Configuration
+database:
+  type: sqlite
+  connection_url: "./data/smartticket.db"
+  max_connections: 50
+  max_idle_conns: 10
+  conn_max_lifetime: 1800
+  log_level: error
+
+# JWT Configuration
+jwt:
+  secret: "" # Set via SMARTTICKET_JWT_SECRET environment variable
+  expiration_time: 8h
+  refresh_time: 72h
+  issuer: "smartticket"
+
+# CORS Configuration
+cors:
+  allowed_origins:
+    - "https://yourdomain.com"
+    - "https://app.yourdomain.com"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+    - "PATCH"
+  exposed_headers:
+    - "X-Total-Count"
+    - "X-Request-ID"
+    - "X-Tenant-ID"
+  allow_credentials: true
+  max_age: 7200
+
+# Logger Configuration
+logger:
+  level: info
+  format: json
+  output: file
+  file_path: "./logs/smartticket.log"
+  max_size_mb: 100
+  max_backups: 10
+  max_age_days: 30
+
+# Rate Limiting Configuration
+rate_limit:
+  requests_per_second: 50
+  burst: 100
+
+# Security Configuration
+security:
+  enable_csrf: true
+  enable_content_type_check: true
+  max_request_size: 5242880  # 5MB
+  allowed_hosts:
+    - "${FRONTEND_URL}"
+    - "${API_DOMAIN}"
+
+# File Storage Configuration
+storage:
+  data_path: "/app/data"
+  backup_path: "/app/backups"
+  temp_path: "/tmp"
+  max_file_size: 20971520  # 20MB
+  allowed_extensions:
+    - ".txt"
+    - ".pdf"
+    - ".doc"
+    - ".docx"
+    - ".xls"
+    - ".xlsx"
+    - ".jpg"
+    - ".jpeg"
+    - ".png"
+    - ".gif"
+    - ".zip"
+    - ".csv"
+
+# Email Configuration
+email:
+  enabled: true
+  smtp_host: "${SMTP_HOST}"
+  smtp_port: 587
+  username: "${SMTP_USERNAME}"
+  password: "${SMTP_PASSWORD}"
+  from_address: "${FROM_EMAIL}"
+  use_tls: true
+
+# Cache Configuration
+cache:
+  type: "redis"
+  redis_url: "${REDIS_URL}"
+  default_ttl: 3600s
+  enable_cluster: false
+
+# Monitoring Configuration
+monitoring:
+  enable_metrics: true
+  metrics_path: "/metrics"
+  enable_pprof: false
+  health_check_interval: 30s
+
+# Feature Flags
+features:
+  enable_user_registration: true
+  enable_email_verification: true
+  enable_password_reset: true
+  enable_ticket_exports: true
+  enable_knowledge_base: true
+  enable_ai_features: true
+  enable_multi_tenancy: true
+  enable_analytics: true
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 90
+  compression: true
+  encryption: true
+
+# Performance Configuration
+performance:
+  connection_pool_size: 50
+  max_concurrent_requests: 500
+  request_timeout: 30s
+  enable_compression: true
+
+# LLM Configuration
+llm:
+  default_provider: "openai"
+  providers:
+    openai:
+      name: "OpenAI GPT"
+      provider_type: "openai"
+      api_endpoint: "https://api.openai.com/v1"
+      api_key: "" # Set via SMARTTICKET_OPENAI_API_KEY
+      model: "gpt-4"
+      max_tokens: 4096
+      temperature: 0.7
+      task_types:
+        - "chat"
+        - "generation"
+        - "summarization"
+      is_default: true
+      is_enabled: false
+      quota_limit: 10000
+      quota_used: 0
+
+    ollama:
+      name: "Local Ollama"
+      provider_type: "ollama"
+      api_endpoint: "http://localhost:11434"
+      model: "llama3"
+      max_tokens: 4096
+      temperature: 0.8
+      task_types:
+        - "chat"
+        - "generation"
+      is_default: false
+      is_enabled: false
+      quota_limit: 1000
+      quota_used: 0
+
+  task_mapping:
+    chat: "openai"
+    embedding: "openai"
+    generation: "openai"
+    summarization: "openai"
+    classification: "openai"
+
+  rate_limit:
+    requests_per_minute: 100
+    tokens_per_minute: 50000

@@ -1,0 +1,1469 @@
+openapi: 3.0.3
+info:
+  title: SmartTicket API
+  description: Multi-tenant ticketing and knowledge collaboration platform API
+  version: 1.0.0
+  contact:
+    name: SmartTicket Team
+    email: support@smartticket.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:6533/api/v1
+    description: Development server
+  - url: https://tickets.company.com/api/v1
+    description: Production server
+
+paths:
+  # Health Check Endpoints
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check endpoint
+      description: Returns the health status of the API and its dependencies
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /health/ready:
+    get:
+      tags:
+        - Health
+      summary: Readiness check endpoint
+      description: Returns whether the service is ready to accept traffic
+      operationId: getReady
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Service is not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  # Authentication Endpoints
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and return JWT tokens
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh JWT token
+      description: Refresh access token using refresh token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Invalidate JWT token
+      operationId: logout
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Ticket Endpoints
+  /tickets:
+    get:
+      tags:
+        - Tickets
+      summary: List tickets
+      description: Retrieve a paginated list of tickets
+      operationId: listTickets
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Order'
+        - name: status
+          in: query
+          description: Filter by ticket status
+          schema:
+            type: string
+            enum: [open, in_progress, pending_customer, resolved, closed]
+        - name: priority
+          in: query
+          description: Filter by ticket priority
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: assigned_to
+          in: query
+          description: Filter by assigned user ID
+          schema:
+            type: string
+        - name: created_by
+          in: query
+          description: Filter by creator user ID
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search in title and description
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tickets retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Tickets
+      summary: Create ticket
+      description: Create a new ticket
+      operationId: createTicket
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketRequest'
+      responses:
+        '201':
+          description: Ticket created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tickets/{id}:
+    get:
+      tags:
+        - Tickets
+      summary: Get ticket details
+      description: Retrieve detailed information about a specific ticket
+      operationId: getTicket
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - name: id
+          in: path
+          required: true
+          description: Ticket ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ticket retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      tags:
+        - Tickets
+      summary: Update ticket
+      description: Update an existing ticket
+      operationId: updateTicket
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - name: id
+          in: path
+          required: true
+          description: Ticket ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTicketRequest'
+      responses:
+        '200':
+          description: Ticket updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TicketResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - Tickets
+      summary: Delete ticket
+      description: Soft delete a ticket
+      operationId: deleteTicket
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - name: id
+          in: path
+          required: true
+          description: Ticket ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Ticket deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Ticket Messages Endpoints
+  /tickets/{id}/messages:
+    get:
+      tags:
+        - Tickets
+      summary: Get ticket messages
+      description: Retrieve messages for a specific ticket
+      operationId: getTicketMessages
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - name: id
+          in: path
+          required: true
+          description: Ticket ID
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Tickets
+      summary: Add ticket message
+      description: Add a new message to a ticket
+      operationId: addTicketMessage
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - name: id
+          in: path
+          required: true
+          description: Ticket ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+      responses:
+        '201':
+          description: Message added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Knowledge Base Endpoints
+  /knowledge:
+    get:
+      tags:
+        - Knowledge Base
+      summary: List knowledge articles
+      description: Retrieve a paginated list of knowledge articles
+      operationId: listKnowledgeArticles
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: status
+          in: query
+          description: Filter by article status
+          schema:
+            type: string
+            enum: [draft, review, published, archived]
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search in title and content
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Knowledge articles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeArticleListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Knowledge Base
+      summary: Create knowledge article
+      description: Create a new knowledge article
+      operationId: createKnowledgeArticle
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateKnowledgeArticleRequest'
+      responses:
+        '201':
+          description: Knowledge article created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeArticleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /knowledge/{id}:
+    get:
+      tags:
+        - Knowledge Base
+      summary: Get knowledge article
+      description: Retrieve a specific knowledge article
+      operationId: getKnowledgeArticle
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - name: id
+          in: path
+          required: true
+          description: Knowledge article ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Knowledge article retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeArticleResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Data Management Endpoints
+  /data/export:
+    post:
+      tags:
+        - Data Management
+      summary: Start export job
+      description: Start a new data export job
+      operationId: startExportJob
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartExportJobRequest'
+      responses:
+        '201':
+          description: Export job started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportExportJobResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /data/import:
+    post:
+      tags:
+        - Data Management
+      summary: Start import job
+      description: Start a new data import job
+      operationId: startImportJob
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StartImportJobRequest'
+      responses:
+        '201':
+          description: Import job started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportExportJobResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /data/jobs:
+    get:
+      tags:
+        - Data Management
+      summary: List data jobs
+      description: Retrieve a list of import/export jobs
+      operationId: listDataJobs
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - name: type
+          in: query
+          description: Filter by job type
+          schema:
+            type: string
+            enum: [import, export]
+        - name: status
+          in: query
+          description: Filter by job status
+          schema:
+            type: string
+            enum: [pending, running, completed, failed, cancelled]
+      responses:
+        '200':
+          description: Data jobs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportExportJobListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    TenantID:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant identifier for multi-tenant isolation
+      schema:
+        type: string
+        format: uuid
+
+    Page:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    PageSize:
+      name: page_size
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    Sort:
+      name: sort
+      in: query
+      description: Field to sort by
+      schema:
+        type: string
+        default: created_at
+
+    Order:
+      name: order
+      in: query
+      description: Sort order
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+
+  schemas:
+    # Base Response Schemas
+    BaseResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Request success status
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ResponseMeta:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Response timestamp
+        request_id:
+          type: string
+          description: Unique request identifier
+
+    SuccessResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Success message
+
+    ErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              description: Error code
+            message:
+              type: string
+              description: Error message
+            details:
+              type: object
+              description: Additional error details
+
+    PaginatedResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        meta:
+          allOf:
+            - $ref: '#/components/schemas/ResponseMeta'
+            - type: object
+              properties:
+                total:
+                  type: integer
+                  description: Total number of items
+                page:
+                  type: integer
+                  description: Current page number
+                page_size:
+                  type: integer
+                  description: Number of items per page
+                total_pages:
+                  type: integer
+                  description: Total number of pages
+
+    # Health Schemas
+    HealthResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: object
+          required:
+            - status
+            - timestamp
+            - checks
+          properties:
+            status:
+              type: string
+              enum: [healthy, unhealthy]
+              description: Overall health status
+            timestamp:
+              type: string
+              format: date-time
+              description: Health check timestamp
+            version:
+              type: string
+              description: Application version
+            checks:
+              type: object
+              description: Individual health check results
+              additionalProperties:
+                $ref: '#/components/schemas/HealthCheck'
+
+    HealthCheck:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy, warning]
+          description: Check status
+        message:
+          type: string
+          description: Check message
+
+    # Authentication Schemas
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email address
+        password:
+          type: string
+          format: password
+          description: User password
+        tenant_id:
+          type: string
+          format: uuid
+          description: Tenant ID (optional for single-tenant)
+
+    LoginResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: object
+          required:
+            - access_token
+            - refresh_token
+            - expires_in
+            - user
+          properties:
+            access_token:
+              type: string
+              description: JWT access token
+            refresh_token:
+              type: string
+              description: JWT refresh token
+            expires_in:
+              type: integer
+              description: Access token expiration in seconds
+            user:
+              $ref: '#/components/schemas/User'
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: JWT refresh token
+
+    RefreshTokenResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: object
+          required:
+            - access_token
+            - expires_in
+          properties:
+            access_token:
+              type: string
+              description: New JWT access token
+            expires_in:
+              type: integer
+              description: Access token expiration in seconds
+
+    # User Schemas
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - name
+        - role
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User email address
+        name:
+          type: string
+          description: User display name
+        role:
+          type: string
+          enum: [admin, engineer, support, customer, sales]
+          description: User role
+        status:
+          type: string
+          enum: [active, inactive, locked]
+          description: User status
+        avatar:
+          type: string
+          format: uri
+          description: Avatar URL
+        last_login_at:
+          type: string
+          format: date-time
+          description: Last login timestamp
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    # Ticket Schemas
+    Ticket:
+      type: object
+      required:
+        - id
+        - number
+        - title
+        - status
+        - priority
+        - severity
+        - created_by
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Ticket ID
+        number:
+          type: string
+          description: Ticket number (e.g., TICKET-1234)
+        title:
+          type: string
+          description: Ticket title
+        description:
+          type: string
+          description: Ticket description
+        status:
+          type: string
+          enum: [open, in_progress, pending_customer, resolved, closed]
+          description: Ticket status
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+          description: Ticket priority
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+          description: Ticket severity
+        category:
+          type: string
+          description: Ticket category
+        tags:
+          type: array
+          items:
+            type: string
+          description: Ticket tags
+        created_by:
+          type: string
+          format: uuid
+          description: Creator user ID
+        assigned_to:
+          type: string
+          format: uuid
+          description: Assigned user ID
+        due_date:
+          type: string
+          format: date-time
+          description: Due date
+        resolved_at:
+          type: string
+          format: date-time
+          description: Resolution timestamp
+        closed_at:
+          type: string
+          format: date-time
+          description: Closure timestamp
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    CreateTicketRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Ticket title
+        description:
+          type: string
+          description: Ticket description
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+          default: medium
+          description: Ticket priority
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+          default: low
+          description: Ticket severity
+        category:
+          type: string
+          description: Ticket category
+        tags:
+          type: array
+          items:
+            type: string
+          description: Ticket tags
+        assigned_to:
+          type: string
+          format: uuid
+          description: Assigned user ID
+
+    UpdateTicketRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Ticket title
+        description:
+          type: string
+          description: Ticket description
+        status:
+          type: string
+          enum: [open, in_progress, pending_customer, resolved, closed]
+          description: Ticket status
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+          description: Ticket priority
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+          description: Ticket severity
+        category:
+          type: string
+          description: Ticket category
+        tags:
+          type: array
+          items:
+            type: string
+          description: Ticket tags
+        assigned_to:
+          type: string
+          format: uuid
+          description: Assigned user ID
+        due_date:
+          type: string
+          format: date-time
+          description: Due date
+
+    TicketResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          $ref: '#/components/schemas/Ticket'
+
+    TicketListResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResponse'
+      properties:
+        data:
+          type: object
+          properties:
+            tickets:
+              type: array
+              items:
+                $ref: '#/components/schemas/Ticket'
+
+    # Message Schemas
+    Message:
+      type: object
+      required:
+        - id
+        - content
+        - type
+        - is_internal
+        - author_id
+        - author_type
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Message ID
+        content:
+          type: string
+          description: Message content
+        type:
+          type: string
+          enum: [internal, external, system]
+          description: Message type
+        is_internal:
+          type: boolean
+          description: Whether message is internal
+        author_id:
+          type: string
+          format: uuid
+          description: Author user ID
+        author_type:
+          type: string
+          enum: [user, customer, system]
+          description: Author type
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    CreateMessageRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          description: Message content
+        type:
+          type: string
+          enum: [internal, external]
+          default: external
+          description: Message type
+        is_internal:
+          type: boolean
+          default: false
+          description: Whether message is internal
+
+    MessageResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          $ref: '#/components/schemas/Message'
+
+    MessageListResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResponse'
+      properties:
+        data:
+          type: object
+          properties:
+            messages:
+              type: array
+              items:
+                $ref: '#/components/schemas/Message'
+
+    # Knowledge Base Schemas
+    KnowledgeArticle:
+      type: object
+      required:
+        - id
+        - title
+        - status
+        - visibility
+        - author_id
+        - version
+        - views
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Article ID
+        title:
+          type: string
+          description: Article title
+        content:
+          type: string
+          description: Article content
+        summary:
+          type: string
+          description: Article summary
+        category:
+          type: string
+          description: Article category
+        tags:
+          type: array
+          items:
+            type: string
+          description: Article tags
+        status:
+          type: string
+          enum: [draft, review, published, archived]
+          description: Article status
+        visibility:
+          type: string
+          enum: [private, internal, public]
+          description: Article visibility
+        author_id:
+          type: string
+          format: uuid
+          description: Author user ID
+        version:
+          type: integer
+          description: Article version
+        views:
+          type: integer
+          description: Number of views
+        helpful:
+          type: integer
+          description: Number of helpful votes
+        not_helpful:
+          type: integer
+          description: Number of not helpful votes
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    CreateKnowledgeArticleRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Article title
+        content:
+          type: string
+          description: Article content
+        summary:
+          type: string
+          description: Article summary
+        category:
+          type: string
+          description: Article category
+        tags:
+          type: array
+          items:
+            type: string
+          description: Article tags
+        status:
+          type: string
+          enum: [draft, review, published]
+          default: draft
+          description: Article status
+        visibility:
+          type: string
+          enum: [private, internal, public]
+          default: private
+          description: Article visibility
+
+    KnowledgeArticleResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          $ref: '#/components/schemas/KnowledgeArticle'
+
+    KnowledgeArticleListResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResponse'
+      properties:
+        data:
+          type: object
+          properties:
+            articles:
+              type: array
+              items:
+                $ref: '#/components/schemas/KnowledgeArticle'
+
+    # Data Management Schemas
+    ImportExportJob:
+      type: object
+      required:
+        - id
+        - type
+        - entity_type
+        - status
+        - format
+        - progress
+        - created_by
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Job ID
+        type:
+          type: string
+          enum: [import, export]
+          description: Job type
+        entity_type:
+          type: string
+          enum: [tickets, users, knowledge_articles, contracts]
+          description: Entity type
+        status:
+          type: string
+          enum: [pending, running, completed, failed, cancelled]
+          description: Job status
+        format:
+          type: string
+          enum: [csv, json, xml, markdown, sqlite]
+          description: File format
+        file_path:
+          type: string
+          description: File path
+        progress:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Progress percentage
+        total_records:
+          type: integer
+          description: Total number of records
+        processed_records:
+          type: integer
+          description: Number of processed records
+        error_records:
+          type: integer
+          description: Number of error records
+        error_message:
+          type: string
+          description: Error message
+        created_by:
+          type: string
+          format: uuid
+          description: Creator user ID
+        started_at:
+          type: string
+          format: date-time
+          description: Start timestamp
+        completed_at:
+          type: string
+          format: date-time
+          description: Completion timestamp
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    StartExportJobRequest:
+      type: object
+      required:
+        - entity_type
+        - format
+      properties:
+        entity_type:
+          type: string
+          enum: [tickets, users, knowledge_articles, contracts]
+          description: Entity type to export
+        format:
+          type: string
+          enum: [csv, json, xml, markdown, sqlite]
+          description: Export format
+        filters:
+          type: object
+          description: Export filters
+
+    StartImportJobRequest:
+      type: object
+      required:
+        - file
+        - entity_type
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Import file
+        entity_type:
+          type: string
+          enum: [tickets, users, knowledge_articles, contracts]
+          description: Entity type to import
+        format:
+          type: string
+          enum: [csv, json, xml, markdown]
+          description: Import format
+        settings:
+          type: object
+          description: Import settings
+
+    ImportExportJobResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          $ref: '#/components/schemas/ImportExportJob'
+
+    ImportExportJobListResponse:
+      allOf:
+        - $ref: '#/components/schemas/PaginatedResponse'
+      properties:
+        data:
+          type: object
+          properties:
+            jobs:
+              type: array
+              items:
+                $ref: '#/components/schemas/ImportExportJob'
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Authentication
+    description: Authentication and authorization endpoints
+  - name: Tickets
+    description: Ticket management endpoints
+  - name: Knowledge Base
+    description: Knowledge base management endpoints
+  - name: Data Management
+    description: Data import/export endpoints

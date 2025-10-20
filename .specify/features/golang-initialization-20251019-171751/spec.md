@@ -8,6 +8,17 @@
 
 **Solution**: Initialize the complete Go backend project structure with all foundational components including project layout, dependencies, configuration management, database setup, basic API framework, and development tooling.
 
+## Clarifications
+
+### Session 2025-10-19
+
+- Q: How should departments be structured in relation to products and SLA policies? → A: Department model only for organizational hierarchy, not tied to products or SLAs
+- Q: What permission system architecture should be implemented? → A: Hybrid RBAC + Resource-Based Permissions - combines role inheritance with resource-level permissions
+- Q: What level of permission granularity is needed? → A: Resource + Action Level - fine-grained permissions like "tickets:read", "tickets:write"
+- Q: How should permissions be stored and managed? → A: Separate Permissions Table + Role + User Assignments - independent permissions table with many-to-many relationships
+- Q: What default permission sets should be provided? → A: Predefined Permission Templates - default role templates (Admin, Manager, Agent, Customer) that can be customized
+- Q: How should permissions be evaluated for performance? → A: Database Lookup per Request - query permissions each time for maximum consistency and real-time updates
+
 ## User Scenarios & Testing
 
 ### Primary User Scenarios
@@ -162,11 +173,12 @@
 ### Out of Scope
 
 - Complete business logic implementation
-- Authentication and authorization systems
 - Full API endpoints for tickets, users, etc.
 - Frontend integration
 - Production deployment configurations
 - Database migrations for specific business entities
+- Department-product relationship modeling (departments are organizational only)
+- SLA policy assignment to departments (SLAs are configured independently)
 
 ## Assumptions & Dependencies
 
@@ -200,6 +212,21 @@
    - **Description**: Loads and validates application configuration
    - **Key Attributes**: Config file paths, environment variables, default values
    - **Relationships**: Provides configuration to all application components
+
+4. **Department Structure**
+   - **Description**: Organizational hierarchy for user management and role assignment
+   - **Key Attributes**: Department name, department type (sales, pre-sales, post-sales, support, engineering), parent department relationships
+   - **Relationships**: Departments contain users with specific roles, separate from product ownership and SLA policy assignments
+
+5. **Permission System**
+   - **Description**: Flexible role-based access control with resource-action permissions
+   - **Key Attributes**: Permission code (resource:action), description, category, default role assignments
+   - **Relationships**: Permissions assigned to roles, roles assigned to users, users can have direct permissions
+
+6. **Role Management**
+   - **Description**: Role definitions with associated permission sets
+   - **Key Attributes**: Role name, description, role type (system/custom), permission assignments
+   - **Relationships**: Roles have many permissions, users belong to many roles, tenant-scoped
 
 ## Risks & Mitigations
 

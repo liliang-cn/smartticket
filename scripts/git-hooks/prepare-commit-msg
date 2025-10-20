@@ -1,0 +1,178 @@
+#!/bin/bash
+
+# SmartTicket Prepare Commit Message Hook
+# This hook helps prepare commit messages with branch information and templates
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Print colored output
+print_status() {
+    echo -e "${BLUE}[PREPARE-COMMIT]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[PREPARE-COMMIT]${NC} ✓ $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[PREPARE-COMMIT]${NC} ⚠ $1"
+}
+
+print_error() {
+    echo -e "${RED}[PREPARE-COMMIT]${NC} ✗ $1"
+}
+
+# Get the commit message file and commit source
+commit_msg_file="$1"
+commit_source="$2"
+commit_sha="$3"
+
+# Get the current branch name
+branch_name=$(git symbolic-ref --short HEAD 2>/dev/null || echo "detached")
+
+# Function to extract ticket number from branch name
+extract_ticket_number() {
+    local branch="$1"
+
+    # Try to extract ticket number from common patterns
+    # Examples: feature/TICKET-123, fix/PROJ-456, TICKET-789-branch-name
+    if echo "$branch" | grep -Eq "(feature|fix|bug|hotfix)/[A-Z]+-[0-9]+"; then
+        echo "$branch" | grep -Eo "[A-Z]+-[0-9]+"
+    elif echo "$branch" | grep -Eq "^[A-Z]+-[0-9]+"; then
+        echo "$branch" | grep -Eo "^[A-Z]+-[0-9]+"
+    else
+        echo ""
+    fi
+}
+
+# Function to suggest commit type based on branch name
+suggest_commit_type() {
+    local branch="$1"
+
+    case "$branch" in
+        feature/*)
+            echo "feat"
+            ;;
+        fix/*|bugfix/*|hotfix/*)
+            echo "fix"
+            ;;
+        docs/*)
+            echo "docs"
+            ;;
+        refactor/*)
+            echo "refactor"
+            ;;
+        test/*)
+            echo "test"
+            ;;
+        chore/*|maintenance/*)
+            echo "chore"
+            ;;
+        perf/*|performance/*)
+            echo "perf"
+            ;;
+        ci/*)
+            echo "ci"
+            ;;
+        build/*)
+            echo "build"
+            ;;
+        *)
+            echo ""
+            ;;
+    esac
+}
+
+# Don't do anything if the commit message has been edited
+if [ "$commit_source" = "message" ] || [ "$commit_source" = "merge" ] || [ "$commit_source" = "squash" ]; then
+    exit 0
+fi
+
+# Don't modify existing commit messages (for amend, etc.)
+if [ -s "$commit_msg_file" ]; then
+    # Check if file has more than just whitespace
+    if [ "$(grep -c '[^[:space:]]' "$commit_msg_file")" -gt 0 ]; then
+        exit 0
+    fi
+fi
+
+# Extract information from branch name
+ticket_number=$(extract_ticket_number "$branch_name")
+suggested_type=$(suggest_commit_type "$branch_name")
+
+# Get a simple description from the branch name (remove type prefix)
+branch_desc=$(echo "$branch_name" | sed -E "s/^(feature|fix|bugfix|hotfix|docs|refactor|test|chore|perf|ci|build)\///")
+branch_desc=$(echo "$branch_desc" | sed "s/-ticket-$ticket_number//" | sed "s/$ticket_number-//" | sed 's/-/ /g')
+
+# Build the suggested commit message
+suggested_msg=""
+
+# Add suggested type if available
+if [ -n "$suggested_type" ]; then
+    suggested_msg="$suggested_type"
+else
+    suggested_msg="feat"
+fi
+
+# Add scope if we have a ticket number
+if [ -n "$ticket_number" ]; then
+    suggested_msg="$suggested_msg($ticket_number)"
+fi
+
+# Add description
+if [ -n "$branch_desc" ]; then
+    # Capitalize first letter
+    desc=$(echo "$branch_desc" | sed 's/\b\([a-z]\)/\U\1/g')
+    suggested_msg="$suggested_msg: $desc"
+else
+    suggested_msg="$suggested_msg: "
+fi
+
+# Write the suggested message to the file
+cat > "$commit_msg_file" << EOF
+$suggested_msg
+
+# Commit message guidelines:
+# - Keep subject line under 72 characters
+# - Use imperative mood ("add feature" not "added feature")
+# - Reference issues with "fixes #123" or "closes #123"
+# - Add detailed description in body if needed
+#
+# Types:
+#   feat:     New feature
+#   fix:      Bug fix
+#   docs:     Documentation changes
+#   style:    Code style changes (formatting, etc.)
+#   refactor: Code refactoring
+#   test:     Test additions or changes
+#   chore:    Maintenance tasks
+#   perf:     Performance improvements
+#   ci:       CI/CD changes
+#   build:    Build system changes
+#   revert:   Revert previous commit
+#   bump:     Version bump
+#
+# Examples:
+#   feat(auth): add JWT token validation
+#   fix(api): resolve memory leak in ticket processing
+#   docs(readme): update installation instructions
+#   test(tickets): add integration tests for ticket lifecycle
+
+EOF
+
+print_status "Prepared commit message template"
+if [ -n "$ticket_number" ]; then
+    print_status "Ticket number: $ticket_number"
+fi
+if [ -n "$suggested_type" ]; then
+    print_status "Suggested type: $suggested_type"
+fi
+print_status "Branch: $branch_name"
+print_status "Edit the commit message above, then save and exit the editor"

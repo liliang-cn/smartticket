@@ -1,0 +1,181 @@
+# Local Development Configuration
+# This file is for local development overrides
+# DO NOT commit this file to version control
+
+environment: development
+
+# Server Configuration
+server:
+  host: "localhost"
+  port: 6533
+  read_timeout: 30
+  write_timeout: 30
+  idle_timeout: 120
+  max_header_bytes: 1048576
+
+# Database Configuration
+database:
+  type: sqlite
+  connection_url: "./data/smartticket_local.db"
+  max_connections: 10
+  max_idle_conns: 5
+  conn_max_lifetime: 3600
+  log_level: debug
+  enable_wal_mode: true
+  enable_foreign_keys: true
+
+# JWT Configuration
+jwt:
+  secret: "local-secret-key-for-development-only-change-this-32-chars"
+  expiration_time: 24h
+  refresh_time: 168h
+  issuer: "smartticket-local"
+
+# CORS Configuration
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://localhost:7218"
+    - "http://localhost:5555"
+    - "http://127.0.0.1:3000"
+    - "http://127.0.0.1:7218"
+    - "http://127.0.0.1:5555"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+    - "PATCH"
+  exposed_headers:
+    - "X-Total-Count"
+    - "X-Request-ID"
+    - "X-Tenant-ID"
+  allow_credentials: true
+  max_age: 86400
+
+# Logger Configuration
+logger:
+  level: debug
+  format: console
+  output: stdout
+  # For file logging (uncomment if needed)
+  # file_path: "./logs/smartticket_local.log"
+  # max_size_mb: 100
+  # max_backups: 5
+  # max_age_days: 7
+
+# Rate Limiting Configuration
+rate_limit:
+  requests_per_second: 1000
+  burst: 2000
+
+# Security Configuration
+security:
+  enable_csrf: true
+  enable_content_type_check: true
+  max_request_size: 10485760  # 10MB
+  allowed_hosts:
+    - "localhost"
+    - "127.0.0.1"
+
+# File Storage Configuration
+storage:
+  data_path: "./data"
+  backup_path: "./backups"
+  temp_path: "./tmp"
+  max_file_size: 52428800  # 50MB
+  allowed_extensions:
+    - ".txt"
+    - ".pdf"
+    - ".doc"
+    - ".docx"
+    - ".jpg"
+    - ".jpeg"
+    - ".png"
+    - ".gif"
+    - ".zip"
+
+# Email Configuration (for development)
+email:
+  enabled: true
+  smtp_host: "localhost"
+  smtp_port: 1025
+  username: ""
+  password: ""
+  from_address: "noreply@smartticket.local"
+  use_tls: false
+
+# LLM Configuration
+llm:
+  default_provider: "ollama"
+  providers:
+    ollama:
+      name: "Local Ollama"
+      provider_type: "ollama"
+      api_endpoint: "http://localhost:11434"
+      api_key: ""
+      model: "llama3:latest"
+      max_tokens: 4096
+      temperature: 0.7
+      task_types:
+        - "chat"
+        - "generation"
+        - "summarization"
+        - "classification"
+      is_default: true
+      is_enabled: true
+      quota_limit: 1000
+      quota_used: 0
+
+    openai:
+      name: "OpenAI GPT"
+      provider_type: "openai"
+      api_endpoint: "https://api.openai.com/v1"
+      api_key: "${OPENAI_API_KEY}"
+      model: "gpt-4o-mini"
+      max_tokens: 4096
+      temperature: 0.7
+      task_types:
+        - "chat"
+        - "generation"
+        - "summarization"
+      is_default: false
+      is_enabled: false
+      quota_limit: 100
+      quota_used: 0
+
+  task_mapping:
+    chat: "ollama"
+    embedding: "ollama"
+    generation: "ollama"
+    summarization: "ollama"
+    classification: "ollama"
+
+  rate_limit:
+    requests_per_minute: 60
+    tokens_per_minute: 30000
+
+# Monitoring Configuration
+monitoring:
+  enable_metrics: true
+  metrics_path: "/metrics"
+  enable_pprof: true
+  pprof_path: "/debug/pprof"
+
+# Feature Flags
+features:
+  enable_user_registration: true
+  enable_email_verification: false
+  enable_password_reset: true
+  enable_ticket_exports: true
+  enable_knowledge_base: true
+  enable_ai_features: true
+  enable_multi_tenancy: true
+
+# Development Settings
+development:
+  enable_swagger: true
+  enable_debug_endpoints: true
+  mock_external_apis: false
+  enable_hot_reload: true

@@ -1,0 +1,92 @@
+# Test Configuration
+
+environment: test
+
+# Server Configuration
+server:
+  host: "127.0.0.1"
+  port: 6534
+  read_timeout: 10
+  write_timeout: 10
+  idle_timeout: 30
+  max_header_bytes: 1048576
+
+# Database Configuration
+database:
+  type: sqlite
+  connection_url: ":memory:"
+  max_connections: 5
+  max_idle_conns: 1
+  conn_max_lifetime: 300
+  log_level: silent
+
+# JWT Configuration
+jwt:
+  secret: "test-secret-key-for-testing-purposes-only-32-chars"
+  expiration_time: 1h
+  refresh_time: 2h
+  issuer: "smartticket-test"
+
+# CORS Configuration
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+  allowed_methods:
+    - "GET"
+    - "POST"
+    - "PUT"
+    - "DELETE"
+    - "OPTIONS"
+    - "PATCH"
+  exposed_headers:
+    - "X-Total-Count"
+    - "X-Request-ID"
+    - "X-Tenant-ID"
+  allow_credentials: false
+  max_age: 300
+
+# Logger Configuration
+logger:
+  level: debug
+  format: text
+  output: stdout
+
+# Rate Limiting Configuration
+rate_limit:
+  requests_per_second: 1000
+  burst: 2000
+
+# LLM Configuration
+llm:
+  default_provider: "mock"
+  providers:
+    mock:
+      name: "Mock Provider"
+      provider_type: "mock"
+      api_endpoint: ""
+      api_key: ""
+      model: "mock-model"
+      max_tokens: 1000
+      temperature: 0.0
+      task_types:
+        - "chat"
+        - "generation"
+        - "summarization"
+        - "embedding"
+        - "classification"
+      is_default: true
+      is_enabled: true
+      quota_limit: 100
+      quota_used: 0
+
+  task_mapping:
+    chat: "mock"
+    embedding: "mock"
+    generation: "mock"
+    summarization: "mock"
+    classification: "mock"
+
+  rate_limit:
+    requests_per_minute: 1000
+    tokens_per_minute: 100000

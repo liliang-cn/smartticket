@@ -1,0 +1,76 @@
+version: '3.8'
+
+# SmartTicket Docker Compose Configuration
+# Development environment setup
+
+services:
+  # Main SmartTicket Application
+  smartticket:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    container_name: smartticket-app
+    ports:
+      - "6533:6533"  # Using non-standard port to avoid conflicts
+    environment:
+      - GIN_MODE=debug
+      - LOG_LEVEL=debug
+      - PORT=6533
+      - DB_PATH=/app/data/smartticket.db
+      - ENVIRONMENT=development
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./configs:/app/configs
+      - ../../configs/config.dev.yaml:/app/configs/config.dev.yaml:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:6533/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - smartticket-network
+
+  # Redis Cache (optional, for future enhancement)
+  redis:
+    image: m.daocloud.io/docker.io/library/redis:7-alpine
+    container_name: smartticket-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - smartticket-network
+
+  # Nginx Reverse Proxy (optional)
+  nginx:
+    image: nginx:alpine
+    container_name: smartticket-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - smartticket
+    restart: unless-stopped
+    networks:
+      - smartticket-network
+
+volumes:
+  redis-data:
+    driver: local
+
+networks:
+  smartticket-network:
+    driver: bridge

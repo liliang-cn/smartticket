@@ -38,7 +38,7 @@ type Tenant struct {
 
 ### 2. User
 
-**Purpose**: User management with role-based access control.
+**Purpose**: User management with flexible role-based access control and direct permission assignments.
 
 ```go
 type User struct {
@@ -300,6 +300,114 @@ type Attachment struct {
 - `MimeType`: Required, must be allowed type (configurable whitelist)
 - `Hash`: Required, SHA-256 hash for integrity verification
 
+### 9. Permission
+
+**Purpose**: Granular permissions for resource-action combinations.
+
+```go
+type Permission struct {
+    ID          string    `gorm:"primaryKey;type:varchar(50)" json:"id"`
+    Code        string    `gorm:"not null;uniqueIndex;type:varchar(100)" json:"code"` // Format: resource:action
+    Name        string    `gorm:"not null;type:varchar(200)" json:"name"`
+    Description string    `gorm:"type:text" json:"description"`
+    Category    string    `gorm:"not null;type:varchar(50)" json:"category"` // tickets, users, knowledge, etc.
+    IsSystem    bool      `gorm:"not null;default:false" json:"is_system"` // System permissions cannot be deleted
+    CreatedAt   time.Time `gorm:"not null" json:"created_at"`
+    UpdatedAt   time.Time `gorm:"not null" json:"updated_at"`
+
+    // Relationships
+    RoleAssignments []RolePermission `gorm:"foreignKey:PermissionID" json:"role_assignments,omitempty"`
+    UserAssignments []UserPermission `gorm:"foreignKey:PermissionID" json:"user_assignments,omitempty"`
+}
+```
+
+**Validation Rules**:
+- `ID`: Required, unique identifier (UUID format)
+- `Code`: Required, unique, format "resource:action" (e.g., "tickets:read", "users:create")
+- `Name`: Required, max 200 characters
+- `Category`: Required, must be one of: `tickets`, `users`, `knowledge`, `products`, `services`, `reports`, `system`
+
+### 10. Role
+
+**Purpose**: Role definitions with associated permission sets.
+
+```go
+type Role struct {
+    ID          string    `gorm:"primaryKey;type:varchar(50)" json:"id"`
+    TenantID    string    `gorm:"not null;index;type:varchar(50)" json:"tenant_id"`
+    Name        string    `gorm:"not null;type:varchar(100)" json:"name"`
+    Description string    `gorm:"type:text" json:"description"`
+    IsSystem    bool      `gorm:"not null;default:false" json:"is_system"` // System roles cannot be deleted
+    IsActive    bool      `gorm:"not null;default:true" json:"is_active"`
+    CreatedBy   string    `gorm:"not null;type:varchar(50)" json:"created_by"`
+    CreatedAt   time.Time `gorm:"not null" json:"created_at"`
+    UpdatedAt   time.Time `gorm:"not null" json:"updated_at"`
+    DeletedAt   time.Time `gorm:"index" json:"deleted_at,omitempty"`
+
+    // Relationships
+    Tenant      *Tenant    `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+    Creator     *User      `gorm:"foreignKey:CreatedBy" json:"creator,omitempty"`
+    Permissions []Permission `gorm:"many2many:role_permissions;" json:"permissions,omitempty"`
+    Users       []User     `gorm:"many2many:user_roles;" json:"users,omitempty"`
+}
+```
+
+**Validation Rules**:
+- `ID`: Required, unique identifier (UUID format)
+- `TenantID`: Required, must reference valid tenant
+- `Name`: Required, max 100 characters, unique within tenant
+- `CreatedBy`: Required, must reference valid user with admin permissions
+
+### 11. RolePermission
+
+**Purpose**: Many-to-many relationship between roles and permissions.
+
+```go
+type RolePermission struct {
+    ID           string    `gorm:"primaryKey;type:varchar(50)" json:"id"`
+    RoleID       string    `gorm:"not null;index;type:varchar(50)" json:"role_id"`
+    PermissionID string    `gorm:"not null;index;type:varchar(50)" json:"permission_id"`
+    CreatedBy    string    `gorm:"not null;type:varchar(50)" json:"created_by"`
+    CreatedAt    time.Time `gorm:"not null" json:"created_at"`
+
+    // Relationships
+    Role         *Role      `gorm:"foreignKey:RoleID" json:"role,omitempty"`
+    Permission   *Permission `gorm:"foreignKey:PermissionID" json:"permission,omitempty"`
+}
+```
+
+**Validation Rules**:
+- `ID`: Required, unique identifier (UUID format)
+- `RoleID`: Required, must reference valid role
+- `PermissionID`: Required, must reference valid permission
+- `CreatedBy`: Required, must reference valid user
+
+### 12. UserPermission
+
+**Purpose**: Direct permission assignments to users (bypassing roles).
+
+```go
+type UserPermission struct {
+    ID           string    `gorm:"primaryKey;type:varchar(50)" json:"id"`
+    UserID       string    `gorm:"not null;index;type:varchar(50)" json:"user_id"`
+    PermissionID string    `gorm:"not null;index;type:varchar(50)" json:"permission_id"`
+    GrantedBy    string    `gorm:"not null;type:varchar(50)" json:"granted_by"`
+    ExpiresAt    time.Time `json:"expires_at,omitempty"` // Optional expiration
+    CreatedAt    time.Time `gorm:"not null" json:"created_at"`
+
+    // Relationships
+    User         *User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
+    Permission   *Permission `gorm:"foreignKey:PermissionID" json:"permission,omitempty"`
+    Granter      *User      `gorm:"foreignKey:GrantedBy" json:"granter,omitempty"`
+}
+```
+
+**Validation Rules**:
+- `ID`: Required, unique identifier (UUID format)
+- `UserID`: Required, must reference valid user
+- `PermissionID`: Required, must reference valid permission
+- `GrantedBy`: Required, must reference valid user with admin permissions
+
 ## Database Indexes
 
 ### Performance Indexes
@@ -330,6 +438,19 @@ CREATE INDEX idx_attachments_entity ON attachments(ticket_id, message_id, knowle
 -- Import export job performance indexes
 CREATE INDEX idx_jobs_tenant_status ON import_export_jobs(tenant_id, status);
 CREATE INDEX idx_jobs_created_at ON import_export_jobs(created_at);
+
+-- Permission system performance indexes
+CREATE INDEX idx_permissions_category ON permissions(category);
+CREATE INDEX idx_roles_tenant_active ON roles(tenant_id, is_active);
+CREATE INDEX idx_role_permissions_role ON role_permissions(role_id);
+CREATE INDEX idx_role_permissions_permission ON role_permissions(permission_id);
+CREATE INDEX idx_user_permissions_user ON user_permissions(user_id);
+CREATE INDEX idx_user_permissions_permission ON user_permissions(permission_id);
+CREATE INDEX idx_user_permissions_expires ON user_permissions(expires_at) WHERE expires_at IS NOT NULL;
+
+-- User-role relationship indexes
+CREATE INDEX idx_user_roles_user ON user_roles(user_id);
+CREATE INDEX idx_user_roles_role ON user_roles(role_id);
 ```
 
 ## Data Integrity Constraints
@@ -364,6 +485,24 @@ ALTER TABLE attachments ADD CONSTRAINT fk_attachments_message
     FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE;
 ALTER TABLE attachments ADD CONSTRAINT fk_attachments_knowledge
     FOREIGN KEY (knowledge_article_id) REFERENCES knowledge_articles(id) ON DELETE CASCADE;
+
+-- Permission system foreign keys
+ALTER TABLE roles ADD CONSTRAINT fk_roles_tenant
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE;
+ALTER TABLE roles ADD CONSTRAINT fk_roles_creator
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+
+ALTER TABLE role_permissions ADD CONSTRAINT fk_role_permissions_role
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE;
+ALTER TABLE role_permissions ADD CONSTRAINT fk_role_permissions_permission
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE;
+
+ALTER TABLE user_permissions ADD CONSTRAINT fk_user_permissions_user
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+ALTER TABLE user_permissions ADD CONSTRAINT fk_user_permissions_permission
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE;
+ALTER TABLE user_permissions ADD CONSTRAINT fk_user_permissions_granter
+    FOREIGN KEY (granted_by) REFERENCES users(id) ON DELETE SET NULL;
 ```
 
 ### Check Constraints
@@ -388,6 +527,14 @@ ALTER TABLE knowledge_articles ADD CONSTRAINT chk_knowledge_version
     CHECK (version >= 1);
 ALTER TABLE llm_providers ADD CONSTRAINT chk_llm_temperature
     CHECK (temperature >= 0.0 AND temperature <= 2.0);
+
+-- Permission system check constraints
+ALTER TABLE permissions ADD CONSTRAINT chk_permission_code_format
+    CHECK (code ~ '^[a-z_]+:[a-z_]+$'); -- Must be resource:action format
+ALTER TABLE roles ADD CONSTRAINT chk_role_name_length
+    CHECK (LENGTH(name) >= 2 AND LENGTH(name) <= 100);
+ALTER TABLE user_permissions ADD CONSTRAINT chk_user_permission_expires_future
+    CHECK (expires_at IS NULL OR expires_at > created_at);
 ```
 
 ## Data Migration Strategy
@@ -428,6 +575,104 @@ CREATE TABLE system_configs (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Migration 004: Add permission system tables
+CREATE TABLE permissions (
+    id VARCHAR(50) PRIMARY KEY,
+    code VARCHAR(100) NOT NULL UNIQUE,
+    name VARCHAR(200) NOT NULL,
+    description TEXT,
+    category VARCHAR(50) NOT NULL,
+    is_system BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE roles (
+    id VARCHAR(50) PRIMARY KEY,
+    tenant_id VARCHAR(50) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    is_system BOOLEAN NOT NULL DEFAULT FALSE,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+
+    FOREIGN KEY (tenant_id) REFERENCES tenants(id),
+    FOREIGN KEY (created_by) REFERENCES users(id),
+    FOREIGN KEY (tenant_id, name) UNIQUE (tenant_id, name, deleted_at)
+);
+
+CREATE TABLE role_permissions (
+    id VARCHAR(50) PRIMARY KEY,
+    role_id VARCHAR(50) NOT NULL,
+    permission_id VARCHAR(50) NOT NULL,
+    created_by VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (role_id) REFERENCES roles(id),
+    FOREIGN KEY (permission_id) REFERENCES permissions(id),
+    UNIQUE (role_id, permission_id)
+);
+
+CREATE TABLE user_permissions (
+    id VARCHAR(50) PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL,
+    permission_id VARCHAR(50) NOT NULL,
+    granted_by VARCHAR(50) NOT NULL,
+    expires_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (permission_id) REFERENCES permissions(id),
+    FOREIGN KEY (granted_by) REFERENCES users(id),
+    UNIQUE (user_id, permission_id)
+);
+
+CREATE TABLE user_roles (
+    user_id VARCHAR(50) NOT NULL,
+    role_id VARCHAR(50) NOT NULL,
+    assigned_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    assigned_by VARCHAR(50) NOT NULL,
+
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (role_id) REFERENCES roles(id),
+    FOREIGN KEY (assigned_by) REFERENCES users(id),
+    PRIMARY KEY (user_id, role_id)
+);
+
+-- Insert default permissions
+INSERT INTO permissions (id, code, name, description, category, is_system) VALUES
+-- Ticket permissions
+('perm-001', 'tickets:read', 'View tickets', 'tickets', TRUE),
+('perm-002', 'tickets:create', 'Create tickets', 'tickets', TRUE),
+('perm-003', 'tickets:update', 'Update tickets', 'tickets', TRUE),
+('perm-004', 'tickets:delete', 'Delete tickets', 'tickets', TRUE),
+('perm-005', 'tickets:assign', 'Assign tickets', 'tickets', TRUE),
+('perm-006', 'tickets:escalate', 'Escalate tickets', 'tickets', TRUE),
+
+-- User permissions
+('perm-007', 'users:read', 'View users', 'users', TRUE),
+('perm-008', 'users:create', 'Create users', 'users', TRUE),
+('perm-009', 'users:update', 'Update users', 'users', TRUE),
+('perm-010', 'users:delete', 'Delete users', 'users', TRUE),
+('perm-011', 'users:activate', 'Activate users', 'users', TRUE),
+('perm-012', 'users:deactivate', 'Deactivate users', 'users', TRUE),
+
+-- Knowledge base permissions
+('perm-013', 'knowledge:read', 'View knowledge articles', 'knowledge', TRUE),
+('perm-014', 'knowledge:create', 'Create knowledge articles', 'knowledge', TRUE),
+('perm-015', 'knowledge:update', 'Update knowledge articles', 'knowledge', TRUE),
+('perm-016', 'knowledge:delete', 'Delete knowledge articles', 'knowledge', TRUE),
+('perm-017', 'knowledge:publish', 'Publish knowledge articles', 'knowledge', TRUE),
+
+-- System permissions
+('perm-018', 'system:permissions_manage', 'Manage permissions', 'system', TRUE),
+('perm-019', 'system:roles_manage', 'Manage roles', 'system', TRUE),
+('perm-020', 'system:tenants_read', 'View tenant settings', 'system', TRUE),
+('perm-021', 'system:tenants_update', 'Update tenant settings', 'system', TRUE);
 ```
 
 ## Data Validation Rules

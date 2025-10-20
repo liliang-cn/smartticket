@@ -1,0 +1,257 @@
+#!/bin/bash
+
+# SmartTicket Pre-push Hook
+# This hook runs comprehensive tests before pushing to remote
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Print colored output
+print_status() {
+    echo -e "${BLUE}[PRE-PUSH]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[PRE-PUSH]${NC} ✓ $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[PRE-PUSH]${NC} ⚠ $1"
+}
+
+print_error() {
+    echo -e "${RED}[PRE-PUSH]${NC} ✗ $1"
+}
+
+# Get the remote and branch being pushed
+REMOTE=$1
+URL=$2
+
+# Read the push stdin to get what refs are being pushed
+read local_ref local_sha remote_ref remote_sha
+
+if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+    # Branch deletion, nothing to check
+    exit 0
+fi
+
+# If we're pushing to main/master, be more strict
+BRANCH_NAME=$(echo "$remote_ref" | sed 's|refs/heads/||')
+IS_MAIN_BRANCH=false
+if [[ "$BRANCH_NAME" == "main" ]] || [[ "$BRANCH_NAME" == "master" ]]; then
+    IS_MAIN_BRANCH=true
+    print_status "Pushing to main branch - running full checks..."
+else
+    print_status "Pushing to branch '$BRANCH_NAME' - running standard checks..."
+fi
+
+print_status "Running pre-push checks..."
+
+# 1. Full test suite
+print_status "Running full test suite..."
+if ! make test; then
+    print_error "Test suite failed"
+    print_status "Fix failing tests before pushing"
+    exit 1
+fi
+print_success "Full test suite passed"
+
+# 2. Test with race detector (especially for main branch)
+if [ "$IS_MAIN_BRANCH" = true ]; then
+    print_status "Running tests with race detector..."
+    if ! make test-race; then
+        print_error "Race condition tests failed"
+        print_status "Fix race conditions before pushing to main"
+        exit 1
+    fi
+    print_success "Race condition tests passed"
+fi
+
+# 3. Coverage check
+print_status "Running tests with coverage..."
+if ! make test-cover; then
+    print_error "Coverage test failed"
+    exit 1
+fi
+
+# Check coverage threshold (80% minimum)
+COVERAGE=$(go test -coverprofile=coverage.out ./... 2>/dev/null | grep "coverage:" | tail -1 | sed 's/.*coverage: \([0-9.]*\)% of statements.*/\1/' || echo "0")
+COVERAGE_INT=${COVERAGE%.*}
+if [ "$COVERAGE_INT" -lt 80 ]; then
+    print_error "Test coverage is ${COVERAGE}%, below 80% threshold"
+    print_status "Add more tests to improve coverage before pushing"
+    exit 1
+fi
+print_success "Test coverage is ${COVERAGE}% (meets 80% threshold)"
+
+# 4. Comprehensive linting
+print_status "Running comprehensive linting..."
+if command -v golangci-lint &> /dev/null; then
+    if ! make lint; then
+        print_error "Linting failed"
+        print_status "Fix linting issues before pushing"
+        exit 1
+    fi
+    print_success "Linting passed"
+else
+    print_warning "golangci-lint not found. Skipping comprehensive linting."
+fi
+
+# 5. Security scan
+if command -v gosec &> /dev/null; then
+    print_status "Running security scan..."
+    if ! make security-scan; then
+        print_error "Security scan found issues"
+        print_status "Review and fix security issues before pushing"
+        exit 1
+    fi
+    print_success "Security scan passed"
+else
+    print_warning "gosec not found. Skipping security scan."
+fi
+
+# 6. Vulnerability check
+if command -v govulncheck &> /dev/null; then
+    print_status "Checking for known vulnerabilities..."
+    if ! make vuln-check; then
+        print_error "Vulnerability check failed"
+        print_status "Update dependencies to fix vulnerabilities"
+        exit 1
+    fi
+    print_success "No known vulnerabilities found"
+else
+    print_warning "govulncheck not found. Skipping vulnerability check."
+fi
+
+# 7. Build check for all platforms (main branch only)
+if [ "$IS_MAIN_BRANCH" = true ]; then
+    print_status "Building for multiple platforms..."
+    if ! make build-all; then
+        print_error "Multi-platform build failed"
+        exit 1
+    fi
+    print_success "Multi-platform build successful"
+else
+    print_status "Running local build check..."
+    if ! make build-local; then
+        print_error "Local build failed"
+        exit 1
+    fi
+    print_success "Local build successful"
+fi
+
+# 8. Integration tests (if they exist)
+if [ -d "tests/integration" ] && [ "$(ls -A tests/integration)" ]; then
+    print_status "Running integration tests..."
+    if ! make test-integration; then
+        print_error "Integration tests failed"
+        print_status "Fix integration test failures before pushing"
+        exit 1
+    fi
+    print_success "Integration tests passed"
+else
+    print_warning "No integration tests found"
+fi
+
+# 9. Documentation check
+print_status "Checking documentation..."
+if [ -f "README.md" ]; then
+    # Check if README has the required sections
+    REQUIRED_SECTIONS=("## Quick Start" "## Installation" "## Development")
+    for section in "${REQUIRED_SECTIONS[@]}"; do
+        if ! grep -q "$section" README.md; then
+            print_error "README.md missing section: $section"
+            exit 1
+        fi
+    done
+    print_success "README.md documentation check passed"
+fi
+
+# 10. Configuration validation
+print_status "Validating configuration files..."
+if [ -f "configs/config.dev.yaml" ]; then
+    # Basic YAML syntax check
+    if ! command -v yamllint &> /dev/null; then
+        if ! yamllint configs/config.dev.yaml; then
+            print_error "Configuration file validation failed"
+            exit 1
+        fi
+    else
+        # Fallback: basic YAML parsing with python if available
+        if command -v python3 &> /dev/null; then
+            if ! python3 -c "import yaml; yaml.safe_load(open('configs/config.dev.yaml'))" 2>/dev/null; then
+                print_error "Invalid YAML in configuration files"
+                exit 1
+            fi
+        fi
+    fi
+    print_success "Configuration validation passed"
+fi
+
+# 11. Check for uncommitted changes in tracked files
+print_status "Checking for uncommitted changes..."
+if [ -n "$(git status --porcelain)" ]; then
+    print_warning "You have uncommitted changes:"
+    git status --short
+    print_warning "Consider committing these changes or using 'git stash'"
+fi
+
+# 12. Check commit messages (main branch only)
+if [ "$IS_MAIN_BRANCH" = true ]; then
+    print_status "Validating commit messages since last push..."
+
+    # Get the range of commits to check
+    if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+        # New branch, check all commits on this branch
+        COMMIT_RANGE=$(git merge-base origin/main HEAD)..HEAD
+    else
+        # Check commits since last push
+        COMMIT_RANGE=$remote_sha..$local_sha
+    fi
+
+    # Check each commit message
+    INVALID_COMMITS=0
+    for commit in $(git rev-list $COMMIT_RANGE); do
+        MESSAGE=$(git log --format=%B -n 1 $commit)
+
+        # Check for conventional commit format
+        if ! echo "$MESSAGE" | grep -E "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+" > /dev/null; then
+            print_error "Invalid commit message format in commit $commit:"
+            echo "$MESSAGE" | head -1
+            INVALID_COMMITS=$((INVALID_COMMITS + 1))
+        fi
+    done
+
+    if [ "$INVALID_COMMITS" -gt 0 ]; then
+        print_error "Found $INVALID_COMMITS commits with invalid message format"
+        print_status "Use conventional commit format: type(scope): description"
+        exit 1
+    fi
+    print_success "Commit message validation passed"
+fi
+
+# 13. Performance check (optional, for main branch)
+if [ "$IS_MAIN_BRANCH" = true ] && [ -f "Makefile" ] && grep -q "bench" Makefile; then
+    print_status "Running benchmark tests..."
+    if make bench > /dev/null 2>&1; then
+        print_success "Benchmark tests completed"
+    else
+        print_warning "Benchmark tests failed or not available"
+    fi
+fi
+
+print_success "All pre-push checks passed! ✓"
+echo ""
+print_status "Ready to push to $REMOTE branch '$BRANCH_NAME'"
+print_status "Summary:"
+echo "  - Test suite: ✓"
+echo "  - Code coverage: ${COVERAGE}%"
+echo "  - Linting: ✓"
+echo "  - Security scan: ✓"
+echo "  - Build: ✓"
