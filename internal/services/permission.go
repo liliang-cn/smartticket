@@ -34,7 +34,7 @@ func (ps *PermissionService) GetUserPermissions(ctx context.Context, userID uint
 	err := ps.db.WithContext(ctx).
 		Table("permissions").
 		Joins("JOIN user_permissions ON permissions.id = user_permissions.permission_id").
-		Where("user_permissions.user_id = ? AND user_permissions.tenant_id = ?", userID, tenantID).
+		Where("user_permissions.user_id = ?", userID).
 		Find(&permissions).Error
 
 	if err != nil {
@@ -49,9 +49,9 @@ func (ps *PermissionService) GetUserRoles(ctx context.Context, userID uint, tena
 	var roles []models.Role
 
 	err := ps.db.WithContext(ctx).
-		Preload("RoleAssignments.Permission").
+		Preload("Permissions").
 		Joins("JOIN user_roles ON roles.id = user_roles.role_id").
-		Where("user_roles.user_id = ? AND user_roles.tenant_id = ?", userID, tenantID).
+		Where("user_roles.user_id = ? AND roles.tenant_id = ?", userID, tenantID).
 		Find(&roles).Error
 
 	if err != nil {
@@ -99,7 +99,7 @@ func (ps *PermissionService) GetAllRoles(ctx context.Context, tenantID string) (
 		query = query.Where("tenant_id = ?", tenantID)
 	}
 
-	err := query.Preload("RoleAssignments.Permission").Order("name").Find(&roles).Error
+	err := query.Preload("Permissions").Order("name").Find(&roles).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all roles: %w", err)
 	}
@@ -146,6 +146,7 @@ func (ps *PermissionService) AssignPermissionToRole(ctx context.Context, roleID,
 func (ps *PermissionService) RemovePermissionFromRole(ctx context.Context, roleID, permissionID uint) error {
 	err := ps.db.WithContext(ctx).
 		Where("role_id = ? AND permission_id = ?", roleID, permissionID).
+		Unscoped().
 		Delete(&models.RolePermission{}).Error
 
 	if err != nil {
@@ -175,7 +176,7 @@ func (ps *PermissionService) AssignRoleToUser(ctx context.Context, userID uint, 
 // RemoveRoleFromUser removes a role from a user
 func (ps *PermissionService) RemoveRoleFromUser(ctx context.Context, userID, roleID uint, tenantID string) error {
 	err := ps.db.WithContext(ctx).
-		Where("user_id = ? AND role_id = ? AND tenant_id = ?", userID, roleID, tenantID).
+		Where("user_id = ? AND role_id = ?", userID, roleID).
 		Delete(&models.UserRole{}).Error
 
 	if err != nil {
@@ -204,7 +205,7 @@ func (ps *PermissionService) AssignPermissionToUser(ctx context.Context, userID,
 // RemovePermissionFromUser removes a permission directly from a user
 func (ps *PermissionService) RemovePermissionFromUser(ctx context.Context, userID, permissionID uint, tenantID string) error {
 	err := ps.db.WithContext(ctx).
-		Where("user_id = ? AND permission_id = ? AND tenant_id = ?", userID, permissionID, tenantID).
+		Where("user_id = ? AND permission_id = ?", userID, permissionID).
 		Delete(&models.UserPermission{}).Error
 
 	if err != nil {
@@ -221,8 +222,8 @@ func (ps *PermissionService) HasPermission(ctx context.Context, userID uint, ten
 	err := ps.db.WithContext(ctx).
 		Table("permissions").
 		Joins("JOIN user_permissions ON permissions.id = user_permissions.permission_id").
-		Where("user_permissions.user_id = ? AND user_permissions.tenant_id = ? AND permissions.code = ?",
-			userID, tenantID, permissionCode).
+		Where("user_permissions.user_id = ? AND permissions.code = ?",
+			userID, permissionCode).
 		Count(&count).Error
 
 	if err != nil {
@@ -239,7 +240,7 @@ func (ps *PermissionService) HasPermission(ctx context.Context, userID uint, ten
 		Joins("JOIN role_permissions ON permissions.id = role_permissions.permission_id").
 		Joins("JOIN roles ON role_permissions.role_id = roles.id").
 		Joins("JOIN user_roles ON roles.id = user_roles.role_id").
-		Where("user_roles.user_id = ? AND user_roles.tenant_id = ? AND permissions.code = ?",
+		Where("user_roles.user_id = ? AND roles.tenant_id = ? AND permissions.code = ?",
 			userID, tenantID, permissionCode).
 		Count(&count).Error
 
@@ -267,7 +268,7 @@ func (ps *PermissionService) GetRoleByID(ctx context.Context, id uint) (*models.
 	var role models.Role
 
 	err := ps.db.WithContext(ctx).
-		Preload("RoleAssignments.Permission").
+		Preload("Permissions").
 		First(&role, id).Error
 
 	if err != nil {

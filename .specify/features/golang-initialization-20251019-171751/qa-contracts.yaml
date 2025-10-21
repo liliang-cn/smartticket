@@ -1,0 +1,1633 @@
+openapi: 3.0.3
+info:
+  title: SmartTicket Quality Assurance API
+  description: API for managing quality assurance, testing, performance monitoring, and security validation
+  version: 1.0.0
+  contact:
+    name: SmartTicket QA Team
+    email: qa@smartticket.com
+
+servers:
+  - url: http://localhost:6533/api/v1/internal
+    description: Development server
+  - url: https://api.smartticket.com/api/v1/internal
+    description: Production server
+
+paths:
+  # Test Coverage Management
+  /test/coverage:
+    get:
+      summary: Get test coverage report
+      description: Retrieve comprehensive test coverage metrics across all modules
+      tags:
+        - Test Coverage
+      parameters:
+        - name: module
+          in: query
+          description: Filter by module name
+          schema:
+            type: string
+        - name: from_date
+          in: query
+          description: Start date for coverage report
+          schema:
+            type: string
+            format: date
+        - name: to_date
+          in: query
+          description: End date for coverage report
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Coverage report retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverageReport'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Submit test coverage data
+      description: Submit coverage data from test runs
+      tags:
+        - Test Coverage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoverageSubmission'
+      responses:
+        '201':
+          description: Coverage data submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoverageSubmissionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Performance Monitoring
+  /performance/metrics:
+    get:
+      summary: Get performance metrics
+      description: Retrieve performance metrics for API endpoints
+      tags:
+        - Performance Monitoring
+      parameters:
+        - name: endpoint
+          in: query
+          description: Filter by endpoint path
+          schema:
+            type: string
+        - name: from_date
+          in: query
+          description: Start date for metrics
+          schema:
+            type: string
+            format: date-time
+        - name: to_date
+          in: query
+          description: End date for metrics
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Performance metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceMetricsResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Submit performance metrics
+      description: Submit performance metrics from monitoring systems
+      tags:
+        - Performance Monitoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerformanceMetricsSubmission'
+      responses:
+        '201':
+          description: Performance metrics submitted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Security Scan Results
+  /security/scans:
+    get:
+      summary: Get security scan results
+      description: Retrieve vulnerability scan results
+      tags:
+        - Security
+      parameters:
+        - name: severity
+          in: query
+          description: Filter by severity level
+          schema:
+            type: string
+            enum: [critical, high, medium, low]
+        - name: status
+          in: query
+          description: Filter by resolution status
+          schema:
+            type: string
+            enum: [open, in_progress, resolved, false_positive]
+        - name: scan_type
+          in: query
+          description: Filter by scan type
+          schema:
+            type: string
+            enum: [gosec, govulncheck, staticcheck, dependency]
+      responses:
+        '200':
+          description: Security scan results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityScanResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Submit security scan results
+      description: Submit vulnerability scan results
+      tags:
+        - Security
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecurityScanSubmission'
+      responses:
+        '201':
+          description: Security scan results submitted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Quality Gates
+  /quality/gates:
+    get:
+      summary: Get quality gate status
+      description: Retrieve quality gate evaluation results
+      tags:
+        - Quality Gates
+      parameters:
+        - name: gate_type
+          in: query
+          description: Filter by gate type
+          schema:
+            type: string
+            enum: [coverage, performance, security, code_quality]
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+            enum: [passed, failed, warning]
+      responses:
+        '200':
+          description: Quality gate status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QualityGateResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Evaluate quality gates
+      description: Trigger quality gate evaluation
+      tags:
+        - Quality Gates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QualityGateEvaluation'
+      responses:
+        '200':
+          description: Quality gates evaluated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QualityGateEvaluationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Test Execution Management
+  /test/executions:
+    get:
+      summary: Get test executions
+      description: Retrieve test execution history
+      tags:
+        - Test Execution
+      parameters:
+        - name: test_type
+          in: query
+          description: Filter by test type
+          schema:
+            type: string
+            enum: [unit, integration, e2e, performance, security]
+        - name: status
+          in: query
+          description: Filter by execution status
+          schema:
+            type: string
+            enum: [running, passed, failed, cancelled]
+        - name: branch
+          in: query
+          description: Filter by branch name
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test executions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestExecutionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Create test execution
+      description: Create new test execution record
+      tags:
+        - Test Execution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestExecutionCreate'
+      responses:
+        '201':
+          description: Test execution created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestExecutionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /test/executions/{execution_id}:
+    get:
+      summary: Get test execution details
+      description: Retrieve detailed information about a specific test execution
+      tags:
+        - Test Execution
+      parameters:
+        - name: execution_id
+          in: path
+          required: true
+          description: Test execution ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test execution details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestExecutionDetailResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Benchmark Results
+  /performance/benchmarks:
+    get:
+      summary: Get benchmark results
+      description: Retrieve benchmark execution results
+      tags:
+        - Performance Monitoring
+      parameters:
+        - name: benchmark_name
+          in: query
+          description: Filter by benchmark name
+          schema:
+            type: string
+        - name: regression
+          in: query
+          description: Filter for regression results
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Benchmark results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BenchmarkResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Submit benchmark results
+      description: Submit benchmark execution results
+      tags:
+        - Performance Monitoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BenchmarkSubmission'
+      responses:
+        '201':
+          description: Benchmark results submitted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Load Testing
+  /performance/load-tests:
+    get:
+      summary: Get load test results
+      description: Retrieve load test execution results
+      tags:
+        - Performance Monitoring
+      parameters:
+        - name: test_name
+          in: query
+          description: Filter by test name
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by test status
+          schema:
+            type: string
+            enum: [running, passed, failed]
+      responses:
+        '200':
+          description: Load test results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoadTestResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Submit load test results
+      description: Submit load test execution results
+      tags:
+        - Performance Monitoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoadTestSubmission'
+      responses:
+        '201':
+          description: Load test results submitted successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # Health and Monitoring
+  /health/qa:
+    get:
+      summary: QA system health check
+      description: Check health of QA systems and services
+      tags:
+        - Health
+      responses:
+        '200':
+          description: QA system healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QAHealthResponse'
+        '503':
+          description: QA system unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QAHealthResponse'
+
+components:
+  schemas:
+    CoverageReport:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            overall_coverage:
+              type: number
+              format: float
+              example: 87.5
+            module_coverage:
+              type: array
+              items:
+                $ref: '#/components/schemas/ModuleCoverage'
+            coverage_trend:
+              type: array
+              items:
+                $ref: '#/components/schemas/CoverageTrend'
+            last_updated:
+              type: string
+              format: date-time
+              example: "2024-01-15T10:30:00Z"
+
+    ModuleCoverage:
+      type: object
+      properties:
+        module_name:
+          type: string
+          example: "internal/ticket"
+        line_coverage:
+          type: number
+          format: float
+          example: 92.3
+        branch_coverage:
+          type: number
+          format: float
+          example: 88.7
+        function_coverage:
+          type: number
+          format: float
+          example: 95.0
+        total_lines:
+          type: integer
+          example: 1250
+        covered_lines:
+          type: integer
+          example: 1154
+        last_test_date:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    CoverageTrend:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2024-01-15"
+        coverage_percentage:
+          type: number
+          format: float
+          example: 87.5
+        test_count:
+          type: integer
+          example: 156
+
+    CoverageSubmission:
+      type: object
+      required:
+        - test_run_id
+        - module_coverage_data
+      properties:
+        test_run_id:
+          type: string
+          example: "run-20240115-1030"
+        execution_date:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        total_tests:
+          type: integer
+          example: 156
+        passed_tests:
+          type: integer
+          example: 156
+        failed_tests:
+          type: integer
+          example: 0
+        module_coverage_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModuleCoverageData'
+
+    ModuleCoverageData:
+      type: object
+      required:
+        - module_name
+        - file_path
+        - line_coverage
+      properties:
+        module_name:
+          type: string
+          example: "internal/ticket"
+        file_path:
+          type: string
+          example: "internal/ticket/service.go"
+        function_name:
+          type: string
+          example: "CreateTicket"
+        line_coverage:
+          type: number
+          format: float
+          example: 92.3
+        branch_coverage:
+          type: number
+          format: float
+          example: 88.7
+        function_coverage:
+          type: number
+          format: float
+          example: 95.0
+        total_lines:
+          type: integer
+          example: 125
+        covered_lines:
+          type: integer
+          example: 115
+
+    CoverageSubmissionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Coverage data submitted successfully"
+        data:
+          type: object
+          properties:
+            test_run_id:
+              type: string
+              example: "run-20240115-1030"
+            processed_modules:
+              type: integer
+              example: 12
+            overall_coverage:
+              type: number
+              format: float
+              example: 87.5
+
+    PerformanceMetricsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            endpoints:
+              type: array
+              items:
+                $ref: '#/components/schemas/EndpointMetrics'
+            summary:
+              $ref: '#/components/schemas/PerformanceSummary'
+            sla_compliance:
+              $ref: '#/components/schemas/SLACompliance'
+
+    EndpointMetrics:
+      type: object
+      properties:
+        endpoint_path:
+          type: string
+          example: "/api/v1/tickets"
+        http_method:
+          type: string
+          example: "GET"
+        response_time_p50:
+          type: number
+          format: float
+          example: 45.2
+        response_time_p90:
+          type: number
+          format: float
+          example: 89.7
+        response_time_p95:
+          type: number
+          format: float
+          example: 156.3
+        response_time_p99:
+          type: number
+          format: float
+          example: 245.8
+        request_count:
+          type: integer
+          example: 1250
+        error_count:
+          type: integer
+          example: 3
+        throughput_rps:
+          type: number
+          format: float
+          example: 125.5
+        memory_usage_mb:
+          type: number
+          format: float
+          example: 245.7
+        cpu_usage_percent:
+          type: number
+          format: float
+          example: 15.3
+
+    PerformanceSummary:
+      type: object
+      properties:
+        total_requests:
+          type: integer
+          example: 15420
+        total_errors:
+          type: integer
+          example: 45
+        overall_error_rate:
+          type: number
+          format: float
+          example: 0.29
+        average_response_time:
+          type: number
+          format: float
+          example: 67.8
+        peak_memory_usage_mb:
+          type: number
+          format: float
+          example: 512.3
+        average_cpu_usage:
+          type: number
+          format: float
+          example: 12.5
+
+    SLACompliance:
+      type: object
+      properties:
+        response_time_sla:
+          type: object
+          properties:
+            target_p95_ms:
+              type: integer
+              example: 200
+            actual_p95_ms:
+              type: integer
+              example: 156
+            compliant:
+              type: boolean
+              example: true
+        memory_sla:
+          type: object
+          properties:
+            target_mb:
+              type: integer
+              example: 512
+            actual_mb:
+              type: integer
+              example: 245
+            compliant:
+              type: boolean
+              example: true
+        uptime_sla:
+          type: object
+          properties:
+            target_percentage:
+              type: number
+              format: float
+              example: 99.9
+            actual_percentage:
+              type: number
+              format: float
+              example: 99.95
+            compliant:
+              type: boolean
+              example: true
+
+    PerformanceMetricsSubmission:
+      type: object
+      required:
+        - test_run_id
+        - endpoint_metrics
+      properties:
+        test_run_id:
+          type: string
+          example: "perf-20240115-1030"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        endpoint_metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointMetricsSubmission'
+
+    EndpointMetricsSubmission:
+      type: object
+      required:
+        - endpoint_path
+        - http_method
+      properties:
+        endpoint_path:
+          type: string
+          example: "/api/v1/tickets"
+        http_method:
+          type: string
+          example: "GET"
+        response_time_p50:
+          type: number
+          format: float
+          example: 45.2
+        response_time_p90:
+          type: number
+          format: float
+          example: 89.7
+        response_time_p95:
+          type: number
+          format: float
+          example: 156.3
+        response_time_p99:
+          type: number
+          format: float
+          example: 245.8
+        request_count:
+          type: integer
+          example: 1250
+        error_count:
+          type: integer
+          example: 3
+        throughput_rps:
+          type: number
+          format: float
+          example: 125.5
+        memory_usage_mb:
+          type: number
+          format: float
+          example: 245.7
+        cpu_usage_percent:
+          type: number
+          format: float
+          example: 15.3
+
+    SecurityScanResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            vulnerabilities:
+              type: array
+              items:
+                $ref: '#/components/schemas/SecurityVulnerability'
+            summary:
+              $ref: '#/components/schemas/SecuritySummary'
+            scan_info:
+              $ref: '#/components/schemas/ScanInfo'
+
+    SecurityVulnerability:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12345
+        scan_type:
+          type: string
+          example: "gosec"
+        severity:
+          type: string
+          example: "high"
+        rule_id:
+          type: string
+          example: "G201"
+        description:
+          type: string
+          example: "SQL injection vulnerability"
+        file_path:
+          type: string
+          example: "internal/ticket/repository.go"
+        line_number:
+          type: integer
+          example: 45
+        column_number:
+          type: integer
+          example: 12
+        remediation:
+          type: string
+          example: "Use parameterized queries instead of string concatenation"
+        status:
+          type: string
+          example: "open"
+        assigned_to:
+          type: string
+          example: "john.doe@company.com"
+        scan_date:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    SecuritySummary:
+      type: object
+      properties:
+        total_vulnerabilities:
+          type: integer
+          example: 15
+        critical_count:
+          type: integer
+          example: 0
+        high_count:
+          type: integer
+          example: 3
+        medium_count:
+          type: integer
+          example: 8
+        low_count:
+          type: integer
+          example: 4
+        resolved_count:
+          type: integer
+          example: 12
+        open_count:
+          type: integer
+          example: 3
+
+    ScanInfo:
+      type: object
+      properties:
+        scanner_name:
+          type: string
+          example: "gosec"
+        scanner_version:
+          type: string
+          example: "v2.17.0"
+        scan_date:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        duration_seconds:
+          type: integer
+          example: 45
+        files_scanned:
+          type: integer
+          example: 156
+
+    SecurityScanSubmission:
+      type: object
+      required:
+        - scan_type
+        - scanner_name
+        - vulnerabilities
+      properties:
+        scan_type:
+          type: string
+          example: "gosec"
+        scanner_name:
+          type: string
+          example: "gosec"
+        scanner_version:
+          type: string
+          example: "v2.17.0"
+        scan_date:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        test_run_id:
+          type: string
+          example: "security-20240115-1030"
+        duration_seconds:
+          type: integer
+          example: 45
+        files_scanned:
+          type: integer
+          example: 156
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/VulnerabilitySubmission'
+
+    VulnerabilitySubmission:
+      type: object
+      required:
+        - severity
+        - rule_id
+        - description
+        - file_path
+      properties:
+        severity:
+          type: string
+          enum: [critical, high, medium, low]
+          example: "high"
+        rule_id:
+          type: string
+          example: "G201"
+        description:
+          type: string
+          example: "SQL injection vulnerability"
+        file_path:
+          type: string
+          example: "internal/ticket/repository.go"
+        line_number:
+          type: integer
+          example: 45
+        column_number:
+          type: integer
+          example: 12
+        remediation:
+          type: string
+          example: "Use parameterized queries instead of string concatenation"
+
+    QualityGateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            gates:
+              type: array
+              items:
+                $ref: '#/components/schemas/QualityGate'
+            overall_status:
+              type: string
+              example: "passed"
+            blocking_issues:
+              type: integer
+              example: 0
+            last_evaluation:
+              type: string
+              format: date-time
+              example: "2024-01-15T10:30:00Z"
+
+    QualityGate:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        gate_name:
+          type: string
+          example: "Coverage Gate"
+        gate_type:
+          type: string
+          example: "coverage"
+        threshold_value:
+          type: number
+          format: float
+          example: 100.0
+        actual_value:
+          type: number
+          format: float
+          example: 95.5
+        status:
+          type: string
+          example: "failed"
+        description:
+          type: string
+          example: "Test coverage below required threshold"
+        details:
+          type: string
+          example: "Current coverage: 95.5%, Required: 100.0%"
+        blocking:
+          type: boolean
+          example: true
+        test_run_id:
+          type: string
+          example: "qa-20240115-1030"
+
+    QualityGateEvaluation:
+      type: object
+      required:
+        - test_run_id
+      properties:
+        test_run_id:
+          type: string
+          example: "qa-20240115-1030"
+        gate_types:
+          type: array
+          items:
+            type: string
+            enum: [coverage, performance, security, code_quality]
+          example: ["coverage", "performance", "security"]
+
+    QualityGateEvaluationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            evaluation_id:
+              type: string
+              example: "eval-20240115-1030"
+            gates:
+              type: array
+              items:
+                $ref: '#/components/schemas/QualityGate'
+            overall_status:
+              type: string
+              example: "failed"
+            can_proceed:
+              type: boolean
+              example: false
+            message:
+              type: string
+              example: "Quality gates failed - Coverage and Security gates have blocking issues"
+
+    TestExecutionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            executions:
+              type: array
+              items:
+                $ref: '#/components/schemas/TestExecution'
+            pagination:
+              $ref: '#/components/schemas/Pagination'
+
+    TestExecution:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12345
+        execution_id:
+          type: string
+          example: "exec-20240115-1030"
+        test_type:
+          type: string
+          example: "integration"
+        total_tests:
+          type: integer
+          example: 156
+        passed_tests:
+          type: integer
+          example: 154
+        failed_tests:
+          type: integer
+          example: 2
+        skipped_tests:
+          type: integer
+          example: 0
+        coverage_percent:
+          type: number
+          format: float
+          example: 95.5
+        duration:
+          type: string
+          format: duration
+          example: "5m23s"
+        status:
+          type: string
+          example: "passed"
+        environment:
+          type: string
+          example: "test"
+        branch_name:
+          type: string
+          example: "main"
+        commit_hash:
+          type: string
+          example: "abc123def456"
+        triggered_by:
+          type: string
+          example: "john.doe@company.com"
+        started_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        completed_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:35:23Z"
+
+    TestExecutionCreate:
+      type: object
+      required:
+        - test_type
+        - environment
+        - branch_name
+        - commit_hash
+        - triggered_by
+      properties:
+        test_type:
+          type: string
+          enum: [unit, integration, e2e, performance, security]
+          example: "integration"
+        environment:
+          type: string
+          example: "test"
+        branch_name:
+          type: string
+          example: "main"
+        commit_hash:
+          type: string
+          example: "abc123def456"
+        triggered_by:
+          type: string
+          example: "john.doe@company.com"
+
+    TestExecutionDetailResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/TestExecutionDetail'
+
+    TestExecutionDetail:
+      type: object
+      properties:
+        execution:
+          $ref: '#/components/schemas/TestExecution'
+        coverage_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModuleCoverage'
+        performance_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EndpointMetrics'
+        security_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SecurityVulnerability'
+        quality_gates:
+          type: array
+          items:
+            $ref: '#/components/schemas/QualityGate'
+
+    BenchmarkResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            benchmarks:
+              type: array
+              items:
+                $ref: '#/components/schemas/BenchmarkResult'
+            summary:
+              $ref: '#/components/schemas/BenchmarkSummary'
+
+    BenchmarkResult:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12345
+        benchmark_name:
+          type: string
+          example: "BenchmarkTicketService_CreateTicket"
+        ns_per_op:
+          type: integer
+          example: 125430
+        allocs_per_op:
+          type: integer
+          example: 15
+        bytes_per_op:
+          type: integer
+          example: 2048
+        iterations:
+          type: integer
+          example: 1000000
+        memory_mb:
+          type: number
+          format: float
+          example: 45.7
+        regression:
+          type: boolean
+          example: false
+        regression_percent:
+          type: number
+          format: float
+          example: 0.0
+        baseline_ns_per_op:
+          type: integer
+          example: 124800
+        test_run_id:
+          type: string
+          example: "bench-20240115-1030"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    BenchmarkSummary:
+      type: object
+      properties:
+        total_benchmarks:
+          type: integer
+          example: 25
+        regressions_detected:
+          type: integer
+          example: 2
+        improvements_detected:
+          type: integer
+          example: 5
+        average_performance_change:
+          type: number
+          format: float
+          example: 2.3
+
+    BenchmarkSubmission:
+      type: object
+      required:
+        - test_run_id
+        - benchmarks
+      properties:
+        test_run_id:
+          type: string
+          example: "bench-20240115-1030"
+        execution_date:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        benchmarks:
+          type: array
+          items:
+            $ref: '#/components/schemas/BenchmarkSubmissionData'
+
+    BenchmarkSubmissionData:
+      type: object
+      required:
+        - benchmark_name
+        - ns_per_op
+        - allocs_per_op
+        - bytes_per_op
+        - iterations
+      properties:
+        benchmark_name:
+          type: string
+          example: "BenchmarkTicketService_CreateTicket"
+        ns_per_op:
+          type: integer
+          example: 125430
+        allocs_per_op:
+          type: integer
+          example: 15
+        bytes_per_op:
+          type: integer
+          example: 2048
+        iterations:
+          type: integer
+          example: 1000000
+        memory_mb:
+          type: number
+          format: float
+          example: 45.7
+        baseline_ns_per_op:
+          type: integer
+          example: 124800
+
+    LoadTestResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            load_tests:
+              type: array
+              items:
+                $ref: '#/components/schemas/LoadTestResult'
+            summary:
+              $ref: '#/components/schemas/LoadTestSummary'
+
+    LoadTestResult:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 12345
+        test_name:
+          type: string
+          example: "Load Test - API Endpoints"
+        concurrent_users:
+          type: integer
+          example: 50
+        duration:
+          type: string
+          format: duration
+          example: "2m0s"
+        total_requests:
+          type: integer
+          example: 125000
+        successful_requests:
+          type: integer
+          example: 124850
+        failed_requests:
+          type: integer
+          example: 150
+        requests_per_second:
+          type: number
+          format: float
+          example: 1041.7
+        response_time_avg:
+          type: number
+          format: float
+          example: 67.8
+        response_time_p95:
+          type: number
+          format: float
+          example: 156.3
+        response_time_p99:
+          type: number
+          format: float
+          example: 245.8
+        error_rate:
+          type: number
+          format: float
+          example: 0.12
+        status:
+          type: string
+          example: "passed"
+        test_run_id:
+          type: string
+          example: "load-20240115-1030"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+
+    LoadTestSummary:
+      type: object
+      properties:
+        total_tests:
+          type: integer
+          example: 5
+        passed_tests:
+          type: integer
+          example: 4
+        failed_tests:
+          type: integer
+          example: 1
+        peak_concurrent_users:
+          type: integer
+          example: 100
+        peak_throughput_rps:
+          type: number
+          format: float
+          example: 1500.0
+        average_response_time_ms:
+          type: number
+          format: float
+          example: 89.5
+
+    LoadTestSubmission:
+      type: object
+      required:
+        - test_run_id
+        - load_tests
+      properties:
+        test_run_id:
+          type: string
+          example: "load-20240115-1030"
+        execution_date:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        load_tests:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoadTestSubmissionData'
+
+    LoadTestSubmissionData:
+      type: object
+      required:
+        - test_name
+        - concurrent_users
+        - duration
+        - total_requests
+        - successful_requests
+        - failed_requests
+      properties:
+        test_name:
+          type: string
+          example: "Load Test - API Endpoints"
+        concurrent_users:
+          type: integer
+          example: 50
+        duration:
+          type: string
+          format: duration
+          example: "2m0s"
+        total_requests:
+          type: integer
+          example: 125000
+        successful_requests:
+          type: integer
+          example: 124850
+        failed_requests:
+          type: integer
+          example: 150
+        requests_per_second:
+          type: number
+          format: float
+          example: 1041.7
+        response_time_avg:
+          type: number
+          format: float
+          example: 67.8
+        response_time_p95:
+          type: number
+          format: float
+          example: 156.3
+        response_time_p99:
+          type: number
+          format: float
+          example: 245.8
+        error_rate:
+          type: number
+          format: float
+          example: 0.12
+
+    QAHealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceHealth'
+        metrics:
+          $ref: '#/components/schemas/HealthMetrics'
+
+    ServiceHealth:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "coverage-collector"
+        status:
+          type: string
+          example: "healthy"
+        last_check:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        response_time_ms:
+          type: integer
+          example: 12
+        error_message:
+          type: string
+          example: ""
+
+    HealthMetrics:
+      type: object
+      properties:
+        active_test_executions:
+          type: integer
+          example: 2
+        pending_security_scans:
+          type: integer
+          example: 1
+        last_coverage_update:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:25:00Z"
+        last_performance_update:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:29:00Z"
+        storage_usage_mb:
+          type: number
+          format: float
+          example: 1024.5
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        page_size:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 156
+        total_pages:
+          type: integer
+          example: 8
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          $ref: '#/components/schemas/Error'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          example: "Request validation failed"
+        details:
+          type: array
+          items:
+            type: string
+            example: "module_name is required"
+
+  responses:
+    BadRequest:
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Test Coverage
+    description: Test coverage management and reporting
+  - name: Performance Monitoring
+    description: Performance metrics and benchmarking
+  - name: Security
+    description: Security vulnerability scanning and management
+  - name: Quality Gates
+    description: Quality gate evaluation and enforcement
+  - name: Test Execution
+    description: Test execution management and history
+  - name: Health
+    description: System health and monitoring
