@@ -11,17 +11,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// Service provides knowledge base operations
+// Service provides knowledge base operations.
 type Service struct {
 	db *gorm.DB
 }
 
-// NewService creates a new knowledge service
+// NewService creates a new knowledge service.
 func NewService(db *gorm.DB) *Service {
 	return &Service{db: db}
 }
 
-// CreateKnowledgeArticleRequest represents the request to create a knowledge article
+// CreateKnowledgeArticleRequest represents the request to create a knowledge article.
 type CreateKnowledgeArticleRequest struct {
 	Title     string `json:"title" binding:"required,min=3,max=255"`
 	Content   string `json:"content" binding:"required,min=10"`
@@ -33,7 +33,7 @@ type CreateKnowledgeArticleRequest struct {
 	ServiceID *uint  `json:"service_id"`
 }
 
-// UpdateKnowledgeArticleRequest represents the request to update a knowledge article
+// UpdateKnowledgeArticleRequest represents the request to update a knowledge article.
 type UpdateKnowledgeArticleRequest struct {
 	Title     string `json:"title" binding:"omitempty,min=3,max=255"`
 	Content   string `json:"content" binding:"omitempty,min=10"`
@@ -45,7 +45,7 @@ type UpdateKnowledgeArticleRequest struct {
 	ServiceID *uint  `json:"service_id"`
 }
 
-// KnowledgeArticleResponse represents the response for a knowledge article
+// KnowledgeArticleResponse represents the response for a knowledge article.
 type KnowledgeArticleResponse struct {
 	ID          uint                `json:"id"`
 	Title       string              `json:"title"`
@@ -68,7 +68,7 @@ type KnowledgeArticleResponse struct {
 	UpdatedBy   string              `json:"updated_by"`
 }
 
-// KnowledgeArticleListResponse represents a paginated knowledge article list
+// KnowledgeArticleListResponse represents a paginated knowledge article list.
 type KnowledgeArticleListResponse struct {
 	Data       []KnowledgeArticleResponse `json:"data"`
 	Total      int64                      `json:"total"`
@@ -77,7 +77,7 @@ type KnowledgeArticleListResponse struct {
 	TotalPages int                        `json:"total_pages"`
 }
 
-// KnowledgeArticleStatsResponse represents knowledge article statistics
+// KnowledgeArticleStatsResponse represents knowledge article statistics.
 type KnowledgeArticleStatsResponse struct {
 	TotalArticles     int64            `json:"total_articles"`
 	PublishedArticles int64            `json:"published_articles"`
@@ -88,7 +88,7 @@ type KnowledgeArticleStatsResponse struct {
 	RecentActivity    []RecentArticle  `json:"recent_activity"`
 }
 
-// RecentArticle represents a recently updated article
+// RecentArticle represents a recently updated article.
 type RecentArticle struct {
 	ID        uint      `json:"id"`
 	Title     string    `json:"title"`
@@ -96,7 +96,7 @@ type RecentArticle struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// CreateKnowledgeArticle creates a new knowledge article
+// CreateKnowledgeArticle creates a new knowledge article.
 func (s *Service) CreateKnowledgeArticle(tenantID uint, userID uint, req *CreateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
 	// Normalize and validate input
 	req.Title = trimString(req.Title)
@@ -155,7 +155,7 @@ func (s *Service) CreateKnowledgeArticle(tenantID uint, userID uint, req *Create
 	return s.getKnowledgeArticleResponse(article)
 }
 
-// GetKnowledgeArticle retrieves a knowledge article by ID and increments view count
+// GetKnowledgeArticle retrieves a knowledge article by ID and increments view count.
 func (s *Service) GetKnowledgeArticle(tenantID uint, id uint) (*KnowledgeArticleResponse, error) {
 	var article models.KnowledgeArticle
 	if err := s.db.Where("id = ? AND tenant_id = ?", id, tenantID).
@@ -179,7 +179,7 @@ func (s *Service) GetKnowledgeArticle(tenantID uint, id uint) (*KnowledgeArticle
 	return s.getKnowledgeArticleResponse(&article)
 }
 
-// ListKnowledgeArticles retrieves knowledge articles with pagination and filtering
+// ListKnowledgeArticles retrieves knowledge articles with pagination and filtering.
 func (s *Service) ListKnowledgeArticles(tenantID uint, page, pageSize int, filters map[string]interface{}) (*KnowledgeArticleListResponse, error) {
 	offset := (page - 1) * pageSize
 
@@ -244,7 +244,7 @@ func (s *Service) ListKnowledgeArticles(tenantID uint, page, pageSize int, filte
 	}, nil
 }
 
-// UpdateKnowledgeArticle updates an existing knowledge article
+// UpdateKnowledgeArticle updates an existing knowledge article.
 func (s *Service) UpdateKnowledgeArticle(tenantID uint, id uint, userID uint, req *UpdateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
 	var article models.KnowledgeArticle
 	if err := s.db.Where("id = ? AND tenant_id = ?", id, tenantID).
@@ -309,7 +309,7 @@ func (s *Service) UpdateKnowledgeArticle(tenantID uint, id uint, userID uint, re
 	return s.getKnowledgeArticleResponse(&article)
 }
 
-// DeleteKnowledgeArticle soft deletes a knowledge article
+// DeleteKnowledgeArticle soft deletes a knowledge article.
 func (s *Service) DeleteKnowledgeArticle(tenantID uint, id uint, userID uint) error {
 	// Get user email from database
 	var user models.User
@@ -335,7 +335,7 @@ func (s *Service) DeleteKnowledgeArticle(tenantID uint, id uint, userID uint) er
 	return nil
 }
 
-// GetKnowledgeArticleStats retrieves knowledge article statistics
+// GetKnowledgeArticleStats retrieves knowledge article statistics.
 func (s *Service) GetKnowledgeArticleStats(tenantID uint) (*KnowledgeArticleStatsResponse, error) {
 	stats := &KnowledgeArticleStatsResponse{}
 
@@ -423,7 +423,7 @@ func (s *Service) GetKnowledgeArticleStats(tenantID uint) (*KnowledgeArticleStat
 	return stats, nil
 }
 
-// getKnowledgeArticleResponse converts a model to response format
+// getKnowledgeArticleResponse converts a model to response format.
 func (s *Service) getKnowledgeArticleResponse(article *models.KnowledgeArticle) (*KnowledgeArticleResponse, error) {
 	response := &KnowledgeArticleResponse{
 		ID:          article.ID,
@@ -455,12 +455,12 @@ func (s *Service) getKnowledgeArticleResponse(article *models.KnowledgeArticle) 
 	return response, nil
 }
 
-// Helper functions
+// Helper functions.
 func trimString(s string) string {
 	return strings.TrimSpace(s)
 }
 
-// generateSlug creates a URL-friendly slug from title
+// generateSlug creates a URL-friendly slug from title.
 func generateSlug(title string) string {
 	// Simple slug generation - can be enhanced
 	slug := strings.ToLower(title)
@@ -490,7 +490,7 @@ func generateSlug(title string) string {
 	return result
 }
 
-// ValidateProductService validates that product and service belong to the same tenant
+// ValidateProductService validates that product and service belong to the same tenant.
 func (s *Service) ValidateProductService(tenantID uint, productID, serviceID *uint) error {
 	if productID != nil {
 		var product models.Product

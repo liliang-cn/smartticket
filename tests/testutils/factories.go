@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// DataFactory provides factory methods for creating test data
+// DataFactory provides factory methods for creating test data.
 type DataFactory struct {
 	db        *database.Database
 	tenant    *models.Tenant
@@ -20,7 +20,7 @@ type DataFactory struct {
 	providers []*models.LLMProvider
 }
 
-// NewDataFactory creates a new data factory
+// NewDataFactory creates a new data factory.
 func NewDataFactory(db *database.Database) *DataFactory {
 	return &DataFactory{
 		db:    db,
@@ -28,7 +28,7 @@ func NewDataFactory(db *database.Database) *DataFactory {
 	}
 }
 
-// CreateTestData creates a comprehensive set of test data
+// CreateTestData creates a comprehensive set of test data.
 func (df *DataFactory) CreateTestData(ctx context.Context) error {
 	// Create tenant
 	if err := df.CreateTenant(ctx); err != nil {
@@ -58,7 +58,7 @@ func (df *DataFactory) CreateTestData(ctx context.Context) error {
 	return nil
 }
 
-// CreateTenant creates a test tenant
+// CreateTenant creates a test tenant.
 func (df *DataFactory) CreateTenant(ctx context.Context) error {
 	now := time.Now()
 	df.tenant = &models.Tenant{
@@ -78,12 +78,12 @@ func (df *DataFactory) CreateTenant(ctx context.Context) error {
 	return df.db.Create(df.tenant).Error
 }
 
-// GetTenant returns the created tenant
+// GetTenant returns the created tenant.
 func (df *DataFactory) GetTenant() *models.Tenant {
 	return df.tenant
 }
 
-// CreateUsers creates test users with different roles
+// CreateUsers creates test users with different roles.
 func (df *DataFactory) CreateUsers(ctx context.Context) error {
 	roles := []string{"admin", "engineer", "support", "customer"}
 	names := []string{"Admin", "Engineer", "Support", "Customer"}
@@ -124,17 +124,17 @@ func (df *DataFactory) CreateUsers(ctx context.Context) error {
 	return nil
 }
 
-// GetUser returns a user by role
+// GetUser returns a user by role.
 func (df *DataFactory) GetUser(role string) *models.User {
 	return df.users[role]
 }
 
-// GetAllUsers returns all created users
+// GetAllUsers returns all created users.
 func (df *DataFactory) GetAllUsers() map[string]*models.User {
 	return df.users
 }
 
-// CreateTickets creates test tickets with various statuses and priorities
+// CreateTickets creates test tickets with various statuses and priorities.
 func (df *DataFactory) CreateTickets(ctx context.Context) error {
 	statuses := []string{"open", "in_progress", "resolved", "closed"}
 	priorities := []string{"low", "medium", "high", "critical"}
@@ -186,7 +186,7 @@ func (df *DataFactory) CreateTickets(ctx context.Context) error {
 	return nil
 }
 
-// createTicketMessages creates messages for a ticket
+// createTicketMessages creates messages for a ticket.
 func (df *DataFactory) createTicketMessages(ctx context.Context, ticket *models.Ticket) error {
 	messageCount := 1 + (int(ticket.ID) % 3) // 1-3 messages per ticket
 
@@ -214,12 +214,12 @@ func (df *DataFactory) createTicketMessages(ctx context.Context, ticket *models.
 	return nil
 }
 
-// GetTickets returns all created tickets
+// GetTickets returns all created tickets.
 func (df *DataFactory) GetTickets() []*models.Ticket {
 	return df.tickets
 }
 
-// GetTicketByStatus returns tickets filtered by status
+// GetTicketByStatus returns tickets filtered by status.
 func (df *DataFactory) GetTicketByStatus(status string) []*models.Ticket {
 	var filtered []*models.Ticket
 	for _, ticket := range df.tickets {
@@ -230,7 +230,7 @@ func (df *DataFactory) GetTicketByStatus(status string) []*models.Ticket {
 	return filtered
 }
 
-// CreateKnowledgeArticles creates test knowledge articles
+// CreateKnowledgeArticles creates test knowledge articles.
 func (df *DataFactory) CreateKnowledgeArticles(ctx context.Context) error {
 	categories := []string{"getting-started", "troubleshooting", "api", "features"}
 	for i := 0; i < 10; i++ {
@@ -268,12 +268,12 @@ func (df *DataFactory) CreateKnowledgeArticles(ctx context.Context) error {
 	return nil
 }
 
-// GetKnowledgeArticles returns all created knowledge articles
+// GetKnowledgeArticles returns all created knowledge articles.
 func (df *DataFactory) GetKnowledgeArticles() []*models.KnowledgeArticle {
 	return df.articles
 }
 
-// CreateLLMProviders creates test LLM providers
+// CreateLLMProviders creates test LLM providers.
 func (df *DataFactory) CreateLLMProviders(ctx context.Context) error {
 	providers := []struct {
 		name         string
@@ -317,12 +317,12 @@ func (df *DataFactory) CreateLLMProviders(ctx context.Context) error {
 	return nil
 }
 
-// GetLLMProviders returns all created LLM providers
+// GetLLMProviders returns all created LLM providers.
 func (df *DataFactory) GetLLMProviders() []*models.LLMProvider {
 	return df.providers
 }
 
-// CreateAuditLog creates an audit log entry
+// CreateAuditLog creates an audit log entry.
 func (df *DataFactory) CreateAuditLog(ctx context.Context, action, resourceType string, resourceID uint, details map[string]interface{}) error {
 	detailsJSON := fmt.Sprintf(`{"action": "%s", "details": %v}`, action, details)
 
@@ -349,7 +349,7 @@ func (df *DataFactory) CreateAuditLog(ctx context.Context, action, resourceType 
 	return df.db.Create(auditLog).Error
 }
 
-// CreatePermissions creates test permissions
+// CreatePermissions creates test permissions.
 func (df *DataFactory) CreatePermissions(ctx context.Context) error {
 	permissions := []struct {
 		code        string
@@ -388,7 +388,7 @@ func (df *DataFactory) CreatePermissions(ctx context.Context) error {
 	return nil
 }
 
-// ResetTestData clears all test data
+// ResetTestData clears all test data.
 func (df *DataFactory) ResetTestData(ctx context.Context) error {
 	// Delete in order of dependencies
 	tables := []interface{}{
@@ -423,22 +423,22 @@ func (df *DataFactory) ResetTestData(ctx context.Context) error {
 	return nil
 }
 
-// MockFactory creates mock objects for testing
+// MockFactory creates mock objects for testing.
 type MockFactory struct{}
 
-// NewMockFactory creates a new mock factory
+// NewMockFactory creates a new mock factory.
 func NewMockFactory() *MockFactory {
 	return &MockFactory{}
 }
 
-// CreateMockTicketService creates a mock ticket service
+// CreateMockTicketService creates a mock ticket service.
 func (mf *MockFactory) CreateMockTicketService() *MockTicketService {
 	return &MockTicketService{
 		tickets: make(map[string]*models.Ticket),
 	}
 }
 
-// MockTicketService is a mock implementation of ticket service
+// MockTicketService is a mock implementation of ticket service.
 type MockTicketService struct {
 	tickets map[string]*models.Ticket
 }
@@ -476,14 +476,14 @@ func (m *MockTicketService) ListTickets(ctx context.Context, filter map[string]i
 	return tickets, nil
 }
 
-// CreateMockUserService creates a mock user service
+// CreateMockUserService creates a mock user service.
 func (mf *MockFactory) CreateMockUserService() *MockUserService {
 	return &MockUserService{
 		users: make(map[string]*models.User),
 	}
 }
 
-// MockUserService is a mock implementation of user service
+// MockUserService is a mock implementation of user service.
 type MockUserService struct {
 	users map[string]*models.User
 }

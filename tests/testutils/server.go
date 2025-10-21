@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TestServer provides a test HTTP server
+// TestServer provides a test HTTP server.
 type TestServer struct {
 	server     *httptest.Server
 	engine     *gin.Engine
@@ -24,7 +24,7 @@ type TestServer struct {
 	testDB     *TestDatabase
 }
 
-// NewTestServer creates a new test HTTP server
+// NewTestServer creates a new test HTTP server.
 func NewTestServer(t *testing.T) *TestServer {
 	// Set Gin to test mode
 	gin.SetMode(gin.TestMode)
@@ -58,7 +58,7 @@ func NewTestServer(t *testing.T) *TestServer {
 	}
 }
 
-// Close closes the test server and cleans up resources
+// Close closes the test server and cleans up resources.
 func (ts *TestServer) Close() error {
 	ts.server.Close()
 
@@ -73,27 +73,27 @@ func (ts *TestServer) Close() error {
 	return nil
 }
 
-// GetURL returns the test server URL
+// GetURL returns the test server URL.
 func (ts *TestServer) GetURL() string {
 	return ts.server.URL
 }
 
-// GetEngine returns the Gin engine
+// GetEngine returns the Gin engine.
 func (ts *TestServer) GetEngine() *gin.Engine {
 	return ts.engine
 }
 
-// GetConfig returns the test configuration
+// GetConfig returns the test configuration.
 func (ts *TestServer) GetConfig() *config.Config {
 	return ts.config
 }
 
-// GetDatabase returns the test database
+// GetDatabase returns the test database.
 func (ts *TestServer) GetDatabase() *database.Database {
 	return ts.database
 }
 
-// WithTestServer is a helper function that runs a test function with a test server
+// WithTestServer is a helper function that runs a test function with a test server.
 func WithTestServer(t *testing.T, testFunc func(*testing.T, *TestServer)) {
 	ts := NewTestServer(t)
 	defer func() {
@@ -105,13 +105,13 @@ func WithTestServer(t *testing.T, testFunc func(*testing.T, *TestServer)) {
 	testFunc(t, ts)
 }
 
-// HTTPClient provides an HTTP client for testing
+// HTTPClient provides an HTTP client for testing.
 type HTTPClient struct {
 	client  *http.Client
 	baseURL string
 }
 
-// NewHTTPClient creates a new HTTP client for testing
+// NewHTTPClient creates a new HTTP client for testing.
 func NewHTTPClient(server *TestServer) *HTTPClient {
 	return &HTTPClient{
 		client:  server.server.Client(),
@@ -119,7 +119,7 @@ func NewHTTPClient(server *TestServer) *HTTPClient {
 	}
 }
 
-// Get performs an HTTP GET request
+// Get performs an HTTP GET request.
 func (c *HTTPClient) Get(path string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", c.baseURL+path, nil)
 	if err != nil {
@@ -129,7 +129,7 @@ func (c *HTTPClient) Get(path string) (*http.Response, error) {
 	return c.client.Do(req)
 }
 
-// Post performs an HTTP POST request
+// Post performs an HTTP POST request.
 func (c *HTTPClient) Post(path string, contentType string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequest("POST", c.baseURL+path, bytes.NewBuffer(body))
 	if err != nil {
@@ -140,12 +140,12 @@ func (c *HTTPClient) Post(path string, contentType string, body []byte) (*http.R
 	return c.client.Do(req)
 }
 
-// GetHTTPClient returns the underlying HTTP client for custom requests
+// GetHTTPClient returns the underlying HTTP client for custom requests.
 func (c *HTTPClient) GetHTTPClient() *http.Client {
 	return c.client
 }
 
-// Put performs an HTTP PUT request
+// Put performs an HTTP PUT request.
 func (c *HTTPClient) Put(path string, contentType string, body []byte) (*http.Response, error) {
 	req, err := http.NewRequest("PUT", c.baseURL+path, bytes.NewBuffer(body))
 	if err != nil {
@@ -156,7 +156,7 @@ func (c *HTTPClient) Put(path string, contentType string, body []byte) (*http.Re
 	return c.client.Do(req)
 }
 
-// Delete performs an HTTP DELETE request
+// Delete performs an HTTP DELETE request.
 func (c *HTTPClient) Delete(path string) (*http.Response, error) {
 	req, err := http.NewRequest("DELETE", c.baseURL+path, nil)
 	if err != nil {
@@ -166,7 +166,7 @@ func (c *HTTPClient) Delete(path string) (*http.Response, error) {
 	return c.client.Do(req)
 }
 
-// WaitForServer waits for the server to be ready
+// WaitForServer waits for the server to be ready.
 func (ts *TestServer) WaitForServer(timeout time.Duration) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()

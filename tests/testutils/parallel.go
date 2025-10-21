@@ -11,12 +11,12 @@ import (
 	"github.com/company/smartticket/internal/database"
 )
 
-// TestDatabaseParallel wraps a database connection for parallel testing
+// TestDatabaseParallel wraps a database connection for parallel testing.
 type TestDatabaseParallel struct {
 	DB *database.Database
 }
 
-// ParallelTestRunner manages parallel test execution with resource isolation
+// ParallelTestRunner manages parallel test execution with resource isolation.
 type ParallelTestRunner struct {
 	maxWorkers    int
 	timeout       time.Duration
@@ -27,7 +27,7 @@ type ParallelTestRunner struct {
 	workerIDMutex sync.Mutex
 }
 
-// NewParallelTestRunner creates a new parallel test runner
+// NewParallelTestRunner creates a new parallel test runner.
 func NewParallelTestRunner() *ParallelTestRunner {
 	maxWorkers := runtime.NumCPU()
 	if maxWorkers < 2 {
@@ -42,7 +42,7 @@ func NewParallelTestRunner() *ParallelTestRunner {
 	}
 }
 
-// SetMaxWorkers sets the maximum number of parallel workers
+// SetMaxWorkers sets the maximum number of parallel workers.
 func (ptr *ParallelTestRunner) SetMaxWorkers(workers int) {
 	if workers < 1 {
 		workers = 1
@@ -50,28 +50,28 @@ func (ptr *ParallelTestRunner) SetMaxWorkers(workers int) {
 	ptr.maxWorkers = workers
 }
 
-// SetTimeout sets the timeout for test execution
+// SetTimeout sets the timeout for test execution.
 func (ptr *ParallelTestRunner) SetTimeout(timeout time.Duration) {
 	ptr.timeout = timeout
 }
 
-// SetSetupFunc sets the setup function to run before tests
+// SetSetupFunc sets the setup function to run before tests.
 func (ptr *ParallelTestRunner) SetSetupFunc(setup func() error) {
 	ptr.setupFunc = setup
 }
 
-// SetTeardownFunc sets the teardown function to run after tests
+// SetTeardownFunc sets the teardown function to run after tests.
 func (ptr *ParallelTestRunner) SetTeardownFunc(teardown func() error) {
 	ptr.teardownFunc = teardown
 }
 
-// GetResourceMutex returns a mutex for a specific resource name
+// GetResourceMutex returns a mutex for a specific resource name.
 func (ptr *ParallelTestRunner) GetResourceMutex(resourceName string) *sync.Mutex {
 	ptr.resourceMutex[resourceName] = &sync.Mutex{}
 	return ptr.resourceMutex[resourceName]
 }
 
-// getNextWorkerID returns the next available worker ID
+// getNextWorkerID returns the next available worker ID.
 func (ptr *ParallelTestRunner) getNextWorkerID() int {
 	ptr.workerIDMutex.Lock()
 	defer ptr.workerIDMutex.Unlock()
@@ -81,7 +81,7 @@ func (ptr *ParallelTestRunner) getNextWorkerID() int {
 	return id
 }
 
-// RunParallel executes test functions in parallel
+// RunParallel executes test functions in parallel.
 func (ptr *ParallelTestRunner) RunParallel(t *testing.T, tests []TestFunc) {
 	if len(tests) == 0 {
 		return
@@ -144,7 +144,7 @@ func (ptr *ParallelTestRunner) RunParallel(t *testing.T, tests []TestFunc) {
 	}
 }
 
-// TestFunc represents a test function with metadata
+// TestFunc represents a test function with metadata.
 type TestFunc struct {
 	Name        string
 	TestFunc    func(*testing.T)
@@ -153,7 +153,7 @@ type TestFunc struct {
 	Resources   []string // Resources this test needs exclusive access to
 }
 
-// ParallelTestResult represents the result of a parallel test execution
+// ParallelTestResult represents the result of a parallel test execution.
 type ParallelTestResult struct {
 	Name     string
 	Error    error
@@ -161,7 +161,7 @@ type ParallelTestResult struct {
 	WorkerID int
 }
 
-// worker processes test functions from the work channel
+// worker processes test functions from the work channel.
 func (ptr *ParallelTestRunner) worker(ctx context.Context, wg *sync.WaitGroup, workChan <-chan TestFunc, results chan<- ParallelTestResult) {
 	defer wg.Done()
 
@@ -200,7 +200,7 @@ func (ptr *ParallelTestRunner) worker(ctx context.Context, wg *sync.WaitGroup, w
 	}
 }
 
-// runSingleTest runs a single test function
+// runSingleTest runs a single test function.
 func (ptr *ParallelTestRunner) runSingleTest(ctx context.Context, testFunc TestFunc, workerID int) ParallelTestResult {
 	// Create a test context with timeout
 	testCtx, cancel := context.WithTimeout(ctx, testFunc.Timeout)
@@ -248,7 +248,7 @@ func (ptr *ParallelTestRunner) runSingleTest(ctx context.Context, testFunc TestF
 	}
 }
 
-// RunParallelWithBatches runs tests in parallel with batch processing
+// RunParallelWithBatches runs tests in parallel with batch processing.
 func (ptr *ParallelTestRunner) RunParallelWithBatches(t *testing.T, tests []TestFunc, batchSize int) {
 	if batchSize <= 0 {
 		batchSize = len(tests)
@@ -266,14 +266,14 @@ func (ptr *ParallelTestRunner) RunParallelWithBatches(t *testing.T, tests []Test
 	}
 }
 
-// DatabaseParallelRunner manages parallel database tests with isolation
+// DatabaseParallelRunner manages parallel database tests with isolation.
 type DatabaseParallelRunner struct {
 	*ParallelTestRunner
 	testDatabases chan *TestDatabaseParallel
 	dbPool        *sync.Pool
 }
 
-// NewDatabaseParallelRunner creates a new database parallel runner
+// NewDatabaseParallelRunner creates a new database parallel runner.
 func NewDatabaseParallelRunner(dbFactory func() *TestDatabaseParallel) *DatabaseParallelRunner {
 	pr := NewParallelTestRunner()
 	testDatabases := make(chan *TestDatabaseParallel, pr.maxWorkers)
@@ -292,18 +292,18 @@ func NewDatabaseParallelRunner(dbFactory func() *TestDatabaseParallel) *Database
 	}
 }
 
-// GetTestDatabase gets a test database from the pool
+// GetTestDatabase gets a test database from the pool.
 func (dpr *DatabaseParallelRunner) GetTestDatabase() *TestDatabaseParallel {
 	db := dpr.dbPool.Get().(*TestDatabaseParallel)
 	return db
 }
 
-// ReturnTestDatabase returns a test database to the pool
+// ReturnTestDatabase returns a test database to the pool.
 func (dpr *DatabaseParallelRunner) ReturnTestDatabase(db *TestDatabaseParallel) {
 	dpr.dbPool.Put(db)
 }
 
-// RunDatabaseTests runs database tests in parallel with isolated databases
+// RunDatabaseTests runs database tests in parallel with isolated databases.
 func (dpr *DatabaseParallelRunner) RunDatabaseTests(t *testing.T, tests []DatabaseTestFunc) {
 	if len(tests) == 0 {
 		return
@@ -331,7 +331,7 @@ func (dpr *DatabaseParallelRunner) RunDatabaseTests(t *testing.T, tests []Databa
 	dpr.RunParallel(t, regularTests)
 }
 
-// DatabaseTestFunc represents a database test function
+// DatabaseTestFunc represents a database test function.
 type DatabaseTestFunc struct {
 	Name        string
 	Description string
@@ -340,7 +340,7 @@ type DatabaseTestFunc struct {
 	Resources   []string
 }
 
-// ConcurrentTestSuite manages a suite of concurrent tests
+// ConcurrentTestSuite manages a suite of concurrent tests.
 type ConcurrentTestSuite struct {
 	name           string
 	tests          []TestFunc
@@ -351,7 +351,7 @@ type ConcurrentTestSuite struct {
 	parallelRunner *ParallelTestRunner
 }
 
-// NewConcurrentTestSuite creates a new concurrent test suite
+// NewConcurrentTestSuite creates a new concurrent test suite.
 func NewConcurrentTestSuite(name string) *ConcurrentTestSuite {
 	return &ConcurrentTestSuite{
 		name:           name,
@@ -360,12 +360,12 @@ func NewConcurrentTestSuite(name string) *ConcurrentTestSuite {
 	}
 }
 
-// AddTest adds a test to the suite
+// AddTest adds a test to the suite.
 func (cts *ConcurrentTestSuite) AddTest(name, description string, testFunc func(*testing.T)) {
 	cts.AddTestWithTimeout(name, description, testFunc, 30*time.Second)
 }
 
-// AddTestWithTimeout adds a test with custom timeout
+// AddTestWithTimeout adds a test with custom timeout.
 func (cts *ConcurrentTestSuite) AddTestWithTimeout(name, description string, testFunc func(*testing.T), timeout time.Duration) {
 	cts.tests = append(cts.tests, TestFunc{
 		Name:        name,
@@ -375,7 +375,7 @@ func (cts *ConcurrentTestSuite) AddTestWithTimeout(name, description string, tes
 	})
 }
 
-// AddTestWithResources adds a test that requires exclusive access to resources
+// AddTestWithResources adds a test that requires exclusive access to resources.
 func (cts *ConcurrentTestSuite) AddTestWithResources(name, description string, testFunc func(*testing.T), resources []string) {
 	cts.tests = append(cts.tests, TestFunc{
 		Name:        name,
@@ -386,27 +386,27 @@ func (cts *ConcurrentTestSuite) AddTestWithResources(name, description string, t
 	})
 }
 
-// SetSetupSuite sets the suite setup function
+// SetSetupSuite sets the suite setup function.
 func (cts *ConcurrentTestSuite) SetSetupSuite(setup func() error) {
 	cts.setupSuite = setup
 }
 
-// SetTeardownSuite sets the suite teardown function
+// SetTeardownSuite sets the suite teardown function.
 func (cts *ConcurrentTestSuite) SetTeardownSuite(teardown func() error) {
 	cts.teardownSuite = teardown
 }
 
-// SetSetupTest sets the per-test setup function
+// SetSetupTest sets the per-test setup function.
 func (cts *ConcurrentTestSuite) SetSetupTest(setup func(*testing.T) error) {
 	cts.setupTest = setup
 }
 
-// SetTeardownTest sets the per-test teardown function
+// SetTeardownTest sets the per-test teardown function.
 func (cts *ConcurrentTestSuite) SetTeardownTest(teardown func(*testing.T) error) {
 	cts.teardownTest = teardown
 }
 
-// Run runs the test suite
+// Run runs the test suite.
 func (cts *ConcurrentTestSuite) Run(t *testing.T) {
 	t.Logf("Running concurrent test suite: %s (%d tests)", cts.name, len(cts.tests))
 
@@ -454,7 +454,7 @@ func (cts *ConcurrentTestSuite) Run(t *testing.T) {
 	cts.parallelRunner.RunParallel(t, wrappedTests)
 }
 
-// RunSequential runs tests sequentially (for debugging)
+// RunSequential runs tests sequentially (for debugging).
 func (cts *ConcurrentTestSuite) RunSequential(t *testing.T) {
 	t.Logf("Running test suite sequentially: %s (%d tests)", cts.name, len(cts.tests))
 

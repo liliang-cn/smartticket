@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers handles knowledge-related HTTP requests
+// Handlers handles knowledge-related HTTP requests.
 type Handlers struct {
 	service *Service
 }
 
-// NewHandlers creates new knowledge handlers
+// NewHandlers creates new knowledge handlers.
 func NewHandlers(service *Service) *Handlers {
 	return &Handlers{service: service}
 }
 
-// CreateKnowledgeArticle creates a new knowledge article
+// CreateKnowledgeArticle creates a new knowledge article.
 func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
 	// Get tenant ID from context
 	tenantID := c.GetUint("tenant_id")
@@ -55,7 +55,7 @@ func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
 	})
 }
 
-// GetKnowledgeArticle retrieves a knowledge article by ID
+// GetKnowledgeArticle retrieves a knowledge article by ID.
 func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 	// Parse article ID
 	articleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -81,7 +81,7 @@ func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 	})
 }
 
-// ListKnowledgeArticles retrieves knowledge articles with pagination and filtering
+// ListKnowledgeArticles retrieves knowledge articles with pagination and filtering.
 func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
 	// Get tenant ID from context
 	tenantID := c.GetUint("tenant_id")
@@ -138,7 +138,7 @@ func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
 	})
 }
 
-// UpdateKnowledgeArticle updates an existing knowledge article
+// UpdateKnowledgeArticle updates an existing knowledge article.
 func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 	// Parse article ID
 	articleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -183,7 +183,7 @@ func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 	})
 }
 
-// DeleteKnowledgeArticle soft deletes a knowledge article
+// DeleteKnowledgeArticle soft deletes a knowledge article.
 func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 	// Parse article ID
 	articleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -220,7 +220,7 @@ func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 	})
 }
 
-// GetKnowledgeArticleStats retrieves knowledge article statistics
+// GetKnowledgeArticleStats retrieves knowledge article statistics.
 func (h *Handlers) GetKnowledgeArticleStats(c *gin.Context) {
 	// Get tenant ID from context
 	tenantID := c.GetUint("tenant_id")

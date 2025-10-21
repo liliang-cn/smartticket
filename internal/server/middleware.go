@@ -16,7 +16,7 @@ import (
 	"github.com/company/smartticket/internal/logger"
 )
 
-// rateLimiter represents a rate limiter for client IPs
+// rateLimiter represents a rate limiter for client IPs.
 type rateLimiter struct {
 	ips map[string]*rate.Limiter
 	mu  sync.RWMutex
@@ -24,7 +24,7 @@ type rateLimiter struct {
 	b   int
 }
 
-// newRateLimiter creates a new rate limiter
+// newRateLimiter creates a new rate limiter.
 func newRateLimiter(rps int, burst int) *rateLimiter {
 	return &rateLimiter{
 		ips: make(map[string]*rate.Limiter),
@@ -33,7 +33,7 @@ func newRateLimiter(rps int, burst int) *rateLimiter {
 	}
 }
 
-// Allow checks if a request from the given IP is allowed
+// Allow checks if a request from the given IP is allowed.
 func (rl *rateLimiter) Allow(ip string) bool {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
@@ -47,7 +47,7 @@ func (rl *rateLimiter) Allow(ip string) bool {
 	return limiter.Allow()
 }
 
-// setupCORS configures CORS middleware
+// setupCORS configures CORS middleware.
 func (s *Server) setupCORS() {
 	s.router.Use(func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
@@ -82,7 +82,7 @@ func (s *Server) setupCORS() {
 	})
 }
 
-// setupRateLimiting configures rate limiting middleware
+// setupRateLimiting configures rate limiting middleware.
 func (s *Server) setupRateLimiting() {
 	limiter := newRateLimiter(s.config.RateLimit.RequestsPerSecond, s.config.RateLimit.Burst)
 
@@ -120,7 +120,7 @@ func (s *Server) setupRateLimiting() {
 	})
 }
 
-// setupSecurityHeaders configures security headers middleware
+// setupSecurityHeaders configures security headers middleware.
 func (s *Server) setupSecurityHeaders() {
 	s.router.Use(func(c *gin.Context) {
 		// Security headers
@@ -142,7 +142,7 @@ func (s *Server) setupSecurityHeaders() {
 	})
 }
 
-// requestIDMiddleware adds a unique request ID to each request
+// requestIDMiddleware adds a unique request ID to each request.
 func (s *Server) requestIDMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestID := c.GetHeader("X-Request-ID")
@@ -156,7 +156,7 @@ func (s *Server) requestIDMiddleware() gin.HandlerFunc {
 	}
 }
 
-// tenantIsolationMiddleware extracts and validates tenant information
+// tenantIsolationMiddleware extracts and validates tenant information.
 func (s *Server) tenantIsolationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get tenant ID from header or path parameter
@@ -188,7 +188,7 @@ func (s *Server) tenantIsolationMiddleware() gin.HandlerFunc {
 	}
 }
 
-// authMiddleware validates JWT tokens
+// authMiddleware validates JWT tokens.
 func (s *Server) authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		requestID, exists := c.Get("request_id")
@@ -254,7 +254,7 @@ func (s *Server) authMiddleware() gin.HandlerFunc {
 	}
 }
 
-// adminMiddleware checks if user has admin privileges
+// adminMiddleware checks if user has admin privileges.
 func (s *Server) adminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRole, exists := c.Get("user_role")
@@ -303,12 +303,12 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 
 // Helper functions
 
-// generateRequestID generates a unique request ID
+// generateRequestID generates a unique request ID.
 func generateRequestID() string {
 	return fmt.Sprintf("req_%d", time.Now().UnixNano())
 }
 
-// validateJWTToken validates a JWT token and returns user information
+// validateJWTToken validates a JWT token and returns user information.
 func (s *Server) validateJWTToken(token string) (uint, string, error) {
 	if s.authService == nil {
 		return 0, "", fmt.Errorf("auth service not available")

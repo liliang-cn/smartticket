@@ -10,17 +10,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers provides HTTP handlers for service management
+// Handlers provides HTTP handlers for service management.
 type Handlers struct {
 	service *Service
 }
 
-// NewHandlers creates a new service handlers instance
+// NewHandlers creates a new service handlers instance.
 func NewHandlers(service *Service) *Handlers {
 	return &Handlers{service: service}
 }
 
-// parseServiceID extracts and validates service ID from request parameters
+// parseServiceID extracts and validates service ID from request parameters.
 func (h *Handlers) parseServiceID(c *gin.Context) (uint, error) {
 	serviceID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -31,7 +31,7 @@ func (h *Handlers) parseServiceID(c *gin.Context) (uint, error) {
 	return uint(serviceID), nil
 }
 
-// getUserInfo extracts user info from context with error handling
+// getUserInfo extracts user info from context with error handling.
 func (h *Handlers) getUserInfo(c *gin.Context) (*auth.UserInfo, error) {
 	userInfo, exists := c.Get("user")
 	if !exists {
@@ -42,13 +42,13 @@ func (h *Handlers) getUserInfo(c *gin.Context) (*auth.UserInfo, error) {
 	return userInfo.(*auth.UserInfo), nil
 }
 
-// logServiceEvent logs a service-related security event
+// logServiceEvent logs a service-related security event.
 func (h *Handlers) logServiceEvent(c *gin.Context, event, target string) {
 	c.Set("security_event", event)
 	c.Set("target_resource", target)
 }
 
-// CreateService handles service creation
+// CreateService handles service creation.
 func (h *Handlers) CreateService(c *gin.Context) {
 	var req CreateServiceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -89,7 +89,7 @@ func (h *Handlers) CreateService(c *gin.Context) {
 	})
 }
 
-// ListServices handles service listing
+// ListServices handles service listing.
 func (h *Handlers) ListServices(c *gin.Context) {
 	var req ListServicesRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -129,7 +129,7 @@ func (h *Handlers) ListServices(c *gin.Context) {
 	})
 }
 
-// GetService handles getting a single service
+// GetService handles getting a single service.
 func (h *Handlers) GetService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {
@@ -153,7 +153,7 @@ func (h *Handlers) GetService(c *gin.Context) {
 	})
 }
 
-// UpdateService handles service update
+// UpdateService handles service update.
 func (h *Handlers) UpdateService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {
@@ -193,7 +193,7 @@ func (h *Handlers) UpdateService(c *gin.Context) {
 	})
 }
 
-// DeleteService handles service deletion
+// DeleteService handles service deletion.
 func (h *Handlers) DeleteService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {
@@ -224,7 +224,7 @@ func (h *Handlers) DeleteService(c *gin.Context) {
 	})
 }
 
-// ActivateService handles service activation
+// ActivateService handles service activation.
 func (h *Handlers) ActivateService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {
@@ -255,7 +255,7 @@ func (h *Handlers) ActivateService(c *gin.Context) {
 	})
 }
 
-// DeactivateService handles service deactivation
+// DeactivateService handles service deactivation.
 func (h *Handlers) DeactivateService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {

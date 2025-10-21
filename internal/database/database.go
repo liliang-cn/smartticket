@@ -14,13 +14,13 @@ import (
 	"github.com/company/smartticket/internal/config"
 )
 
-// Database wraps the GORM database connection
+// Database wraps the GORM database connection.
 type Database struct {
 	*gorm.DB
 	config *config.DatabaseConfig
 }
 
-// NewDatabase creates a new database connection
+// NewDatabase creates a new database connection.
 func NewDatabase(cfg *config.DatabaseConfig) (*Database, error) {
 	// Validate database configuration
 	if err := validateDatabaseConfig(cfg); err != nil {
@@ -91,7 +91,7 @@ func NewDatabase(cfg *config.DatabaseConfig) (*Database, error) {
 	return database, nil
 }
 
-// openSQLite creates a new SQLite database connection
+// openSQLite creates a new SQLite database connection.
 func openSQLite(dsn string, gormLogger logger.Interface) (*gorm.DB, error) {
 	// SQLite specific configuration (disable foreign keys during migration to prevent constraint issues)
 	dsn = fmt.Sprintf("%s?cache=shared&mode=rwc&_journal_mode=WAL&_foreign_keys=0", dsn)
@@ -102,7 +102,7 @@ func openSQLite(dsn string, gormLogger logger.Interface) (*gorm.DB, error) {
 	})
 }
 
-// Close closes the database connection
+// Close closes the database connection.
 func (d *Database) Close() error {
 	sqlDB, err := d.DB.DB()
 	if err != nil {
@@ -111,12 +111,12 @@ func (d *Database) Close() error {
 	return sqlDB.Close()
 }
 
-// GetConfig returns the database configuration
+// GetConfig returns the database configuration.
 func (d *Database) GetConfig() *config.DatabaseConfig {
 	return d.config
 }
 
-// EnableForeignKeys enables foreign key constraints (should be called after migrations)
+// EnableForeignKeys enables foreign key constraints (should be called after migrations).
 func (d *Database) EnableForeignKeys() error {
 	if d.config.Type != "sqlite" {
 		return nil // Only relevant for SQLite
@@ -125,7 +125,7 @@ func (d *Database) EnableForeignKeys() error {
 	return d.DB.Exec("PRAGMA foreign_keys = ON").Error
 }
 
-// DisableForeignKeys disables foreign key constraints (useful for migrations)
+// DisableForeignKeys disables foreign key constraints (useful for migrations).
 func (d *Database) DisableForeignKeys() error {
 	if d.config.Type != "sqlite" {
 		return nil // Only relevant for SQLite
@@ -134,12 +134,12 @@ func (d *Database) DisableForeignKeys() error {
 	return d.DB.Exec("PRAGMA foreign_keys = OFF").Error
 }
 
-// GetDB returns the underlying GORM database instance
+// GetDB returns the underlying GORM database instance.
 func (d *Database) GetDB() *gorm.DB {
 	return d.DB
 }
 
-// IsHealthy checks if the database connection is healthy
+// IsHealthy checks if the database connection is healthy.
 func (d *Database) IsHealthy() bool {
 	sqlDB, err := d.DB.DB()
 	if err != nil {
@@ -153,7 +153,7 @@ func (d *Database) IsHealthy() bool {
 	return true
 }
 
-// Stats returns database connection statistics
+// Stats returns database connection statistics.
 func (d *Database) Stats() map[string]interface{} {
 	sqlDB, err := d.DB.DB()
 	if err != nil {
@@ -176,7 +176,7 @@ func (d *Database) Stats() map[string]interface{} {
 	}
 }
 
-// validateDatabaseConfig validates the database configuration
+// validateDatabaseConfig validates the database configuration.
 func validateDatabaseConfig(cfg *config.DatabaseConfig) error {
 	if cfg == nil {
 		return fmt.Errorf("database configuration is required")
@@ -213,7 +213,7 @@ func validateDatabaseConfig(cfg *config.DatabaseConfig) error {
 	return nil
 }
 
-// Backup creates a backup of the SQLite database
+// Backup creates a backup of the SQLite database.
 func (d *Database) Backup(backupPath string) error {
 	if d.config.Type != "sqlite" {
 		return fmt.Errorf("backup is only supported for SQLite databases")

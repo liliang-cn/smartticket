@@ -10,13 +10,13 @@ import (
 	"github.com/company/smartticket/internal/logger"
 )
 
-// ErrorResponse represents the standard error response format
+// ErrorResponse represents the standard error response format.
 type ErrorResponse struct {
 	Success bool       `json:"success"`
 	Error   *ErrorInfo `json:"error,omitempty"`
 }
 
-// ErrorInfo represents error information in API responses
+// ErrorInfo represents error information in API responses.
 type ErrorInfo struct {
 	Code      string                 `json:"code"`
 	Message   string                 `json:"message"`
@@ -26,7 +26,7 @@ type ErrorInfo struct {
 	Context   map[string]interface{} `json:"context,omitempty"`
 }
 
-// ErrorMiddleware handles errors consistently across the application
+// ErrorMiddleware handles errors consistently across the application.
 func ErrorMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Process the request
@@ -60,7 +60,7 @@ func ErrorMiddleware() gin.HandlerFunc {
 	}
 }
 
-// RecoveryMiddleware recovers from panics and converts them to errors
+// RecoveryMiddleware recovers from panics and converts them to errors.
 func RecoveryMiddleware() gin.HandlerFunc {
 	return gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
 		requestID := getRequestID(c)
@@ -107,7 +107,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 	})
 }
 
-// ValidationMiddleware handles validation errors from request binding
+// ValidationMiddleware handles validation errors from request binding.
 func ValidationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
@@ -145,7 +145,7 @@ func ValidationMiddleware() gin.HandlerFunc {
 	}
 }
 
-// ErrorHandler provides a convenient way to handle errors in handlers
+// ErrorHandler provides a convenient way to handle errors in handlers.
 func ErrorHandler(c *gin.Context, err error) {
 	if err == nil {
 		return
@@ -170,7 +170,7 @@ func ErrorHandler(c *gin.Context, err error) {
 	c.Abort()
 }
 
-// NotFoundHandler handles 404 errors
+// NotFoundHandler handles 404 errors.
 func NotFoundHandler(c *gin.Context) {
 	appErr := NewNotFoundError("endpoint").
 		WithRequestID(getRequestID(c)).
@@ -194,7 +194,7 @@ func NotFoundHandler(c *gin.Context) {
 	c.JSON(http.StatusNotFound, errorResponse)
 }
 
-// MethodNotAllowedHandler handles 405 errors
+// MethodNotAllowedHandler handles 405 errors.
 func MethodNotAllowedHandler(c *gin.Context) {
 	appErr := NewBusinessRuleError("method_not_allowed", "Method not allowed for this endpoint").
 		WithRequestID(getRequestID(c)).
@@ -221,7 +221,7 @@ func MethodNotAllowedHandler(c *gin.Context) {
 
 // Helper functions
 
-// getRequestID extracts request ID from context
+// getRequestID extracts request ID from context.
 func getRequestID(c *gin.Context) string {
 	if requestID, exists := c.Get("request_id"); exists {
 		if id, ok := requestID.(string); ok {
@@ -231,13 +231,13 @@ func getRequestID(c *gin.Context) string {
 	return ""
 }
 
-// WithDetails adds details to an AppError
+// WithDetails adds details to an AppError.
 func (e *AppError) WithDetails(details string) *AppError {
 	e.Details = details
 	return e
 }
 
-// WithTimestamp sets a custom timestamp
+// WithTimestamp sets a custom timestamp.
 func (e *AppError) WithTimestamp(timestamp time.Time) *AppError {
 	e.Timestamp = timestamp
 	return e

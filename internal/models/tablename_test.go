@@ -106,7 +106,7 @@ func TestUserRole_TableName(t *testing.T) {
 	assert.Equal(t, "user_roles", userRole.TableName())
 }
 
-// Test that TableName methods are consistent with expected naming conventions
+// Test that TableName methods are consistent with expected naming conventions.
 func TestTableNameConsistency(t *testing.T) {
 	testCases := []struct {
 		model     interface{ TableName() string }
@@ -143,7 +143,7 @@ func TestTableNameConsistency(t *testing.T) {
 	}
 }
 
-// Test that TableName methods return lowercase pluralized names
+// Test that TableName methods return lowercase pluralized names.
 func TestTableNameLowercase(t *testing.T) {
 	testCases := []struct {
 		model     interface{ TableName() string }

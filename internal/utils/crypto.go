@@ -21,7 +21,7 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 )
 
-// Helper function for cryptographically secure random int
+// Helper function for cryptographically secure random int.
 func randomInt(max int) int {
 	n, err := cryptorand.Int(cryptorand.Reader, big.NewInt(int64(max)))
 	if err != nil {
@@ -33,25 +33,25 @@ func randomInt(max int) int {
 
 // Hash utilities
 
-// HashMD5 calculates MD5 hash
+// HashMD5 calculates MD5 hash.
 func HashMD5(data string) string {
 	hash := md5.Sum([]byte(data))
 	return hex.EncodeToString(hash[:])
 }
 
-// HashSHA1 calculates SHA1 hash
+// HashSHA1 calculates SHA1 hash.
 func HashSHA1(data string) string {
 	hash := sha1.Sum([]byte(data))
 	return hex.EncodeToString(hash[:])
 }
 
-// HashSHA256 calculates SHA256 hash
+// HashSHA256 calculates SHA256 hash.
 func HashSHA256(data string) string {
 	hash := sha256.Sum256([]byte(data))
 	return hex.EncodeToString(hash[:])
 }
 
-// HashSHA512 calculates SHA512 hash
+// HashSHA512 calculates SHA512 hash.
 func HashSHA512(data string) string {
 	hash := sha512.Sum512([]byte(data))
 	return hex.EncodeToString(hash[:])
@@ -59,28 +59,28 @@ func HashSHA512(data string) string {
 
 // HMAC utilities
 
-// HMACMD5 calculates HMAC-MD5
+// HMACMD5 calculates HMAC-MD5.
 func HMACMD5(data, key string) string {
 	h := hmac.New(md5.New, []byte(key))
 	h.Write([]byte(data))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// HMACSHA1 calculates HMAC-SHA1
+// HMACSHA1 calculates HMAC-SHA1.
 func HMACSHA1(data, key string) string {
 	h := hmac.New(sha1.New, []byte(key))
 	h.Write([]byte(data))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// HMACSHA256 calculates HMAC-SHA256
+// HMACSHA256 calculates HMAC-SHA256.
 func HMACSHA256(data, key string) string {
 	h := hmac.New(sha256.New, []byte(key))
 	h.Write([]byte(data))
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// HMACSHA512 calculates HMAC-SHA512
+// HMACSHA512 calculates HMAC-SHA512.
 func HMACSHA512(data, key string) string {
 	h := hmac.New(sha512.New, []byte(key))
 	h.Write([]byte(data))
@@ -89,7 +89,7 @@ func HMACSHA512(data, key string) string {
 
 // Encryption utilities
 
-// AESEncrypt encrypts data using AES-GCM
+// AESEncrypt encrypts data using AES-GCM.
 func AESEncrypt(plaintext, key string) (string, error) {
 	// Generate random nonce
 	nonce := make([]byte, 12)
@@ -121,7 +121,7 @@ func AESEncrypt(plaintext, key string) (string, error) {
 	return base64.StdEncoding.EncodeToString(result), nil
 }
 
-// AESDecrypt decrypts data using AES-GCM
+// AESDecrypt decrypts data using AES-GCM.
 func AESDecrypt(ciphertext, key string) (string, error) {
 	// Decode base64
 	data, err := base64.StdEncoding.DecodeString(ciphertext)
@@ -164,7 +164,7 @@ func AESDecrypt(ciphertext, key string) (string, error) {
 
 // Password utilities
 
-// GeneratePasswordHash generates a secure password hash
+// GeneratePasswordHash generates a secure password hash.
 func GeneratePasswordHash(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -173,13 +173,13 @@ func GeneratePasswordHash(password string) (string, error) {
 	return string(hash), nil
 }
 
-// VerifyCryptoPassword verifies a password against its hash (renamed to avoid conflict)
+// VerifyCryptoPassword verifies a password against its hash (renamed to avoid conflict).
 func VerifyCryptoPassword(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
 
-// GenerateStrongPassword generates a strong password
+// GenerateStrongPassword generates a strong password.
 func GenerateStrongPassword(length int) (string, error) {
 	if length < 8 {
 		return "", fmt.Errorf("password length must be at least 8")
@@ -214,7 +214,7 @@ func GenerateStrongPassword(length int) (string, error) {
 	return string(password), nil
 }
 
-// GeneratePIN generates a numeric PIN
+// GeneratePIN generates a numeric PIN.
 func GeneratePIN(length int) string {
 	if length < 4 {
 		length = 4
@@ -232,7 +232,7 @@ func GeneratePIN(length int) string {
 
 // Token utilities
 
-// GenerateToken generates a random token
+// GenerateToken generates a random token.
 func GenerateToken(length int) (string, error) {
 	if length < 16 {
 		length = 16
@@ -245,7 +245,7 @@ func GenerateToken(length int) (string, error) {
 	return base64.URLEncoding.EncodeToString(bytes), nil
 }
 
-// GenerateSecureCryptoToken generates a cryptographically secure token (renamed to avoid conflict)
+// GenerateSecureCryptoToken generates a cryptographically secure token (renamed to avoid conflict).
 func GenerateSecureCryptoToken(length int) (string, error) {
 	if length < 32 {
 		length = 32
@@ -258,7 +258,7 @@ func GenerateSecureCryptoToken(length int) (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-// GenerateAPIToken generates an API token with prefix
+// GenerateAPIToken generates an API token with prefix.
 func GenerateAPIToken(prefix string, length int) (string, error) {
 	token, err := GenerateSecureCryptoToken(length)
 	if err != nil {
@@ -267,24 +267,24 @@ func GenerateAPIToken(prefix string, length int) (string, error) {
 	return fmt.Sprintf("%s_%s", prefix, token), nil
 }
 
-// GenerateSessionToken generates a session token
+// GenerateSessionToken generates a session token.
 func GenerateSessionToken() (string, error) {
 	return GenerateSecureCryptoToken(32)
 }
 
-// GenerateCSRFToken generates a CSRF token
+// GenerateCSRFToken generates a CSRF token.
 func GenerateCSRFToken() (string, error) {
 	return GenerateSecureCryptoToken(32)
 }
 
 // Key derivation utilities
 
-// DeriveKey derives a key from password using PBKDF2
+// DeriveKey derives a key from password using PBKDF2.
 func DeriveKey(password, salt string, iterations, keyLength int) []byte {
 	return pbkdf2.Key([]byte(password), []byte(salt), iterations, keyLength, sha256.New)
 }
 
-// GenerateSalt generates a random salt
+// GenerateSalt generates a random salt.
 func GenerateSalt(length int) ([]byte, error) {
 	if length < 16 {
 		length = 16
@@ -297,7 +297,7 @@ func GenerateSalt(length int) ([]byte, error) {
 	return salt, nil
 }
 
-// GenerateSaltString generates a random salt as base64 string
+// GenerateSaltString generates a random salt as base64 string.
 func GenerateSaltString(length int) (string, error) {
 	salt, err := GenerateSalt(length)
 	if err != nil {
@@ -308,7 +308,7 @@ func GenerateSaltString(length int) (string, error) {
 
 // Random utilities
 
-// GenerateRandomBytes generates cryptographically secure random bytes
+// GenerateRandomBytes generates cryptographically secure random bytes.
 func GenerateRandomBytes(length int) ([]byte, error) {
 	if length <= 0 {
 		return nil, nil
@@ -321,7 +321,7 @@ func GenerateRandomBytes(length int) ([]byte, error) {
 	return bytes, nil
 }
 
-// GenerateRandomInt generates a random integer between min and max (inclusive)
+// GenerateRandomInt generates a random integer between min and max (inclusive).
 func GenerateRandomInt(min, max int) (int, error) {
 	if min > max {
 		return 0, fmt.Errorf("min cannot be greater than max")
@@ -339,7 +339,7 @@ func GenerateRandomInt(min, max int) (int, error) {
 	return min + int(nBig.Int64()), nil
 }
 
-// GenerateRandomFloat generates a random float between 0.0 and 1.0
+// GenerateRandomFloat generates a random float between 0.0 and 1.0.
 func GenerateRandomFloat() (float64, error) {
 	bytes, err := GenerateRandomBytes(8)
 	if err != nil {
@@ -355,7 +355,7 @@ func GenerateRandomFloat() (float64, error) {
 
 // Hash utilities for files
 
-// HashFile calculates hash of file content
+// HashFile calculates hash of file content.
 func HashFile(filePath string, hashType string) (string, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -378,7 +378,7 @@ func HashFile(filePath string, hashType string) (string, error) {
 
 // Checksum utilities
 
-// CalculateChecksum calculates checksum of data
+// CalculateChecksum calculates checksum of data.
 func CalculateChecksum(data []byte) uint32 {
 	var checksum uint32 = 0
 	for _, b := range data {
@@ -387,14 +387,14 @@ func CalculateChecksum(data []byte) uint32 {
 	return checksum
 }
 
-// VerifyChecksum verifies checksum of data
+// VerifyChecksum verifies checksum of data.
 func VerifyChecksum(data []byte, expectedChecksum uint32) bool {
 	return CalculateChecksum(data) == expectedChecksum
 }
 
 // XOR utilities
 
-// XOREncrypt performs XOR encryption/decryption
+// XOREncrypt performs XOR encryption/decryption.
 func XOREncrypt(data, key []byte) []byte {
 	if len(key) == 0 {
 		return data
@@ -410,7 +410,7 @@ func XOREncrypt(data, key []byte) []byte {
 	return result
 }
 
-// CaesarCipher performs Caesar cipher encryption/decryption
+// CaesarCipher performs Caesar cipher encryption/decryption.
 func CaesarCipher(text string, shift int) string {
 	result := make([]rune, len(text))
 
@@ -429,41 +429,41 @@ func CaesarCipher(text string, shift int) string {
 
 // Base64 utilities
 
-// Base64Encode encodes data to base64
+// Base64Encode encodes data to base64.
 func Base64Encode(data []byte) string {
 	return base64.StdEncoding.EncodeToString(data)
 }
 
-// Base64Decode decodes base64 data
+// Base64Decode decodes base64 data.
 func Base64Decode(data string) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(data)
 }
 
-// Base64URLEncode encodes data to base64 URL
+// Base64URLEncode encodes data to base64 URL.
 func Base64URLEncode(data []byte) string {
 	return base64.URLEncoding.EncodeToString(data)
 }
 
-// Base64URLDecode decodes base64 URL data
+// Base64URLDecode decodes base64 URL data.
 func Base64URLDecode(data string) ([]byte, error) {
 	return base64.URLEncoding.DecodeString(data)
 }
 
 // Hex utilities
 
-// HexEncode encodes data to hexadecimal
+// HexEncode encodes data to hexadecimal.
 func HexEncode(data []byte) string {
 	return hex.EncodeToString(data)
 }
 
-// HexDecode decodes hexadecimal string
+// HexDecode decodes hexadecimal string.
 func HexDecode(hexStr string) ([]byte, error) {
 	return hex.DecodeString(hexStr)
 }
 
 // Secure comparison utilities
 
-// SecureCompare performs constant-time comparison to prevent timing attacks
+// SecureCompare performs constant-time comparison to prevent timing attacks.
 func SecureCompare(a, b string) bool {
 	if len(a) != len(b) {
 		return false
@@ -477,7 +477,7 @@ func SecureCompare(a, b string) bool {
 	return result == 0
 }
 
-// SecureCompareBytes performs constant-time comparison of byte slices
+// SecureCompareBytes performs constant-time comparison of byte slices.
 func SecureCompareBytes(a, b []byte) bool {
 	if len(a) != len(b) {
 		return false

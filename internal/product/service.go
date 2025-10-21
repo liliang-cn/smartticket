@@ -12,17 +12,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// Service provides product management functionality
+// Service provides product management functionality.
 type Service struct {
 	db *gorm.DB
 }
 
-// NewService creates a new product service instance
+// NewService creates a new product service instance.
 func NewService(db *gorm.DB) *Service {
 	return &Service{db: db}
 }
 
-// Request/Response structures for product management
+// Request/Response structures for product management.
 type CreateProductRequest struct {
 	Name          string `json:"name" binding:"required,min=1,max=255"`
 	Code          string `json:"code" binding:"required,min=1,max=100"`
@@ -101,7 +101,7 @@ type ListProductsRequest struct {
 	SortOrder string `form:"sort_order,default=desc"`
 }
 
-// CreateProduct creates a new product
+// CreateProduct creates a new product.
 func (s *Service) CreateProduct(tenantID uint, req *CreateProductRequest) (*ProductResponse, error) {
 	// Normalize input
 	req.Name = strings.TrimSpace(req.Name)
@@ -176,7 +176,7 @@ func (s *Service) CreateProduct(tenantID uint, req *CreateProductRequest) (*Prod
 	return s.productToResponse(product), nil
 }
 
-// GetProduct gets a product by ID
+// GetProduct gets a product by ID.
 func (s *Service) GetProduct(tenantID uint, productID uint) (*ProductResponse, error) {
 	var product models.Product
 	if err := s.db.Where("id = ? AND tenant_id = ?", productID, tenantID).
@@ -191,7 +191,7 @@ func (s *Service) GetProduct(tenantID uint, productID uint) (*ProductResponse, e
 	return s.productToResponse(&product), nil
 }
 
-// ListProducts lists products with pagination and filtering
+// ListProducts lists products with pagination and filtering.
 func (s *Service) ListProducts(tenantID uint, req *ListProductsRequest) ([]ProductResponse, int64, error) {
 	// Build query
 	query := s.db.Where("tenant_id = ?", tenantID)
@@ -266,7 +266,7 @@ func (s *Service) ListProducts(tenantID uint, req *ListProductsRequest) ([]Produ
 	return responses, total, nil
 }
 
-// UpdateProduct updates an existing product
+// UpdateProduct updates an existing product.
 func (s *Service) UpdateProduct(tenantID uint, productID uint, req *UpdateProductRequest) (*ProductResponse, error) {
 	var product models.Product
 	if err := s.db.Where("id = ? AND tenant_id = ?", productID, tenantID).First(&product).Error; err != nil {
@@ -357,7 +357,7 @@ func (s *Service) UpdateProduct(tenantID uint, productID uint, req *UpdateProduc
 	return s.productToResponse(&product), nil
 }
 
-// DeleteProduct soft deletes a product
+// DeleteProduct soft deletes a product.
 func (s *Service) DeleteProduct(tenantID uint, productID uint) error {
 	var product models.Product
 	if err := s.db.Where("id = ? AND tenant_id = ?", productID, tenantID).First(&product).Error; err != nil {
@@ -395,17 +395,17 @@ func (s *Service) DeleteProduct(tenantID uint, productID uint) error {
 	return nil
 }
 
-// ActivateProduct activates a product
+// ActivateProduct activates a product.
 func (s *Service) ActivateProduct(tenantID uint, productID uint) error {
 	return s.updateProductStatus(tenantID, productID, "active")
 }
 
-// DeactivateProduct deactivates a product
+// DeactivateProduct deactivates a product.
 func (s *Service) DeactivateProduct(tenantID uint, productID uint) error {
 	return s.updateProductStatus(tenantID, productID, "inactive")
 }
 
-// Helper functions
+// Helper functions.
 func (s *Service) updateProductStatus(tenantID uint, productID uint, status string) error {
 	var product models.Product
 	if err := s.db.Where("id = ? AND tenant_id = ?", productID, tenantID).First(&product).Error; err != nil {

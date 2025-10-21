@@ -17,7 +17,7 @@ import (
 
 // HTTP utilities
 
-// HTTPClient wraps http.Client with additional functionality
+// HTTPClient wraps http.Client with additional functionality.
 type HTTPClient struct {
 	client  *http.Client
 	baseURL string
@@ -25,7 +25,7 @@ type HTTPClient struct {
 	timeout time.Duration
 }
 
-// NewHTTPClient creates a new HTTP client with default settings
+// NewHTTPClient creates a new HTTP client with default settings.
 func NewHTTPClient() *HTTPClient {
 	return &HTTPClient{
 		client: &http.Client{
@@ -36,7 +36,7 @@ func NewHTTPClient() *HTTPClient {
 	}
 }
 
-// NewHTTPClientWithTimeout creates a new HTTP client with custom timeout
+// NewHTTPClientWithTimeout creates a new HTTP client with custom timeout.
 func NewHTTPClientWithTimeout(timeout time.Duration) *HTTPClient {
 	return &HTTPClient{
 		client: &http.Client{
@@ -47,19 +47,19 @@ func NewHTTPClientWithTimeout(timeout time.Duration) *HTTPClient {
 	}
 }
 
-// SetBaseURL sets the base URL for all requests
+// SetBaseURL sets the base URL for all requests.
 func (c *HTTPClient) SetBaseURL(baseURL string) *HTTPClient {
 	c.baseURL = strings.TrimSuffix(baseURL, "/")
 	return c
 }
 
-// SetHeader sets a default header for all requests
+// SetHeader sets a default header for all requests.
 func (c *HTTPClient) SetHeader(key, value string) *HTTPClient {
 	c.headers[key] = value
 	return c
 }
 
-// SetHeaders sets multiple default headers
+// SetHeaders sets multiple default headers.
 func (c *HTTPClient) SetHeaders(headers map[string]string) *HTTPClient {
 	for key, value := range headers {
 		c.headers[key] = value
@@ -67,26 +67,26 @@ func (c *HTTPClient) SetHeaders(headers map[string]string) *HTTPClient {
 	return c
 }
 
-// SetTimeout sets the timeout for requests
+// SetTimeout sets the timeout for requests.
 func (c *HTTPClient) SetTimeout(timeout time.Duration) *HTTPClient {
 	c.timeout = timeout
 	c.client.Timeout = timeout
 	return c
 }
 
-// SetBearerToken sets authorization header with bearer token
+// SetBearerToken sets authorization header with bearer token.
 func (c *HTTPClient) SetBearerToken(token string) *HTTPClient {
 	c.headers["Authorization"] = "Bearer " + token
 	return c
 }
 
-// SetBasicAuth sets basic authentication
+// SetBasicAuth sets basic authentication.
 func (c *HTTPClient) SetBasicAuth(username, password string) *HTTPClient {
 	c.headers["Authorization"] = "Basic " + Base64Encode([]byte(username+":"+password))
 	return c
 }
 
-// RequestOptions contains options for HTTP requests
+// RequestOptions contains options for HTTP requests.
 type RequestOptions struct {
 	Headers    map[string]string
 	Query      map[string]string
@@ -97,7 +97,7 @@ type RequestOptions struct {
 	RetryDelay time.Duration
 }
 
-// HTTPResponse contains the response from HTTP requests
+// HTTPResponse contains the response from HTTP requests.
 type HTTPResponse struct {
 	StatusCode int
 	Headers    http.Header
@@ -105,32 +105,32 @@ type HTTPResponse struct {
 	Request    *http.Request
 }
 
-// Get performs a GET request
+// Get performs a GET request.
 func (c *HTTPClient) Get(url string, options *RequestOptions) (*HTTPResponse, error) {
 	return c.doRequest("GET", url, options)
 }
 
-// Post performs a POST request
+// Post performs a POST request.
 func (c *HTTPClient) Post(url string, options *RequestOptions) (*HTTPResponse, error) {
 	return c.doRequest("POST", url, options)
 }
 
-// Put performs a PUT request
+// Put performs a PUT request.
 func (c *HTTPClient) Put(url string, options *RequestOptions) (*HTTPResponse, error) {
 	return c.doRequest("PUT", url, options)
 }
 
-// Patch performs a PATCH request
+// Patch performs a PATCH request.
 func (c *HTTPClient) Patch(url string, options *RequestOptions) (*HTTPResponse, error) {
 	return c.doRequest("PATCH", url, options)
 }
 
-// Delete performs a DELETE request
+// Delete performs a DELETE request.
 func (c *HTTPClient) Delete(url string, options *RequestOptions) (*HTTPResponse, error) {
 	return c.doRequest("DELETE", url, options)
 }
 
-// doRequest performs the actual HTTP request
+// doRequest performs the actual HTTP request.
 func (c *HTTPClient) doRequest(method, rawURL string, options *RequestOptions) (*HTTPResponse, error) {
 	// Prepare URL
 	fullURL := c.buildURL(rawURL)
@@ -247,7 +247,7 @@ func (c *HTTPClient) doRequest(method, rawURL string, options *RequestOptions) (
 	return nil, errors.NewExternalServiceError("HTTP request failed after retries", lastErr)
 }
 
-// buildURL builds the full URL
+// buildURL builds the full URL.
 func (c *HTTPClient) buildURL(rawURL string) string {
 	if c.baseURL == "" || strings.HasPrefix(rawURL, "http://") || strings.HasPrefix(rawURL, "https://") {
 		return rawURL
@@ -255,7 +255,7 @@ func (c *HTTPClient) buildURL(rawURL string) string {
 	return c.baseURL + "/" + strings.TrimPrefix(rawURL, "/")
 }
 
-// isRetryableError checks if an error is retryable
+// isRetryableError checks if an error is retryable.
 func isRetryableError(err error) bool {
 	if err == nil {
 		return false
@@ -266,7 +266,7 @@ func isRetryableError(err error) bool {
 	return false
 }
 
-// JSONResponse performs a request and returns JSON response
+// JSONResponse performs a request and returns JSON response.
 func (c *HTTPClient) JSONResponse(method, url string, options *RequestOptions, result interface{}) error {
 	resp, err := c.doRequest(method, url, options)
 	if err != nil {
@@ -286,12 +286,12 @@ func (c *HTTPClient) JSONResponse(method, url string, options *RequestOptions, r
 	return nil
 }
 
-// GetJSON performs a GET request and returns JSON response
+// GetJSON performs a GET request and returns JSON response.
 func (c *HTTPClient) GetJSON(url string, options *RequestOptions, result interface{}) error {
 	return c.JSONResponse("GET", url, options, result)
 }
 
-// PostJSON performs a POST request and returns JSON response
+// PostJSON performs a POST request and returns JSON response.
 func (c *HTTPClient) PostJSON(url string, body interface{}, result interface{}) error {
 	options := &RequestOptions{
 		Body:     body,
@@ -300,7 +300,7 @@ func (c *HTTPClient) PostJSON(url string, body interface{}, result interface{}) 
 	return c.JSONResponse("POST", url, options, result)
 }
 
-// PutJSON performs a PUT request and returns JSON response
+// PutJSON performs a PUT request and returns JSON response.
 func (c *HTTPClient) PutJSON(url string, body interface{}, result interface{}) error {
 	options := &RequestOptions{
 		Body:     body,
@@ -309,22 +309,22 @@ func (c *HTTPClient) PutJSON(url string, body interface{}, result interface{}) e
 	return c.JSONResponse("PUT", url, options, result)
 }
 
-// IsSuccess checks if HTTP status code indicates success
+// IsSuccess checks if HTTP status code indicates success.
 func IsSuccess(statusCode int) bool {
 	return statusCode >= 200 && statusCode < 300
 }
 
-// IsClientError checks if HTTP status code indicates client error
+// IsClientError checks if HTTP status code indicates client error.
 func IsClientError(statusCode int) bool {
 	return statusCode >= 400 && statusCode < 500
 }
 
-// IsServerError checks if HTTP status code indicates server error
+// IsServerError checks if HTTP status code indicates server error.
 func IsServerError(statusCode int) bool {
 	return statusCode >= 500 && statusCode < 600
 }
 
-// GetStatusText returns human-readable status text
+// GetStatusText returns human-readable status text.
 func GetStatusText(statusCode int) string {
 	switch {
 	case IsSuccess(statusCode):
@@ -379,7 +379,7 @@ func GetStatusText(statusCode int) string {
 	}
 }
 
-// ParseURL parses a URL and returns its components
+// ParseURL parses a URL and returns its components.
 func ParseURL(rawURL string) (*url.URL, error) {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
@@ -388,7 +388,7 @@ func ParseURL(rawURL string) (*url.URL, error) {
 	return parsed, nil
 }
 
-// BuildURL constructs a URL from components
+// BuildURL constructs a URL from components.
 func BuildURL(base string, path string, params map[string]string) string {
 	baseURL := strings.TrimSuffix(base, "/")
 	pathURL := strings.TrimPrefix(path, "/")
@@ -406,13 +406,13 @@ func BuildURL(base string, path string, params map[string]string) string {
 	return resultURL
 }
 
-// IsValidURL checks if a string is a valid URL
+// IsValidURL checks if a string is a valid URL.
 func IsValidURL(rawURL string) bool {
 	_, err := url.ParseRequestURI(rawURL)
 	return err == nil
 }
 
-// GetDomain extracts domain from URL
+// GetDomain extracts domain from URL.
 func GetDomain(rawURL string) (string, error) {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
@@ -421,7 +421,7 @@ func GetDomain(rawURL string) (string, error) {
 	return parsed.Hostname(), nil
 }
 
-// GetURLPath extracts path from URL
+// GetURLPath extracts path from URL.
 func GetURLPath(rawURL string) (string, error) {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
@@ -430,7 +430,7 @@ func GetURLPath(rawURL string) (string, error) {
 	return parsed.Path, nil
 }
 
-// AddQueryParam adds a query parameter to URL
+// AddQueryParam adds a query parameter to URL.
 func AddQueryParam(rawURL, key, value string) (string, error) {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
@@ -444,7 +444,7 @@ func AddQueryParam(rawURL, key, value string) (string, error) {
 	return parsed.String(), nil
 }
 
-// RemoveQueryParam removes a query parameter from URL
+// RemoveQueryParam removes a query parameter from URL.
 func RemoveQueryParam(rawURL, key string) (string, error) {
 	parsed, err := url.Parse(rawURL)
 	if err != nil {
@@ -458,7 +458,7 @@ func RemoveQueryParam(rawURL, key string) (string, error) {
 	return parsed.String(), nil
 }
 
-// EncodeQuery encodes query parameters
+// EncodeQuery encodes query parameters.
 func EncodeQuery(params map[string]string) string {
 	values := url.Values{}
 	for key, value := range params {
@@ -467,7 +467,7 @@ func EncodeQuery(params map[string]string) string {
 	return values.Encode()
 }
 
-// DecodeQuery decodes query parameters
+// DecodeQuery decodes query parameters.
 func DecodeQuery(query string) (map[string]string, error) {
 	values, err := url.ParseQuery(query)
 	if err != nil {
@@ -486,7 +486,7 @@ func DecodeQuery(query string) (map[string]string, error) {
 
 // Cookie utilities
 
-// Cookie represents an HTTP cookie
+// Cookie represents an HTTP cookie.
 type Cookie struct {
 	Name     string
 	Value    string
@@ -499,7 +499,7 @@ type Cookie struct {
 	SameSite http.SameSite
 }
 
-// ParseCookies parses cookies from HTTP response headers
+// ParseCookies parses cookies from HTTP response headers.
 func ParseCookies(headers http.Header) []*Cookie {
 	var cookies []*Cookie
 
@@ -512,7 +512,7 @@ func ParseCookies(headers http.Header) []*Cookie {
 	return cookies
 }
 
-// parseCookieHeader parses a single cookie header
+// parseCookieHeader parses a single cookie header.
 func parseCookieHeader(header string) *Cookie {
 	parts := strings.Split(header, ";")
 	if len(parts) == 0 {
@@ -563,7 +563,7 @@ func parseCookieHeader(header string) *Cookie {
 	return cookie
 }
 
-// CookiesToHeader converts cookies to HTTP header format
+// CookiesToHeader converts cookies to HTTP header format.
 func CookiesToHeader(cookies []*Cookie) string {
 	var headers []string
 

@@ -9,13 +9,13 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// Handlers provides ticket HTTP handlers
+// Handlers provides ticket HTTP handlers.
 type Handlers struct {
 	service   *Service
 	validator *validator.Validate
 }
 
-// NewHandlers creates new ticket handlers
+// NewHandlers creates new ticket handlers.
 func NewHandlers(service *Service) *Handlers {
 	return &Handlers{
 		service:   service,
@@ -23,7 +23,7 @@ func NewHandlers(service *Service) *Handlers {
 	}
 }
 
-// CreateTicket creates a new ticket
+// CreateTicket creates a new ticket.
 func (h *Handlers) CreateTicket(c *gin.Context) {
 	var req CreateTicketRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -65,7 +65,7 @@ func (h *Handlers) CreateTicket(c *gin.Context) {
 	})
 }
 
-// GetTicket gets a ticket by ID
+// GetTicket gets a ticket by ID.
 func (h *Handlers) GetTicket(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -89,7 +89,7 @@ func (h *Handlers) GetTicket(c *gin.Context) {
 	})
 }
 
-// ListTickets lists tickets with pagination and filtering
+// ListTickets lists tickets with pagination and filtering.
 func (h *Handlers) ListTickets(c *gin.Context) {
 	// Parse query parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -135,7 +135,7 @@ func (h *Handlers) ListTickets(c *gin.Context) {
 	})
 }
 
-// UpdateTicket updates a ticket
+// UpdateTicket updates a ticket.
 func (h *Handlers) UpdateTicket(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -185,7 +185,7 @@ func (h *Handlers) UpdateTicket(c *gin.Context) {
 	})
 }
 
-// DeleteTicket deletes a ticket
+// DeleteTicket deletes a ticket.
 func (h *Handlers) DeleteTicket(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -216,7 +216,7 @@ func (h *Handlers) DeleteTicket(c *gin.Context) {
 	})
 }
 
-// AssignTicket assigns a ticket to a user
+// AssignTicket assigns a ticket to a user.
 func (h *Handlers) AssignTicket(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -257,7 +257,7 @@ func (h *Handlers) AssignTicket(c *gin.Context) {
 	})
 }
 
-// GetTicketStats gets ticket statistics
+// GetTicketStats gets ticket statistics.
 func (h *Handlers) GetTicketStats(c *gin.Context) {
 	tenantID := c.GetUint("tenant_id")
 
@@ -273,7 +273,7 @@ func (h *Handlers) GetTicketStats(c *gin.Context) {
 	})
 }
 
-// GetMyTickets gets tickets for the current user
+// GetMyTickets gets tickets for the current user.
 func (h *Handlers) GetMyTickets(c *gin.Context) {
 	// Parse query parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))

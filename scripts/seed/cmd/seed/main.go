@@ -237,7 +237,7 @@ func databaseHasData(db *gorm.DB) (bool, error) {
 	return count > 0, nil
 }
 
-// autoMigrateSeedModels auto-migrates all seed data models
+// autoMigrateSeedModels auto-migrates all seed data models.
 func autoMigrateSeedModels(db *gorm.DB) error {
 	// Auto-migrate all seed data models
 	models := []interface{}{

@@ -11,7 +11,7 @@ import (
 
 // String utilities
 
-// GenerateRandomString generates a random string of specified length
+// GenerateRandomString generates a random string of specified length.
 func GenerateRandomString(length int) string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	bytes := make([]byte, length)
@@ -22,7 +22,7 @@ func GenerateRandomString(length int) string {
 	return string(bytes)
 }
 
-// GenerateRandomStringWithCharset generates a random string using custom charset
+// GenerateRandomStringWithCharset generates a random string using custom charset.
 func GenerateRandomStringWithCharset(length int, charset string) string {
 	bytes := make([]byte, length)
 	func() { _, _ = rand.Read(bytes) }()
@@ -32,7 +32,7 @@ func GenerateRandomStringWithCharset(length int, charset string) string {
 	return string(bytes)
 }
 
-// GenerateAPIKey generates a new API key with prefix
+// GenerateAPIKey generates a new API key with prefix.
 func GenerateAPIKey(prefix string, length int) string {
 	token, err := GenerateSecureCryptoToken(length)
 	if err != nil {
@@ -42,14 +42,14 @@ func GenerateAPIKey(prefix string, length int) string {
 	return fmt.Sprintf("%s_%s", prefix, token)
 }
 
-// GenerateUUID generates a UUID v4
+// GenerateUUID generates a UUID v4.
 func GenerateUUID() string {
 	b := make([]byte, 16)
 	func() { _, _ = rand.Read(b) }()
 	return fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
 
-// Slugify converts a string to a URL-friendly slug
+// Slugify converts a string to a URL-friendly slug.
 func Slugify(s string) string {
 	// Convert to lowercase
 	s = strings.ToLower(s)
@@ -71,7 +71,7 @@ func Slugify(s string) string {
 	return s
 }
 
-// SanitizeString removes potentially dangerous characters
+// SanitizeString removes potentially dangerous characters.
 func SanitizeString(s string) string {
 	// Remove SQL injection characters
 	s = strings.ReplaceAll(s, "'", "")
@@ -90,7 +90,7 @@ func SanitizeString(s string) string {
 	return strings.TrimSpace(s)
 }
 
-// TruncateString truncates a string to specified length with ellipsis
+// TruncateString truncates a string to specified length with ellipsis.
 func TruncateString(s string, length int) string {
 	if len(s) <= length {
 		return s
@@ -101,7 +101,7 @@ func TruncateString(s string, length int) string {
 	return s[:length-3] + "..."
 }
 
-// Pluralize returns the plural form of a word based on count
+// Pluralize returns the plural form of a word based on count.
 func Pluralize(word string, count int) string {
 	if count == 1 {
 		return word
@@ -124,7 +124,7 @@ func Pluralize(word string, count int) string {
 	return word + "s"
 }
 
-// Capitalize capitalizes the first letter of a string
+// Capitalize capitalizes the first letter of a string.
 func Capitalize(s string) string {
 	if s == "" {
 		return s
@@ -132,7 +132,7 @@ func Capitalize(s string) string {
 	return strings.ToUpper(s[:1]) + s[1:]
 }
 
-// CamelCase converts a string to camelCase
+// CamelCase converts a string to camelCase.
 func CamelCase(s string) string {
 	// Split by spaces, hyphens, underscores
 	parts := regexp.MustCompile(`[\s\-_]+`).Split(s, -1)
@@ -148,7 +148,7 @@ func CamelCase(s string) string {
 	return strings.Join(parts, "")
 }
 
-// PascalCase converts a string to PascalCase
+// PascalCase converts a string to PascalCase.
 func PascalCase(s string) string {
 	// Split by spaces, hyphens, underscores
 	parts := regexp.MustCompile(`[\s\-_]+`).Split(s, -1)
@@ -160,7 +160,7 @@ func PascalCase(s string) string {
 	return strings.Join(parts, "")
 }
 
-// SnakeCase converts a string to snake_case
+// SnakeCase converts a string to snake_case.
 func SnakeCase(s string) string {
 	// Insert underscore before uppercase letters
 	re := regexp.MustCompile(`([a-z])([A-Z])`)
@@ -170,7 +170,7 @@ func SnakeCase(s string) string {
 	return strings.ToLower(s)
 }
 
-// KebabCase converts a string to kebab-case
+// KebabCase converts a string to kebab-case.
 func KebabCase(s string) string {
 	// Insert hyphen before uppercase letters
 	re := regexp.MustCompile(`([a-z])([A-Z])`)
@@ -180,7 +180,7 @@ func KebabCase(s string) string {
 	return strings.ToLower(s)
 }
 
-// ContainsAny checks if string contains any of the substrings
+// ContainsAny checks if string contains any of the substrings.
 func ContainsAny(s string, substrings []string) bool {
 	for _, substr := range substrings {
 		if strings.Contains(s, substr) {
@@ -190,7 +190,7 @@ func ContainsAny(s string, substrings []string) bool {
 	return false
 }
 
-// ContainsAll checks if string contains all of the substrings
+// ContainsAll checks if string contains all of the substrings.
 func ContainsAll(s string, substrings []string) bool {
 	for _, substr := range substrings {
 		if !strings.Contains(s, substr) {
@@ -200,7 +200,7 @@ func ContainsAll(s string, substrings []string) bool {
 	return true
 }
 
-// StartsWithAny checks if string starts with any of the prefixes
+// StartsWithAny checks if string starts with any of the prefixes.
 func StartsWithAny(s string, prefixes []string) bool {
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(s, prefix) {
@@ -210,7 +210,7 @@ func StartsWithAny(s string, prefixes []string) bool {
 	return false
 }
 
-// EndsWithAny checks if string ends with any of the suffixes
+// EndsWithAny checks if string ends with any of the suffixes.
 func EndsWithAny(s string, suffixes []string) bool {
 	for _, suffix := range suffixes {
 		if strings.HasSuffix(s, suffix) {
@@ -220,22 +220,22 @@ func EndsWithAny(s string, suffixes []string) bool {
 	return false
 }
 
-// StripWhitespace removes all whitespace from string
+// StripWhitespace removes all whitespace from string.
 func StripWhitespace(s string) string {
 	return strings.Join(strings.Fields(s), "")
 }
 
-// IsEmptyString checks if string is empty or contains only whitespace (renamed to avoid conflict)
+// IsEmptyString checks if string is empty or contains only whitespace (renamed to avoid conflict).
 func IsEmptyString(s string) bool {
 	return len(strings.TrimSpace(s)) == 0
 }
 
-// IsNotEmpty checks if string is not empty and contains non-whitespace characters
+// IsNotEmpty checks if string is not empty and contains non-whitespace characters.
 func IsNotEmpty(s string) bool {
 	return !IsEmptyString(s)
 }
 
-// MaskString masks a string for display (e.g., for sensitive data)
+// MaskString masks a string for display (e.g., for sensitive data).
 func MaskString(s string, showFirst, showLast int, maskChar string) string {
 	if len(s) <= showFirst+showLast {
 		return s
@@ -252,7 +252,7 @@ func MaskString(s string, showFirst, showLast int, maskChar string) string {
 	return first + mask + last
 }
 
-// MaskEmail masks an email address for display
+// MaskEmail masks an email address for display.
 func MaskEmail(email string) string {
 	parts := strings.Split(email, "@")
 	if len(parts) != 2 {
@@ -266,7 +266,7 @@ func MaskEmail(email string) string {
 	return fmt.Sprintf("%s@%s", maskedUsername, domain)
 }
 
-// ExtractDomain extracts domain from email address
+// ExtractDomain extracts domain from email address.
 func ExtractDomain(email string) string {
 	parts := strings.Split(email, "@")
 	if len(parts) >= 2 {
@@ -275,7 +275,7 @@ func ExtractDomain(email string) string {
 	return ""
 }
 
-// IsValidURLString checks if string is a valid URL (basic validation) (renamed to avoid conflict)
+// IsValidURLString checks if string is a valid URL (basic validation) (renamed to avoid conflict).
 func IsValidURLString(url string) bool {
 	if url == "" {
 		return false
@@ -290,7 +290,7 @@ func IsValidURLString(url string) bool {
 	return true
 }
 
-// GenerateTicketNumber generates a ticket number in format TKT-XXXXX
+// GenerateTicketNumber generates a ticket number in format TKT-XXXXX.
 func GenerateTicketNumber() string {
 	// Generate 5 random digits
 	digits := make([]byte, 5)
@@ -302,7 +302,7 @@ func GenerateTicketNumber() string {
 	return fmt.Sprintf("TKT-%s", string(digits))
 }
 
-// ExtractInitials extracts initials from a name
+// ExtractInitials extracts initials from a name.
 func ExtractInitials(name string) string {
 	words := strings.Fields(name)
 	initials := make([]string, 0, len(words))
@@ -316,14 +316,14 @@ func ExtractInitials(name string) string {
 	return strings.Join(initials, "")
 }
 
-// GenerateRandomColor generates a random hex color
+// GenerateRandomColor generates a random hex color.
 func GenerateRandomColor() string {
 	color := make([]byte, 3)
 	func() { _, _ = rand.Read(color) }()
 	return fmt.Sprintf("#%02x%02x%02x", color[0], color[1], color[2])
 }
 
-// FormatBytes formats bytes as human readable string
+// FormatBytes formats bytes as human readable string.
 func FormatBytes(bytes int64) string {
 	const unit = 1024
 	if bytes < unit {
@@ -337,7 +337,7 @@ func FormatBytes(bytes int64) string {
 	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
 }
 
-// FormatDuration formats duration as human readable string
+// FormatDuration formats duration as human readable string.
 func FormatDuration(seconds int64) string {
 	if seconds < 60 {
 		return fmt.Sprintf("%d seconds", seconds)
@@ -358,7 +358,7 @@ func FormatDuration(seconds int64) string {
 	return fmt.Sprintf("%d hours %d minutes", hours, remMinutes)
 }
 
-// RandomChoice randomly selects an item from a slice
+// RandomChoice randomly selects an item from a slice.
 func RandomChoice[T any](items []T) T {
 	if len(items) == 0 {
 		var zero T
@@ -375,7 +375,7 @@ func RandomChoice[T any](items []T) T {
 	return items[n.Int64()]
 }
 
-// ShuffleString shuffles characters in a string
+// ShuffleString shuffles characters in a string.
 func ShuffleString(s string) string {
 	runes := []rune(s)
 	mathrand.Shuffle(len(runes), func(i, j int) {
@@ -384,7 +384,7 @@ func ShuffleString(s string) string {
 	return string(runes)
 }
 
-// GenerateOTP generates a one-time password
+// GenerateOTP generates a one-time password.
 func GenerateOTP(length int) string {
 	digits := make([]byte, length)
 	func() { _, _ = rand.Read(digits) }()
@@ -394,7 +394,7 @@ func GenerateOTP(length int) string {
 	return string(digits)
 }
 
-// FormatCurrency formats amount as currency string
+// FormatCurrency formats amount as currency string.
 func FormatCurrency(amount float64, currency string) string {
 	switch currency {
 	case "USD":

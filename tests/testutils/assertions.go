@@ -13,17 +13,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// AssertionHelper provides enhanced assertion utilities
+// AssertionHelper provides enhanced assertion utilities.
 type AssertionHelper struct {
 	t *testing.T
 }
 
-// NewAssertionHelper creates a new assertion helper
+// NewAssertionHelper creates a new assertion helper.
 func NewAssertionHelper(t *testing.T) *AssertionHelper {
 	return &AssertionHelper{t: t}
 }
 
-// AssertHTTPResponse asserts HTTP response properties
+// AssertHTTPResponse asserts HTTP response properties.
 func (ah *AssertionHelper) AssertHTTPResponse(resp *http.Response, expectedStatus int, expectedContentType string) {
 	assert.Equal(ah.t, expectedStatus, resp.StatusCode, "HTTP status code mismatch")
 
@@ -32,7 +32,7 @@ func (ah *AssertionHelper) AssertHTTPResponse(resp *http.Response, expectedStatu
 	}
 }
 
-// AssertJSONResponse asserts that response contains valid JSON
+// AssertJSONResponse asserts that response contains valid JSON.
 func (ah *AssertionHelper) AssertJSONResponse(resp *http.Response) map[string]interface{} {
 	assert.Equal(ah.t, "application/json", resp.Header.Get("Content-Type"), "Expected JSON response")
 
@@ -43,7 +43,7 @@ func (ah *AssertionHelper) AssertJSONResponse(resp *http.Response) map[string]in
 	return response
 }
 
-// AssertAPIResponse asserts standard API response structure
+// AssertAPIResponse asserts standard API response structure.
 func (ah *AssertionHelper) AssertAPIResponse(resp *http.Response, expectedStatus int, expectSuccess bool) map[string]interface{} {
 	ah.AssertHTTPResponse(resp, expectedStatus, "application/json")
 
@@ -62,7 +62,7 @@ func (ah *AssertionHelper) AssertAPIResponse(resp *http.Response, expectedStatus
 	return response
 }
 
-// AssertPagination asserts pagination response structure
+// AssertPagination asserts pagination response structure.
 func (ah *AssertionHelper) AssertPagination(response map[string]interface{}) {
 	data, exists := response["data"]
 	require.True(ah.t, exists, "Response should contain data field")
@@ -75,7 +75,7 @@ func (ah *AssertionHelper) AssertPagination(response map[string]interface{}) {
 	assert.Contains(ah.t, dataMap, "page_size", "Response should contain page size")
 }
 
-// AssertTimestamps asserts model timestamp fields
+// AssertTimestamps asserts model timestamp fields.
 func (ah *AssertionHelper) AssertTimestamps(model interface{}) {
 	v := reflect.ValueOf(model)
 	if v.Kind() == reflect.Ptr {
@@ -100,7 +100,7 @@ func (ah *AssertionHelper) AssertTimestamps(model interface{}) {
 	}
 }
 
-// AssertTenantIsolation asserts tenant isolation in responses
+// AssertTenantIsolation asserts tenant isolation in responses.
 func (ah *AssertionHelper) AssertTenantIsolation(response map[string]interface{}, expectedTenantID string) {
 	data, exists := response["data"]
 	if !exists {
@@ -125,7 +125,7 @@ func (ah *AssertionHelper) assertTenantInMap(item map[string]interface{}, expect
 	}
 }
 
-// AssertRequiredFields asserts that required fields are present and not empty
+// AssertRequiredFields asserts that required fields are present and not empty.
 func (ah *AssertionHelper) AssertRequiredFields(model interface{}, requiredFields []string) {
 	v := reflect.ValueOf(model)
 	if v.Kind() == reflect.Ptr {
@@ -142,7 +142,7 @@ func (ah *AssertionHelper) AssertRequiredFields(model interface{}, requiredField
 	}
 }
 
-// AssertUUID asserts that a string is a valid UUID
+// AssertUUID asserts that a string is a valid UUID.
 func (ah *AssertionHelper) AssertUUID(uuidStr string) {
 	assert.NotEmpty(ah.t, uuidStr, "UUID should not be empty")
 	assert.Len(ah.t, uuidStr, 36, "UUID should be 36 characters long")
@@ -152,21 +152,21 @@ func (ah *AssertionHelper) AssertUUID(uuidStr string) {
 	assert.Regexp(ah.t, uuidPattern, uuidStr, "UUID should match expected format")
 }
 
-// AssertEmailFormat asserts email format
+// AssertEmailFormat asserts email format.
 func (ah *AssertionHelper) AssertEmailFormat(email string) {
 	assert.NotEmpty(ah.t, email, "Email should not be empty")
 	assert.Contains(ah.t, email, "@", "Email should contain @ symbol")
 	assert.Contains(ah.t, email, ".", "Email should contain domain")
 }
 
-// AssertValidJSON asserts that a string contains valid JSON
+// AssertValidJSON asserts that a string contains valid JSON.
 func (ah *AssertionHelper) AssertValidJSON(jsonStr string) {
 	var result interface{}
 	err := json.Unmarshal([]byte(jsonStr), &result)
 	assert.NoError(ah.t, err, "String should contain valid JSON")
 }
 
-// AssertRecentTime asserts that a time is recent (within specified duration)
+// AssertRecentTime asserts that a time is recent (within specified duration).
 func (ah *AssertionHelper) AssertRecentTime(t time.Time, maxAge time.Duration) {
 	now := time.Now()
 	age := now.Sub(t)
@@ -175,7 +175,7 @@ func (ah *AssertionHelper) AssertRecentTime(t time.Time, maxAge time.Duration) {
 	assert.True(ah.t, age <= maxAge, fmt.Sprintf("Time should be recent (age: %v, max allowed: %v)", age, maxAge))
 }
 
-// AssertModelEquality asserts that two models are equal (excluding timestamps)
+// AssertModelEquality asserts that two models are equal (excluding timestamps).
 func (ah *AssertionHelper) AssertModelEquality(expected, actual interface{}) {
 	expectedValue := reflect.ValueOf(expected)
 	actualValue := reflect.ValueOf(actual)
@@ -208,7 +208,7 @@ func (ah *AssertionHelper) AssertModelEquality(expected, actual interface{}) {
 	}
 }
 
-// AssertSliceContains asserts that a slice contains a specific item
+// AssertSliceContains asserts that a slice contains a specific item.
 func (ah *AssertionHelper) AssertSliceContains(slice interface{}, item interface{}) {
 	sliceValue := reflect.ValueOf(slice)
 	found := false
@@ -223,13 +223,13 @@ func (ah *AssertionHelper) AssertSliceContains(slice interface{}, item interface
 	assert.True(ah.t, found, fmt.Sprintf("Slice should contain item: %v", item))
 }
 
-// AssertSliceLength asserts slice length
+// AssertSliceLength asserts slice length.
 func (ah *AssertionHelper) AssertSliceLength(slice interface{}, expectedLength int) {
 	sliceValue := reflect.ValueOf(slice)
 	assert.Equal(ah.t, expectedLength, sliceValue.Len(), "Slice length should match expected")
 }
 
-// AssertMapContainsKey asserts that a map contains a specific key
+// AssertMapContainsKey asserts that a map contains a specific key.
 func (ah *AssertionHelper) AssertMapContainsKey(m interface{}, key interface{}) {
 	mapValue := reflect.ValueOf(m)
 
@@ -243,7 +243,7 @@ func (ah *AssertionHelper) AssertMapContainsKey(m interface{}, key interface{}) 
 	}
 }
 
-// AssertMapLength asserts map length
+// AssertMapLength asserts map length.
 func (ah *AssertionHelper) AssertMapLength(m interface{}, expectedLength int) {
 	mapValue := reflect.ValueOf(m)
 
@@ -255,18 +255,18 @@ func (ah *AssertionHelper) AssertMapLength(m interface{}, expectedLength int) {
 	}
 }
 
-// AssertNoErrorWithMessage asserts no error with custom message
+// AssertNoErrorWithMessage asserts no error with custom message.
 func (ah *AssertionHelper) AssertNoErrorWithMessage(err error, context string) {
 	assert.NoError(ah.t, err, fmt.Sprintf("%s: unexpected error", context))
 }
 
-// AssertErrorWithMessage asserts error with specific message
+// AssertErrorWithMessage asserts error with specific message.
 func (ah *AssertionHelper) AssertErrorWithMessage(err error, expectedMessage string) {
 	assert.Error(ah.t, err, "Expected an error")
 	assert.Contains(ah.t, err.Error(), expectedMessage, "Error message should contain expected text")
 }
 
-// AssertPerformance asserts that a function executes within time limit
+// AssertPerformance asserts that a function executes within time limit.
 func (ah *AssertionHelper) AssertPerformance(maxDuration time.Duration, fn func() error) {
 	start := time.Now()
 	err := fn()
@@ -277,7 +277,7 @@ func (ah *AssertionHelper) AssertPerformance(maxDuration time.Duration, fn func(
 		fmt.Sprintf("Function should execute within %v (took %v)", maxDuration, duration))
 }
 
-// AssertMemoryUsage asserts that memory usage stays within bounds
+// AssertMemoryUsage asserts that memory usage stays within bounds.
 func (ah *AssertionHelper) AssertMemoryUsage(maxMB float64, fn func() error) {
 	// This is a simplified memory check - in real implementation, you'd use runtime.MemStats
 	err := fn()
@@ -287,7 +287,7 @@ func (ah *AssertionHelper) AssertMemoryUsage(maxMB float64, fn func() error) {
 	ah.t.Logf("Memory usage check performed (max: %.2f MB)", maxMB)
 }
 
-// AssertRetryable asserts that a function succeeds after retries
+// AssertRetryable asserts that a function succeeds after retries.
 func (ah *AssertionHelper) AssertRetryable(maxAttempts int, fn func() error) {
 	var lastErr error
 
@@ -306,7 +306,7 @@ func (ah *AssertionHelper) AssertRetryable(maxAttempts int, fn func() error) {
 	assert.NoError(ah.t, lastErr, fmt.Sprintf("Function should succeed after %d attempts (last error: %v)", maxAttempts, lastErr))
 }
 
-// AssertConcurrent executes multiple functions concurrently and asserts they all succeed
+// AssertConcurrent executes multiple functions concurrently and asserts they all succeed.
 func (ah *AssertionHelper) AssertConcurrent(functions []func() error) {
 	results := make(chan error, len(functions))
 
@@ -323,7 +323,7 @@ func (ah *AssertionHelper) AssertConcurrent(functions []func() error) {
 	}
 }
 
-// AssertHTTPHeaders asserts specific HTTP headers
+// AssertHTTPHeaders asserts specific HTTP headers.
 func (ah *AssertionHelper) AssertHTTPHeaders(resp *http.Response, expectedHeaders map[string]string) {
 	for key, expectedValue := range expectedHeaders {
 		actualValue := resp.Header.Get(key)
@@ -332,7 +332,7 @@ func (ah *AssertionHelper) AssertHTTPHeaders(resp *http.Response, expectedHeader
 	}
 }
 
-// AssertJSONField asserts a specific field in JSON response
+// AssertJSONField asserts a specific field in JSON response.
 func (ah *AssertionHelper) AssertJSONField(jsonData map[string]interface{}, fieldPath string, expectedValue interface{}) {
 	parts := strings.Split(fieldPath, ".")
 	current := jsonData

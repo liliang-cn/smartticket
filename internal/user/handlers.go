@@ -11,12 +11,12 @@ import (
 	"github.com/company/smartticket/internal/logger"
 )
 
-// Handlers provides user management HTTP handlers
+// Handlers provides user management HTTP handlers.
 type Handlers struct {
 	userService *Service
 }
 
-// NewHandlers creates new user management handlers
+// NewHandlers creates new user management handlers.
 func NewHandlers(userService *Service) *Handlers {
 	return &Handlers{
 		userService: userService,
@@ -39,7 +39,7 @@ func NewHandlers(userService *Service) *Handlers {
 // @Failure 403 {object} errors.ErrorResponse
 // @Failure 409 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/users [post]
+// @Router /api/v1/users [post].
 func (h *Handlers) CreateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
@@ -112,7 +112,7 @@ func (h *Handlers) CreateUser(c *gin.Context) {
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 404 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/users/{id} [get]
+// @Router /api/v1/users/{id} [get].
 func (h *Handlers) GetUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
@@ -168,7 +168,7 @@ func (h *Handlers) GetUser(c *gin.Context) {
 // @Failure 404 {object} errors.ErrorResponse
 // @Failure 409 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/users/{id} [put]
+// @Router /api/v1/users/{id} [put].
 func (h *Handlers) UpdateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
@@ -260,7 +260,7 @@ func (h *Handlers) UpdateUser(c *gin.Context) {
 // @Failure 403 {object} errors.ErrorResponse
 // @Failure 404 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/users/{id} [delete]
+// @Router /api/v1/users/{id} [delete].
 func (h *Handlers) DeleteUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
@@ -342,7 +342,7 @@ func (h *Handlers) DeleteUser(c *gin.Context) {
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 403 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/users [get]
+// @Router /api/v1/users [get].
 func (h *Handlers) ListUsers(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userRole, _ := c.Get("user_role")
@@ -390,7 +390,7 @@ func (h *Handlers) ListUsers(c *gin.Context) {
 // @Failure 403 {object} errors.ErrorResponse
 // @Failure 404 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/users/{id}/activate [post]
+// @Router /api/v1/users/{id}/activate [post].
 func (h *Handlers) ActivateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userRole, _ := c.Get("user_role")
@@ -442,7 +442,7 @@ func (h *Handlers) ActivateUser(c *gin.Context) {
 // @Failure 403 {object} errors.ErrorResponse
 // @Failure 404 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/users/{id}/deactivate [post]
+// @Router /api/v1/users/{id}/deactivate [post].
 func (h *Handlers) DeactivateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
@@ -501,7 +501,7 @@ func (h *Handlers) DeactivateUser(c *gin.Context) {
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 403 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/users/stats [get]
+// @Router /api/v1/users/stats [get].
 func (h *Handlers) GetUserStats(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userRole, _ := c.Get("user_role")

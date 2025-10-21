@@ -13,12 +13,14 @@ import (
 	"path/filepath"
 	"strings"
 
+	stderrors "errors"
+
 	"github.com/company/smartticket/internal/errors"
 )
 
 // File utilities
 
-// FileExists checks if a file or directory exists
+// FileExists checks if a file or directory exists.
 func FileExists(path string) bool {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
@@ -27,7 +29,7 @@ func FileExists(path string) bool {
 	return !info.IsDir()
 }
 
-// DirExists checks if a directory exists
+// DirExists checks if a directory exists.
 func DirExists(path string) bool {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
@@ -36,7 +38,7 @@ func DirExists(path string) bool {
 	return info.IsDir()
 }
 
-// CreateDir creates a directory with all necessary parents
+// CreateDir creates a directory with all necessary parents.
 func CreateDir(path string, perm os.FileMode) error {
 	if err := os.MkdirAll(path, perm); err != nil {
 		return errors.NewInternalError("Failed to create directory", err).WithDetails(fmt.Sprintf("Path: %s", path))
@@ -44,7 +46,7 @@ func CreateDir(path string, perm os.FileMode) error {
 	return nil
 }
 
-// EnsureDir ensures a directory exists, creates it if necessary
+// EnsureDir ensures a directory exists, creates it if necessary.
 func EnsureDir(path string) error {
 	if !DirExists(path) {
 		return CreateDir(path, 0755)
@@ -52,7 +54,7 @@ func EnsureDir(path string) error {
 	return nil
 }
 
-// ReadFile reads entire file into memory
+// ReadFile reads entire file into memory.
 func ReadFile(path string) ([]byte, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -64,7 +66,7 @@ func ReadFile(path string) ([]byte, error) {
 	return data, nil
 }
 
-// WriteFile writes data to file, creating directory if necessary
+// WriteFile writes data to file, creating directory if necessary.
 func WriteFile(path string, data []byte, perm os.FileMode) error {
 	// Ensure directory exists
 	dir := filepath.Dir(path)
@@ -78,7 +80,7 @@ func WriteFile(path string, data []byte, perm os.FileMode) error {
 	return nil
 }
 
-// AppendFile appends data to file, creating it if necessary
+// AppendFile appends data to file, creating it if necessary.
 func AppendFile(path string, data []byte, perm os.FileMode) error {
 	// Ensure directory exists
 	dir := filepath.Dir(path)
@@ -98,7 +100,7 @@ func AppendFile(path string, data []byte, perm os.FileMode) error {
 	return nil
 }
 
-// CopyFile copies a file from src to dst
+// CopyFile copies a file from src to dst.
 func CopyFile(src, dst string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
@@ -135,7 +137,7 @@ func CopyFile(src, dst string) error {
 	return nil
 }
 
-// MoveFile moves a file from src to dst
+// MoveFile moves a file from src to dst.
 func MoveFile(src, dst string) error {
 	if err := CopyFile(src, dst); err != nil {
 		return err
@@ -148,7 +150,7 @@ func MoveFile(src, dst string) error {
 	return nil
 }
 
-// DeleteFile deletes a file
+// DeleteFile deletes a file.
 func DeleteFile(path string) error {
 	if err := os.Remove(path); err != nil {
 		if os.IsNotExist(err) {
@@ -159,7 +161,7 @@ func DeleteFile(path string) error {
 	return nil
 }
 
-// DeleteDir deletes a directory and all its contents
+// DeleteDir deletes a directory and all its contents.
 func DeleteDir(path string) error {
 	if err := os.RemoveAll(path); err != nil {
 		return errors.NewInternalError("Failed to delete directory", err).WithDetails(fmt.Sprintf("Path: %s", path))
@@ -167,7 +169,7 @@ func DeleteDir(path string) error {
 	return nil
 }
 
-// FileSize returns the size of a file in bytes
+// FileSize returns the size of a file in bytes.
 func FileSize(path string) (int64, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -179,7 +181,7 @@ func FileSize(path string) (int64, error) {
 	return info.Size(), nil
 }
 
-// FileHash calculates SHA256 hash of a file
+// FileHash calculates SHA256 hash of a file.
 func FileHash(path string) (string, error) {
 	data, err := ReadFile(path)
 	if err != nil {
@@ -190,7 +192,7 @@ func FileHash(path string) (string, error) {
 	return hex.EncodeToString(hash[:]), nil
 }
 
-// ListFiles returns a list of files in a directory
+// ListFiles returns a list of files in a directory.
 func ListFiles(dirPath string, recursive bool) ([]string, error) {
 	var files []string
 
@@ -219,7 +221,7 @@ func ListFiles(dirPath string, recursive bool) ([]string, error) {
 	return files, nil
 }
 
-// ListDirs returns a list of directories in a directory
+// ListDirs returns a list of directories in a directory.
 func ListDirs(dirPath string, recursive bool) ([]string, error) {
 	var dirs []string
 
@@ -250,7 +252,7 @@ func ListDirs(dirPath string, recursive bool) ([]string, error) {
 	return dirs, nil
 }
 
-// FileModTime returns the modification time of a file
+// FileModTime returns the modification time of a file.
 func FileModTime(path string) (int64, error) {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -262,7 +264,7 @@ func FileModTime(path string) (int64, error) {
 	return info.ModTime().Unix(), nil
 }
 
-// IsDir checks if a path is a directory
+// IsDir checks if a path is a directory.
 func IsDir(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -271,7 +273,7 @@ func IsDir(path string) bool {
 	return info.IsDir()
 }
 
-// IsFile checks if a path is a file
+// IsFile checks if a path is a file.
 func IsFile(path string) bool {
 	info, err := os.Stat(path)
 	if err != nil {
@@ -280,17 +282,17 @@ func IsFile(path string) bool {
 	return !info.IsDir()
 }
 
-// GetFileExtension returns the file extension
+// GetFileExtension returns the file extension.
 func GetFileExtension(path string) string {
 	return strings.ToLower(filepath.Ext(path))
 }
 
-// GetFileName returns the file name without extension
+// GetFileName returns the file name without extension.
 func GetFileName(path string) string {
 	return strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 }
 
-// GetMimeType returns the MIME type of a file
+// GetMimeType returns the MIME type of a file.
 func GetMimeType(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -301,7 +303,7 @@ func GetMimeType(path string) (string, error) {
 	// Read first 512 bytes to determine MIME type
 	buffer := make([]byte, 512)
 	_, err = file.Read(buffer)
-	if err != nil && err != io.EOF {
+	if err != nil && !stderrors.Is(err, io.EOF) {
 		return "", errors.NewInternalError("Failed to read file", err).WithDetails(fmt.Sprintf("Path: %s", path))
 	}
 
@@ -309,7 +311,7 @@ func GetMimeType(path string) (string, error) {
 	return mimeType, nil
 }
 
-// IsImage checks if a file is an image based on MIME type
+// IsImage checks if a file is an image based on MIME type.
 func IsImage(path string) bool {
 	mimeType, err := GetMimeType(path)
 	if err != nil {
@@ -318,7 +320,7 @@ func IsImage(path string) bool {
 	return strings.HasPrefix(mimeType, "image/")
 }
 
-// IsText checks if a file is a text file based on MIME type
+// IsText checks if a file is a text file based on MIME type.
 func IsText(path string) bool {
 	mimeType, err := GetMimeType(path)
 	if err != nil {
@@ -327,7 +329,7 @@ func IsText(path string) bool {
 	return strings.HasPrefix(mimeType, "text/")
 }
 
-// ReadLines reads a file line by line
+// ReadLines reads a file line by line.
 func ReadLines(path string) ([]string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -348,7 +350,7 @@ func ReadLines(path string) ([]string, error) {
 	return lines, nil
 }
 
-// WriteLines writes lines to a file
+// WriteLines writes lines to a file.
 func WriteLines(path string, lines []string) error {
 	file, err := os.Create(path)
 	if err != nil {
@@ -370,7 +372,7 @@ func WriteLines(path string, lines []string) error {
 	return nil
 }
 
-// TempFile creates a temporary file
+// TempFile creates a temporary file.
 func TempFile(dir, pattern string) (*os.File, error) {
 	file, err := os.CreateTemp(dir, pattern)
 	if err != nil {
@@ -379,7 +381,7 @@ func TempFile(dir, pattern string) (*os.File, error) {
 	return file, nil
 }
 
-// TempDir creates a temporary directory
+// TempDir creates a temporary directory.
 func TempDir(dir, pattern string) (string, error) {
 	path, err := os.MkdirTemp(dir, pattern)
 	if err != nil {
@@ -388,7 +390,7 @@ func TempDir(dir, pattern string) (string, error) {
 	return path, nil
 }
 
-// FileUpload handles multipart file uploads
+// FileUpload handles multipart file uploads.
 type FileUpload struct {
 	File     multipart.File
 	Header   *multipart.FileHeader
@@ -397,7 +399,7 @@ type FileUpload struct {
 	MimeType string
 }
 
-// HandleFileUpload processes a multipart file upload
+// HandleFileUpload processes a multipart file upload.
 func HandleFileUpload(fileHeader *multipart.FileHeader, maxFileSize int64) (*FileUpload, error) {
 	if fileHeader == nil {
 		return nil, errors.NewValidationError("No file provided")
@@ -415,7 +417,7 @@ func HandleFileUpload(fileHeader *multipart.FileHeader, maxFileSize int64) (*Fil
 	// Detect MIME type
 	buffer := make([]byte, 512)
 	_, err = file.Read(buffer)
-	if err != nil && err != io.EOF {
+	if err != nil && !stderrors.Is(err, io.EOF) {
 		_ = file.Close()
 		return nil, errors.NewInternalError("Failed to read uploaded file", err)
 	}
@@ -437,7 +439,7 @@ func HandleFileUpload(fileHeader *multipart.FileHeader, maxFileSize int64) (*Fil
 	}, nil
 }
 
-// SaveUpload saves an uploaded file to the specified path
+// SaveUpload saves an uploaded file to the specified path.
 func SaveUpload(upload *FileUpload, path string) error {
 	defer func() { _ = upload.File.Close() }()
 
@@ -462,7 +464,7 @@ func SaveUpload(upload *FileUpload, path string) error {
 	return nil
 }
 
-// ValidateFileType validates file type based on allowed extensions
+// ValidateFileType validates file type based on allowed extensions.
 func ValidateFileType(filename string, allowedExtensions []string) error {
 	ext := GetFileExtension(filename)
 	if ext == "" {
@@ -478,7 +480,7 @@ func ValidateFileType(filename string, allowedExtensions []string) error {
 	return errors.NewValidationError("File type not allowed").WithDetails(fmt.Sprintf("Allowed: %v", allowedExtensions))
 }
 
-// ValidateFileSize validates file size
+// ValidateFileSize validates file size.
 func ValidateFileSize(size int64, maxSize int64) error {
 	if size > maxSize {
 		return errors.NewValidationError("File too large").WithDetails(fmt.Sprintf("Max size: %d bytes", maxSize))
@@ -486,7 +488,7 @@ func ValidateFileSize(size int64, maxSize int64) error {
 	return nil
 }
 
-// SanitizeFilename sanitizes a filename by removing dangerous characters
+// SanitizeFilename sanitizes a filename by removing dangerous characters.
 func SanitizeFilename(filename string) string {
 	// Replace dangerous characters
 	dangerous := []string{"..", "/", "\\", ":", "*", "?", "\"", "<", ">", "|"}
@@ -507,22 +509,22 @@ func SanitizeFilename(filename string) string {
 	return sanitized
 }
 
-// CleanPath cleans a file path
+// CleanPath cleans a file path.
 func CleanPath(path string) string {
 	return filepath.Clean(path)
 }
 
-// JoinPath joins path elements
+// JoinPath joins path elements.
 func JoinPath(elements ...string) string {
 	return filepath.Join(elements...)
 }
 
-// SplitPath splits a path into directory and file components
+// SplitPath splits a path into directory and file components.
 func SplitPath(path string) (dir, file string) {
 	return filepath.Split(path)
 }
 
-// AbsPath returns the absolute path
+// AbsPath returns the absolute path.
 func AbsPath(path string) (string, error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
@@ -531,7 +533,7 @@ func AbsPath(path string) (string, error) {
 	return absPath, nil
 }
 
-// RelativePath returns the relative path from base to target
+// RelativePath returns the relative path from base to target.
 func RelativePath(base, target string) (string, error) {
 	relPath, err := filepath.Rel(base, target)
 	if err != nil {

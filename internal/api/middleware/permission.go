@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// PermissionServiceInterface defines the interface for permission services
+// PermissionServiceInterface defines the interface for permission services.
 type PermissionServiceInterface interface {
 	GetUserPermissions(ctx context.Context, userID uint, tenantID string) ([]models.Permission, error)
 	GetUserRoles(ctx context.Context, userID uint, tenantID string) ([]models.Role, error)
@@ -19,19 +19,19 @@ type PermissionServiceInterface interface {
 	HasPermission(ctx context.Context, userID uint, tenantID string, permissionCode string) (bool, error)
 }
 
-// PermissionMiddleware provides permission checking functionality
+// PermissionMiddleware provides permission checking functionality.
 type PermissionMiddleware struct {
 	permissionService PermissionServiceInterface
 }
 
-// NewPermissionMiddleware creates a new permission middleware
+// NewPermissionMiddleware creates a new permission middleware.
 func NewPermissionMiddleware(permissionService PermissionServiceInterface) *PermissionMiddleware {
 	return &PermissionMiddleware{
 		permissionService: permissionService,
 	}
 }
 
-// RequirePermission creates a middleware that requires a specific permission
+// RequirePermission creates a middleware that requires a specific permission.
 func (pm *PermissionMiddleware) RequirePermission(permissionCode string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get user from context (should be set by auth middleware)
@@ -125,7 +125,7 @@ func (pm *PermissionMiddleware) RequirePermission(permissionCode string) gin.Han
 	}
 }
 
-// RequireAnyPermission creates a middleware that requires any of the specified permissions
+// RequireAnyPermission creates a middleware that requires any of the specified permissions.
 func (pm *PermissionMiddleware) RequireAnyPermission(permissionCodes ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get user from context
@@ -209,7 +209,7 @@ func (pm *PermissionMiddleware) RequireAnyPermission(permissionCodes ...string) 
 	}
 }
 
-// RequireOwnership creates a middleware that requires user to own the resource
+// RequireOwnership creates a middleware that requires user to own the resource.
 func (pm *PermissionMiddleware) RequireOwnership(resourceType string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Get user from context
@@ -255,9 +255,20 @@ func (pm *PermissionMiddleware) RequireOwnership(resourceType string) gin.Handle
 			}
 		case "message":
 			var message models.Message
-			if err := pm.permissionService.GetDatabase().Where("id = ? AND tenant_id = ? AND sender_id = ?",
-				resourceID, tenantID, permission.ID).First(&message).Error; err == nil {
-				ownsResource = true
+			// Messages don't have tenant_id directly, they belong to tickets which belong to tenants
+			if err := pm.permissionService.GetDatabase().Where("id = ? AND user_id = ?",
+				resourceID, permission.ID).First(&message).Error; err == nil {
+				// Also verify the associated ticket belongs to the tenant
+				var ticket models.Ticket
+				// Convert tenantID string to int for comparison
+				tenantIDInt := 0
+				if id, err := strconv.Atoi(tenantID); err == nil {
+					tenantIDInt = id
+				}
+				if err := pm.permissionService.GetDatabase().Where("id = ? AND tenant_id = ?",
+					message.TicketID, tenantIDInt).First(&ticket).Error; err == nil {
+					ownsResource = true
+				}
 			}
 		case "knowledge":
 			var article models.KnowledgeArticle
@@ -301,7 +312,7 @@ func (pm *PermissionMiddleware) RequireOwnership(resourceType string) gin.Handle
 	}
 }
 
-// TenantMiddleware ensures the request has a valid tenant ID
+// TenantMiddleware ensures the request has a valid tenant ID.
 func TenantMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tenantID := c.GetHeader("X-Tenant-ID")

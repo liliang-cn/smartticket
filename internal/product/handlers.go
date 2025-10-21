@@ -9,17 +9,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers provides HTTP handlers for product management
+// Handlers provides HTTP handlers for product management.
 type Handlers struct {
 	service *Service
 }
 
-// NewHandlers creates a new product handlers instance
+// NewHandlers creates a new product handlers instance.
 func NewHandlers(service *Service) *Handlers {
 	return &Handlers{service: service}
 }
 
-// parseProductID extracts and validates product ID from request parameters
+// parseProductID extracts and validates product ID from request parameters.
 func (h *Handlers) parseProductID(c *gin.Context) (uint, error) {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -30,7 +30,7 @@ func (h *Handlers) parseProductID(c *gin.Context) (uint, error) {
 	return uint(productID), nil
 }
 
-// getTenantID extracts tenant ID from context with error handling
+// getTenantID extracts tenant ID from context with error handling.
 func (h *Handlers) getTenantID(c *gin.Context) (uint, error) {
 	tenantID, exists := c.Get("tenant_id")
 	if !exists {
@@ -41,13 +41,13 @@ func (h *Handlers) getTenantID(c *gin.Context) (uint, error) {
 	return tenantID.(uint), nil
 }
 
-// logProductEvent logs product-related security events
+// logProductEvent logs product-related security events.
 func (h *Handlers) logProductEvent(c *gin.Context, event, target string) {
 	c.Set("security_event", event)
 	c.Set("target_resource", target)
 }
 
-// CreateProduct handles product creation
+// CreateProduct handles product creation.
 func (h *Handlers) CreateProduct(c *gin.Context) {
 	var req CreateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -86,7 +86,7 @@ func (h *Handlers) CreateProduct(c *gin.Context) {
 	})
 }
 
-// ListProducts handles product listing
+// ListProducts handles product listing.
 func (h *Handlers) ListProducts(c *gin.Context) {
 	var req ListProductsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -124,7 +124,7 @@ func (h *Handlers) ListProducts(c *gin.Context) {
 	})
 }
 
-// GetProduct handles getting a single product
+// GetProduct handles getting a single product.
 func (h *Handlers) GetProduct(c *gin.Context) {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -153,7 +153,7 @@ func (h *Handlers) GetProduct(c *gin.Context) {
 	})
 }
 
-// UpdateProduct handles product update
+// UpdateProduct handles product update.
 func (h *Handlers) UpdateProduct(c *gin.Context) {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -199,7 +199,7 @@ func (h *Handlers) UpdateProduct(c *gin.Context) {
 	})
 }
 
-// DeleteProduct handles product deletion
+// DeleteProduct handles product deletion.
 func (h *Handlers) DeleteProduct(c *gin.Context) {
 	productID, err := h.parseProductID(c)
 	if err != nil {
@@ -230,7 +230,7 @@ func (h *Handlers) DeleteProduct(c *gin.Context) {
 	})
 }
 
-// ActivateProduct handles product activation
+// ActivateProduct handles product activation.
 func (h *Handlers) ActivateProduct(c *gin.Context) {
 	productID, err := h.parseProductID(c)
 	if err != nil {
@@ -261,7 +261,7 @@ func (h *Handlers) ActivateProduct(c *gin.Context) {
 	})
 }
 
-// DeactivateProduct handles product deactivation
+// DeactivateProduct handles product deactivation.
 func (h *Handlers) DeactivateProduct(c *gin.Context) {
 	productID, err := h.parseProductID(c)
 	if err != nil {

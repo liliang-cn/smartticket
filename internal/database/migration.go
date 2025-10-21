@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Migration represents a database migration
+// Migration represents a database migration.
 type Migration struct {
 	ID          uint   `gorm:"primaryKey"`
 	Version     string `gorm:"uniqueIndex;not null"`
@@ -23,17 +23,17 @@ type Migration struct {
 	Checksum    string `gorm:"not null"`
 }
 
-// Migrator handles database migrations
+// Migrator handles database migrations.
 type Migrator struct {
 	db *gorm.DB
 }
 
-// NewMigrator creates a new migrator instance
+// NewMigrator creates a new migrator instance.
 func NewMigrator(db *gorm.DB) *Migrator {
 	return &Migrator{db: db}
 }
 
-// AutoMigrate runs GORM auto-migration for all models
+// AutoMigrate runs GORM auto-migration for all models.
 func (m *Migrator) AutoMigrate(models ...interface{}) error {
 	for _, model := range models {
 		if err := m.db.AutoMigrate(model); err != nil {
@@ -43,12 +43,12 @@ func (m *Migrator) AutoMigrate(models ...interface{}) error {
 	return nil
 }
 
-// CreateMigrationTable creates the migrations tracking table
+// CreateMigrationTable creates the migrations tracking table.
 func (m *Migrator) CreateMigrationTable() error {
 	return m.db.AutoMigrate(&Migration{})
 }
 
-// GetAppliedMigrations returns all applied migrations
+// GetAppliedMigrations returns all applied migrations.
 func (m *Migrator) GetAppliedMigrations() ([]Migration, error) {
 	var migrations []Migration
 	if err := m.db.Where("applied = ?", true).Order("version").Find(&migrations).Error; err != nil {
@@ -57,7 +57,7 @@ func (m *Migrator) GetAppliedMigrations() ([]Migration, error) {
 	return migrations, nil
 }
 
-// GetPendingMigrations returns migrations that haven't been applied
+// GetPendingMigrations returns migrations that haven't been applied.
 func (m *Migrator) GetPendingMigrations(migrationsDir string) ([]string, error) {
 	// Get migration files from filesystem
 	files, err := os.ReadDir(migrationsDir)
@@ -107,7 +107,7 @@ func (m *Migrator) GetPendingMigrations(migrationsDir string) ([]string, error) 
 	return pending, nil
 }
 
-// RunMigration executes a single migration
+// RunMigration executes a single migration.
 func (m *Migrator) RunMigration(migrationsDir, version string) error {
 	migrationFile := filepath.Join(migrationsDir, version+".sql")
 
@@ -159,7 +159,7 @@ func (m *Migrator) RunMigration(migrationsDir, version string) error {
 	return nil
 }
 
-// RunMigrations executes all pending migrations
+// RunMigrations executes all pending migrations.
 func (m *Migrator) RunMigrations(migrationsDir string) error {
 	// Ensure migrations table exists
 	if err := m.CreateMigrationTable(); err != nil {
@@ -192,7 +192,7 @@ func (m *Migrator) RunMigrations(migrationsDir string) error {
 	return nil
 }
 
-// RollbackMigration rolls back the last applied migration
+// RollbackMigration rolls back the last applied migration.
 func (m *Migrator) RollbackMigration(migrationsDir string) error {
 	// Get the last applied migration
 	var migration Migration
@@ -244,7 +244,7 @@ func (m *Migrator) RollbackMigration(migrationsDir string) error {
 	return nil
 }
 
-// GetMigrationStatus returns the status of all migrations
+// GetMigrationStatus returns the status of all migrations.
 func (m *Migrator) GetMigrationStatus(migrationsDir string) ([]MigrationStatus, error) {
 	// Get all migration files
 	files, err := os.ReadDir(migrationsDir)
@@ -309,7 +309,7 @@ func (m *Migrator) GetMigrationStatus(migrationsDir string) ([]MigrationStatus, 
 	return status, nil
 }
 
-// MigrationStatus represents the status of a migration
+// MigrationStatus represents the status of a migration.
 type MigrationStatus struct {
 	Version     string
 	Name        string

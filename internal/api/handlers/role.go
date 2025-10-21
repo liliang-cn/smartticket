@@ -6,107 +6,63 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/services"
 )
 
-// RoleHandler handles role-related API endpoints
+// RoleHandler handles role-related API endpoints.
 type RoleHandler struct {
 	permissionService *services.PermissionService
+	responseHelper    *ResponseHelper
 }
 
-// NewRoleHandler creates a new role handler
+// NewRoleHandler creates a new role handler.
 func NewRoleHandler(permissionService *services.PermissionService) *RoleHandler {
 	return &RoleHandler{
 		permissionService: permissionService,
+		responseHelper:    NewResponseHelper(),
 	}
 }
 
-// GetAllRoles returns all roles
+// GetAllRoles returns all roles.
 func (h *RoleHandler) GetAllRoles(c *gin.Context) {
-	tenantID := c.GetString("tenant_id")
+	tenantID := h.responseHelper.GetTenantIDFromContext(c)
 
 	roles, err := h.permissionService.GetAllRoles(c.Request.Context(), tenantID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to get roles",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to get roles")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    roles,
-	})
+	h.responseHelper.SendSuccess(c, roles)
 }
 
-// GetRoleByID returns a role by ID
+// GetRoleByID returns a role by ID.
 func (h *RoleHandler) GetRoleByID(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid role ID",
-			},
-		})
+	id, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
-	role, err := h.permissionService.GetRoleByID(c.Request.Context(), uint(id))
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{
-				"success": false,
-				"error": gin.H{
-					"code":    "NOT_FOUND",
-					"message": "Role not found",
-				},
-			})
-			return
-		}
-
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to get role",
-			},
-		})
+	role, err := h.permissionService.GetRoleByID(c.Request.Context(), id)
+	if h.responseHelper.HandleGormError(c, err, "role") {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    role,
-	})
+	h.responseHelper.SendSuccess(c, role)
 }
 
-// CreateRole creates a new role
+// CreateRole creates a new role.
 func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var req models.Role
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": err.Error(),
-			},
-		})
+	if !h.responseHelper.BindJSON(c, &req) {
 		return
 	}
 
 	// Set tenant ID from context
-	tenantIDStr := c.GetString("tenant_id")
+	tenantIDStr := h.responseHelper.GetTenantIDFromContext(c)
 	if tenantIDStr != "" {
 		// Extract numeric part from tenant ID string (handle UUID or string formats)
 		tenantIDStr = strings.Trim(tenantIDStr, `"'`)
@@ -118,147 +74,74 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 
 	err := h.permissionService.CreateRole(c.Request.Context(), &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to create role",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to create role")
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"success": true,
-		"data":    req,
-	})
+	h.responseHelper.SendSuccessWithStatus(c, http.StatusCreated, req)
 }
 
-// UpdateRole updates an existing role
+// UpdateRole updates an existing role.
 func (h *RoleHandler) UpdateRole(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid role ID",
-			},
-		})
+	id, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
 	var req models.Role
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": err.Error(),
-			},
-		})
+	if !h.responseHelper.BindJSON(c, &req) {
 		return
 	}
 
-	req.ID = uint(id)
+	req.ID = id
 
-	err = h.permissionService.UpdateRole(c.Request.Context(), &req)
+	err := h.permissionService.UpdateRole(c.Request.Context(), &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to update role",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to update role")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    req,
-	})
+	h.responseHelper.SendSuccess(c, req)
 }
 
-// DeleteRole deletes a role
+// DeleteRole deletes a role.
 func (h *RoleHandler) DeleteRole(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid role ID",
-			},
-		})
+	id, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
-	err = h.permissionService.DeleteRole(c.Request.Context(), uint(id))
+	err := h.permissionService.DeleteRole(c.Request.Context(), id)
 	if err != nil {
 		if err.Error() == "cannot delete system role" {
-			c.JSON(http.StatusForbidden, gin.H{
-				"success": false,
-				"error": gin.H{
-					"code":    "FORBIDDEN",
-					"message": "Cannot delete system role",
-				},
-			})
+			h.responseHelper.SendForbiddenError(c, "Cannot delete system role")
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to delete role",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to delete role")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    gin.H{"message": "Role deleted successfully"},
-	})
+	h.responseHelper.SendSuccess(c, gin.H{"message": "Role deleted successfully"})
 }
 
-// GetRolePermissions returns all permissions for a role
+// GetRolePermissions returns all permissions for a role.
 func (h *RoleHandler) GetRolePermissions(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid role ID",
-			},
-		})
+	id, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
-	permissions, err := h.permissionService.GetRolePermissions(c.Request.Context(), uint(id))
+	permissions, err := h.permissionService.GetRolePermissions(c.Request.Context(), id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to get role permissions",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to get role permissions")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    permissions,
-	})
+	h.responseHelper.SendSuccess(c, permissions)
 }
 
-// AssignPermissionToRole assigns a permission to a role
+// AssignPermissionToRole assigns a permission to a role.
 func (h *RoleHandler) AssignPermissionToRole(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -306,7 +189,7 @@ func (h *RoleHandler) AssignPermissionToRole(c *gin.Context) {
 	})
 }
 
-// RemovePermissionFromRole removes a permission from a role
+// RemovePermissionFromRole removes a permission from a role.
 func (h *RoleHandler) RemovePermissionFromRole(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -352,7 +235,7 @@ func (h *RoleHandler) RemovePermissionFromRole(c *gin.Context) {
 	})
 }
 
-// AssignRoleToUser assigns a role to a user
+// AssignRoleToUser assigns a role to a user.
 func (h *RoleHandler) AssignRoleToUser(c *gin.Context) {
 	userIDStr := c.Param("id")
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
@@ -402,7 +285,7 @@ func (h *RoleHandler) AssignRoleToUser(c *gin.Context) {
 	})
 }
 
-// RemoveRoleFromUser removes a role from a user
+// RemoveRoleFromUser removes a role from a user.
 func (h *RoleHandler) RemoveRoleFromUser(c *gin.Context) {
 	userIDStr := c.Param("id")
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)
@@ -450,7 +333,7 @@ func (h *RoleHandler) RemoveRoleFromUser(c *gin.Context) {
 	})
 }
 
-// GetUserRoles returns all roles for a user
+// GetUserRoles returns all roles for a user.
 func (h *RoleHandler) GetUserRoles(c *gin.Context) {
 	userIDStr := c.Param("id")
 	userID, err := strconv.ParseUint(userIDStr, 10, 32)

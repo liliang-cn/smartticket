@@ -12,7 +12,7 @@ import (
 
 // JSON utilities
 
-// ToJSON converts any value to JSON string with error handling
+// ToJSON converts any value to JSON string with error handling.
 func ToJSON(v interface{}) (string, error) {
 	data, err := json.Marshal(v)
 	if err != nil {
@@ -21,7 +21,7 @@ func ToJSON(v interface{}) (string, error) {
 	return string(data), nil
 }
 
-// ToJSONPretty converts any value to pretty-printed JSON string
+// ToJSONPretty converts any value to pretty-printed JSON string.
 func ToJSONPretty(v interface{}) (string, error) {
 	data, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
@@ -30,7 +30,7 @@ func ToJSONPretty(v interface{}) (string, error) {
 	return string(data), nil
 }
 
-// FromJSON parses JSON string into the provided interface
+// FromJSON parses JSON string into the provided interface.
 func FromJSON(jsonStr string, v interface{}) error {
 	if err := json.Unmarshal([]byte(jsonStr), v); err != nil {
 		return errors.NewValidationError("Failed to parse JSON").WithCause(err)
@@ -38,7 +38,7 @@ func FromJSON(jsonStr string, v interface{}) error {
 	return nil
 }
 
-// FromJSONBytes parses JSON bytes into the provided interface
+// FromJSONBytes parses JSON bytes into the provided interface.
 func FromJSONBytes(data []byte, v interface{}) error {
 	if err := json.Unmarshal(data, v); err != nil {
 		return errors.NewValidationError("Failed to parse JSON bytes").WithCause(err)
@@ -46,13 +46,13 @@ func FromJSONBytes(data []byte, v interface{}) error {
 	return nil
 }
 
-// IsValidJSON checks if a string is valid JSON
+// IsValidJSON checks if a string is valid JSON.
 func IsValidJSON(jsonStr string) bool {
 	var js json.RawMessage
 	return json.Unmarshal([]byte(jsonStr), &js) == nil
 }
 
-// JSONGet extracts a value from JSON using dot notation
+// JSONGet extracts a value from JSON using dot notation.
 func JSONGet(jsonStr, path string) (interface{}, error) {
 	var data interface{}
 	if err := FromJSON(jsonStr, &data); err != nil {
@@ -62,7 +62,7 @@ func JSONGet(jsonStr, path string) (interface{}, error) {
 	return getNestedValue(data, strings.Split(path, "."))
 }
 
-// JSONSet sets a value in JSON using dot notation
+// JSONSet sets a value in JSON using dot notation.
 func JSONSet(jsonStr, path string, value interface{}) (string, error) {
 	var data interface{}
 	if err := FromJSON(jsonStr, &data); err != nil {
@@ -76,7 +76,7 @@ func JSONSet(jsonStr, path string, value interface{}) (string, error) {
 	return ToJSON(data)
 }
 
-// JSONMerge merges two JSON objects
+// JSONMerge merges two JSON objects.
 func JSONMerge(jsonStr1, jsonStr2 string) (string, error) {
 	var data1, data2 map[string]interface{}
 
@@ -92,7 +92,7 @@ func JSONMerge(jsonStr1, jsonStr2 string) (string, error) {
 	return ToJSON(merged)
 }
 
-// JSONRemove removes a field from JSON using dot notation
+// JSONRemove removes a field from JSON using dot notation.
 func JSONRemove(jsonStr, path string) (string, error) {
 	var data interface{}
 	if err := FromJSON(jsonStr, &data); err != nil {
@@ -106,7 +106,7 @@ func JSONRemove(jsonStr, path string) (string, error) {
 	return ToJSON(data)
 }
 
-// JSONGetKeys extracts all keys from a JSON object
+// JSONGetKeys extracts all keys from a JSON object.
 func JSONGetKeys(jsonStr string) ([]string, error) {
 	var data map[string]interface{}
 	if err := FromJSON(jsonStr, &data); err != nil {
@@ -121,7 +121,7 @@ func JSONGetKeys(jsonStr string) ([]string, error) {
 	return keys, nil
 }
 
-// JSONFlatten flattens a nested JSON object
+// JSONFlatten flattens a nested JSON object.
 func JSONFlatten(jsonStr string, separator string) (map[string]interface{}, error) {
 	var data interface{}
 	if err := FromJSON(jsonStr, &data); err != nil {
@@ -133,7 +133,7 @@ func JSONFlatten(jsonStr string, separator string) (map[string]interface{}, erro
 	return flattened, nil
 }
 
-// JSONUnflatten unflattens a flattened JSON object
+// JSONUnflatten unflattens a flattened JSON object.
 func JSONUnflatten(flat map[string]interface{}, separator string) (map[string]interface{}, error) {
 	var result interface{} = make(map[string]interface{})
 
@@ -148,7 +148,7 @@ func JSONUnflatten(flat map[string]interface{}, separator string) (map[string]in
 
 // Conversion utilities
 
-// ToString converts any value to string
+// ToString converts any value to string.
 func ToString(v interface{}) string {
 	if v == nil {
 		return ""
@@ -172,7 +172,7 @@ func ToString(v interface{}) string {
 	}
 }
 
-// ToInt converts any value to int
+// ToInt converts any value to int.
 func ToInt(v interface{}) (int, error) {
 	if v == nil {
 		return 0, nil
@@ -219,7 +219,7 @@ func ToInt(v interface{}) (int, error) {
 	}
 }
 
-// ToFloat64 converts any value to float64
+// ToFloat64 converts any value to float64.
 func ToFloat64(v interface{}) (float64, error) {
 	if v == nil {
 		return 0.0, nil
@@ -266,7 +266,7 @@ func ToFloat64(v interface{}) (float64, error) {
 	}
 }
 
-// ToBool converts any value to bool
+// ToBool converts any value to bool.
 func ToBool(v interface{}) (bool, error) {
 	if v == nil {
 		return false, nil
@@ -295,7 +295,7 @@ func ToBool(v interface{}) (bool, error) {
 	}
 }
 
-// ToSlice converts any value to slice
+// ToSlice converts any value to slice.
 func ToSlice(v interface{}) ([]interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -314,7 +314,7 @@ func ToSlice(v interface{}) ([]interface{}, error) {
 	return result, nil
 }
 
-// ToMap converts any value to map
+// ToMap converts any value to map.
 func ToMap(v interface{}) (map[string]interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -335,7 +335,7 @@ func ToMap(v interface{}) (map[string]interface{}, error) {
 
 // Type checking utilities
 
-// IsEmpty checks if a value is empty
+// IsEmpty checks if a value is empty.
 func IsEmpty(v interface{}) bool {
 	if v == nil {
 		return true
@@ -360,58 +360,58 @@ func IsEmpty(v interface{}) bool {
 	}
 }
 
-// IsNumeric checks if a value is numeric
+// IsNumeric checks if a value is numeric.
 func IsNumeric(v interface{}) bool {
 	if v == nil {
 		return false
 	}
 
-	switch v.(type) {
+	switch v := v.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
 		return true
 	case string:
-		_, err := strconv.ParseFloat(v.(string), 64)
+		_, err := strconv.ParseFloat(v, 64)
 		return err == nil
 	default:
 		return false
 	}
 }
 
-// IsInteger checks if a value is an integer
+// IsInteger checks if a value is an integer.
 func IsInteger(v interface{}) bool {
 	if v == nil {
 		return false
 	}
 
-	switch v.(type) {
+	switch v := v.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
 		return true
 	case string:
-		_, err := strconv.ParseInt(v.(string), 10, 64)
+		_, err := strconv.ParseInt(v, 10, 64)
 		return err == nil
 	default:
 		return false
 	}
 }
 
-// IsFloat checks if a value is a float
+// IsFloat checks if a value is a float.
 func IsFloat(v interface{}) bool {
 	if v == nil {
 		return false
 	}
 
-	switch v.(type) {
+	switch v := v.(type) {
 	case float32, float64:
 		return true
 	case string:
-		_, err := strconv.ParseFloat(v.(string), 64)
-		return err == nil && strings.Contains(v.(string), ".")
+		_, err := strconv.ParseFloat(v, 64)
+		return err == nil && strings.Contains(v, ".")
 	default:
 		return false
 	}
 }
 
-// IsArray checks if a value is an array/slice
+// IsArray checks if a value is an array/slice.
 func IsArray(v interface{}) bool {
 	if v == nil {
 		return false
@@ -421,7 +421,7 @@ func IsArray(v interface{}) bool {
 	return rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array
 }
 
-// IsObject checks if a value is an object/map
+// IsObject checks if a value is an object/map.
 func IsObject(v interface{}) bool {
 	if v == nil {
 		return false
@@ -433,7 +433,7 @@ func IsObject(v interface{}) bool {
 
 // Deep copy utilities
 
-// DeepCopy creates a deep copy of any value
+// DeepCopy creates a deep copy of any value.
 func DeepCopy(v interface{}) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -452,7 +452,7 @@ func DeepCopy(v interface{}) (interface{}, error) {
 	return result, nil
 }
 
-// DeepEqual checks if two values are deeply equal
+// DeepEqual checks if two values are deeply equal.
 func DeepEqual(a, b interface{}) bool {
 	return reflect.DeepEqual(a, b)
 }

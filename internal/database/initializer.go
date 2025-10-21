@@ -13,17 +13,17 @@ import (
 	"github.com/company/smartticket/internal/models"
 )
 
-// Initializer handles first-time database initialization
+// Initializer handles first-time database initialization.
 type Initializer struct {
 	db *gorm.DB
 }
 
-// NewInitializer creates a new database initializer
+// NewInitializer creates a new database initializer.
 func NewInitializer(db *gorm.DB) *Initializer {
 	return &Initializer{db: db}
 }
 
-// InitializeIfNeeded checks if database needs initialization and performs it
+// InitializeIfNeeded checks if database needs initialization and performs it.
 func (i *Initializer) InitializeIfNeeded(ctx context.Context) error {
 	logger := zap.L().Named("database.initializer")
 
@@ -52,7 +52,7 @@ func (i *Initializer) InitializeIfNeeded(ctx context.Context) error {
 	return nil
 }
 
-// seedEssentialData seeds the database with essential data for first startup
+// seedEssentialData seeds the database with essential data for first startup.
 func (i *Initializer) seedEssentialData() error {
 	now := time.Now()
 	logger := zap.L().Named("database.initializer")
@@ -263,7 +263,7 @@ Thank you for choosing SmartTicket!`,
 	})
 }
 
-// PrintWelcomeInfo prints welcome information after first-time initialization
+// PrintWelcomeInfo prints welcome information after first-time initialization.
 func (i *Initializer) PrintWelcomeInfo() {
 	log.Println("🎉 SmartTicket has been initialized successfully!")
 	log.Println("")
@@ -284,7 +284,7 @@ func (i *Initializer) PrintWelcomeInfo() {
 	log.Println("5. Create additional users and organizations as needed")
 }
 
-// generatePasswordHash creates a bcrypt hash for the given password
+// generatePasswordHash creates a bcrypt hash for the given password.
 func generatePasswordHash(password string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {

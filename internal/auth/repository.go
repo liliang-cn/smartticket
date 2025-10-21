@@ -10,17 +10,17 @@ import (
 	"github.com/company/smartticket/internal/models"
 )
 
-// Repository provides database operations for user management
+// Repository provides database operations for user management.
 type Repository struct {
 	db *gorm.DB
 }
 
-// NewRepository creates a new authentication repository
+// NewRepository creates a new authentication repository.
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{db: db}
 }
 
-// CreateUser creates a new user
+// CreateUser creates a new user.
 func (r *Repository) CreateUser(user *models.User) error {
 	if err := r.db.Create(user).Error; err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
@@ -28,7 +28,7 @@ func (r *Repository) CreateUser(user *models.User) error {
 	return nil
 }
 
-// GetUserByID retrieves a user by ID
+// GetUserByID retrieves a user by ID.
 func (r *Repository) GetUserByID(userID, tenantID uint) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("id = ? AND tenant_id = ?", userID, tenantID).
@@ -41,7 +41,7 @@ func (r *Repository) GetUserByID(userID, tenantID uint) (*models.User, error) {
 	return &user, nil
 }
 
-// GetUserByEmail retrieves a user by email
+// GetUserByEmail retrieves a user by email.
 func (r *Repository) GetUserByEmail(email string, tenantID uint) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("email = ? AND tenant_id = ?", email, tenantID).
@@ -54,7 +54,7 @@ func (r *Repository) GetUserByEmail(email string, tenantID uint) (*models.User, 
 	return &user, nil
 }
 
-// GetUserByUsername retrieves a user by username
+// GetUserByUsername retrieves a user by username.
 func (r *Repository) GetUserByUsername(username string, tenantID uint) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("username = ? AND tenant_id = ?", username, tenantID).
@@ -67,7 +67,7 @@ func (r *Repository) GetUserByUsername(username string, tenantID uint) (*models.
 	return &user, nil
 }
 
-// UpdateUser updates a user
+// UpdateUser updates a user.
 func (r *Repository) UpdateUser(user *models.User) error {
 	if err := r.db.Save(user).Error; err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
@@ -75,7 +75,7 @@ func (r *Repository) UpdateUser(user *models.User) error {
 	return nil
 }
 
-// DeleteUser soft deletes a user
+// DeleteUser soft deletes a user.
 func (r *Repository) DeleteUser(userID, tenantID uint) error {
 	if err := r.db.Where("id = ? AND tenant_id = ?", userID, tenantID).
 		Delete(&models.User{}).Error; err != nil {
@@ -84,7 +84,7 @@ func (r *Repository) DeleteUser(userID, tenantID uint) error {
 	return nil
 }
 
-// ListUsers retrieves a list of users with pagination and filtering
+// ListUsers retrieves a list of users with pagination and filtering.
 func (r *Repository) ListUsers(tenantID uint, page, pageSize int, filters map[string]interface{}) ([]models.User, int64, error) {
 	var users []models.User
 	var total int64
@@ -121,28 +121,42 @@ func (r *Repository) ListUsers(tenantID uint, page, pageSize int, filters map[st
 	return users, total, nil
 }
 
-// UpdateLastLogin updates the user's last login timestamp
+// UpdateLastLogin updates the user's last login timestamp.
 func (r *Repository) UpdateLastLogin(userID uint) error {
 	now := time.Now()
-	if err := r.db.Model(&models.User{}).
+	result := r.db.Model(&models.User{}).
 		Where("id = ?", userID).
-		Update("last_login_at", now).Error; err != nil {
-		return fmt.Errorf("failed to update last login: %w", err)
+		Update("last_login_at", now)
+
+	if result.Error != nil {
+		return fmt.Errorf("failed to update last login: %w", result.Error)
 	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("user not found")
+	}
+
 	return nil
 }
 
-// UpdatePassword updates the user's password
+// UpdatePassword updates the user's password.
 func (r *Repository) UpdatePassword(userID uint, passwordHash string) error {
-	if err := r.db.Model(&models.User{}).
+	result := r.db.Model(&models.User{}).
 		Where("id = ?", userID).
-		Update("password_hash", passwordHash).Error; err != nil {
-		return fmt.Errorf("failed to update password: %w", err)
+		Update("password_hash", passwordHash)
+
+	if result.Error != nil {
+		return fmt.Errorf("failed to update password: %w", result.Error)
 	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("user not found")
+	}
+
 	return nil
 }
 
-// UpdateUserRole updates the user's role
+// UpdateUserRole updates the user's role.
 func (r *Repository) UpdateUserRole(userID, tenantID uint, role string) error {
 	if err := r.db.Model(&models.User{}).
 		Where("id = ? AND tenant_id = ?", userID, tenantID).
@@ -152,7 +166,7 @@ func (r *Repository) UpdateUserRole(userID, tenantID uint, role string) error {
 	return nil
 }
 
-// DeactivateUser deactivates a user account
+// DeactivateUser deactivates a user account.
 func (r *Repository) DeactivateUser(userID, tenantID uint) error {
 	if err := r.db.Model(&models.User{}).
 		Where("id = ? AND tenant_id = ?", userID, tenantID).
@@ -162,7 +176,7 @@ func (r *Repository) DeactivateUser(userID, tenantID uint) error {
 	return nil
 }
 
-// ActivateUser activates a user account
+// ActivateUser activates a user account.
 func (r *Repository) ActivateUser(userID, tenantID uint) error {
 	if err := r.db.Model(&models.User{}).
 		Where("id = ? AND tenant_id = ?", userID, tenantID).
@@ -172,7 +186,7 @@ func (r *Repository) ActivateUser(userID, tenantID uint) error {
 	return nil
 }
 
-// CheckEmailExists checks if an email already exists for a tenant
+// CheckEmailExists checks if an email already exists for a tenant.
 func (r *Repository) CheckEmailExists(email string, tenantID uint, excludeUserID ...uint) (bool, error) {
 	var count int64
 	query := r.db.Model(&models.User{}).
@@ -189,7 +203,7 @@ func (r *Repository) CheckEmailExists(email string, tenantID uint, excludeUserID
 	return count > 0, nil
 }
 
-// CheckUsernameExists checks if a username already exists for a tenant
+// CheckUsernameExists checks if a username already exists for a tenant.
 func (r *Repository) CheckUsernameExists(username string, tenantID uint, excludeUserID ...uint) (bool, error) {
 	var count int64
 	query := r.db.Model(&models.User{}).
@@ -206,7 +220,7 @@ func (r *Repository) CheckUsernameExists(username string, tenantID uint, exclude
 	return count > 0, nil
 }
 
-// GetUserStats returns user statistics for a tenant
+// GetUserStats returns user statistics for a tenant.
 func (r *Repository) GetUserStats(tenantID uint) (map[string]int64, error) {
 	stats := make(map[string]int64)
 
@@ -253,7 +267,7 @@ func (r *Repository) GetUserStats(tenantID uint) (map[string]int64, error) {
 	return stats, nil
 }
 
-// CreateTenant creates a new tenant
+// CreateTenant creates a new tenant.
 func (r *Repository) CreateTenant(tenant *models.Tenant) error {
 	if err := r.db.Create(tenant).Error; err != nil {
 		return fmt.Errorf("failed to create tenant: %w", err)
@@ -261,7 +275,7 @@ func (r *Repository) CreateTenant(tenant *models.Tenant) error {
 	return nil
 }
 
-// GetTenantByID retrieves a tenant by ID
+// GetTenantByID retrieves a tenant by ID.
 func (r *Repository) GetTenantByID(tenantID uint) (*models.Tenant, error) {
 	var tenant models.Tenant
 	if err := r.db.Where("id = ?", tenantID).First(&tenant).Error; err != nil {
@@ -273,7 +287,7 @@ func (r *Repository) GetTenantByID(tenantID uint) (*models.Tenant, error) {
 	return &tenant, nil
 }
 
-// GetTenantByDomain retrieves a tenant by domain
+// GetTenantByDomain retrieves a tenant by domain.
 func (r *Repository) GetTenantByDomain(domain string) (*models.Tenant, error) {
 	var tenant models.Tenant
 	if err := r.db.Where("domain = ? AND is_active = ?", domain, true).First(&tenant).Error; err != nil {

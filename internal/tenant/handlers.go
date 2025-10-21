@@ -9,13 +9,13 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// Handlers provides tenant HTTP handlers
+// Handlers provides tenant HTTP handlers.
 type Handlers struct {
 	service   *Service
 	validator *validator.Validate
 }
 
-// NewHandlers creates new tenant handlers
+// NewHandlers creates new tenant handlers.
 func NewHandlers(service *Service) *Handlers {
 	return &Handlers{
 		service:   service,
@@ -23,7 +23,7 @@ func NewHandlers(service *Service) *Handlers {
 	}
 }
 
-// CreateTenant creates a new tenant
+// CreateTenant creates a new tenant.
 func (h *Handlers) CreateTenant(c *gin.Context) {
 	var req CreateTenantRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -61,7 +61,7 @@ func (h *Handlers) CreateTenant(c *gin.Context) {
 	})
 }
 
-// GetTenant gets a tenant by ID
+// GetTenant gets a tenant by ID.
 func (h *Handlers) GetTenant(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -83,7 +83,7 @@ func (h *Handlers) GetTenant(c *gin.Context) {
 	})
 }
 
-// GetTenantBySlug gets a tenant by slug
+// GetTenantBySlug gets a tenant by slug.
 func (h *Handlers) GetTenantBySlug(c *gin.Context) {
 	slug := c.Param("slug")
 	if slug == "" {
@@ -104,7 +104,7 @@ func (h *Handlers) GetTenantBySlug(c *gin.Context) {
 	})
 }
 
-// ListTenants lists all tenants with pagination
+// ListTenants lists all tenants with pagination.
 func (h *Handlers) ListTenants(c *gin.Context) {
 	// Parse query parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -129,7 +129,7 @@ func (h *Handlers) ListTenants(c *gin.Context) {
 	})
 }
 
-// UpdateTenant updates a tenant
+// UpdateTenant updates a tenant.
 func (h *Handlers) UpdateTenant(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -175,7 +175,7 @@ func (h *Handlers) UpdateTenant(c *gin.Context) {
 	})
 }
 
-// DeleteTenant deletes a tenant
+// DeleteTenant deletes a tenant.
 func (h *Handlers) DeleteTenant(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -204,7 +204,7 @@ func (h *Handlers) DeleteTenant(c *gin.Context) {
 	})
 }
 
-// ActivateTenant activates a tenant
+// ActivateTenant activates a tenant.
 func (h *Handlers) ActivateTenant(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -233,7 +233,7 @@ func (h *Handlers) ActivateTenant(c *gin.Context) {
 	})
 }
 
-// DeactivateTenant deactivates a tenant
+// DeactivateTenant deactivates a tenant.
 func (h *Handlers) DeactivateTenant(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -262,7 +262,7 @@ func (h *Handlers) DeactivateTenant(c *gin.Context) {
 	})
 }
 
-// GetTenantStats gets tenant statistics
+// GetTenantStats gets tenant statistics.
 func (h *Handlers) GetTenantStats(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -284,7 +284,7 @@ func (h *Handlers) GetTenantStats(c *gin.Context) {
 	})
 }
 
-// GetMyTenantStats gets current user's tenant statistics
+// GetMyTenantStats gets current user's tenant statistics.
 func (h *Handlers) GetMyTenantStats(c *gin.Context) {
 	tenantID := c.GetUint("tenant_id")
 	if tenantID == 0 {

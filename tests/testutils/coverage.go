@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-// CoverageReport represents a detailed coverage report
+// CoverageReport represents a detailed coverage report.
 type CoverageReport struct {
 	OverallCoverage float64                 `json:"overall_coverage"`
 	Modules         []ModuleCoverage        `json:"modules"`
@@ -23,7 +23,7 @@ type CoverageReport struct {
 	TestRunID       string                  `json:"test_run_id"`
 }
 
-// ModuleCoverage represents coverage for a module
+// ModuleCoverage represents coverage for a module.
 type ModuleCoverage struct {
 	ModuleName       string  `json:"module_name"`
 	PackagePath      string  `json:"package_path"`
@@ -35,7 +35,7 @@ type ModuleCoverage struct {
 	UncoveredLines   []int   `json:"uncovered_lines"`
 }
 
-// FileCoverage represents coverage for a single file
+// FileCoverage represents coverage for a single file.
 type FileCoverage struct {
 	FilePath       string             `json:"file_path"`
 	LineCoverage   float64            `json:"line_coverage"`
@@ -45,7 +45,7 @@ type FileCoverage struct {
 	Functions      []FunctionCoverage `json:"functions"`
 }
 
-// FunctionCoverage represents coverage for a function
+// FunctionCoverage represents coverage for a function.
 type FunctionCoverage struct {
 	FunctionName   string  `json:"function_name"`
 	StartLine      int     `json:"start_line"`
@@ -55,7 +55,7 @@ type FunctionCoverage struct {
 	UncoveredLines []int   `json:"uncovered_lines"`
 }
 
-// CoverageConfig represents coverage collection configuration
+// CoverageConfig represents coverage collection configuration.
 type CoverageConfig struct {
 	OutputDir       string            `json:"output_dir"`
 	Threshold       float64           `json:"threshold"`
@@ -64,7 +64,7 @@ type CoverageConfig struct {
 	Modules         map[string]string `json:"modules"` // module name -> package path
 }
 
-// NewCoverageConfig creates a new coverage configuration
+// NewCoverageConfig creates a new coverage configuration.
 func NewCoverageConfig() *CoverageConfig {
 	return &CoverageConfig{
 		OutputDir: "qa/coverage",
@@ -97,7 +97,7 @@ func NewCoverageConfig() *CoverageConfig {
 	}
 }
 
-// CollectCoverage collects test coverage information
+// CollectCoverage collects test coverage information.
 func CollectCoverage(t *testing.T, config *CoverageConfig) (*CoverageReport, error) {
 	if config == nil {
 		config = NewCoverageConfig()
@@ -149,7 +149,7 @@ func CollectCoverage(t *testing.T, config *CoverageConfig) (*CoverageReport, err
 	return report, nil
 }
 
-// parseCoverageFile parses a go coverage file and generates a detailed report
+// parseCoverageFile parses a go coverage file and generates a detailed report.
 func parseCoverageFile(t *testing.T, coverageFile string, config *CoverageConfig) (*CoverageReport, error) {
 	file, err := os.Open(coverageFile)
 	if err != nil {
@@ -267,7 +267,7 @@ func parseCoverageFile(t *testing.T, coverageFile string, config *CoverageConfig
 	return report, nil
 }
 
-// shouldExcludeFile checks if a file should be excluded from coverage analysis
+// shouldExcludeFile checks if a file should be excluded from coverage analysis.
 func shouldExcludeFile(filePath string, excludePatterns []string) bool {
 	for _, pattern := range excludePatterns {
 		if matched, _ := filepath.Match(pattern, filePath); matched {
@@ -277,7 +277,7 @@ func shouldExcludeFile(filePath string, excludePatterns []string) bool {
 	return false
 }
 
-// determineModule determines which module a file belongs to
+// determineModule determines which module a file belongs to.
 func determineModule(filePath string, modules map[string]string) (string, string) {
 	for moduleName, packagePath := range modules {
 		if strings.Contains(filePath, packagePath) {
@@ -287,13 +287,13 @@ func determineModule(filePath string, modules map[string]string) (string, string
 	return "", ""
 }
 
-// generateHTMLReport generates an HTML coverage report
+// generateHTMLReport generates an HTML coverage report.
 func generateHTMLReport(coverageFile, htmlFile string) error {
 	cmd := exec.Command("go", "tool", "cover", "-html", coverageFile, "-o", htmlFile)
 	return cmd.Run()
 }
 
-// saveCoverageReport saves the coverage report as JSON
+// saveCoverageReport saves the coverage report as JSON.
 func saveCoverageReport(report *CoverageReport, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
@@ -306,7 +306,7 @@ func saveCoverageReport(report *CoverageReport, filename string) error {
 	return encoder.Encode(report)
 }
 
-// AssertCoverageThreshold asserts that coverage meets the required threshold
+// AssertCoverageThreshold asserts that coverage meets the required threshold.
 func AssertCoverageThreshold(t *testing.T, report *CoverageReport, threshold float64) {
 	if report.OverallCoverage < threshold {
 		t.Errorf("Coverage %.2f%% is below required threshold %.2f%%", report.OverallCoverage, threshold)
@@ -322,7 +322,7 @@ func AssertCoverageThreshold(t *testing.T, report *CoverageReport, threshold flo
 	}
 }
 
-// GetUncoveredLines returns uncovered lines for a specific file
+// GetUncoveredLines returns uncovered lines for a specific file.
 func GetUncoveredLines(t *testing.T, report *CoverageReport, filePath string) []int {
 	fileCoverage, exists := report.CoverageByFile[filePath]
 	if !exists {
@@ -331,7 +331,7 @@ func GetUncoveredLines(t *testing.T, report *CoverageReport, filePath string) []
 	return fileCoverage.UncoveredLines
 }
 
-// GetModuleCoverage returns coverage for a specific module
+// GetModuleCoverage returns coverage for a specific module.
 func GetModuleCoverage(t *testing.T, report *CoverageReport, moduleName string) *ModuleCoverage {
 	for _, module := range report.Modules {
 		if module.ModuleName == moduleName {
@@ -341,7 +341,7 @@ func GetModuleCoverage(t *testing.T, report *CoverageReport, moduleName string) 
 	return nil
 }
 
-// GenerateCoverageSummary generates a human-readable coverage summary
+// GenerateCoverageSummary generates a human-readable coverage summary.
 func GenerateCoverageSummary(report *CoverageReport) string {
 	var summary strings.Builder
 	summary.WriteString(fmt.Sprintf("Coverage Report - %s\n", report.GeneratedAt.Format("2006-01-02 15:04:05")))
@@ -371,7 +371,7 @@ func GenerateCoverageSummary(report *CoverageReport) string {
 	return summary.String()
 }
 
-// WithCoverageAssertion is a helper that runs a test with coverage collection and threshold assertion
+// WithCoverageAssertion is a helper that runs a test with coverage collection and threshold assertion.
 func WithCoverageAssertion(t *testing.T, threshold float64, testFunc func(*testing.T)) {
 	config := NewCoverageConfig()
 	config.Threshold = threshold
@@ -393,7 +393,7 @@ func WithCoverageAssertion(t *testing.T, threshold float64, testFunc func(*testi
 	AssertCoverageThreshold(t, report, threshold)
 }
 
-// MergeCoverageReports merges multiple coverage reports
+// MergeCoverageReports merges multiple coverage reports.
 func MergeCoverageReports(reports []*CoverageReport) *CoverageReport {
 	if len(reports) == 0 {
 		return nil

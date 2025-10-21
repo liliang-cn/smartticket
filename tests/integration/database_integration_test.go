@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// setupIntegrationDB creates a properly configured database for integration testing
+// setupIntegrationDB creates a properly configured database for integration testing.
 func setupIntegrationDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
@@ -50,7 +50,7 @@ func setupIntegrationDB(t *testing.T) *gorm.DB {
 	return db
 }
 
-// TestDatabaseServiceIntegration tests the integration between database and services
+// TestDatabaseServiceIntegration tests the integration between database and services.
 func TestDatabaseServiceIntegration(t *testing.T) {
 	db := setupIntegrationDB(t)
 	ctx := context.Background()
@@ -164,7 +164,7 @@ func TestDatabaseServiceIntegration(t *testing.T) {
 	})
 }
 
-// TestTicketWorkflowIntegration tests the complete ticket workflow
+// TestTicketWorkflowIntegration tests the complete ticket workflow.
 func TestTicketWorkflowIntegration(t *testing.T) {
 	db := setupIntegrationDB(t)
 
@@ -310,7 +310,7 @@ func TestTicketWorkflowIntegration(t *testing.T) {
 	})
 }
 
-// TestMultiTenantIntegration tests multi-tenant data isolation
+// TestMultiTenantIntegration tests multi-tenant data isolation.
 func TestMultiTenantIntegration(t *testing.T) {
 	db := setupIntegrationDB(t)
 
@@ -424,7 +424,7 @@ func TestMultiTenantIntegration(t *testing.T) {
 	})
 }
 
-// TestTransactionIntegration tests complex transaction scenarios
+// TestTransactionIntegration tests complex transaction scenarios.
 func TestTransactionIntegration(t *testing.T) {
 	db := setupIntegrationDB(t)
 
@@ -608,7 +608,7 @@ func TestTransactionIntegration(t *testing.T) {
 	})
 }
 
-// TestCascadeOperationsIntegration tests cascade operations and relationships
+// TestCascadeOperationsIntegration tests cascade operations and relationships.
 func TestCascadeOperationsIntegration(t *testing.T) {
 	db := setupIntegrationDB(t)
 

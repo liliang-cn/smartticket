@@ -9,13 +9,13 @@ import (
 	"github.com/company/smartticket/internal/config"
 )
 
-// TestConfig provides configuration for testing
+// TestConfig provides configuration for testing.
 type TestConfig struct {
 	*config.Config
 	tempDir string
 }
 
-// NewTestConfig creates a new test configuration
+// NewTestConfig creates a new test configuration.
 func NewTestConfig(t *testing.T) *TestConfig {
 	// Create temporary directory for test configuration
 	tempDir, err := os.MkdirTemp("", "smartticket_config_test_*")
@@ -75,12 +75,12 @@ func NewTestConfig(t *testing.T) *TestConfig {
 	}
 }
 
-// Close cleans up test configuration
+// Close cleans up test configuration.
 func (tc *TestConfig) Close() error {
 	return os.RemoveAll(tc.tempDir)
 }
 
-// CreateTestConfigFile creates a test configuration file
+// CreateTestConfigFile creates a test configuration file.
 func CreateTestConfigFile(t *testing.T, cfg *config.Config) string {
 	tempDir, err := os.MkdirTemp("", "smartticket_config_file_test_*")
 	if err != nil {
@@ -98,7 +98,7 @@ func CreateTestConfigFile(t *testing.T, cfg *config.Config) string {
 	return configPath
 }
 
-// WithTestConfig is a helper function that runs a test function with test configuration
+// WithTestConfig is a helper function that runs a test function with test configuration.
 func WithTestConfig(t *testing.T, testFunc func(*testing.T, *config.Config)) {
 	tc := NewTestConfig(t)
 	defer func() {

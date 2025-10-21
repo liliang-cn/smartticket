@@ -1,23 +1,24 @@
 package sla
 
 import (
+	"errors"
 	"time"
 
 	"github.com/company/smartticket/internal/models"
 	"gorm.io/gorm"
 )
 
-// Calculator provides SLA calculation functionality
+// Calculator provides SLA calculation functionality.
 type Calculator struct {
 	db *gorm.DB
 }
 
-// NewCalculator creates a new SLA calculator instance
+// NewCalculator creates a new SLA calculator instance.
 func NewCalculator(db *gorm.DB) *Calculator {
 	return &Calculator{db: db}
 }
 
-// SLADueDate represents calculated SLA due dates
+// SLADueDate represents calculated SLA due dates.
 type SLADueDate struct {
 	ResponseDueDate   time.Time
 	ResolutionDueDate time.Time
@@ -26,7 +27,7 @@ type SLADueDate struct {
 	BusinessOnly      bool
 }
 
-// CalculateSLADueDates calculates due dates for a ticket based on SLA rules
+// CalculateSLADueDates calculates due dates for a ticket based on SLA rules.
 func (c *Calculator) CalculateSLADueDates(tenantID uint, priority, severity string, productID, serviceID *uint) (*SLADueDate, error) {
 	// Find matching SLA rule
 	var rule models.SLARule
@@ -50,7 +51,7 @@ func (c *Calculator) CalculateSLADueDates(tenantID uint, priority, severity stri
 		"ELSE 4 END")
 
 	if err := query.First(&rule).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// Return default SLA if no rule found
 			return c.getDefaultSLADueDates(priority, severity), nil
 		}
@@ -79,7 +80,7 @@ func (c *Calculator) CalculateSLADueDates(tenantID uint, priority, severity stri
 	}, nil
 }
 
-// getDefaultSLADueDates returns default SLA due dates when no rule is found
+// getDefaultSLADueDates returns default SLA due dates when no rule is found.
 func (c *Calculator) getDefaultSLADueDates(priority, severity string) *SLADueDate {
 	now := time.Now()
 
@@ -109,7 +110,7 @@ func (c *Calculator) getDefaultSLADueDates(priority, severity string) *SLADueDat
 	}
 }
 
-// addBusinessHours adds business hours to a time
+// addBusinessHours adds business hours to a time.
 func (c *Calculator) addBusinessHours(start time.Time, minutes int) time.Time {
 	// Simple business hours calculation (Mon-Fri, 9 AM - 6 PM)
 	// This is a basic implementation - in production you might want more sophisticated business hour handling
@@ -155,7 +156,7 @@ func (c *Calculator) addBusinessHours(start time.Time, minutes int) time.Time {
 	return result
 }
 
-// CheckSLACompliance checks if a ticket meets SLA requirements
+// CheckSLACompliance checks if a ticket meets SLA requirements.
 func (c *Calculator) CheckSLACompliance(ticket *models.Ticket) (responseMet, resolutionMet bool, responseMinutes, resolutionMinutes int) {
 	if ticket.CreatedAt.IsZero() {
 		return true, true, 0, 0

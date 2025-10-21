@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ValidateDirectory checks if a directory exists and is accessible
+// ValidateDirectory checks if a directory exists and is accessible.
 func ValidateDirectory(path, description string) error {
 	if path == "" {
 		return fmt.Errorf("%s path cannot be empty", description)
@@ -30,7 +30,7 @@ func ValidateDirectory(path, description string) error {
 	return nil
 }
 
-// ValidateFile checks if a file exists and is accessible
+// ValidateFile checks if a file exists and is accessible.
 func ValidateFile(path, description string, required bool) error {
 	if path == "" {
 		if required {
@@ -55,7 +55,7 @@ func ValidateFile(path, description string, required bool) error {
 	return nil
 }
 
-// ValidateURL checks if a URL is properly formatted
+// ValidateURL checks if a URL is properly formatted.
 func ValidateURL(url, description string, required bool) error {
 	if url == "" {
 		if required {
@@ -71,7 +71,7 @@ func ValidateURL(url, description string, required bool) error {
 	return nil
 }
 
-// ValidatePort checks if a port number is valid
+// ValidatePort checks if a port number is valid.
 func ValidatePort(port int, description string) error {
 	if port < 1 || port > 65535 {
 		return fmt.Errorf("%s port must be between 1 and 65535, got: %d", description, port)
@@ -79,7 +79,7 @@ func ValidatePort(port int, description string) error {
 	return nil
 }
 
-// ValidateFilePath checks if a file path is safe and valid
+// ValidateFilePath checks if a file path is safe and valid.
 func ValidateFilePath(path, description string, required bool) error {
 	if path == "" {
 		if required {
@@ -104,7 +104,7 @@ func ValidateFilePath(path, description string, required bool) error {
 	return nil
 }
 
-// ValidateLogLevel checks if log level is valid
+// ValidateLogLevel checks if log level is valid.
 func ValidateLogLevel(level string, allowedLevels []string, description string) error {
 	if level == "" {
 		return fmt.Errorf("%s log level cannot be empty", description)
@@ -119,7 +119,7 @@ func ValidateLogLevel(level string, allowedLevels []string, description string) 
 	return fmt.Errorf("invalid %s log level '%s', must be one of: %v", description, level, allowedLevels)
 }
 
-// ValidateJWTSecret checks if JWT secret meets security requirements
+// ValidateJWTSecret checks if JWT secret meets security requirements.
 func ValidateJWTSecret(secret string, description string) error {
 	if secret == "" {
 		return fmt.Errorf("%s cannot be empty", description)
@@ -151,7 +151,7 @@ func ValidateJWTSecret(secret string, description string) error {
 	return nil
 }
 
-// ValidateArrayNotEmpty checks if a string array is not empty
+// ValidateArrayNotEmpty checks if a string array is not empty.
 func ValidateArrayNotEmpty(arr []string, description string) error {
 	if len(arr) == 0 {
 		return fmt.Errorf("%s cannot be empty", description)
@@ -159,7 +159,7 @@ func ValidateArrayNotEmpty(arr []string, description string) error {
 	return nil
 }
 
-// ValidateArrayItems checks if array items are valid
+// ValidateArrayItems checks if array items are valid.
 func ValidateArrayItems(items []string, validator func(string) error, description string) error {
 	for i, item := range items {
 		if err := validator(item); err != nil {
@@ -169,7 +169,7 @@ func ValidateArrayItems(items []string, validator func(string) error, descriptio
 	return nil
 }
 
-// ValidateMapNotEmpty checks if a map is not empty when required
+// ValidateMapNotEmpty checks if a map is not empty when required.
 func ValidateMapNotEmpty(m map[string]interface{}, description string, required bool) error {
 	if len(m) == 0 {
 		if required {
@@ -179,7 +179,7 @@ func ValidateMapNotEmpty(m map[string]interface{}, description string, required 
 	return nil
 }
 
-// ValidateRequiredString checks if a required string is not empty
+// ValidateRequiredString checks if a required string is not empty.
 func ValidateRequiredString(value, description string) error {
 	if strings.TrimSpace(value) == "" {
 		return fmt.Errorf("%s cannot be empty", description)
@@ -187,7 +187,7 @@ func ValidateRequiredString(value, description string) error {
 	return nil
 }
 
-// ValidatePositiveDuration checks if a duration is positive
+// ValidatePositiveDuration checks if a duration is positive.
 func ValidatePositiveDuration(duration time.Duration, description string) error {
 	if duration <= 0 {
 		return fmt.Errorf("%s must be positive, got: %v", description, duration)
@@ -195,7 +195,7 @@ func ValidatePositiveDuration(duration time.Duration, description string) error 
 	return nil
 }
 
-// ValidateRange checks if a value is within the specified range
+// ValidateRange checks if a value is within the specified range.
 func ValidateRange(value, min, max int, description string) error {
 	if value < min || value > max {
 		return fmt.Errorf("%s must be between %d and %d, got: %d", description, min, max, value)
@@ -203,7 +203,7 @@ func ValidateRange(value, min, max int, description string) error {
 	return nil
 }
 
-// ValidateFloatRange checks if a float value is within the specified range
+// ValidateFloatRange checks if a float value is within the specified range.
 func ValidateFloatRange(value, min, max float64, description string) error {
 	if value < min || value > max {
 		return fmt.Errorf("%s must be between %.2f and %.2f, got: %.2f", description, min, max, value)
@@ -211,7 +211,7 @@ func ValidateFloatRange(value, min, max float64, description string) error {
 	return nil
 }
 
-// ValidateEnum checks if a value is one of the allowed values
+// ValidateEnum checks if a value is one of the allowed values.
 func ValidateEnum(value string, allowed []string, description string) error {
 	for _, allowed := range allowed {
 		if value == allowed {
@@ -221,7 +221,7 @@ func ValidateEnum(value string, allowed []string, description string) error {
 	return fmt.Errorf("invalid %s '%s', must be one of: %v", description, value, allowed)
 }
 
-// ValidateEmail checks if an email address is valid (basic validation)
+// ValidateEmail checks if an email address is valid (basic validation).
 func ValidateEmail(email string, description string) error {
 	if email == "" {
 		return fmt.Errorf("%s cannot be empty", description)
@@ -242,7 +242,7 @@ func ValidateEmail(email string, description string) error {
 	return nil
 }
 
-// ValidateVersion checks if a version string follows semantic versioning
+// ValidateVersion checks if a version string follows semantic versioning.
 func ValidateVersion(version string, description string) error {
 	if version == "" {
 		return fmt.Errorf("%s cannot be empty", description)

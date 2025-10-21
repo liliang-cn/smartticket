@@ -13,17 +13,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// Service provides import/export operations
+// Service provides import/export operations.
 type Service struct {
 	db *gorm.DB
 }
 
-// NewService creates a new import/export service
+// NewService creates a new import/export service.
 func NewService(db *gorm.DB) *Service {
 	return &Service{db: db}
 }
 
-// JobStatus represents the status of an import/export job
+// JobStatus represents the status of an import/export job.
 type JobStatus string
 
 const (
@@ -33,7 +33,7 @@ const (
 	JobStatusFailed    JobStatus = "failed"
 )
 
-// FileType represents supported file types
+// FileType represents supported file types.
 type FileType string
 
 const (
@@ -44,7 +44,7 @@ const (
 	FileTypeSQLite   FileType = "sqlite"
 )
 
-// ExportType represents export data types
+// ExportType represents export data types.
 type ExportType string
 
 const (
@@ -56,7 +56,7 @@ const (
 	ExportTypeComplete          ExportType = "complete"
 )
 
-// ThirdPartySource represents third-party system sources
+// ThirdPartySource represents third-party system sources.
 type ThirdPartySource string
 
 const (
@@ -66,7 +66,7 @@ const (
 	SourceCustom    ThirdPartySource = "custom"
 )
 
-// ImportRequest represents the request to create an import job
+// ImportRequest represents the request to create an import job.
 type ImportRequest struct {
 	Type         ExportType       `json:"type" binding:"required,oneof=tickets knowledge_articles users products services"`
 	SourceType   ThirdPartySource `json:"source_type" binding:"required,oneof=zendesk jira freshdesk custom"`
@@ -75,7 +75,7 @@ type ImportRequest struct {
 	Options      string           `json:"options"` // JSON options
 }
 
-// ExportRequest represents the request to create an export job
+// ExportRequest represents the request to create an export job.
 type ExportRequest struct {
 	Type         ExportType `json:"type" binding:"required,oneof=tickets knowledge_articles users products services complete"`
 	TargetFormat FileType   `json:"target_format" binding:"required,oneof=csv json xml markdown sqlite"`
@@ -83,7 +83,7 @@ type ExportRequest struct {
 	Options      string     `json:"options"` // JSON options
 }
 
-// JobResponse represents the response for a job
+// JobResponse represents the response for a job.
 type JobResponse struct {
 	ID               uint         `json:"id"`
 	Type             string       `json:"type"`
@@ -103,7 +103,7 @@ type JobResponse struct {
 	StartedByUser    *models.User `json:"started_by_user,omitempty"`
 }
 
-// JobListResponse represents a paginated job list
+// JobListResponse represents a paginated job list.
 type JobListResponse struct {
 	Data       []JobResponse `json:"data"`
 	Total      int64         `json:"total"`
@@ -112,7 +112,7 @@ type JobListResponse struct {
 	TotalPages int           `json:"total_pages"`
 }
 
-// CreateImportJob creates a new import job
+// CreateImportJob creates a new import job.
 func (s *Service) CreateImportJob(tenantID uint, userID uint, file *multipart.FileHeader, req *ImportRequest) (*JobResponse, error) {
 	// Validate file size (max 100MB)
 	if file.Size > 100*1024*1024 {
@@ -147,7 +147,7 @@ func (s *Service) CreateImportJob(tenantID uint, userID uint, file *multipart.Fi
 	return s.getJobResponse(job)
 }
 
-// CreateExportJob creates a new export job
+// CreateExportJob creates a new export job.
 func (s *Service) CreateExportJob(tenantID uint, userID uint, req *ExportRequest) (*JobResponse, error) {
 	// Create export job
 	job := &models.ImportExportJob{
@@ -178,7 +178,7 @@ func (s *Service) CreateExportJob(tenantID uint, userID uint, req *ExportRequest
 	return s.getJobResponse(job)
 }
 
-// GetJob retrieves a job by ID
+// GetJob retrieves a job by ID.
 func (s *Service) GetJob(tenantID uint, jobID uint) (*JobResponse, error) {
 	var job models.ImportExportJob
 	if err := s.db.Where("id = ? AND tenant_id = ?", jobID, tenantID).
@@ -193,7 +193,7 @@ func (s *Service) GetJob(tenantID uint, jobID uint) (*JobResponse, error) {
 	return s.getJobResponse(&job)
 }
 
-// ListJobs retrieves import/export jobs with pagination
+// ListJobs retrieves import/export jobs with pagination.
 func (s *Service) ListJobs(tenantID uint, page, pageSize int, filters map[string]interface{}) (*JobListResponse, error) {
 	offset := (page - 1) * pageSize
 
@@ -246,7 +246,7 @@ func (s *Service) ListJobs(tenantID uint, page, pageSize int, filters map[string
 	}, nil
 }
 
-// CancelJob cancels a running job
+// CancelJob cancels a running job.
 func (s *Service) CancelJob(tenantID uint, jobID uint, userID uint) error {
 	var job models.ImportExportJob
 	if err := s.db.Where("id = ? AND tenant_id = ?", jobID, tenantID).
@@ -274,7 +274,7 @@ func (s *Service) CancelJob(tenantID uint, jobID uint, userID uint) error {
 	return nil
 }
 
-// DeleteJob soft deletes a job
+// DeleteJob soft deletes a job.
 func (s *Service) DeleteJob(tenantID uint, jobID uint, userID uint) error {
 	// Get user email for audit
 	var user models.User
@@ -362,7 +362,7 @@ func (s *Service) buildExportConfig(req *ExportRequest) string {
 	return string(configBytes)
 }
 
-// FormatValidation validates file format based on extension
+// FormatValidation validates file format based on extension.
 func (s *Service) ValidateFileFormat(filename string, expectedType FileType) error {
 	ext := strings.ToLower(filepath.Ext(filename))
 
@@ -392,7 +392,7 @@ func (s *Service) ValidateFileFormat(filename string, expectedType FileType) err
 	return nil
 }
 
-// GetJobStats returns import/export job statistics
+// GetJobStats returns import/export job statistics.
 func (s *Service) GetJobStats(tenantID uint) (map[string]interface{}, error) {
 	stats := make(map[string]interface{})
 

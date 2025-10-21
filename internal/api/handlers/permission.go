@@ -2,28 +2,28 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/services"
 )
 
-// PermissionHandler handles permission-related API endpoints
+// PermissionHandler handles permission-related API endpoints.
 type PermissionHandler struct {
 	permissionService *services.PermissionService
+	responseHelper    *ResponseHelper
 }
 
-// NewPermissionHandler creates a new permission handler
+// NewPermissionHandler creates a new permission handler.
 func NewPermissionHandler(permissionService *services.PermissionService) *PermissionHandler {
 	return &PermissionHandler{
 		permissionService: permissionService,
+		responseHelper:    NewResponseHelper(),
 	}
 }
 
-// GetAllPermissions returns all permissions
+// GetAllPermissions returns all permissions.
 func (h *PermissionHandler) GetAllPermissions(c *gin.Context) {
 	permissions, err := h.permissionService.GetAllPermissions(c.Request.Context())
 	if err != nil {
@@ -43,62 +43,26 @@ func (h *PermissionHandler) GetAllPermissions(c *gin.Context) {
 	})
 }
 
-// GetPermissionByID returns a permission by ID
+// GetPermissionByID returns a permission by ID.
 func (h *PermissionHandler) GetPermissionByID(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid permission ID",
-			},
-		})
+	id, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
-	permission, err := h.permissionService.GetPermissionByID(c.Request.Context(), uint(id))
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{
-				"success": false,
-				"error": gin.H{
-					"code":    "NOT_FOUND",
-					"message": "Permission not found",
-				},
-			})
-			return
-		}
-
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to get permission",
-			},
-		})
+	permission, err := h.permissionService.GetPermissionByID(c.Request.Context(), id)
+	if h.responseHelper.HandleGormError(c, err, "permission") {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    permission,
-	})
+	h.responseHelper.SendSuccess(c, permission)
 }
 
-// CreatePermission creates a new permission
+// CreatePermission creates a new permission.
 func (h *PermissionHandler) CreatePermission(c *gin.Context) {
 	var req models.Permission
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": err.Error(),
-			},
-		})
+	if !h.responseHelper.BindJSON(c, &req) {
 		return
 	}
 
@@ -106,160 +70,79 @@ func (h *PermissionHandler) CreatePermission(c *gin.Context) {
 
 	err := h.permissionService.CreatePermission(c.Request.Context(), &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to create permission",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to create permission")
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"success": true,
-		"data":    req,
-	})
+	h.responseHelper.SendSuccessWithStatus(c, http.StatusCreated, req)
 }
 
-// UpdatePermission updates an existing permission
+// UpdatePermission updates an existing permission.
 func (h *PermissionHandler) UpdatePermission(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid permission ID",
-			},
-		})
+	id, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
 	var req models.Permission
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": err.Error(),
-			},
-		})
+	if !h.responseHelper.BindJSON(c, &req) {
 		return
 	}
 
-	req.ID = uint(id)
+	req.ID = id
 
-	err = h.permissionService.UpdatePermission(c.Request.Context(), &req)
+	err := h.permissionService.UpdatePermission(c.Request.Context(), &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to update permission",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to update permission")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    req,
-	})
+	h.responseHelper.SendSuccess(c, req)
 }
 
-// DeletePermission deletes a permission
+// DeletePermission deletes a permission.
 func (h *PermissionHandler) DeletePermission(c *gin.Context) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid permission ID",
-			},
-		})
+	id, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
-	err = h.permissionService.DeletePermission(c.Request.Context(), uint(id))
+	err := h.permissionService.DeletePermission(c.Request.Context(), id)
 	if err != nil {
 		if err.Error() == "cannot delete system permission" {
-			c.JSON(http.StatusForbidden, gin.H{
-				"success": false,
-				"error": gin.H{
-					"code":    "FORBIDDEN",
-					"message": "Cannot delete system permission",
-				},
-			})
+			h.responseHelper.SendForbiddenError(c, "Cannot delete system permission")
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to delete permission",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to delete permission")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    gin.H{"message": "Permission deleted successfully"},
-	})
+	h.responseHelper.SendSuccess(c, gin.H{"message": "Permission deleted successfully"})
 }
 
-// GetUserPermissions returns all permissions for a user
+// GetUserPermissions returns all permissions for a user.
 func (h *PermissionHandler) GetUserPermissions(c *gin.Context) {
-	userIDStr := c.Param("id")
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid user ID",
-			},
-		})
+	userID, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
-	tenantID := c.GetString("tenant_id")
+	tenantID := h.responseHelper.GetTenantIDFromContext(c)
 
-	permissions, err := h.permissionService.GetUserPermissions(c.Request.Context(), uint(userID), tenantID)
+	permissions, err := h.permissionService.GetUserPermissions(c.Request.Context(), userID, tenantID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to get user permissions",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to get user permissions")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    permissions,
-	})
+	h.responseHelper.SendSuccess(c, permissions)
 }
 
-// AssignPermissionToUser assigns a permission directly to a user
+// AssignPermissionToUser assigns a permission directly to a user.
 func (h *PermissionHandler) AssignPermissionToUser(c *gin.Context) {
-	userIDStr := c.Param("id")
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid user ID",
-			},
-		})
+	userID, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
@@ -267,81 +150,40 @@ func (h *PermissionHandler) AssignPermissionToUser(c *gin.Context) {
 		PermissionID uint `json:"permission_id" binding:"required"`
 	}
 
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": err.Error(),
-			},
-		})
+	if !h.responseHelper.BindJSON(c, &req) {
 		return
 	}
 
-	tenantID := c.GetString("tenant_id")
+	tenantID := h.responseHelper.GetTenantIDFromContext(c)
 
-	err = h.permissionService.AssignPermissionToUser(c.Request.Context(), uint(userID), req.PermissionID, tenantID)
+	err := h.permissionService.AssignPermissionToUser(c.Request.Context(), userID, req.PermissionID, tenantID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to assign permission to user",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to assign permission to user")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    gin.H{"message": "Permission assigned successfully"},
-	})
+	h.responseHelper.SendSuccess(c, gin.H{"message": "Permission assigned successfully"})
 }
 
-// RemovePermissionFromUser removes a permission directly from a user
+// RemovePermissionFromUser removes a permission directly from a user.
 func (h *PermissionHandler) RemovePermissionFromUser(c *gin.Context) {
-	userIDStr := c.Param("id")
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid user ID",
-			},
-		})
+	userID, ok := h.responseHelper.ParseIDParam(c, "id")
+	if !ok {
 		return
 	}
 
-	permissionIDStr := c.Param("permissionId")
-	permissionID, err := strconv.ParseUint(permissionIDStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "VALIDATION_ERROR",
-				"message": "Invalid permission ID",
-			},
-		})
+	permissionID, ok := h.responseHelper.ParseIDParam(c, "permissionId")
+	if !ok {
 		return
 	}
 
-	tenantID := c.GetString("tenant_id")
+	tenantID := h.responseHelper.GetTenantIDFromContext(c)
 
-	err = h.permissionService.RemovePermissionFromUser(c.Request.Context(), uint(userID), uint(permissionID), tenantID)
+	err := h.permissionService.RemovePermissionFromUser(c.Request.Context(), userID, permissionID, tenantID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error": gin.H{
-				"code":    "INTERNAL_ERROR",
-				"message": "Failed to remove permission from user",
-			},
-		})
+		h.responseHelper.SendInternalError(c, "Failed to remove permission from user")
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data":    gin.H{"message": "Permission removed successfully"},
-	})
+	h.responseHelper.SendSuccess(c, gin.H{"message": "Permission removed successfully"})
 }

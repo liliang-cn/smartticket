@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config represents the application configuration
+// Config represents the application configuration.
 type Config struct {
 	Environment string          `mapstructure:"environment" validate:"required,oneof=development test production"`
 	Server      ServerConfig    `mapstructure:"server" validate:"required"`
@@ -22,7 +22,7 @@ type Config struct {
 	LLM         LLMConfig       `mapstructure:"llm"`
 }
 
-// ServerConfig contains HTTP server configuration
+// ServerConfig contains HTTP server configuration.
 type ServerConfig struct {
 	Host           string `mapstructure:"host" validate:"required"`
 	Port           int    `mapstructure:"port" validate:"required,min=1,max=65535"`
@@ -32,7 +32,7 @@ type ServerConfig struct {
 	MaxHeaderBytes int    `mapstructure:"max_header_bytes" validate:"required,min=1024,max=1048576"`
 }
 
-// DatabaseConfig contains database configuration
+// DatabaseConfig contains database configuration.
 type DatabaseConfig struct {
 	Type            string `mapstructure:"type" validate:"required,oneof=sqlite"`
 	ConnectionURL   string `mapstructure:"connection_url" validate:"required"`
@@ -42,7 +42,7 @@ type DatabaseConfig struct {
 	LogLevel        string `mapstructure:"log_level" validate:"required,oneof=silent error warn info debug"`
 }
 
-// JWTConfig contains JWT authentication configuration
+// JWTConfig contains JWT authentication configuration.
 type JWTConfig struct {
 	Secret               string        `mapstructure:"secret" validate:"required,min=32"`
 	ExpirationTime       time.Duration `mapstructure:"expiration_time" validate:"required,min=1m,max=24h"`
@@ -52,7 +52,7 @@ type JWTConfig struct {
 	RefreshTokenDuration time.Duration `mapstructure:"refresh_token_duration"`
 }
 
-// CORSConfig contains CORS configuration
+// CORSConfig contains CORS configuration.
 type CORSConfig struct {
 	AllowedOrigins   []string `mapstructure:"allowed_origins" validate:"required,min=1"`
 	AllowedMethods   []string `mapstructure:"allowed_methods" validate:"required,min=1"`
@@ -61,7 +61,7 @@ type CORSConfig struct {
 	MaxAge           int      `mapstructure:"max_age" validate:"min=1,max=86400"`
 }
 
-// LoggerConfig contains logging configuration
+// LoggerConfig contains logging configuration.
 type LoggerConfig struct {
 	Level      string `mapstructure:"level" validate:"required,oneof=debug info warn error"`
 	Format     string `mapstructure:"format" validate:"required,oneof=json text"`
@@ -72,13 +72,13 @@ type LoggerConfig struct {
 	MaxAgeDays int    `mapstructure:"max_age_days" validate:"min=1,max=365"`
 }
 
-// RateLimitConfig contains rate limiting configuration
+// RateLimitConfig contains rate limiting configuration.
 type RateLimitConfig struct {
 	RequestsPerSecond int `mapstructure:"requests_per_second" validate:"required,min=1,max=1000"`
 	Burst             int `mapstructure:"burst" validate:"required,min=1,max=1000"`
 }
 
-// LLMConfig contains LLM provider configuration
+// LLMConfig contains LLM provider configuration.
 type LLMConfig struct {
 	DefaultProvider string                 `mapstructure:"default_provider"`
 	Providers       map[string]LLMProvider `mapstructure:"providers"`
@@ -106,7 +106,7 @@ type LLMRateLimitConfig struct {
 	TokensPerMinute   int `mapstructure:"tokens_per_minute" validate:"min=1000,max=100000"`
 }
 
-// Load loads configuration from file and environment variables
+// Load loads configuration from file and environment variables.
 func Load() (*Config, error) {
 	v := viper.New()
 
@@ -152,7 +152,7 @@ func Load() (*Config, error) {
 	return &config, nil
 }
 
-// LoadFromFlags loads configuration with command line flag overrides
+// LoadFromFlags loads configuration with command line flag overrides.
 func LoadFromFlags(cmd *cobra.Command) (*Config, error) {
 	configPath, _ := cmd.Flags().GetString("config")
 
@@ -163,7 +163,7 @@ func LoadFromFlags(cmd *cobra.Command) (*Config, error) {
 	return Load()
 }
 
-// setDefaults sets default configuration values
+// setDefaults sets default configuration values.
 func setDefaults(v *viper.Viper) {
 	// Server defaults
 	v.SetDefault("server.host", "localhost")
@@ -214,7 +214,7 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("llm.rate_limit.tokens_per_minute", 10000)
 }
 
-// applyEnvironmentOverrides applies environment-specific overrides
+// applyEnvironmentOverrides applies environment-specific overrides.
 func applyEnvironmentOverrides(config *Config) {
 	switch config.Environment {
 	case "development":
@@ -250,7 +250,7 @@ func applyEnvironmentOverrides(config *Config) {
 	}
 }
 
-// validateConfig validates the configuration
+// validateConfig validates the configuration.
 func validateConfig(config *Config) error {
 	// Validate server configuration
 	if config.Server.Port < 1 || config.Server.Port > 65535 {
@@ -275,27 +275,27 @@ func validateConfig(config *Config) error {
 	return nil
 }
 
-// IsDevelopment checks if running in development mode
+// IsDevelopment checks if running in development mode.
 func (c *Config) IsDevelopment() bool {
 	return c.Environment == "development"
 }
 
-// IsProduction checks if running in production mode
+// IsProduction checks if running in production mode.
 func (c *Config) IsProduction() bool {
 	return c.Environment == "production"
 }
 
-// IsTest checks if running in test mode
+// IsTest checks if running in test mode.
 func (c *Config) IsTest() bool {
 	return c.Environment == "test"
 }
 
-// GetDatabasePath returns the database file path
+// GetDatabasePath returns the database file path.
 func (c *Config) GetDatabasePath() string {
 	return c.Database.ConnectionURL
 }
 
-// GetServerAddress returns the server address
+// GetServerAddress returns the server address.
 func (c *Config) GetServerAddress() string {
 	return fmt.Sprintf("%s:%d", c.Server.Host, c.Server.Port)
 }

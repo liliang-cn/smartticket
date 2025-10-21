@@ -12,12 +12,12 @@ import (
 	"github.com/company/smartticket/internal/logger"
 )
 
-// Handlers provides authentication HTTP handlers
+// Handlers provides authentication HTTP handlers.
 type Handlers struct {
 	authService *Service
 }
 
-// NewHandlers creates new authentication handlers
+// NewHandlers creates new authentication handlers.
 func NewHandlers(authService *Service) *Handlers {
 	return &Handlers{
 		authService: authService,
@@ -36,7 +36,7 @@ func NewHandlers(authService *Service) *Handlers {
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/auth/login [post]
+// @Router /api/v1/auth/login [post].
 func (h *Handlers) Login(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	tenantID, _ := c.Get("tenant_id")
@@ -101,7 +101,7 @@ func (h *Handlers) Login(c *gin.Context) {
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/auth/refresh [post]
+// @Router /api/v1/auth/refresh [post].
 func (h *Handlers) RefreshToken(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	requestIDStr, ok := requestID.(string)
@@ -142,7 +142,7 @@ func (h *Handlers) RefreshToken(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} map[string]interface{}
 // @Failure 401 {object} errors.ErrorResponse
-// @Router /api/v1/auth/logout [post]
+// @Router /api/v1/auth/logout [post].
 func (h *Handlers) Logout(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	clientIP := c.ClientIP()
@@ -181,7 +181,7 @@ func (h *Handlers) Logout(c *gin.Context) {
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 404 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/auth/profile [get]
+// @Router /api/v1/auth/profile [get].
 func (h *Handlers) GetProfile(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
@@ -229,7 +229,7 @@ func (h *Handlers) GetProfile(c *gin.Context) {
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
-// @Router /api/v1/auth/change-password [post]
+// @Router /api/v1/auth/change-password [post].
 func (h *Handlers) ChangePassword(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
@@ -310,7 +310,7 @@ func (h *Handlers) ChangePassword(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 401 {object} errors.ErrorResponse
-// @Router /api/v1/auth/me [get]
+// @Router /api/v1/auth/me [get].
 func (h *Handlers) GetMe(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
@@ -337,7 +337,7 @@ func (h *Handlers) GetMe(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} map[string]interface{}
 // @Failure 401 {object} errors.ErrorResponse
-// @Router /api/v1/auth/validate [get]
+// @Router /api/v1/auth/validate [get].
 func (h *Handlers) ValidateToken(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")

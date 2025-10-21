@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Base model with common fields
+// Base model with common fields.
 type BaseModel struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
 	CreatedAt time.Time      `json:"created_at"`
@@ -16,7 +16,7 @@ type BaseModel struct {
 	UpdatedBy *string        `gorm:"size:255" json:"updated_by,omitempty"`
 }
 
-// Tenant represents a multi-tenant organization
+// Tenant represents a multi-tenant organization.
 type Tenant struct {
 	BaseModel
 	Name      string     `gorm:"size:255;not null" json:"name"`
@@ -31,7 +31,7 @@ type Tenant struct {
 	Tickets   []Ticket   `gorm:"foreignKey:TenantID;references:ID" json:"tickets,omitempty"`
 }
 
-// User represents a user account
+// User represents a user account.
 type User struct {
 	BaseModel
 	TenantID     uint       `gorm:"not null;index" json:"tenant_id"`
@@ -49,7 +49,7 @@ type User struct {
 	Messages     []Message  `gorm:"foreignKey:UserID;references:ID" json:"messages,omitempty"`
 }
 
-// Ticket represents a support ticket
+// Ticket represents a support ticket.
 type Ticket struct {
 	BaseModel
 	TenantID       uint         `gorm:"not null;index" json:"tenant_id"`
@@ -81,7 +81,7 @@ type Ticket struct {
 	Attachments    []Attachment `gorm:"foreignKey:TicketID" json:"attachments,omitempty"`
 }
 
-// Message represents a ticket message
+// Message represents a ticket message.
 type Message struct {
 	BaseModel
 	TicketID    uint         `gorm:"not null;index" json:"ticket_id"`
@@ -95,7 +95,7 @@ type Message struct {
 	Attachments []Attachment `gorm:"foreignKey:MessageID" json:"attachments,omitempty"`
 }
 
-// Attachment represents a file attachment
+// Attachment represents a file attachment.
 type Attachment struct {
 	BaseModel
 	TicketID           uint              `gorm:"not null;index" json:"ticket_id"`
@@ -112,7 +112,7 @@ type Attachment struct {
 	Hash               string            `gorm:"size:64;index" json:"hash"` // SHA-256 hash
 }
 
-// KnowledgeArticle represents a knowledge base article
+// KnowledgeArticle represents a knowledge base article.
 type KnowledgeArticle struct {
 	BaseModel
 	TenantID     uint              `gorm:"not null;index" json:"tenant_id"`
@@ -141,7 +141,7 @@ type KnowledgeArticle struct {
 	Attachments  []Attachment      `gorm:"foreignKey:KnowledgeArticleID" json:"attachments,omitempty"`
 }
 
-// LLMProvider represents a configured LLM provider
+// LLMProvider represents a configured LLM provider.
 type LLMProvider struct {
 	BaseModel
 	TenantID      uint    `gorm:"not null;index" json:"tenant_id"`
@@ -161,7 +161,7 @@ type LLMProvider struct {
 	Configuration string  `gorm:"type:text" json:"configuration"` // JSON object
 }
 
-// ImportExportJob represents a data import/export job
+// ImportExportJob represents a data import/export job.
 type ImportExportJob struct {
 	BaseModel
 	TenantID         uint       `gorm:"not null;index" json:"tenant_id"`
@@ -183,7 +183,7 @@ type ImportExportJob struct {
 	StartedByUser    *User      `gorm:"foreignKey:StartedBy" json:"started_by_user,omitempty"`
 }
 
-// AuditLog represents an audit log entry
+// AuditLog represents an audit log entry.
 type AuditLog struct {
 	BaseModel
 	TenantID     uint   `gorm:"not null;index" json:"tenant_id"`
@@ -203,7 +203,7 @@ type AuditLog struct {
 	Hash         string `gorm:"size:64;index" json:"hash"` // SHA-256 hash for integrity
 }
 
-// APIKey represents an API key for external access
+// APIKey represents an API key for external access.
 type APIKey struct {
 	BaseModel
 	TenantID    uint       `gorm:"not null;index" json:"tenant_id"`
@@ -220,7 +220,7 @@ type APIKey struct {
 	Creator     *User      `gorm:"foreignKey:CreatorID" json:"creator,omitempty"`
 }
 
-// SystemSetting represents system-wide settings
+// SystemSetting represents system-wide settings.
 type SystemSetting struct {
 	BaseModel
 	Key         string `gorm:"size:255;not null;uniqueIndex" json:"key"`
@@ -230,7 +230,7 @@ type SystemSetting struct {
 	IsPublic    bool   `gorm:"default:false" json:"is_public"`
 }
 
-// Product represents a product or service offering
+// Product represents a product or service offering.
 type Product struct {
 	BaseModel
 	TenantID          uint               `gorm:"not null;index" json:"tenant_id"`
@@ -250,7 +250,7 @@ type Product struct {
 	KnowledgeArticles []KnowledgeArticle `gorm:"foreignKey:ProductID" json:"knowledge_articles,omitempty"`
 }
 
-// Service represents a specific service within a product
+// Service represents a specific service within a product.
 type Service struct {
 	BaseModel
 	TenantID          uint               `gorm:"not null;index" json:"tenant_id"`
@@ -271,7 +271,7 @@ type Service struct {
 	KnowledgeArticles []KnowledgeArticle `gorm:"foreignKey:ServiceID" json:"knowledge_articles,omitempty"`
 }
 
-// SLATemplate represents SLA模板
+// SLATemplate represents SLA模板.
 type SLATemplate struct {
 	BaseModel
 	TenantID        uint      `gorm:"not null;index" json:"tenant_id"`
@@ -290,7 +290,7 @@ type SLATemplate struct {
 	SLARules        []SLARule `gorm:"foreignKey:SLATemplateID" json:"sla_rules,omitempty"`
 }
 
-// SLARule represents具体的SLA规则
+// SLARule represents具体的SLA规则.
 type SLARule struct {
 	BaseModel
 	TenantID       uint        `gorm:"not null;index" json:"tenant_id"`
@@ -310,7 +310,7 @@ type SLARule struct {
 	Conditions     string      `gorm:"type:text" json:"conditions"` // JSON条件配置
 }
 
-// Permission represents a granular permission for resource-action combinations
+// Permission represents a granular permission for resource-action combinations.
 type Permission struct {
 	BaseModel
 	Code            string           `gorm:"size:100;not null;uniqueIndex" json:"code"` // Format: resource:action
@@ -322,7 +322,7 @@ type Permission struct {
 	UserAssignments []UserPermission `gorm:"foreignKey:PermissionID" json:"user_assignments,omitempty"`
 }
 
-// Role represents role definitions with associated permission sets
+// Role represents role definitions with associated permission sets.
 type Role struct {
 	BaseModel
 	TenantID    uint         `gorm:"not null;index" json:"tenant_id"`
@@ -336,7 +336,7 @@ type Role struct {
 	Permissions []Permission `gorm:"many2many:role_permissions;" json:"permissions,omitempty"`
 }
 
-// RolePermission represents many-to-many relationship between roles and permissions
+// RolePermission represents many-to-many relationship between roles and permissions.
 type RolePermission struct {
 	BaseModel
 	RoleID       uint       `gorm:"not null;index" json:"role_id"`
@@ -347,7 +347,7 @@ type RolePermission struct {
 	Granter      *User      `gorm:"foreignKey:CreatedBy;references:ID" json:"granter,omitempty"`
 }
 
-// UserPermission represents direct permission assignments to users (bypassing roles)
+// UserPermission represents direct permission assignments to users (bypassing roles).
 type UserPermission struct {
 	BaseModel
 	UserID       uint       `gorm:"not null;index" json:"user_id"`
@@ -359,7 +359,7 @@ type UserPermission struct {
 	Granter      *User      `gorm:"foreignKey:GrantedBy;references:ID" json:"granter,omitempty"`
 }
 
-// UserRole represents many-to-many relationship between users and roles
+// UserRole represents many-to-many relationship between users and roles.
 type UserRole struct {
 	UserID     uint      `gorm:"primaryKey;not null;index" json:"user_id"`
 	RoleID     uint      `gorm:"primaryKey;not null;index" json:"role_id"`
@@ -372,7 +372,7 @@ type UserRole struct {
 	Assigner *User `gorm:"foreignKey:AssignedBy;references:ID" json:"assigner,omitempty"`
 }
 
-// Table name overrides
+// Table name overrides.
 func (Tenant) TableName() string           { return "tenants" }
 func (User) TableName() string             { return "users" }
 func (Ticket) TableName() string           { return "tickets" }

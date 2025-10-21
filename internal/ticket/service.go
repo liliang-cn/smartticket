@@ -12,13 +12,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// Service provides ticket management business logic
+// Service provides ticket management business logic.
 type Service struct {
 	db            *gorm.DB
 	slaCalculator *sla.Calculator
 }
 
-// NewService creates a new ticket service
+// NewService creates a new ticket service.
 func NewService(db *gorm.DB, slaCalculator *sla.Calculator) *Service {
 	return &Service{
 		db:            db,
@@ -26,7 +26,7 @@ func NewService(db *gorm.DB, slaCalculator *sla.Calculator) *Service {
 	}
 }
 
-// CreateTicketRequest represents a ticket creation request
+// CreateTicketRequest represents a ticket creation request.
 type CreateTicketRequest struct {
 	Title          string `json:"title" binding:"required,min=1,max=255"`
 	Description    string `json:"description" binding:"required,min=1"`
@@ -42,7 +42,7 @@ type CreateTicketRequest struct {
 	CustomFields   string `json:"custom_fields" binding:"omitempty"` // JSON object
 }
 
-// UpdateTicketRequest represents a ticket update request
+// UpdateTicketRequest represents a ticket update request.
 type UpdateTicketRequest struct {
 	Title          string `json:"title" binding:"omitempty,min=1,max=255"`
 	Description    string `json:"description" binding:"omitempty,min=1"`
@@ -60,7 +60,7 @@ type UpdateTicketRequest struct {
 	CustomFields   string `json:"custom_fields" binding:"omitempty"` // JSON object
 }
 
-// TicketResponse represents a ticket response
+// TicketResponse represents a ticket response.
 type TicketResponse struct {
 	ID              uint                   `json:"id"`
 	TicketNumber    string                 `json:"ticket_number"`
@@ -90,7 +90,7 @@ type TicketResponse struct {
 	AttachmentCount int64                  `json:"attachment_count"`
 }
 
-// TicketListResponse represents a paginated ticket list
+// TicketListResponse represents a paginated ticket list.
 type TicketListResponse struct {
 	Data       []TicketResponse `json:"data"`
 	Total      int64            `json:"total"`
@@ -99,7 +99,7 @@ type TicketListResponse struct {
 	TotalPages int              `json:"total_pages"`
 }
 
-// UserInfo represents basic user information in ticket responses
+// UserInfo represents basic user information in ticket responses.
 type UserInfo struct {
 	ID        uint   `json:"id"`
 	Email     string `json:"email"`
@@ -109,7 +109,7 @@ type UserInfo struct {
 	Role      string `json:"role"`
 }
 
-// CreateTicket creates a new ticket
+// CreateTicket creates a new ticket.
 func (s *Service) CreateTicket(tenantID uint, userID uint, req *CreateTicketRequest) (*TicketResponse, error) {
 	// Normalize and validate input
 	req.Title = strings.TrimSpace(req.Title)
@@ -172,7 +172,7 @@ func (s *Service) CreateTicket(tenantID uint, userID uint, req *CreateTicketRequ
 	return s.ticketToResponse(ticket), nil
 }
 
-// GetTicket gets a ticket by ID
+// GetTicket gets a ticket by ID.
 func (s *Service) GetTicket(tenantID uint, ticketID uint) (*TicketResponse, error) {
 	var ticket models.Ticket
 	if err := s.db.Where("id = ? AND tenant_id = ?", ticketID, tenantID).
@@ -187,7 +187,7 @@ func (s *Service) GetTicket(tenantID uint, ticketID uint) (*TicketResponse, erro
 	return s.ticketToResponse(&ticket), nil
 }
 
-// ListTickets lists tickets with pagination and filtering
+// ListTickets lists tickets with pagination and filtering.
 func (s *Service) ListTickets(tenantID uint, page, pageSize int, filters map[string]interface{}) (*TicketListResponse, error) {
 	if page < 1 {
 		page = 1
@@ -257,7 +257,7 @@ func (s *Service) ListTickets(tenantID uint, page, pageSize int, filters map[str
 	}, nil
 }
 
-// UpdateTicket updates a ticket
+// UpdateTicket updates a ticket.
 func (s *Service) UpdateTicket(tenantID uint, ticketID uint, userID uint, req *UpdateTicketRequest) (*TicketResponse, error) {
 	var ticket models.Ticket
 	if err := s.db.Where("id = ? AND tenant_id = ?", ticketID, tenantID).
@@ -372,7 +372,7 @@ func (s *Service) UpdateTicket(tenantID uint, ticketID uint, userID uint, req *U
 	return s.ticketToResponse(&ticket), nil
 }
 
-// DeleteTicket soft deletes a ticket
+// DeleteTicket soft deletes a ticket.
 func (s *Service) DeleteTicket(tenantID uint, ticketID uint) error {
 	result := s.db.Model(&models.Ticket{}).
 		Where("id = ? AND tenant_id = ?", ticketID, tenantID).
@@ -389,7 +389,7 @@ func (s *Service) DeleteTicket(tenantID uint, ticketID uint) error {
 	return nil
 }
 
-// AssignTicket assigns a ticket to a user
+// AssignTicket assigns a ticket to a user.
 func (s *Service) AssignTicket(tenantID uint, ticketID uint, assignedTo uint) error {
 	result := s.db.Model(&models.Ticket{}).
 		Where("id = ? AND tenant_id = ?", ticketID, tenantID).
@@ -406,7 +406,7 @@ func (s *Service) AssignTicket(tenantID uint, ticketID uint, assignedTo uint) er
 	return nil
 }
 
-// GetTicketStats gets ticket statistics
+// GetTicketStats gets ticket statistics.
 func (s *Service) GetTicketStats(tenantID uint) (map[string]interface{}, error) {
 	var stats struct {
 		Total         int64 `json:"total"`

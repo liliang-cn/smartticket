@@ -3,8 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"runtime"
 	"time"
 
@@ -29,7 +29,7 @@ import (
 	"github.com/company/smartticket/internal/user"
 )
 
-// Server represents the HTTP server
+// Server represents the HTTP server.
 type Server struct {
 	config               *config.Config
 	router               *gin.Engine
@@ -39,7 +39,7 @@ type Server struct {
 	permissionMiddleware *middleware.PermissionMiddleware
 }
 
-// NewServer creates a new HTTP server instance
+// NewServer creates a new HTTP server instance.
 func NewServer(cfg *config.Config, db *database.Database) *Server {
 	// Set Gin mode based on environment
 	if cfg.IsProduction() {
@@ -77,7 +77,7 @@ func NewServer(cfg *config.Config, db *database.Database) *Server {
 	return server
 }
 
-// setupMiddleware configures server middleware
+// setupMiddleware configures server middleware.
 func (s *Server) setupMiddleware() {
 	// Custom recovery middleware with error handling
 	s.router.Use(errors.RecoveryMiddleware())
@@ -143,7 +143,7 @@ func (s *Server) setupMiddleware() {
 	s.router.NoMethod(errors.MethodNotAllowedHandler)
 }
 
-// setupRoutes configures server routes
+// setupRoutes configures server routes.
 func (s *Server) setupRoutes() {
 	// Initialize services and handlers
 	authRepo := auth.NewRepository(s.db.DB)
@@ -391,7 +391,7 @@ func (s *Server) setupRoutes() {
 	}
 }
 
-// Start starts the HTTP server
+// Start starts the HTTP server.
 func (s *Server) Start() error {
 	addr := s.config.GetServerAddress()
 
@@ -413,7 +413,7 @@ func (s *Server) Start() error {
 	return nil
 }
 
-// Shutdown gracefully shuts down the HTTP server
+// Shutdown gracefully shuts down the HTTP server.
 func (s *Server) Shutdown(ctx context.Context) error {
 	if s.server == nil {
 		return nil
@@ -424,20 +424,20 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	return s.server.Shutdown(ctx)
 }
 
-// GetRouter returns the Gin router (useful for testing)
+// GetRouter returns the Gin router (useful for testing).
 func (s *Server) GetRouter() *gin.Engine {
 	return s.router
 }
 
-// GetConfig returns the server configuration
+// GetConfig returns the server configuration.
 func (s *Server) GetConfig() *config.Config {
 	return s.config
 }
 
-// serveSwaggerYAML serves the Swagger YAML specification
+// serveSwaggerYAML serves the Swagger YAML specification.
 func (s *Server) serveSwaggerYAML(c *gin.Context) {
 	swaggerPath := "./docs/swagger.yaml"
-	yamlContent, err := ioutil.ReadFile(swaggerPath)
+	yamlContent, err := os.ReadFile(swaggerPath)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": "Swagger specification not found",
@@ -449,7 +449,7 @@ func (s *Server) serveSwaggerYAML(c *gin.Context) {
 	c.Data(http.StatusOK, "application/x-yaml", yamlContent)
 }
 
-// serveSwaggerUI serves the Swagger UI HTML page
+// serveSwaggerUI serves the Swagger UI HTML page.
 func (s *Server) serveSwaggerUI(c *gin.Context) {
 	html := `<!DOCTYPE html>
 <html>
@@ -489,7 +489,7 @@ func (s *Server) serveSwaggerUI(c *gin.Context) {
 	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(html))
 }
 
-// getSystemStats handles system statistics requests
+// getSystemStats handles system statistics requests.
 func (s *Server) getSystemStats(c *gin.Context) {
 	// Get database stats
 	dbStats := s.db.Stats()
@@ -521,7 +521,7 @@ func (s *Server) getSystemStats(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// GetDB returns the database connection
+// GetDB returns the database connection.
 func (s *Server) GetDB() *database.Database {
 	return s.db
 }

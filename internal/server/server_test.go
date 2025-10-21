@@ -14,7 +14,7 @@ import (
 	"github.com/company/smartticket/internal/database"
 )
 
-// createTestConfig creates a test configuration
+// createTestConfig creates a test configuration.
 func createTestConfig() *config.Config {
 	return &config.Config{
 		Environment: "test",
@@ -36,7 +36,7 @@ func createTestConfig() *config.Config {
 	}
 }
 
-// createTestDB creates a test database connection
+// createTestDB creates a test database connection.
 func createTestDB(t *testing.T) *database.Database {
 	cfg := &config.DatabaseConfig{
 		Type:            "sqlite",

@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// setupTestDB creates an in-memory SQLite database for testing
+// setupTestDB creates an in-memory SQLite database for testing.
 func setupTestDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
@@ -45,7 +45,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	return db
 }
 
-// TestBasicDatabaseOperations tests basic CRUD operations
+// TestBasicDatabaseOperations tests basic CRUD operations.
 func TestBasicDatabaseOperations(t *testing.T) {
 	db := setupTestDB(t)
 
@@ -202,7 +202,7 @@ func TestBasicDatabaseOperations(t *testing.T) {
 	})
 }
 
-// TestDatabaseQueries tests various query operations
+// TestDatabaseQueries tests various query operations.
 func TestDatabaseQueries(t *testing.T) {
 	db := setupTestDB(t)
 
@@ -357,7 +357,7 @@ func TestDatabaseQueries(t *testing.T) {
 	})
 }
 
-// TestDatabaseTransactions tests transaction handling
+// TestDatabaseTransactions tests transaction handling.
 func TestDatabaseTransactions(t *testing.T) {
 	db := setupTestDB(t)
 
@@ -442,7 +442,7 @@ func TestDatabaseTransactions(t *testing.T) {
 	})
 }
 
-// TestDatabaseConstraints tests database constraints
+// TestDatabaseConstraints tests database constraints.
 func TestDatabaseConstraints(t *testing.T) {
 	db := setupTestDB(t)
 
@@ -499,7 +499,7 @@ func TestDatabaseConstraints(t *testing.T) {
 	})
 }
 
-// TestDatabasePerformance tests basic performance aspects
+// TestDatabasePerformance tests basic performance aspects.
 func TestDatabasePerformance(t *testing.T) {
 	db := setupTestDB(t)
 

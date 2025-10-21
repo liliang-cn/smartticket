@@ -13,7 +13,7 @@ import (
 	"github.com/company/smartticket/internal/models"
 )
 
-// Service provides user management business logic
+// Service provides user management business logic.
 type Service struct {
 	db            *gorm.DB
 	repo          *auth.Repository
@@ -21,7 +21,7 @@ type Service struct {
 	passwordRules PasswordRules
 }
 
-// PasswordRules defines password complexity requirements
+// PasswordRules defines password complexity requirements.
 type PasswordRules struct {
 	MinLength        int    `json:"min_length"`
 	RequireUppercase bool   `json:"require_uppercase"`
@@ -31,7 +31,7 @@ type PasswordRules struct {
 	SpecialChars     string `json:"special_chars"`
 }
 
-// DefaultPasswordRules returns sensible default password rules
+// DefaultPasswordRules returns sensible default password rules.
 func DefaultPasswordRules() PasswordRules {
 	return PasswordRules{
 		MinLength:        8,
@@ -43,7 +43,7 @@ func DefaultPasswordRules() PasswordRules {
 	}
 }
 
-// NewService creates a new user management service
+// NewService creates a new user management service.
 func NewService(db *gorm.DB, repo *auth.Repository, authService *auth.Service) *Service {
 	return &Service{
 		db:            db,
@@ -53,7 +53,7 @@ func NewService(db *gorm.DB, repo *auth.Repository, authService *auth.Service) *
 	}
 }
 
-// CreateUserRequest represents user creation request
+// CreateUserRequest represents user creation request.
 type CreateUserRequest struct {
 	Email       string `json:"email" binding:"required,email" example:"user@example.com"`
 	Username    string `json:"username" binding:"required,min=3,max=50" example:"johndoe"`
@@ -65,7 +65,7 @@ type CreateUserRequest struct {
 	Preferences string `json:"preferences,omitempty" example:"{\"timezone\": \"UTC\", \"language\": \"en\"}"`
 }
 
-// UpdateUserRequest represents user update request
+// UpdateUserRequest represents user update request.
 type UpdateUserRequest struct {
 	Email       string `json:"email,omitempty" binding:"omitempty,email" example:"user@example.com"`
 	Username    string `json:"username,omitempty" binding:"omitempty,min=3,max=50" example:"johndoe"`
@@ -76,7 +76,7 @@ type UpdateUserRequest struct {
 	Preferences string `json:"preferences,omitempty" example:"{\"timezone\": \"UTC\", \"language\": \"en\"}"`
 }
 
-// UserListRequest represents user listing request with filters
+// UserListRequest represents user listing request with filters.
 type UserListRequest struct {
 	Page     int    `form:"page,default=1" binding:"min=1" example:"1"`
 	PageSize int    `form:"page_size,default=20" binding:"min=1,max=100" example:"20"`
@@ -85,14 +85,14 @@ type UserListRequest struct {
 	IsActive *bool  `form:"is_active,omitempty" example:"true"`
 }
 
-// UserListResponse represents user listing response
+// UserListResponse represents user listing response.
 type UserListResponse struct {
 	Success bool            `json:"success"`
 	Data    []auth.UserInfo `json:"data"`
 	Meta    *PaginationMeta `json:"meta,omitempty"`
 }
 
-// PaginationMeta represents pagination metadata
+// PaginationMeta represents pagination metadata.
 type PaginationMeta struct {
 	Page       int   `json:"page"`
 	PageSize   int   `json:"page_size"`
@@ -100,7 +100,7 @@ type PaginationMeta struct {
 	TotalPages int   `json:"total_pages"`
 }
 
-// CreateUser creates a new user with validation
+// CreateUser creates a new user with validation.
 func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserInfo, error) {
 	// Normalize email
 	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
@@ -166,7 +166,7 @@ func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserI
 	return s.createUserInfo(user), nil
 }
 
-// GetUser retrieves a user by ID
+// GetUser retrieves a user by ID.
 func (s *Service) GetUser(userID, tenantID uint) (*auth.UserInfo, error) {
 	user, err := s.repo.GetUserByID(userID, tenantID)
 	if err != nil {
@@ -176,7 +176,7 @@ func (s *Service) GetUser(userID, tenantID uint) (*auth.UserInfo, error) {
 	return s.createUserInfo(user), nil
 }
 
-// UpdateUser updates user information
+// UpdateUser updates user information.
 func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*auth.UserInfo, error) {
 	// Get existing user
 	user, err := s.repo.GetUserByID(userID, tenantID)
@@ -247,7 +247,7 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 	return s.createUserInfo(user), nil
 }
 
-// DeleteUser soft deletes a user
+// DeleteUser soft deletes a user.
 func (s *Service) DeleteUser(userID, tenantID uint) error {
 	// Get user to verify existence
 	_, err := s.repo.GetUserByID(userID, tenantID)
@@ -263,7 +263,7 @@ func (s *Service) DeleteUser(userID, tenantID uint) error {
 	return nil
 }
 
-// ListUsers retrieves a paginated list of users with filters
+// ListUsers retrieves a paginated list of users with filters.
 func (s *Service) ListUsers(tenantID uint, req *UserListRequest) (*UserListResponse, error) {
 	// Prepare filters
 	filters := make(map[string]interface{})
@@ -304,17 +304,17 @@ func (s *Service) ListUsers(tenantID uint, req *UserListRequest) (*UserListRespo
 	}, nil
 }
 
-// ActivateUser activates a user account
+// ActivateUser activates a user account.
 func (s *Service) ActivateUser(userID, tenantID uint) error {
 	return s.repo.ActivateUser(userID, tenantID)
 }
 
-// DeactivateUser deactivates a user account
+// DeactivateUser deactivates a user account.
 func (s *Service) DeactivateUser(userID, tenantID uint) error {
 	return s.repo.DeactivateUser(userID, tenantID)
 }
 
-// ChangeUserPassword changes a user's password (admin function)
+// ChangeUserPassword changes a user's password (admin function).
 func (s *Service) ChangeUserPassword(userID, tenantID uint, newPassword string) error {
 	// Validate password complexity
 	if err := s.validatePassword(newPassword); err != nil {
@@ -335,7 +335,7 @@ func (s *Service) ChangeUserPassword(userID, tenantID uint, newPassword string) 
 	return nil
 }
 
-// GetUserStats returns user statistics for a tenant
+// GetUserStats returns user statistics for a tenant.
 func (s *Service) GetUserStats(tenantID uint) (map[string]interface{}, error) {
 	stats, err := s.repo.GetUserStats(tenantID)
 	if err != nil {
@@ -353,19 +353,19 @@ func (s *Service) GetUserStats(tenantID uint) (map[string]interface{}, error) {
 
 // Helper methods
 
-// isValidEmail validates email format
+// isValidEmail validates email format.
 func (s *Service) isValidEmail(email string) bool {
 	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 	return emailRegex.MatchString(email)
 }
 
-// isValidUsername validates username format
+// isValidUsername validates username format.
 func (s *Service) isValidUsername(username string) bool {
 	usernameRegex := regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 	return usernameRegex.MatchString(username) && len(username) >= 3 && len(username) <= 50
 }
 
-// validatePassword validates password complexity
+// validatePassword validates password complexity.
 func (s *Service) validatePassword(password string) error {
 	rules := s.passwordRules
 
@@ -409,7 +409,7 @@ func (s *Service) validatePassword(password string) error {
 	return nil
 }
 
-// createUserInfo creates safe user info for responses
+// createUserInfo creates safe user info for responses.
 func (s *Service) createUserInfo(user *models.User) *auth.UserInfo {
 	info := &auth.UserInfo{
 		ID:          user.ID,

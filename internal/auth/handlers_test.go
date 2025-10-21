@@ -11,14 +11,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Test basic handler initialization without requiring a full service
+// Test basic handler initialization without requiring a full service.
 func TestNewHandlers_NilService(t *testing.T) {
 	// Test with nil service - should still create handlers
 	handlers := NewHandlers(nil)
 	assert.NotNil(t, handlers)
 }
 
-// Test basic handler structure
+// Test basic handler structure.
 func TestHandlers_HandlerExists(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -38,7 +38,7 @@ func TestHandlers_HandlerExists(t *testing.T) {
 	assert.NotNil(t, router)
 }
 
-// Test login handler with basic request validation
+// Test login handler with basic request validation.
 func TestHandlers_Login_BasicValidation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -76,7 +76,7 @@ func TestHandlers_Login_BasicValidation(t *testing.T) {
 	})
 }
 
-// Test refresh token handler with basic request validation
+// Test refresh token handler with basic request validation.
 func TestHandlers_RefreshToken_BasicValidation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -108,7 +108,7 @@ func TestHandlers_RefreshToken_BasicValidation(t *testing.T) {
 	})
 }
 
-// Test change password handler with basic request validation
+// Test change password handler with basic request validation.
 func TestHandlers_ChangePassword_BasicValidation(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 

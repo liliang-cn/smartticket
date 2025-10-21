@@ -11,17 +11,17 @@ import (
 	"gorm.io/gorm"
 )
 
-// Service provides tenant management business logic
+// Service provides tenant management business logic.
 type Service struct {
 	db *gorm.DB
 }
 
-// NewService creates a new tenant service
+// NewService creates a new tenant service.
 func NewService(db *gorm.DB) *Service {
 	return &Service{db: db}
 }
 
-// CreateTenantRequest represents a tenant creation request
+// CreateTenantRequest represents a tenant creation request.
 type CreateTenantRequest struct {
 	Name     string `json:"name" binding:"required,min=2,max=255"`
 	Slug     string `json:"slug" binding:"required,min=2,max=100"`
@@ -31,7 +31,7 @@ type CreateTenantRequest struct {
 	Settings string `json:"settings" binding:"omitempty"` // JSON string
 }
 
-// UpdateTenantRequest represents a tenant update request
+// UpdateTenantRequest represents a tenant update request.
 type UpdateTenantRequest struct {
 	Name     string `json:"name" binding:"omitempty,min=2,max=255"`
 	Slug     string `json:"slug" binding:"omitempty,min=2,max=100"`
@@ -42,7 +42,7 @@ type UpdateTenantRequest struct {
 	IsActive *bool  `json:"is_active"`
 }
 
-// TenantResponse represents a tenant response
+// TenantResponse represents a tenant response.
 type TenantResponse struct {
 	ID        uint       `json:"id"`
 	Name      string     `json:"name"`
@@ -57,7 +57,7 @@ type TenantResponse struct {
 	UserCount int        `json:"user_count"`
 }
 
-// TenantListResponse represents a paginated tenant list
+// TenantListResponse represents a paginated tenant list.
 type TenantListResponse struct {
 	Data       []TenantResponse `json:"data"`
 	Total      int64            `json:"total"`
@@ -66,7 +66,7 @@ type TenantListResponse struct {
 	TotalPages int              `json:"total_pages"`
 }
 
-// CreateTenant creates a new tenant
+// CreateTenant creates a new tenant.
 func (s *Service) CreateTenant(req *CreateTenantRequest) (*TenantResponse, error) {
 	// Normalize input
 	req.Name = strings.TrimSpace(req.Name)
@@ -114,7 +114,7 @@ func (s *Service) CreateTenant(req *CreateTenantRequest) (*TenantResponse, error
 	return s.tenantToResponse(tenant, int(userCount)), nil
 }
 
-// GetTenant gets a tenant by ID
+// GetTenant gets a tenant by ID.
 func (s *Service) GetTenant(tenantID uint) (*TenantResponse, error) {
 	var tenant models.Tenant
 	if err := s.db.First(&tenant, tenantID).Error; err != nil {
@@ -131,7 +131,7 @@ func (s *Service) GetTenant(tenantID uint) (*TenantResponse, error) {
 	return s.tenantToResponse(&tenant, int(userCount)), nil
 }
 
-// GetTenantBySlug gets a tenant by slug
+// GetTenantBySlug gets a tenant by slug.
 func (s *Service) GetTenantBySlug(slug string) (*TenantResponse, error) {
 	var tenant models.Tenant
 	if err := s.db.Where("slug = ?", slug).First(&tenant).Error; err != nil {
@@ -148,7 +148,7 @@ func (s *Service) GetTenantBySlug(slug string) (*TenantResponse, error) {
 	return s.tenantToResponse(&tenant, int(userCount)), nil
 }
 
-// ListTenants lists all tenants with pagination
+// ListTenants lists all tenants with pagination.
 func (s *Service) ListTenants(page, pageSize int, search string) (*TenantListResponse, error) {
 	if page < 1 {
 		page = 1
@@ -203,7 +203,7 @@ func (s *Service) ListTenants(page, pageSize int, search string) (*TenantListRes
 	}, nil
 }
 
-// UpdateTenant updates a tenant
+// UpdateTenant updates a tenant.
 func (s *Service) UpdateTenant(tenantID uint, req *UpdateTenantRequest) (*TenantResponse, error) {
 	var tenant models.Tenant
 	if err := s.db.First(&tenant, tenantID).Error; err != nil {
@@ -266,7 +266,7 @@ func (s *Service) UpdateTenant(tenantID uint, req *UpdateTenantRequest) (*Tenant
 	return s.tenantToResponse(&tenant, int(userCount)), nil
 }
 
-// DeleteTenant soft deletes a tenant
+// DeleteTenant soft deletes a tenant.
 func (s *Service) DeleteTenant(tenantID uint) error {
 	var tenant models.Tenant
 	if err := s.db.First(&tenant, tenantID).Error; err != nil {
@@ -290,12 +290,12 @@ func (s *Service) DeleteTenant(tenantID uint) error {
 	return nil
 }
 
-// ActivateTenant activates a tenant
+// ActivateTenant activates a tenant.
 func (s *Service) ActivateTenant(tenantID uint) error {
 	return s.updateTenantStatus(tenantID, true)
 }
 
-// DeactivateTenant deactivates a tenant
+// DeactivateTenant deactivates a tenant.
 func (s *Service) DeactivateTenant(tenantID uint) error {
 	var userCount int64
 	s.db.Model(&models.User{}).Where("tenant_id = ? AND is_active = ?", tenantID, true).Count(&userCount)
@@ -306,7 +306,7 @@ func (s *Service) DeactivateTenant(tenantID uint) error {
 	return s.updateTenantStatus(tenantID, false)
 }
 
-// GetTenantStats gets tenant statistics
+// GetTenantStats gets tenant statistics.
 func (s *Service) GetTenantStats(tenantID uint) (map[string]interface{}, error) {
 	var tenant models.Tenant
 	if err := s.db.First(&tenant, tenantID).Error; err != nil {

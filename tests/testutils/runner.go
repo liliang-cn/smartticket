@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// TestResult represents the result of running tests
+// TestResult represents the result of running tests.
 type TestResult struct {
 	Passed   int
 	Failed   int
@@ -21,7 +21,7 @@ type TestResult struct {
 	Error    error
 }
 
-// TestRunner provides functionality to run Go tests
+// TestRunner provides functionality to run Go tests.
 type TestRunner struct {
 	RootDir  string
 	TestDir  string
@@ -30,7 +30,7 @@ type TestRunner struct {
 	Race     bool
 }
 
-// NewTestRunner creates a new test runner
+// NewTestRunner creates a new test runner.
 func NewTestRunner(rootDir string) *TestRunner {
 	return &TestRunner{
 		RootDir:  rootDir,
@@ -41,7 +41,7 @@ func NewTestRunner(rootDir string) *TestRunner {
 	}
 }
 
-// RunAllTests runs all tests in the project
+// RunAllTests runs all tests in the project.
 func (tr *TestRunner) RunAllTests() *TestResult {
 	args := []string{
 		"test",
@@ -60,7 +60,7 @@ func (tr *TestRunner) RunAllTests() *TestResult {
 	return tr.runGoCommand(args)
 }
 
-// RunUnitTests runs only unit tests (excluding integration and e2e tests)
+// RunUnitTests runs only unit tests (excluding integration and e2e tests).
 func (tr *TestRunner) RunUnitTests() *TestResult {
 	args := []string{
 		"test",
@@ -80,7 +80,7 @@ func (tr *TestRunner) RunUnitTests() *TestResult {
 	return tr.runGoCommand(args)
 }
 
-// RunIntegrationTests runs integration tests
+// RunIntegrationTests runs integration tests.
 func (tr *TestRunner) RunIntegrationTests() *TestResult {
 	args := []string{
 		"test",
@@ -100,7 +100,7 @@ func (tr *TestRunner) RunIntegrationTests() *TestResult {
 	return tr.runGoCommand(args)
 }
 
-// RunE2ETests runs end-to-end tests
+// RunE2ETests runs end-to-end tests.
 func (tr *TestRunner) RunE2ETests() *TestResult {
 	args := []string{
 		"test",
@@ -120,7 +120,7 @@ func (tr *TestRunner) RunE2ETests() *TestResult {
 	return tr.runGoCommand(args)
 }
 
-// RunLinting runs golangci-lint on the codebase
+// RunLinting runs golangci-lint on the codebase.
 func (tr *TestRunner) RunLinting() *TestResult {
 	args := []string{
 		"run",
@@ -132,7 +132,7 @@ func (tr *TestRunner) RunLinting() *TestResult {
 	return tr.runCommand("golangci-lint", args)
 }
 
-// GenerateCoverageReport generates an HTML coverage report
+// GenerateCoverageReport generates an HTML coverage report.
 func (tr *TestRunner) GenerateCoverageReport() error {
 	if !tr.Coverage {
 		return fmt.Errorf("coverage not enabled")
@@ -148,14 +148,14 @@ func (tr *TestRunner) GenerateCoverageReport() error {
 	cmd.Dir = tr.RootDir
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to generate coverage report: %v\nOutput: %s", err, string(output))
+		return fmt.Errorf("failed to generate coverage report: %w\nOutput: %s", err, string(output))
 	}
 
 	fmt.Println("Coverage report generated: coverage.html")
 	return nil
 }
 
-// ParseTestOutput parses the output of go test to extract statistics
+// ParseTestOutput parses the output of go test to extract statistics.
 func (tr *TestRunner) ParseTestOutput(output string) (int, int, int, string) {
 	lines := strings.Split(output, "\n")
 	var passed, failed, skipped int
@@ -182,7 +182,7 @@ func (tr *TestRunner) ParseTestOutput(output string) (int, int, int, string) {
 	return passed, failed, skipped, duration
 }
 
-// ParseCoverage parses coverage from output
+// ParseCoverage parses coverage from output.
 func (tr *TestRunner) ParseCoverage(output string) float64 {
 	// Look for coverage percentage in output
 	coverageRegex := regexp.MustCompile(`coverage:\s*(\d+(?:\.\d+)?)%`)
@@ -195,12 +195,12 @@ func (tr *TestRunner) ParseCoverage(output string) float64 {
 	return 0.0
 }
 
-// runGoCommand executes a go command with given arguments
+// runGoCommand executes a go command with given arguments.
 func (tr *TestRunner) runGoCommand(args []string) *TestResult {
 	return tr.runCommand("go", args)
 }
 
-// runCommand executes any command with given arguments
+// runCommand executes any command with given arguments.
 func (tr *TestRunner) runCommand(command string, args []string) *TestResult {
 	cmd := exec.Command(command, args...)
 	cmd.Dir = tr.RootDir
@@ -235,7 +235,7 @@ func (tr *TestRunner) runCommand(command string, args []string) *TestResult {
 	}
 }
 
-// RunBenchmark runs benchmarks
+// RunBenchmark runs benchmarks.
 func (tr *TestRunner) RunBenchmark() *TestResult {
 	args := []string{
 		"test",
@@ -247,7 +247,7 @@ func (tr *TestRunner) RunBenchmark() *TestResult {
 	return tr.runGoCommand(args)
 }
 
-// RunTestsForPackage runs tests for a specific package
+// RunTestsForPackage runs tests for a specific package.
 func (tr *TestRunner) RunTestsForPackage(pkg string) *TestResult {
 	args := []string{
 		"test",
@@ -262,7 +262,7 @@ func (tr *TestRunner) RunTestsForPackage(pkg string) *TestResult {
 	return tr.runGoCommand(args)
 }
 
-// CheckTestDependencies checks if all required testing dependencies are available
+// CheckTestDependencies checks if all required testing dependencies are available.
 func (tr *TestRunner) CheckTestDependencies() *TestResult {
 	deps := []string{
 		"github.com/stretchr/testify/assert",
@@ -293,7 +293,7 @@ func (tr *TestRunner) CheckTestDependencies() *TestResult {
 	}
 }
 
-// CleanTestArtifacts cleans up test artifacts
+// CleanTestArtifacts cleans up test artifacts.
 func (tr *TestRunner) CleanTestArtifacts() error {
 	artifacts := []string{
 		"coverage.out",

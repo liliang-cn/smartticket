@@ -12,24 +12,24 @@ import (
 	"github.com/company/smartticket/internal/models"
 )
 
-// PermissionService provides permission checking and role management functionality
+// PermissionService provides permission checking and role management functionality.
 type PermissionService struct {
 	db *gorm.DB
 }
 
-// NewPermissionService creates a new permission service
+// NewPermissionService creates a new permission service.
 func NewPermissionService(db *gorm.DB) *PermissionService {
 	return &PermissionService{
 		db: db,
 	}
 }
 
-// GetDatabase returns the underlying database connection
+// GetDatabase returns the underlying database connection.
 func (ps *PermissionService) GetDatabase() *gorm.DB {
 	return ps.db
 }
 
-// GetUserPermissions returns all permissions assigned to a user directly
+// GetUserPermissions returns all permissions assigned to a user directly.
 func (ps *PermissionService) GetUserPermissions(ctx context.Context, userID uint, _ string) ([]models.Permission, error) {
 	var permissions []models.Permission
 
@@ -46,7 +46,7 @@ func (ps *PermissionService) GetUserPermissions(ctx context.Context, userID uint
 	return permissions, nil
 }
 
-// GetUserRoles returns all roles assigned to a user
+// GetUserRoles returns all roles assigned to a user.
 func (ps *PermissionService) GetUserRoles(ctx context.Context, userID uint, tenantID string) ([]models.Role, error) {
 	var roles []models.Role
 
@@ -63,7 +63,7 @@ func (ps *PermissionService) GetUserRoles(ctx context.Context, userID uint, tena
 	return roles, nil
 }
 
-// GetRolePermissions returns all permissions for a role
+// GetRolePermissions returns all permissions for a role.
 func (ps *PermissionService) GetRolePermissions(ctx context.Context, roleID uint) ([]models.Permission, error) {
 	var permissions []models.Permission
 
@@ -80,7 +80,7 @@ func (ps *PermissionService) GetRolePermissions(ctx context.Context, roleID uint
 	return permissions, nil
 }
 
-// GetAllPermissions returns all permissions in the system
+// GetAllPermissions returns all permissions in the system.
 func (ps *PermissionService) GetAllPermissions(ctx context.Context) ([]models.Permission, error) {
 	var permissions []models.Permission
 
@@ -92,7 +92,7 @@ func (ps *PermissionService) GetAllPermissions(ctx context.Context) ([]models.Pe
 	return permissions, nil
 }
 
-// GetAllRoles returns all roles in the system
+// GetAllRoles returns all roles in the system.
 func (ps *PermissionService) GetAllRoles(ctx context.Context, tenantID string) ([]models.Role, error) {
 	var roles []models.Role
 
@@ -109,7 +109,7 @@ func (ps *PermissionService) GetAllRoles(ctx context.Context, tenantID string) (
 	return roles, nil
 }
 
-// CreatePermission creates a new permission
+// CreatePermission creates a new permission.
 func (ps *PermissionService) CreatePermission(ctx context.Context, permission *models.Permission) error {
 	err := ps.db.WithContext(ctx).Create(permission).Error
 	if err != nil {
@@ -119,7 +119,7 @@ func (ps *PermissionService) CreatePermission(ctx context.Context, permission *m
 	return nil
 }
 
-// CreateRole creates a new role
+// CreateRole creates a new role.
 func (ps *PermissionService) CreateRole(ctx context.Context, role *models.Role) error {
 	err := ps.db.WithContext(ctx).Create(role).Error
 	if err != nil {
@@ -129,7 +129,7 @@ func (ps *PermissionService) CreateRole(ctx context.Context, role *models.Role) 
 	return nil
 }
 
-// AssignPermissionToRole assigns a permission to a role
+// AssignPermissionToRole assigns a permission to a role.
 func (ps *PermissionService) AssignPermissionToRole(ctx context.Context, roleID, permissionID uint) error {
 	rolePermission := &models.RolePermission{
 		RoleID:       roleID,
@@ -144,7 +144,7 @@ func (ps *PermissionService) AssignPermissionToRole(ctx context.Context, roleID,
 	return nil
 }
 
-// RemovePermissionFromRole removes a permission from a role
+// RemovePermissionFromRole removes a permission from a role.
 func (ps *PermissionService) RemovePermissionFromRole(ctx context.Context, roleID, permissionID uint) error {
 	err := ps.db.WithContext(ctx).
 		Where("role_id = ? AND permission_id = ?", roleID, permissionID).
@@ -158,7 +158,7 @@ func (ps *PermissionService) RemovePermissionFromRole(ctx context.Context, roleI
 	return nil
 }
 
-// AssignRoleToUser assigns a role to a user
+// AssignRoleToUser assigns a role to a user.
 func (ps *PermissionService) AssignRoleToUser(ctx context.Context, userID uint, roleID uint, _ string) error {
 	userRole := &models.UserRole{
 		UserID:     userID,
@@ -175,7 +175,7 @@ func (ps *PermissionService) AssignRoleToUser(ctx context.Context, userID uint, 
 	return nil
 }
 
-// RemoveRoleFromUser removes a role from a user
+// RemoveRoleFromUser removes a role from a user.
 func (ps *PermissionService) RemoveRoleFromUser(ctx context.Context, userID, roleID uint, _ string) error {
 	err := ps.db.WithContext(ctx).
 		Where("user_id = ? AND role_id = ?", userID, roleID).
@@ -188,7 +188,7 @@ func (ps *PermissionService) RemoveRoleFromUser(ctx context.Context, userID, rol
 	return nil
 }
 
-// AssignPermissionToUser assigns a permission directly to a user
+// AssignPermissionToUser assigns a permission directly to a user.
 func (ps *PermissionService) AssignPermissionToUser(ctx context.Context, userID, permissionID uint, _ string) error {
 	userPermission := &models.UserPermission{
 		UserID:       userID,
@@ -204,7 +204,7 @@ func (ps *PermissionService) AssignPermissionToUser(ctx context.Context, userID,
 	return nil
 }
 
-// RemovePermissionFromUser removes a permission directly from a user
+// RemovePermissionFromUser removes a permission directly from a user.
 func (ps *PermissionService) RemovePermissionFromUser(ctx context.Context, userID, permissionID uint, tenantID string) error {
 	err := ps.db.WithContext(ctx).
 		Where("user_id = ? AND permission_id = ?", userID, permissionID).
@@ -217,7 +217,7 @@ func (ps *PermissionService) RemovePermissionFromUser(ctx context.Context, userI
 	return nil
 }
 
-// HasPermission checks if a user has a specific permission (either directly or through roles)
+// HasPermission checks if a user has a specific permission (either directly or through roles).
 func (ps *PermissionService) HasPermission(ctx context.Context, userID uint, tenantID string, permissionCode string) (bool, error) {
 	// Check direct user permissions
 	var count int64
@@ -253,7 +253,7 @@ func (ps *PermissionService) HasPermission(ctx context.Context, userID uint, ten
 	return count > 0, nil
 }
 
-// GetPermissionByID returns a permission by ID
+// GetPermissionByID returns a permission by ID.
 func (ps *PermissionService) GetPermissionByID(ctx context.Context, id uint) (*models.Permission, error) {
 	var permission models.Permission
 
@@ -265,7 +265,7 @@ func (ps *PermissionService) GetPermissionByID(ctx context.Context, id uint) (*m
 	return &permission, nil
 }
 
-// GetRoleByID returns a role by ID
+// GetRoleByID returns a role by ID.
 func (ps *PermissionService) GetRoleByID(ctx context.Context, id uint) (*models.Role, error) {
 	var role models.Role
 
@@ -280,7 +280,7 @@ func (ps *PermissionService) GetRoleByID(ctx context.Context, id uint) (*models.
 	return &role, nil
 }
 
-// UpdatePermission updates an existing permission
+// UpdatePermission updates an existing permission.
 func (ps *PermissionService) UpdatePermission(ctx context.Context, permission *models.Permission) error {
 	err := ps.db.WithContext(ctx).Save(permission).Error
 	if err != nil {
@@ -290,7 +290,7 @@ func (ps *PermissionService) UpdatePermission(ctx context.Context, permission *m
 	return nil
 }
 
-// UpdateRole updates an existing role
+// UpdateRole updates an existing role.
 func (ps *PermissionService) UpdateRole(ctx context.Context, role *models.Role) error {
 	err := ps.db.WithContext(ctx).Save(role).Error
 	if err != nil {
@@ -300,7 +300,7 @@ func (ps *PermissionService) UpdateRole(ctx context.Context, role *models.Role) 
 	return nil
 }
 
-// DeletePermission deletes a permission (if not system permission)
+// DeletePermission deletes a permission (if not system permission).
 func (ps *PermissionService) DeletePermission(ctx context.Context, id uint) error {
 	// Check if it's a system permission
 	var permission models.Permission
@@ -340,7 +340,7 @@ func (ps *PermissionService) DeletePermission(ctx context.Context, id uint) erro
 	return nil
 }
 
-// DeleteRole deletes a role (if not system role)
+// DeleteRole deletes a role (if not system role).
 func (ps *PermissionService) DeleteRole(ctx context.Context, id uint) error {
 	// Check if it's a system role
 	var role models.Role

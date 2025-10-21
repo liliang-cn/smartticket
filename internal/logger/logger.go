@@ -13,13 +13,13 @@ import (
 	"github.com/company/smartticket/internal/config"
 )
 
-// Logger wraps the zap logger with additional functionality
+// Logger wraps the zap logger with additional functionality.
 type Logger struct {
 	*zap.Logger
 	config *config.LoggerConfig
 }
 
-// NewLogger creates a new structured logger instance
+// NewLogger creates a new structured logger instance.
 func NewLogger(cfg *config.LoggerConfig) (*Logger, error) {
 	// Build zap configuration
 	zapConfig := zap.NewProductionConfig()
@@ -102,7 +102,7 @@ func NewLogger(cfg *config.LoggerConfig) (*Logger, error) {
 	return logger, nil
 }
 
-// parseLogLevel converts string log level to zapcore.Level
+// parseLogLevel converts string log level to zapcore.Level.
 func parseLogLevel(level string) (zapcore.Level, error) {
 	switch level {
 	case "debug":
@@ -122,27 +122,27 @@ func parseLogLevel(level string) (zapcore.Level, error) {
 	}
 }
 
-// Sync flushes any buffered log entries
+// Sync flushes any buffered log entries.
 func (l *Logger) Sync() error {
 	return l.Logger.Sync()
 }
 
-// WithRequestID adds request ID to logger context
+// WithRequestID adds request ID to logger context.
 func (l *Logger) WithRequestID(requestID string) *zap.Logger {
-	return l.Logger.With(zap.String("request_id", requestID))
+	return l.With(zap.String("request_id", requestID))
 }
 
-// WithTenantID adds tenant ID to logger context
+// WithTenantID adds tenant ID to logger context.
 func (l *Logger) WithTenantID(tenantID uint) *zap.Logger {
-	return l.Logger.With(zap.Uint("tenant_id", tenantID))
+	return l.With(zap.Uint("tenant_id", tenantID))
 }
 
-// WithUserID adds user ID to logger context
+// WithUserID adds user ID to logger context.
 func (l *Logger) WithUserID(userID uint) *zap.Logger {
-	return l.Logger.With(zap.Uint("user_id", userID))
+	return l.With(zap.Uint("user_id", userID))
 }
 
-// WithFields adds multiple fields to logger context
+// WithFields adds multiple fields to logger context.
 func (l *Logger) WithFields(fields map[string]interface{}) *zap.Logger {
 	zapFields := make([]zap.Field, 0, len(fields))
 	for key, value := range fields {
@@ -169,12 +169,12 @@ func (l *Logger) WithFields(fields map[string]interface{}) *zap.Logger {
 			zapFields = append(zapFields, zap.Any(key, v))
 		}
 	}
-	return l.Logger.With(zapFields...)
+	return l.With(zapFields...)
 }
 
-// LogRequest logs HTTP request information
+// LogRequest logs HTTP request information.
 func (l *Logger) LogRequest(method, path, remoteAddr, userAgent string, statusCode int, duration time.Duration, requestID string) {
-	l.Logger.Info("HTTP Request",
+	l.Info("HTTP Request",
 		zap.String("method", method),
 		zap.String("path", path),
 		zap.String("remote_addr", remoteAddr),
@@ -185,16 +185,16 @@ func (l *Logger) LogRequest(method, path, remoteAddr, userAgent string, statusCo
 	)
 }
 
-// LogError logs error with context
+// LogError logs error with context.
 func (l *Logger) LogError(err error, message string, fields ...zap.Field) {
 	if len(fields) > 0 {
-		l.Logger.Error(message, append(fields, zap.Error(err))...)
+		l.Error(message, append(fields, zap.Error(err))...)
 	} else {
-		l.Logger.Error(message, zap.Error(err))
+		l.Error(message, zap.Error(err))
 	}
 }
 
-// LogDatabaseOperation logs database operations
+// LogDatabaseOperation logs database operations.
 func (l *Logger) LogDatabaseOperation(operation, table string, duration time.Duration, rowsAffected int64, err error) {
 	fields := []zap.Field{
 		zap.String("operation", operation),
@@ -205,15 +205,15 @@ func (l *Logger) LogDatabaseOperation(operation, table string, duration time.Dur
 
 	if err != nil {
 		fields = append(fields, zap.Error(err))
-		l.Logger.Error("Database operation failed", fields...)
+		l.Error("Database operation failed", fields...)
 	} else {
-		l.Logger.Debug("Database operation completed", fields...)
+		l.Debug("Database operation completed", fields...)
 	}
 }
 
-// LogSecurityEvent logs security-related events
+// LogSecurityEvent logs security-related events.
 func (l *Logger) LogSecurityEvent(event, userID, ipAddress, userAgent string, success bool) {
-	l.Logger.Info("Security event",
+	l.Info("Security event",
 		zap.String("event", event),
 		zap.String("user_id", userID),
 		zap.String("ip_address", ipAddress),
@@ -222,7 +222,7 @@ func (l *Logger) LogSecurityEvent(event, userID, ipAddress, userAgent string, su
 	)
 }
 
-// LogBusinessEvent logs business-related events
+// LogBusinessEvent logs business-related events.
 func (l *Logger) LogBusinessEvent(event string, tenantID, userID uint, details map[string]interface{}) {
 	fields := []zap.Field{
 		zap.String("event", event),
@@ -245,10 +245,10 @@ func (l *Logger) LogBusinessEvent(event string, tenantID, userID uint, details m
 		}
 	}
 
-	l.Logger.Info("Business event", fields...)
+	l.Info("Business event", fields...)
 }
 
-// LogPerformanceMetric logs performance metrics
+// LogPerformanceMetric logs performance metrics.
 func (l *Logger) LogPerformanceMetric(metric string, value float64, unit string, tags map[string]string) {
 	fields := []zap.Field{
 		zap.String("metric", metric),
@@ -260,38 +260,38 @@ func (l *Logger) LogPerformanceMetric(metric string, value float64, unit string,
 		fields = append(fields, zap.String(fmt.Sprintf("tag_%s", key), tag))
 	}
 
-	l.Logger.Info("Performance metric", fields...)
+	l.Info("Performance metric", fields...)
 }
 
-// GetConfig returns the logger configuration
+// GetConfig returns the logger configuration.
 func (l *Logger) GetConfig() *config.LoggerConfig {
 	return l.config
 }
 
-// IsDebugEnabled returns true if debug logging is enabled
+// IsDebugEnabled returns true if debug logging is enabled.
 func (l *Logger) IsDebugEnabled() bool {
 	return l.Logger.Core().Enabled(zapcore.DebugLevel)
 }
 
-// IsInfoEnabled returns true if info logging is enabled
+// IsInfoEnabled returns true if info logging is enabled.
 func (l *Logger) IsInfoEnabled() bool {
 	return l.Logger.Core().Enabled(zapcore.InfoLevel)
 }
 
-// IsWarnEnabled returns true if warning logging is enabled
+// IsWarnEnabled returns true if warning logging is enabled.
 func (l *Logger) IsWarnEnabled() bool {
 	return l.Logger.Core().Enabled(zapcore.WarnLevel)
 }
 
-// IsErrorEnabled returns true if error logging is enabled
+// IsErrorEnabled returns true if error logging is enabled.
 func (l *Logger) IsErrorEnabled() bool {
 	return l.Logger.Core().Enabled(zapcore.ErrorLevel)
 }
 
-// Global logger instance
+// Global logger instance.
 var globalLogger *Logger
 
-// InitializeGlobalLogger initializes the global logger instance
+// InitializeGlobalLogger initializes the global logger instance.
 func InitializeGlobalLogger(cfg *config.LoggerConfig) error {
 	logger, err := NewLogger(cfg)
 	if err != nil {
@@ -301,7 +301,7 @@ func InitializeGlobalLogger(cfg *config.LoggerConfig) error {
 	return nil
 }
 
-// GetGlobalLogger returns the global logger instance
+// GetGlobalLogger returns the global logger instance.
 func GetGlobalLogger() *Logger {
 	if globalLogger == nil {
 		// Fallback to a default logger if global logger is not initialized

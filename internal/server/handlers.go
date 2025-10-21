@@ -12,7 +12,7 @@ import (
 	"github.com/company/smartticket/internal/logger"
 )
 
-// Response represents a standard API response
+// Response represents a standard API response.
 type Response struct {
 	Success bool              `json:"success"`
 	Data    interface{}       `json:"data,omitempty"`
@@ -20,7 +20,7 @@ type Response struct {
 	Meta    *MetaInfo         `json:"meta,omitempty"`
 }
 
-// MetaInfo represents metadata in paginated responses
+// MetaInfo represents metadata in paginated responses.
 type MetaInfo struct {
 	Total      int `json:"total,omitempty"`
 	Page       int `json:"page,omitempty"`
@@ -30,7 +30,7 @@ type MetaInfo struct {
 
 // Health check handlers
 
-// healthCheck handles health check requests
+// healthCheck handles health check requests.
 func (s *Server) healthCheck(c *gin.Context) {
 	requestID, exists := c.Get("request_id")
 	log := logger.GetGlobalLogger()
@@ -84,7 +84,7 @@ func (s *Server) healthCheck(c *gin.Context) {
 	c.JSON(status, response)
 }
 
-// versionInfo handles version information requests
+// versionInfo handles version information requests.
 func (s *Server) versionInfo(c *gin.Context) {
 	response := Response{
 		Success: true,
@@ -99,7 +99,7 @@ func (s *Server) versionInfo(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// appInfo handles application information requests
+// appInfo handles application information requests.
 func (s *Server) appInfo(c *gin.Context) {
 	response := Response{
 		Success: true,

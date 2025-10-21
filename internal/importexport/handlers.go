@@ -8,17 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers handles import/export-related HTTP requests
+// Handlers handles import/export-related HTTP requests.
 type Handlers struct {
 	service *Service
 }
 
-// NewHandlers creates new import/export handlers
+// NewHandlers creates new import/export handlers.
 func NewHandlers(service *Service) *Handlers {
 	return &Handlers{service: service}
 }
 
-// parseJobID extracts and validates job ID from request parameters
+// parseJobID extracts and validates job ID from request parameters.
 func (h *Handlers) parseJobID(c *gin.Context) (uint, error) {
 	jobID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -29,13 +29,13 @@ func (h *Handlers) parseJobID(c *gin.Context) (uint, error) {
 	return uint(jobID), nil
 }
 
-// logSecurityEvent logs a security event with target resource
+// logSecurityEvent logs a security event with target resource.
 func (h *Handlers) logSecurityEvent(c *gin.Context, event, target string) {
 	c.Set("security_event", event)
 	c.Set("target_resource", target)
 }
 
-// CreateImportJob creates a new import job
+// CreateImportJob creates a new import job.
 func (h *Handlers) CreateImportJob(c *gin.Context) {
 	// Get tenant ID and user ID from context
 	tenantID := c.GetUint("tenant_id")
@@ -94,7 +94,7 @@ func (h *Handlers) CreateImportJob(c *gin.Context) {
 	})
 }
 
-// CreateExportJob creates a new export job
+// CreateExportJob creates a new export job.
 func (h *Handlers) CreateExportJob(c *gin.Context) {
 	// Get tenant ID and user ID from context
 	tenantID := c.GetUint("tenant_id")
@@ -129,7 +129,7 @@ func (h *Handlers) CreateExportJob(c *gin.Context) {
 	})
 }
 
-// GetImportExportJob retrieves an import/export job by ID
+// GetImportExportJob retrieves an import/export job by ID.
 func (h *Handlers) GetImportExportJob(c *gin.Context) {
 	// Parse job ID
 	jobID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -155,7 +155,7 @@ func (h *Handlers) GetImportExportJob(c *gin.Context) {
 	})
 }
 
-// ListImportExportJobs retrieves import/export jobs with pagination and filtering
+// ListImportExportJobs retrieves import/export jobs with pagination and filtering.
 func (h *Handlers) ListImportExportJobs(c *gin.Context) {
 	// Get tenant ID from context
 	tenantID := c.GetUint("tenant_id")
@@ -199,7 +199,7 @@ func (h *Handlers) ListImportExportJobs(c *gin.Context) {
 	})
 }
 
-// CancelImportExportJob cancels a running import/export job
+// CancelImportExportJob cancels a running import/export job.
 func (h *Handlers) CancelImportExportJob(c *gin.Context) {
 	// Parse job ID
 	jobID, err := h.parseJobID(c)
@@ -230,7 +230,7 @@ func (h *Handlers) CancelImportExportJob(c *gin.Context) {
 	})
 }
 
-// DeleteImportExportJob soft deletes an import/export job
+// DeleteImportExportJob soft deletes an import/export job.
 func (h *Handlers) DeleteImportExportJob(c *gin.Context) {
 	// Parse job ID
 	jobID, err := h.parseJobID(c)
@@ -261,7 +261,7 @@ func (h *Handlers) DeleteImportExportJob(c *gin.Context) {
 	})
 }
 
-// GetImportExportStats retrieves import/export job statistics
+// GetImportExportStats retrieves import/export job statistics.
 func (h *Handlers) GetImportExportStats(c *gin.Context) {
 	// Get tenant ID from context
 	tenantID := c.GetUint("tenant_id")
@@ -279,7 +279,7 @@ func (h *Handlers) GetImportExportStats(c *gin.Context) {
 	})
 }
 
-// DownloadExportFile downloads an exported file
+// DownloadExportFile downloads an exported file.
 func (h *Handlers) DownloadExportFile(c *gin.Context) {
 	// Parse job ID
 	jobID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -326,7 +326,7 @@ func (h *Handlers) DownloadExportFile(c *gin.Context) {
 	})
 }
 
-// GetImportTemplate returns an import template for the specified type
+// GetImportTemplate returns an import template for the specified type.
 func (h *Handlers) GetImportTemplate(c *gin.Context) {
 	// Get import type from query parameter
 	importType := c.Query("type")

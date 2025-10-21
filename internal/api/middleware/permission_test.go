@@ -17,7 +17,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// MockPermissionService is a mock implementation of PermissionService
+// MockPermissionService is a mock implementation of PermissionService.
 type MockPermissionService struct {
 	mock.Mock
 }
@@ -43,7 +43,7 @@ func (m *MockPermissionService) HasPermission(ctx context.Context, userID uint, 
 	return args.Bool(0), args.Error(1)
 }
 
-// setupTestDB creates an in-memory SQLite database for testing
+// setupTestDB creates an in-memory SQLite database for testing.
 func setupTestDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
@@ -66,7 +66,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	return db
 }
 
-// setupTestGin creates a gin test context
+// setupTestGin creates a gin test context.
 func setupTestGin() (*gin.Context, *httptest.ResponseRecorder) {
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
@@ -75,7 +75,7 @@ func setupTestGin() (*gin.Context, *httptest.ResponseRecorder) {
 	return c, w
 }
 
-// createTestUser creates a test user with all required fields
+// createTestUser creates a test user with all required fields.
 func createTestUser(id uint, email string) *models.User {
 	return &models.User{
 		BaseModel:    models.BaseModel{ID: id},
@@ -86,6 +86,16 @@ func createTestUser(id uint, email string) *models.User {
 		Role:         "customer",
 		IsActive:     true,
 	}
+}
+
+// cleanupTestData cleans up test data to avoid constraint violations.
+func cleanupTestData(t *testing.T, db *gorm.DB) {
+	// Clean up in correct order due to foreign key constraints
+	db.Exec("DELETE FROM messages")
+	db.Exec("DELETE FROM tickets")
+	db.Exec("DELETE FROM knowledge_articles")
+	db.Exec("DELETE FROM users")
+	db.Exec("DELETE FROM tenants")
 }
 
 func TestPermissionMiddleware_RequirePermission(t *testing.T) {
@@ -364,14 +374,17 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 				return createTestUser(1, "test@example.com")
 			},
 			setupTenant: func() string {
-				return "tenant-123"
+				return "1" // Use numeric string to match DB tenant_id type
 			},
 			setupData: func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {
+				// Clean up any existing tickets first to avoid UNIQUE constraint
+				db.Exec("DELETE FROM tickets WHERE ticket_number = ?", "TICKET-001")
+
 				// Create a ticket owned by the user
 				userIDStr := strconv.FormatUint(uint64(user.ID), 10)
 				ticket := &models.Ticket{
 					BaseModel:    models.BaseModel{CreatedBy: &userIDStr},
-					TenantID:     1, // Simulate tenant ID conversion
+					TenantID:     1, // Use integer to match DB schema
 					TicketNumber: "TICKET-001",
 					Title:        "Test Ticket",
 				}
@@ -387,15 +400,18 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 				return createTestUser(2, "other@example.com")
 			},
 			setupTenant: func() string {
-				return "tenant-123"
+				return "1" // Use numeric string to match DB tenant_id type
 			},
 			setupData: func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {
+				// Clean up any existing tickets first to avoid UNIQUE constraint
+				db.Exec("DELETE FROM tickets WHERE ticket_number = ?", "TICKET-002")
+
 				// Create a ticket owned by a different user
 				diffUserID := "1"
 				ticket := &models.Ticket{
 					BaseModel:    models.BaseModel{CreatedBy: &diffUserID},
 					TenantID:     1,
-					TicketNumber: "TICKET-001",
+					TicketNumber: "TICKET-002", // Use different ticket number
 					Title:        "Test Ticket",
 				}
 				require.NoError(t, db.Create(ticket).Error)
@@ -411,15 +427,18 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 				return createTestUser(2, "admin@example.com")
 			},
 			setupTenant: func() string {
-				return "tenant-123"
+				return "1" // Use numeric string to match DB tenant_id type
 			},
 			setupData: func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {
+				// Clean up any existing tickets first to avoid UNIQUE constraint
+				db.Exec("DELETE FROM tickets WHERE ticket_number = ?", "TICKET-003")
+
 				// Create a ticket owned by a different user
 				diffUserID := "1"
 				ticket := &models.Ticket{
 					BaseModel:    models.BaseModel{CreatedBy: &diffUserID},
 					TenantID:     1,
-					TicketNumber: "TICKET-001",
+					TicketNumber: "TICKET-003", // Use different ticket number
 					Title:        "Test Ticket",
 				}
 				require.NoError(t, db.Create(ticket).Error)
@@ -433,7 +452,7 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 			setupUser: func() *models.User {
 				return nil
 			},
-			setupTenant:    func() string { return "tenant-123" },
+			setupTenant:    func() string { return "1" }, // Use numeric string to match DB tenant_id type
 			setupData:      func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {},
 			resourceType:   "ticket",
 			resourceID:     "1",
@@ -445,7 +464,7 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 			setupUser: func() *models.User {
 				return createTestUser(1, "test@example.com")
 			},
-			setupTenant:    func() string { return "tenant-123" },
+			setupTenant:    func() string { return "1" }, // Use numeric string to match DB tenant_id type
 			setupData:      func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {},
 			resourceType:   "ticket",
 			resourceID:     "", // Missing ID
@@ -457,6 +476,9 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c, w := setupTestGin()
+
+			// Clean up test data before each test
+			cleanupTestData(t, db)
 
 			// Set resource ID in path parameters
 			if tt.resourceID != "" {
@@ -481,6 +503,9 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 					mockService.On("GetUserPermissions", mock.Anything, user.ID, tt.setupTenant()).
 						Return([]models.Permission{}, nil)
 				}
+
+				// Always setup GetDatabase mock for ownership checking
+				mockService.On("GetDatabase").Return(db)
 
 				// Setup test data
 				tt.setupData(t, db, user, tt.setupTenant())
@@ -605,9 +630,20 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 			name:         "Message ownership",
 			resourceType: "message",
 			setupResource: func(t *testing.T, db *gorm.DB, user *models.User) uint {
+				// First create a ticket for the message to belong to
+				userIDStr := strconv.FormatUint(uint64(user.ID), 10)
+				ticket := &models.Ticket{
+					BaseModel:    models.BaseModel{CreatedBy: &userIDStr},
+					TenantID:     1,
+					TicketNumber: "MSG-TICKET-001",
+					Title:        "Test Ticket for Message",
+				}
+				require.NoError(t, db.Create(ticket).Error)
+
+				// Now create the message
 				message := &models.Message{
 					BaseModel: models.BaseModel{},
-					TicketID:  1,
+					TicketID:  ticket.ID,
 					UserID:    user.ID,
 					Content:   "Test message",
 				}
@@ -697,7 +733,7 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 	}
 }
 
-// Test error cases and edge conditions
+// Test error cases and edge conditions.
 func TestPermissionMiddleware_ErrorHandling(t *testing.T) {
 	mockService := new(MockPermissionService)
 	middleware := NewPermissionMiddleware(mockService)

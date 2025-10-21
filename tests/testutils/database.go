@@ -11,13 +11,13 @@ import (
 	"github.com/company/smartticket/internal/models"
 )
 
-// TestDatabase provides a database connection for testing
+// TestDatabase provides a database connection for testing.
 type TestDatabase struct {
 	*database.Database
 	tempDir string
 }
 
-// NewTestDatabase creates a new test database with isolated storage
+// NewTestDatabase creates a new test database with isolated storage.
 func NewTestDatabase(t *testing.T) *TestDatabase {
 	// Create temporary directory for test database
 	tempDir, err := os.MkdirTemp("", "smartticket_test_*")
@@ -56,7 +56,7 @@ func NewTestDatabase(t *testing.T) *TestDatabase {
 	}
 }
 
-// Close closes the test database and cleans up temporary files
+// Close closes the test database and cleans up temporary files.
 func (td *TestDatabase) Close() error {
 	// Close database connection
 	if err := td.Database.Close(); err != nil {
@@ -71,7 +71,7 @@ func (td *TestDatabase) Close() error {
 	return nil
 }
 
-// CreateTestDatabaseConfig creates a database configuration for testing
+// CreateTestDatabaseConfig creates a database configuration for testing.
 func CreateTestDatabaseConfig(dbPath string) *config.DatabaseConfig {
 	return &config.DatabaseConfig{
 		Type:            "sqlite",
@@ -83,7 +83,7 @@ func CreateTestDatabaseConfig(dbPath string) *config.DatabaseConfig {
 	}
 }
 
-// WithTestDatabase is a helper function that runs a test function with a test database
+// WithTestDatabase is a helper function that runs a test function with a test database.
 func WithTestDatabase(t *testing.T, testFunc func(*testing.T, *database.Database)) {
 	td := NewTestDatabase(t)
 	defer func() {
@@ -124,7 +124,7 @@ func WithTestDatabase(t *testing.T, testFunc func(*testing.T, *database.Database
 	testFunc(t, td.Database)
 }
 
-// WithTransaction runs a test function within a database transaction
+// WithTransaction runs a test function within a database transaction.
 func WithTransaction(t *testing.T, db *database.Database, testFunc func(*testing.T, *database.Database) error) {
 	// Begin transaction
 	tx := db.Begin()

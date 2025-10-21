@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// SeedData represents the complete seed data structure
+// SeedData represents the complete seed data structure.
 type SeedData struct {
 	Tenants           []Tenant
 	Users             []User
@@ -25,7 +25,7 @@ type SeedData struct {
 	TicketStatuses    []TicketStatus
 }
 
-// Tenant represents a tenant record
+// Tenant represents a tenant record.
 type Tenant struct {
 	ID        string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	Name      string    `json:"name" gorm:"not null;type:varchar(255)"`
@@ -37,7 +37,7 @@ type Tenant struct {
 	DeletedAt time.Time `json:"deleted_at" gorm:"index"`
 }
 
-// User represents a user record
+// User represents a user record.
 type User struct {
 	ID        string     `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	TenantID  string     `json:"tenant_id" gorm:"not null;index;type:varchar(36)"`
@@ -52,7 +52,7 @@ type User struct {
 	DeletedAt time.Time  `json:"deleted_at" gorm:"index"`
 }
 
-// Ticket represents a ticket record
+// Ticket represents a ticket record.
 type Ticket struct {
 	ID          string     `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	TenantID    string     `json:"tenant_id" gorm:"not null;index;type:varchar(36)"`
@@ -73,7 +73,7 @@ type Ticket struct {
 	DeletedAt   time.Time  `json:"deleted_at" gorm:"index"`
 }
 
-// KnowledgeArticle represents a knowledge article
+// KnowledgeArticle represents a knowledge article.
 type KnowledgeArticle struct {
 	ID          string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	TenantID    string    `json:"tenant_id" gorm:"not null;index;type:varchar(36)"`
@@ -91,7 +91,7 @@ type KnowledgeArticle struct {
 	DeletedAt   time.Time `json:"deleted_at" gorm:"index"`
 }
 
-// Setting represents a setting record
+// Setting represents a setting record.
 type Setting struct {
 	ID        string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	TenantID  string    `json:"tenant_id" gorm:"not null;index;type:varchar(36)"`
@@ -102,7 +102,7 @@ type Setting struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// LLMProvider represents an LLM provider configuration
+// LLMProvider represents an LLM provider configuration.
 type LLMProvider struct {
 	ID           string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	TenantID     string    `json:"tenant_id" gorm:"not null;index;type:varchar(36)"`
@@ -123,7 +123,7 @@ type LLMProvider struct {
 	DeletedAt    time.Time `json:"deleted_at" gorm:"index"`
 }
 
-// TicketCategory represents a ticket category
+// TicketCategory represents a ticket category.
 type TicketCategory struct {
 	ID        string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	TenantID  string    `json:"tenant_id" gorm:"not null;index;type:varchar(36)"`
@@ -133,7 +133,7 @@ type TicketCategory struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TicketStatus represents a ticket status
+// TicketStatus represents a ticket status.
 type TicketStatus struct {
 	ID          string    `json:"id" gorm:"primaryKey;type:varchar(36)"`
 	TenantID    string    `json:"tenant_id" gorm:"not null;index;type:varchar(36)"`
@@ -147,7 +147,7 @@ type TicketStatus struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// GenerateSeedData generates complete seed data for the system
+// GenerateSeedData generates complete seed data for the system.
 func GenerateSeedData() *SeedData {
 	// Generate tenants
 	tenants := generateTenants()
@@ -228,7 +228,7 @@ func GenerateSeedData() *SeedData {
 	}
 }
 
-// generateTenants generates sample tenants
+// generateTenants generates sample tenants.
 func generateTenants() []Tenant {
 	now := time.Now()
 
@@ -263,7 +263,7 @@ func generateTenants() []Tenant {
 	}
 }
 
-// generateUsers generates sample users for a tenant
+// generateUsers generates sample users for a tenant.
 func generateUsers(tenantID string) []User {
 	now := time.Now()
 
@@ -332,7 +332,7 @@ func generateUsers(tenantID string) []User {
 	}
 }
 
-// generateTicketCategories generates sample ticket categories
+// generateTicketCategories generates sample ticket categories.
 func generateTicketCategories(tenantID string) []TicketCategory {
 	now := time.Now()
 
@@ -372,7 +372,7 @@ func generateTicketCategories(tenantID string) []TicketCategory {
 	}
 }
 
-// generateTicketStatuses generates sample ticket statuses
+// generateTicketStatuses generates sample ticket statuses.
 func generateTicketStatuses(tenantID string) []TicketStatus {
 	now := time.Now()
 
@@ -440,7 +440,7 @@ func generateTicketStatuses(tenantID string) []TicketStatus {
 	}
 }
 
-// generateTickets generates sample tickets for a tenant
+// generateTickets generates sample tickets for a tenant.
 func generateTickets(tenantID, createdBy string, tenantIndex int) []Ticket {
 	now := time.Now()
 
@@ -504,7 +504,7 @@ func generateTickets(tenantID, createdBy string, tenantIndex int) []Ticket {
 	}
 }
 
-// generateKnowledgeArticles generates sample knowledge articles
+// generateKnowledgeArticles generates sample knowledge articles.
 func generateKnowledgeArticles(tenantID, authorID string) []KnowledgeArticle {
 	now := time.Now()
 
@@ -598,7 +598,7 @@ For additional help, create a support ticket.`,
 	}
 }
 
-// generateSettings generates default settings for a tenant
+// generateSettings generates default settings for a tenant.
 func generateSettings(tenantID string) []Setting {
 	now := time.Now()
 
@@ -651,7 +651,7 @@ func generateSettings(tenantID string) []Setting {
 	}
 }
 
-// generateLLMProviders generates sample LLM providers
+// generateLLMProviders generates sample LLM providers.
 func generateLLMProviders(tenantID string) []LLMProvider {
 	now := time.Now()
 
@@ -693,7 +693,7 @@ func generateLLMProviders(tenantID string) []LLMProvider {
 	}
 }
 
-// SaveSeedData saves seed data to a JSON file
+// SaveSeedData saves seed data to a JSON file.
 func SaveSeedData(data *SeedData, filename string) error {
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
@@ -709,7 +709,7 @@ func SaveSeedData(data *SeedData, filename string) error {
 	return nil
 }
 
-// LoadSeedData loads seed data from a JSON file
+// LoadSeedData loads seed data from a JSON file.
 func LoadSeedData(filename string) (*SeedData, error) {
 	jsonData, err := os.ReadFile(filename)
 	if err != nil {
@@ -726,7 +726,7 @@ func LoadSeedData(filename string) (*SeedData, error) {
 	return &data, nil
 }
 
-// SeedDatabase seeds the database with the provided data
+// SeedDatabase seeds the database with the provided data.
 func SeedDatabase(db *gorm.DB, data *SeedData) error {
 	ctx := context.Background()
 
@@ -776,7 +776,7 @@ func SeedDatabase(db *gorm.DB, data *SeedData) error {
 	return nil
 }
 
-// Helper functions to seed each table
+// Helper functions to seed each table.
 func seedTenants(ctx context.Context, db *gorm.DB, tenants []Tenant) error {
 	for _, tenant := range tenants {
 		if err := db.Create(&tenant).Error; err != nil {

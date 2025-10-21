@@ -12,7 +12,7 @@ import (
 	"github.com/company/smartticket/internal/models"
 )
 
-// JWTClaims represents the claims structure for JWT tokens
+// JWTClaims represents the claims structure for JWT tokens.
 type JWTClaims struct {
 	UserID   uint   `json:"user_id"`
 	TenantID uint   `json:"tenant_id"`
@@ -21,7 +21,7 @@ type JWTClaims struct {
 	jwt.RegisteredClaims
 }
 
-// TokenPair represents both access and refresh tokens
+// TokenPair represents both access and refresh tokens.
 type TokenPair struct {
 	AccessToken  string    `json:"access_token"`
 	RefreshToken string    `json:"refresh_token"`
@@ -29,13 +29,13 @@ type TokenPair struct {
 	TokenType    string    `json:"token_type"`
 }
 
-// LoginRequest represents the login request payload
+// LoginRequest represents the login request payload.
 type LoginRequest struct {
 	Email    string `json:"email" binding:"required,email" example:"admin@example.com"`
 	Password string `json:"password" binding:"required,min=6" example:"password123"`
 }
 
-// LoginResponse represents the login response
+// LoginResponse represents the login response.
 type LoginResponse struct {
 	Success   bool       `json:"success"`
 	User      *UserInfo  `json:"user"`
@@ -44,7 +44,7 @@ type LoginResponse struct {
 	RefreshIn int64      `json:"refresh_in"` // seconds
 }
 
-// UserInfo represents safe user information for responses
+// UserInfo represents safe user information for responses.
 type UserInfo struct {
 	ID          uint       `json:"id"`
 	Email       string     `json:"email"`
@@ -58,19 +58,19 @@ type UserInfo struct {
 	TenantName  string     `json:"tenant_name,omitempty"`
 }
 
-// RefreshTokenRequest represents the refresh token request
+// RefreshTokenRequest represents the refresh token request.
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 }
 
-// ChangePasswordRequest represents the password change request
+// ChangePasswordRequest represents the password change request.
 type ChangePasswordRequest struct {
 	CurrentPassword string `json:"current_password" binding:"required"`
 	NewPassword     string `json:"new_password" binding:"required,min=6"`
 	ConfirmPassword string `json:"confirm_password" binding:"required,eqfield=NewPassword"`
 }
 
-// Service provides authentication and authorization functionality
+// Service provides authentication and authorization functionality.
 type Service struct {
 	db            *gorm.DB
 	jwtSecret     []byte
@@ -79,7 +79,7 @@ type Service struct {
 	issuer        string
 }
 
-// NewService creates a new authentication service
+// NewService creates a new authentication service.
 func NewService(db *gorm.DB, jwtSecret string, accessTokenT, refreshTokenT time.Duration, issuer string) *Service {
 	return &Service{
 		db:            db,
@@ -90,7 +90,7 @@ func NewService(db *gorm.DB, jwtSecret string, accessTokenT, refreshTokenT time.
 	}
 }
 
-// Login authenticates a user and returns tokens
+// Login authenticates a user and returns tokens.
 func (s *Service) Login(req *LoginRequest, clientIP, userAgent string) (*LoginResponse, error) {
 	// Find user by email
 	var user models.User
@@ -133,7 +133,7 @@ func (s *Service) Login(req *LoginRequest, clientIP, userAgent string) (*LoginRe
 	}, nil
 }
 
-// RefreshToken generates new tokens using a refresh token
+// RefreshToken generates new tokens using a refresh token.
 func (s *Service) RefreshToken(refreshToken string) (*TokenPair, error) {
 	// Parse and validate refresh token
 	token, err := jwt.ParseWithClaims(refreshToken, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
@@ -168,7 +168,7 @@ func (s *Service) RefreshToken(refreshToken string) (*TokenPair, error) {
 	return s.generateTokenPair(&user)
 }
 
-// ValidateToken validates an access token and returns claims
+// ValidateToken validates an access token and returns claims.
 func (s *Service) ValidateToken(accessToken string) (*JWTClaims, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -200,7 +200,7 @@ func (s *Service) ValidateToken(accessToken string) (*JWTClaims, error) {
 	return claims, nil
 }
 
-// ChangePassword changes a user's password
+// ChangePassword changes a user's password.
 func (s *Service) ChangePassword(userID uint, req *ChangePasswordRequest) error {
 	// Find user
 	var user models.User
@@ -228,7 +228,7 @@ func (s *Service) ChangePassword(userID uint, req *ChangePasswordRequest) error 
 	return nil
 }
 
-// GetUserInfo returns user information by ID
+// GetUserInfo returns user information by ID.
 func (s *Service) GetUserInfo(userID uint) (*UserInfo, error) {
 	var user models.User
 	if err := s.db.Where("id = ? AND is_active = ?", userID, true).
@@ -242,7 +242,7 @@ func (s *Service) GetUserInfo(userID uint) (*UserInfo, error) {
 
 // Helper methods
 
-// generateTokenPair generates both access and refresh tokens for a user
+// generateTokenPair generates both access and refresh tokens for a user.
 func (s *Service) generateTokenPair(user *models.User) (*TokenPair, error) {
 	now := time.Now()
 
@@ -294,18 +294,18 @@ func (s *Service) generateTokenPair(user *models.User) (*TokenPair, error) {
 	}, nil
 }
 
-// hashPassword hashes a password using bcrypt
+// hashPassword hashes a password using bcrypt.
 func (s *Service) hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
 }
 
-// verifyPassword verifies a password against its hash
+// verifyPassword verifies a password against its hash.
 func (s *Service) verifyPassword(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
-// createUserInfo creates safe user info for responses
+// createUserInfo creates safe user info for responses.
 func (s *Service) createUserInfo(user *models.User) *UserInfo {
 	info := &UserInfo{
 		ID:          user.ID,

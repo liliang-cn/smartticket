@@ -6,22 +6,24 @@ import (
 	"strings"
 	"time"
 
+	stderrors "errors"
+
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/models"
 	"gorm.io/gorm"
 )
 
-// Service provides service management functionality
+// Service provides service management functionality.
 type Service struct {
 	db *gorm.DB
 }
 
-// NewService creates a new service management instance
+// NewService creates a new service management instance.
 func NewService(db *gorm.DB) *Service {
 	return &Service{db: db}
 }
 
-// Request/Response structures for service management
+// Request/Response structures for service management.
 type CreateServiceRequest struct {
 	ProductID       uint   `json:"product_id" binding:"required"`
 	Name            string `json:"name" binding:"required,min=1,max=255"`
@@ -94,7 +96,7 @@ type ListServicesRequest struct {
 	SortOrder string `form:"sort_order,default=desc"`
 }
 
-// CreateService creates a new service
+// CreateService creates a new service.
 func (s *Service) CreateService(tenantID uint, req *CreateServiceRequest) (*ServiceResponse, error) {
 	// Normalize input
 	req.Name = strings.TrimSpace(req.Name)
@@ -111,7 +113,7 @@ func (s *Service) CreateService(tenantID uint, req *CreateServiceRequest) (*Serv
 	// Validate product exists and belongs to tenant
 	var product models.Product
 	if err := s.db.Where("id = ? AND tenant_id = ?", req.ProductID, tenantID).First(&product).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Product")
 		}
 		return nil, fmt.Errorf("failed to validate product: %w", err)
@@ -123,7 +125,7 @@ func (s *Service) CreateService(tenantID uint, req *CreateServiceRequest) (*Serv
 	if err == nil {
 		return nil, errors.NewConflictError("Service code already exists")
 	}
-	if err != gorm.ErrRecordNotFound {
+	if !stderrors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("failed to check service code uniqueness: %w", err)
 	}
 
@@ -193,13 +195,13 @@ func (s *Service) CreateService(tenantID uint, req *CreateServiceRequest) (*Serv
 	return s.serviceToResponse(service, true), nil
 }
 
-// GetService gets a service by ID
+// GetService gets a service by ID.
 func (s *Service) GetService(tenantID uint, serviceID uint) (*ServiceResponse, error) {
 	var service models.Service
 	if err := s.db.Where("id = ? AND tenant_id = ?", serviceID, tenantID).
 		Preload("Product").
 		First(&service).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Service")
 		}
 		return nil, fmt.Errorf("failed to get service: %w", err)
@@ -208,7 +210,7 @@ func (s *Service) GetService(tenantID uint, serviceID uint) (*ServiceResponse, e
 	return s.serviceToResponse(&service, true), nil
 }
 
-// ListServices lists services with pagination and filtering
+// ListServices lists services with pagination and filtering.
 func (s *Service) ListServices(tenantID uint, req *ListServicesRequest) ([]ServiceResponse, int64, error) {
 	// Build query
 	query := s.db.Where("tenant_id = ?", tenantID)
@@ -283,11 +285,11 @@ func (s *Service) ListServices(tenantID uint, req *ListServicesRequest) ([]Servi
 	return responses, total, nil
 }
 
-// UpdateService updates an existing service
+// UpdateService updates an existing service.
 func (s *Service) UpdateService(tenantID uint, serviceID uint, req *UpdateServiceRequest) (*ServiceResponse, error) {
 	var service models.Service
 	if err := s.db.Where("id = ? AND tenant_id = ? AND is_deleted = ?", serviceID, tenantID, false).First(&service).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Service")
 		}
 		return nil, fmt.Errorf("failed to get service: %w", err)
@@ -306,7 +308,7 @@ func (s *Service) UpdateService(tenantID uint, serviceID uint, req *UpdateServic
 		if err == nil {
 			return nil, errors.NewConflictError("Service code already exists")
 		}
-		if err != gorm.ErrRecordNotFound {
+		if !stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("failed to check service code uniqueness: %w", err)
 		}
 		service.Code = req.Code
@@ -316,7 +318,7 @@ func (s *Service) UpdateService(tenantID uint, serviceID uint, req *UpdateServic
 		// Validate product exists and belongs to tenant
 		var product models.Product
 		if err := s.db.Where("id = ? AND tenant_id = ? AND is_deleted = ?", *req.ProductID, tenantID, false).First(&product).Error; err != nil {
-			if err == gorm.ErrRecordNotFound {
+			if stderrors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errors.NewNotFoundError("Product")
 			}
 			return nil, fmt.Errorf("failed to validate product: %w", err)
@@ -391,11 +393,11 @@ func (s *Service) UpdateService(tenantID uint, serviceID uint, req *UpdateServic
 	return s.serviceToResponse(&service, true), nil
 }
 
-// DeleteService soft deletes a service
+// DeleteService soft deletes a service.
 func (s *Service) DeleteService(tenantID uint, serviceID uint) error {
 	var service models.Service
 	if err := s.db.Where("id = ? AND tenant_id = ? AND is_deleted = ?", serviceID, tenantID, false).First(&service).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NewNotFoundError("Service")
 		}
 		return fmt.Errorf("failed to get service: %w", err)
@@ -419,21 +421,21 @@ func (s *Service) DeleteService(tenantID uint, serviceID uint) error {
 	return nil
 }
 
-// ActivateService activates a service
+// ActivateService activates a service.
 func (s *Service) ActivateService(tenantID uint, serviceID uint) error {
 	return s.updateServiceStatus(tenantID, serviceID, "active")
 }
 
-// DeactivateService deactivates a service
+// DeactivateService deactivates a service.
 func (s *Service) DeactivateService(tenantID uint, serviceID uint) error {
 	return s.updateServiceStatus(tenantID, serviceID, "inactive")
 }
 
-// Helper functions
+// Helper functions.
 func (s *Service) updateServiceStatus(tenantID uint, serviceID uint, status string) error {
 	var service models.Service
 	if err := s.db.Where("id = ? AND tenant_id = ? AND is_deleted = ?", serviceID, tenantID, false).First(&service).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NewNotFoundError("Service")
 		}
 		return fmt.Errorf("failed to get service: %w", err)

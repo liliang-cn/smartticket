@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// TestTenant represents a test tenant fixture
+// TestTenant represents a test tenant fixture.
 type TestTenant struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
@@ -16,7 +16,7 @@ type TestTenant struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TestUser represents a test user fixture
+// TestUser represents a test user fixture.
 type TestUser struct {
 	ID        string    `json:"id"`
 	TenantID  string    `json:"tenant_id"`
@@ -28,7 +28,7 @@ type TestUser struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// TestTicket represents a test ticket fixture
+// TestTicket represents a test ticket fixture.
 type TestTicket struct {
 	ID          string    `json:"id"`
 	TenantID    string    `json:"tenant_id"`
@@ -45,7 +45,7 @@ type TestTicket struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// NewTestTenant creates a new test tenant fixture
+// NewTestTenant creates a new test tenant fixture.
 func NewTestTenant() TestTenant {
 	now := time.Now()
 	return TestTenant{
@@ -58,7 +58,7 @@ func NewTestTenant() TestTenant {
 	}
 }
 
-// NewTestUser creates a new test user fixture
+// NewTestUser creates a new test user fixture.
 func NewTestUser(tenantID string) TestUser {
 	now := time.Now()
 	return TestUser{
@@ -73,7 +73,7 @@ func NewTestUser(tenantID string) TestUser {
 	}
 }
 
-// NewTestTicket creates a new test ticket fixture
+// NewTestTicket creates a new test ticket fixture.
 func NewTestTicket(tenantID, createdBy string) TestTicket {
 	now := time.Now()
 	return TestTicket{
@@ -92,7 +92,7 @@ func NewTestTicket(tenantID, createdBy string) TestTicket {
 	}
 }
 
-// GetSampleTenants returns a slice of sample tenant fixtures
+// GetSampleTenants returns a slice of sample tenant fixtures.
 func GetSampleTenants() []TestTenant {
 	tenant1 := NewTestTenant()
 	tenant1.Name = "Acme Corporation"
@@ -105,7 +105,7 @@ func GetSampleTenants() []TestTenant {
 	return []TestTenant{tenant1, tenant2}
 }
 
-// GetSampleUsers returns a slice of sample user fixtures
+// GetSampleUsers returns a slice of sample user fixtures.
 func GetSampleUsers(tenantID string) []TestUser {
 	users := make([]TestUser, 3)
 
@@ -127,7 +127,7 @@ func GetSampleUsers(tenantID string) []TestUser {
 	return users
 }
 
-// GetSampleTickets returns a slice of sample ticket fixtures
+// GetSampleTickets returns a slice of sample ticket fixtures.
 func GetSampleTickets(tenantID, createdBy string) []TestTicket {
 	tickets := make([]TestTicket, 3)
 

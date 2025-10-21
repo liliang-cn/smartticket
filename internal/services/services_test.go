@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// setupTestDB creates an in-memory SQLite database for testing
+// setupTestDB creates an in-memory SQLite database for testing.
 func setupTestDB(t *testing.T) *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	require.NoError(t, err)
@@ -46,7 +46,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	return db
 }
 
-// TestBasicServiceOperations tests basic service layer operations
+// TestBasicServiceOperations tests basic service layer operations.
 func TestBasicServiceOperations(t *testing.T) {
 	db := setupTestDB(t)
 
@@ -156,7 +156,7 @@ func TestBasicServiceOperations(t *testing.T) {
 	})
 }
 
-// TestServiceValidation tests service-level validation
+// TestServiceValidation tests service-level validation.
 func TestServiceValidation(t *testing.T) {
 	_ = setupTestDB(t) // Setup DB for validation tests
 
@@ -213,7 +213,7 @@ func TestServiceValidation(t *testing.T) {
 	})
 }
 
-// TestServiceErrorHandling tests service error handling
+// TestServiceErrorHandling tests service error handling.
 func TestServiceErrorHandling(t *testing.T) {
 	db := setupTestDB(t)
 
@@ -273,7 +273,7 @@ func TestServiceErrorHandling(t *testing.T) {
 	})
 }
 
-// TestPermissionService tests the PermissionService functionality
+// TestPermissionService tests the PermissionService functionality.
 func TestPermissionService(t *testing.T) {
 	db := setupTestDB(t)
 	ps := NewPermissionService(db)
@@ -444,7 +444,7 @@ func TestPermissionService(t *testing.T) {
 	})
 }
 
-// TestPermissionServiceComplex tests more complex scenarios with better isolation
+// TestPermissionServiceComplex tests more complex scenarios with better isolation.
 func TestPermissionServiceComplex(t *testing.T) {
 	db := setupTestDB(t)
 	ps := NewPermissionService(db)

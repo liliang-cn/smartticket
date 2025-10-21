@@ -8,6 +8,8 @@ import (
 	"time"
 	"unicode"
 
+	stderrors "errors"
+
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 
@@ -15,12 +17,12 @@ import (
 	"github.com/company/smartticket/internal/logger"
 )
 
-// Validator wraps the validator instance
+// Validator wraps the validator instance.
 type Validator struct {
 	validate *validator.Validate
 }
 
-// NewValidator creates a new validator instance
+// NewValidator creates a new validator instance.
 func NewValidator() *Validator {
 	v := validator.New()
 
@@ -34,10 +36,11 @@ func NewValidator() *Validator {
 	return &Validator{validate: v}
 }
 
-// Validate validates a struct and returns detailed errors
+// Validate validates a struct and returns detailed errors.
 func (v *Validator) Validate(s interface{}) error {
 	if err := v.validate.Struct(s); err != nil {
-		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+		var validationErrors validator.ValidationErrors
+		if stderrors.As(err, &validationErrors) {
 			return v.formatValidationErrors(validationErrors)
 		}
 		return errors.NewValidationError("Validation failed").WithCause(err)
@@ -45,10 +48,11 @@ func (v *Validator) Validate(s interface{}) error {
 	return nil
 }
 
-// ValidateVar validates a single field
+// ValidateVar validates a single field.
 func (v *Validator) ValidateVar(field interface{}, tag string) error {
 	if err := v.validate.Var(field, tag); err != nil {
-		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+		var validationErrors validator.ValidationErrors
+		if stderrors.As(err, &validationErrors) {
 			return v.formatValidationErrors(validationErrors)
 		}
 		return errors.NewValidationError("Field validation failed").WithCause(err)
@@ -56,7 +60,7 @@ func (v *Validator) ValidateVar(field interface{}, tag string) error {
 	return nil
 }
 
-// formatValidationErrors converts validator errors to a user-friendly format
+// formatValidationErrors converts validator errors to a user-friendly format.
 func (v *Validator) formatValidationErrors(errs validator.ValidationErrors) error {
 	var errorMessages []string
 
@@ -77,14 +81,14 @@ func (v *Validator) formatValidationErrors(errs validator.ValidationErrors) erro
 	return errors.NewValidationError("Validation failed").WithDetails(strings.Join(errorMessages, "; "))
 }
 
-// getFieldName extracts the field name from struct tags
+// getFieldName extracts the field name from struct tags.
 func (v *Validator) getFieldName(structNamespace, fieldName string) string {
 	// For now, return the field name as-is
 	// In a real implementation, you could use reflection to get json tags
 	return fieldName
 }
 
-// getErrorMessage generates user-friendly error messages
+// getErrorMessage generates user-friendly error messages.
 func (v *Validator) getErrorMessage(field, tag, param string) string {
 	switch tag {
 	case "required":
@@ -118,7 +122,7 @@ func (v *Validator) getErrorMessage(field, tag, param string) string {
 
 // Custom validation functions
 
-// validateSlug validates slug format (letters, numbers, hyphens)
+// validateSlug validates slug format (letters, numbers, hyphens).
 func validateSlug(fl validator.FieldLevel) bool {
 	slug := fl.Field().String()
 	if slug == "" {
@@ -130,7 +134,7 @@ func validateSlug(fl validator.FieldLevel) bool {
 	return matched
 }
 
-// validateStrongPassword validates password strength
+// validateStrongPassword validates password strength.
 func validateStrongPassword(fl validator.FieldLevel) bool {
 	password := fl.Field().String()
 	if len(password) < 8 {
@@ -160,7 +164,7 @@ func validateStrongPassword(fl validator.FieldLevel) bool {
 	return hasUpper && hasLower && hasNumber && hasSpecial
 }
 
-// validateTicketNumber validates ticket number format
+// validateTicketNumber validates ticket number format.
 func validateTicketNumber(fl validator.FieldLevel) bool {
 	ticketNumber := fl.Field().String()
 	if ticketNumber == "" {
@@ -171,7 +175,7 @@ func validateTicketNumber(fl validator.FieldLevel) bool {
 	return matched
 }
 
-// validateVersion validates semantic version format
+// validateVersion validates semantic version format.
 func validateVersion(fl validator.FieldLevel) bool {
 	version := fl.Field().String()
 	if version == "" {
@@ -182,7 +186,7 @@ func validateVersion(fl validator.FieldLevel) bool {
 	return matched
 }
 
-// validateAPIKeyPrefix validates API key prefix
+// validateAPIKeyPrefix validates API key prefix.
 func validateAPIKeyPrefix(fl validator.FieldLevel) bool {
 	apiKey := fl.Field().String()
 	if apiKey == "" {
@@ -194,31 +198,31 @@ func validateAPIKeyPrefix(fl validator.FieldLevel) bool {
 
 // Validation helper functions
 
-// ValidateEmail validates email format
+// ValidateEmail validates email format.
 func ValidateEmail(email string) error {
 	v := NewValidator()
 	return v.ValidateVar(email, "required,email")
 }
 
-// ValidateURL validates URL format
+// ValidateURL validates URL format.
 func ValidateURL(url string) error {
 	v := NewValidator()
 	return v.ValidateVar(url, "url")
 }
 
-// ValidateSlug validates slug format
+// ValidateSlug validates slug format.
 func ValidateSlug(slug string) error {
 	v := NewValidator()
 	return v.ValidateVar(slug, "slug")
 }
 
-// ValidatePassword validates password strength
+// ValidatePassword validates password strength.
 func ValidatePassword(password string) error {
 	v := NewValidator()
 	return v.ValidateVar(password, "required,strong_password,min=8")
 }
 
-// ValidateRequired validates required fields
+// ValidateRequired validates required fields.
 func ValidateRequired(value interface{}, fieldName string) error {
 	if value == nil || (reflect.ValueOf(value).Kind() == reflect.String && value.(string) == "") {
 		return errors.NewValidationError(fmt.Sprintf("%s is required", fieldName))
@@ -226,7 +230,7 @@ func ValidateRequired(value interface{}, fieldName string) error {
 	return nil
 }
 
-// ValidateStringLength validates string length
+// ValidateStringLength validates string length.
 func ValidateStringLength(value string, fieldName string, min, max int) error {
 	length := len(value)
 	if length < min {
@@ -238,7 +242,7 @@ func ValidateStringLength(value string, fieldName string, min, max int) error {
 	return nil
 }
 
-// ValidateRange validates numeric range
+// ValidateRange validates numeric range.
 func ValidateRange(value int, fieldName string, min, max int) error {
 	if value < min {
 		return errors.NewValidationError(fmt.Sprintf("%s must be at least %d", fieldName, min))
@@ -249,7 +253,7 @@ func ValidateRange(value int, fieldName string, min, max int) error {
 	return nil
 }
 
-// ValidateEnum validates that value is in allowed values
+// ValidateEnum validates that value is in allowed values.
 func ValidateEnum(value string, fieldName string, allowed []string) error {
 	for _, allowed := range allowed {
 		if value == allowed {
@@ -259,7 +263,7 @@ func ValidateEnum(value string, fieldName string, allowed []string) error {
 	return errors.NewValidationError(fmt.Sprintf("%s must be one of: %s", fieldName, strings.Join(allowed, ", ")))
 }
 
-// ValidateUUID validates UUID format
+// ValidateUUID validates UUID format.
 func ValidateUUID(uuid string) error {
 	if uuid == "" {
 		return errors.NewValidationError("UUID is required")
@@ -274,7 +278,7 @@ func ValidateUUID(uuid string) error {
 	return nil
 }
 
-// ValidatePhoneNumber validates phone number format
+// ValidatePhoneNumber validates phone number format.
 func ValidatePhoneNumber(phone string) error {
 	if phone == "" {
 		return nil // Optional field
@@ -289,7 +293,7 @@ func ValidatePhoneNumber(phone string) error {
 	return nil
 }
 
-// ValidateIPAddress validates IP address format
+// ValidateIPAddress validates IP address format.
 func ValidateIPAddress(ip string) error {
 	if ip == "" {
 		return nil // Optional field
@@ -304,7 +308,7 @@ func ValidateIPAddress(ip string) error {
 	return nil
 }
 
-// ValidateJSON validates JSON format
+// ValidateJSON validates JSON format.
 func ValidateJSON(jsonStr string) error {
 	if jsonStr == "" {
 		return nil // Optional field
@@ -320,7 +324,7 @@ func ValidateJSON(jsonStr string) error {
 	return nil
 }
 
-// ValidatePaginationParams validates pagination parameters (renamed to avoid conflict)
+// ValidatePaginationParams validates pagination parameters (renamed to avoid conflict).
 func ValidatePaginationParams(page, pageSize int) error {
 	if page < 1 {
 		return errors.NewValidationError("Page must be greater than 0")
@@ -331,7 +335,7 @@ func ValidatePaginationParams(page, pageSize int) error {
 	return nil
 }
 
-// ValidateDate validates date format (YYYY-MM-DD)
+// ValidateDate validates date format (YYYY-MM-DD).
 func ValidateDate(dateStr string) error {
 	if dateStr == "" {
 		return nil // Optional field
@@ -352,7 +356,7 @@ func ValidateDate(dateStr string) error {
 	return nil
 }
 
-// ValidateSort validates sort parameters
+// ValidateSort validates sort parameters.
 func ValidateSort(sort, allowedField string) error {
 	if sort == "" {
 		return nil // Optional field
@@ -380,7 +384,7 @@ func ValidateSort(sort, allowedField string) error {
 	return nil
 }
 
-// ValidateFilter validates filter parameters
+// ValidateFilter validates filter parameters.
 func ValidateFilter(filter map[string]interface{}, allowedFilters map[string]string) error {
 	for key, value := range filter {
 		// Check if filter is allowed
@@ -411,10 +415,10 @@ func ValidateFilter(filter map[string]interface{}, allowedFilters map[string]str
 	return nil
 }
 
-// Global validator instance
+// Global validator instance.
 var globalValidator *Validator
 
-// GetValidator returns the global validator instance
+// GetValidator returns the global validator instance.
 func GetValidator() *Validator {
 	if globalValidator == nil {
 		globalValidator = NewValidator()
@@ -422,17 +426,17 @@ func GetValidator() *Validator {
 	return globalValidator
 }
 
-// ValidateStruct validates a struct using the global validator
+// ValidateStruct validates a struct using the global validator.
 func ValidateStruct(s interface{}) error {
 	return GetValidator().Validate(s)
 }
 
-// ValidateField validates a single field using the global validator
+// ValidateField validates a single field using the global validator.
 func ValidateField(field interface{}, tag string) error {
 	return GetValidator().ValidateVar(field, tag)
 }
 
-// LogValidationError logs validation errors with context
+// LogValidationError logs validation errors with context.
 func LogValidationError(err error, context map[string]interface{}) {
 	if appErr, ok := errors.IsAppError(err); ok && appErr.Code == errors.ErrCodeValidation {
 		logger.Debug("Validation error",

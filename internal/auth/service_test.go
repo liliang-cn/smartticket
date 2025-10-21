@@ -90,7 +90,7 @@ func TestAuthService_Login_InactiveUser(t *testing.T) {
 		tenant := createTestTenant(t, db)
 		user := createTestUser(t, db, tenant.ID, "test@example.com", "password123")
 		user.IsActive = false
-		db.DB.Save(user)
+		db.Save(user)
 
 		// Test data
 		req := &LoginRequest{

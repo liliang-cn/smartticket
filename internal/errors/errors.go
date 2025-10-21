@@ -13,11 +13,11 @@ import (
 	"github.com/company/smartticket/internal/logger"
 )
 
-// ErrorCode represents different types of errors in the system
+// ErrorCode represents different types of errors in the system.
 type ErrorCode string
 
 const (
-	// Validation errors
+	// Validation errors.
 	ErrCodeValidation    ErrorCode = "VALIDATION_ERROR"
 	ErrCodeInvalidInput  ErrorCode = "INVALID_INPUT"
 	ErrCodeMissingField  ErrorCode = "MISSING_FIELD"
@@ -25,7 +25,7 @@ const (
 	ErrCodeValueTooLarge ErrorCode = "VALUE_TOO_LARGE"
 	ErrCodeValueTooSmall ErrorCode = "VALUE_TOO_SMALL"
 
-	// Authentication/Authorization errors
+	// Authentication/Authorization errors.
 	ErrCodeUnauthorized       ErrorCode = "UNAUTHORIZED"
 	ErrCodeForbidden          ErrorCode = "FORBIDDEN"
 	ErrCodeInvalidToken       ErrorCode = "INVALID_TOKEN"
@@ -35,21 +35,21 @@ const (
 	ErrCodeAccountLocked      ErrorCode = "ACCOUNT_LOCKED"
 	ErrCodeInvalidCredentials ErrorCode = "INVALID_CREDENTIALS"
 
-	// Resource errors
+	// Resource errors.
 	ErrCodeNotFound       ErrorCode = "NOT_FOUND"
 	ErrCodeAlreadyExists  ErrorCode = "ALREADY_EXISTS"
 	ErrCodeResourceLocked ErrorCode = "RESOURCE_LOCKED"
 	ErrCodeConflict       ErrorCode = "CONFLICT"
 	ErrCodeStaleResource  ErrorCode = "STALE_RESOURCE"
 
-	// Business logic errors
+	// Business logic errors.
 	ErrCodeBusinessRule        ErrorCode = "BUSINESS_RULE_VIOLATION"
 	ErrCodeQuotaExceeded       ErrorCode = "QUOTA_EXCEEDED"
 	ErrCodeLimitReached        ErrorCode = "LIMIT_REACHED"
 	ErrCodeInvalidState        ErrorCode = "INVALID_STATE"
 	ErrCodeOperationNotAllowed ErrorCode = "OPERATION_NOT_ALLOWED"
 
-	// System errors
+	// System errors.
 	ErrCodeInternal           ErrorCode = "INTERNAL_ERROR"
 	ErrCodeDatabase           ErrorCode = "DATABASE_ERROR"
 	ErrCodeNetwork            ErrorCode = "NETWORK_ERROR"
@@ -58,23 +58,23 @@ const (
 	ErrCodeExternalService    ErrorCode = "EXTERNAL_SERVICE_ERROR"
 	ErrCodeDependencyError    ErrorCode = "DEPENDENCY_ERROR"
 
-	// Rate limiting errors
+	// Rate limiting errors.
 	ErrCodeRateLimit       ErrorCode = "RATE_LIMIT_EXCEEDED"
 	ErrCodeTooManyRequests ErrorCode = "TOO_MANY_REQUESTS"
 
-	// File errors
+	// File errors.
 	ErrCodeFileNotFound    ErrorCode = "FILE_NOT_FOUND"
 	ErrCodeFileTooLarge    ErrorCode = "FILE_TOO_LARGE"
 	ErrCodeInvalidFileType ErrorCode = "INVALID_FILE_TYPE"
 	ErrCodeUploadFailed    ErrorCode = "UPLOAD_FAILED"
 
-	// Configuration errors
+	// Configuration errors.
 	ErrCodeConfigError   ErrorCode = "CONFIGURATION_ERROR"
 	ErrCodeMissingConfig ErrorCode = "MISSING_CONFIG"
 	ErrCodeInvalidConfig ErrorCode = "INVALID_CONFIG"
 )
 
-// ErrorSeverity represents the severity level of an error
+// ErrorSeverity represents the severity level of an error.
 type ErrorSeverity string
 
 const (
@@ -84,7 +84,7 @@ const (
 	SeverityCritical ErrorSeverity = "critical"
 )
 
-// AppError represents a structured application error
+// AppError represents a structured application error.
 type AppError struct {
 	Code       ErrorCode              `json:"code"`
 	Message    string                 `json:"message"`
@@ -100,7 +100,7 @@ type AppError struct {
 	Context    map[string]interface{} `json:"context,omitempty"`
 }
 
-// Error implements the error interface
+// Error implements the error interface.
 func (e *AppError) Error() string {
 	if e.Details != "" {
 		return fmt.Sprintf("%s: %s - %s", e.Code, e.Message, e.Details)
@@ -108,18 +108,18 @@ func (e *AppError) Error() string {
 	return fmt.Sprintf("%s: %s", e.Code, e.Message)
 }
 
-// Unwrap returns the underlying cause
+// Unwrap returns the underlying cause.
 func (e *AppError) Unwrap() error {
 	return e.Cause
 }
 
-// WithCause adds a cause to the error
+// WithCause adds a cause to the error.
 func (e *AppError) WithCause(cause error) *AppError {
 	e.Cause = cause
 	return e
 }
 
-// WithContext adds context to the error
+// WithContext adds context to the error.
 func (e *AppError) WithContext(key string, value interface{}) *AppError {
 	if e.Context == nil {
 		e.Context = make(map[string]interface{})
@@ -128,31 +128,31 @@ func (e *AppError) WithContext(key string, value interface{}) *AppError {
 	return e
 }
 
-// WithRequestID adds request ID to the error
+// WithRequestID adds request ID to the error.
 func (e *AppError) WithRequestID(requestID string) *AppError {
 	e.RequestID = requestID
 	return e
 }
 
-// WithUserID adds user ID to the error
+// WithUserID adds user ID to the error.
 func (e *AppError) WithUserID(userID uint) *AppError {
 	e.UserID = userID
 	return e
 }
 
-// WithTenantID adds tenant ID to the error
+// WithTenantID adds tenant ID to the error.
 func (e *AppError) WithTenantID(tenantID uint) *AppError {
 	e.TenantID = tenantID
 	return e
 }
 
-// WithStackTrace adds stack trace to the error
+// WithStackTrace adds stack trace to the error.
 func (e *AppError) WithStackTrace() *AppError {
 	e.StackTrace = getStackTrace()
 	return e
 }
 
-// ToHTTPStatus returns the appropriate HTTP status code for the error
+// ToHTTPStatus returns the appropriate HTTP status code for the error.
 func (e *AppError) ToHTTPStatus() int {
 	if e.HTTPStatus != 0 {
 		return e.HTTPStatus
@@ -186,7 +186,7 @@ func (e *AppError) ToHTTPStatus() int {
 	}
 }
 
-// Log logs the error with appropriate level based on severity
+// Log logs the error with appropriate level based on severity.
 func (e *AppError) Log() {
 	fields := []zap.Field{
 		zap.String("error_code", string(e.Code)),
@@ -248,7 +248,7 @@ func (e *AppError) Log() {
 
 // Error builder functions
 
-// NewValidationError creates a new validation error
+// NewValidationError creates a new validation error.
 func NewValidationError(message string) *AppError {
 	return &AppError{
 		Code:       ErrCodeValidation,
@@ -259,7 +259,7 @@ func NewValidationError(message string) *AppError {
 	}
 }
 
-// NewInvalidInputError creates a new invalid input error
+// NewInvalidInputError creates a new invalid input error.
 func NewInvalidInputError(field, value string) *AppError {
 	return &AppError{
 		Code:       ErrCodeInvalidInput,
@@ -271,7 +271,7 @@ func NewInvalidInputError(field, value string) *AppError {
 	}
 }
 
-// NewUnauthorizedError creates a new unauthorized error
+// NewUnauthorizedError creates a new unauthorized error.
 func NewUnauthorizedError(message string) *AppError {
 	if message == "" {
 		message = "Authentication required"
@@ -285,7 +285,7 @@ func NewUnauthorizedError(message string) *AppError {
 	}
 }
 
-// NewForbiddenError creates a new forbidden error
+// NewForbiddenError creates a new forbidden error.
 func NewForbiddenError(message string) *AppError {
 	if message == "" {
 		message = "Insufficient permissions"
@@ -299,9 +299,14 @@ func NewForbiddenError(message string) *AppError {
 	}
 }
 
-// NewNotFoundError creates a new not found error
+// NewNotFoundError creates a new not found error.
 func NewNotFoundError(resource string) *AppError {
-	message := fmt.Sprintf("%s not found", strings.Title(resource))
+	// Convert to title case manually to avoid deprecated strings.Title
+	title := resource
+	if len(resource) > 0 {
+		title = strings.ToUpper(resource[:1]) + strings.ToLower(resource[1:])
+	}
+	message := fmt.Sprintf("%s not found", title)
 	return &AppError{
 		Code:       ErrCodeNotFound,
 		Message:    message,
@@ -312,7 +317,7 @@ func NewNotFoundError(resource string) *AppError {
 	}
 }
 
-// NewConflictError creates a new conflict error
+// NewConflictError creates a new conflict error.
 func NewConflictError(message string) *AppError {
 	return &AppError{
 		Code:       ErrCodeConflict,
@@ -323,7 +328,7 @@ func NewConflictError(message string) *AppError {
 	}
 }
 
-// NewBusinessRuleError creates a new business rule violation error
+// NewBusinessRuleError creates a new business rule violation error.
 func NewBusinessRuleError(rule string, message string) *AppError {
 	return &AppError{
 		Code:       ErrCodeBusinessRule,
@@ -336,7 +341,7 @@ func NewBusinessRuleError(rule string, message string) *AppError {
 	}
 }
 
-// NewRateLimitError creates a new rate limit error
+// NewRateLimitError creates a new rate limit error.
 func NewRateLimitError(message string) *AppError {
 	if message == "" {
 		message = "Rate limit exceeded"
@@ -350,7 +355,7 @@ func NewRateLimitError(message string) *AppError {
 	}
 }
 
-// NewInternalError creates a new internal server error
+// NewInternalError creates a new internal server error.
 func NewInternalError(message string, cause error) *AppError {
 	return &AppError{
 		Code:       ErrCodeInternal,
@@ -363,7 +368,7 @@ func NewInternalError(message string, cause error) *AppError {
 	}
 }
 
-// NewDatabaseError creates a new database error
+// NewDatabaseError creates a new database error.
 func NewDatabaseError(operation string, cause error) *AppError {
 	return &AppError{
 		Code:       ErrCodeDatabase,
@@ -376,7 +381,7 @@ func NewDatabaseError(operation string, cause error) *AppError {
 	}
 }
 
-// NewServiceUnavailableError creates a new service unavailable error
+// NewServiceUnavailableError creates a new service unavailable error.
 func NewServiceUnavailableError(service string) *AppError {
 	message := fmt.Sprintf("Service '%s' is currently unavailable", service)
 	return &AppError{
@@ -389,7 +394,7 @@ func NewServiceUnavailableError(service string) *AppError {
 	}
 }
 
-// NewExternalServiceError creates a new external service error
+// NewExternalServiceError creates a new external service error.
 func NewExternalServiceError(message string, cause error) *AppError {
 	return &AppError{
 		Code:       ErrCodeExternalService,
@@ -401,7 +406,7 @@ func NewExternalServiceError(message string, cause error) *AppError {
 	}
 }
 
-// NewTimeoutError creates a new timeout error
+// NewTimeoutError creates a new timeout error.
 func NewTimeoutError(operation string, timeout time.Duration) *AppError {
 	message := fmt.Sprintf("Operation '%s' timed out after %v", operation, timeout)
 	return &AppError{
@@ -417,7 +422,7 @@ func NewTimeoutError(operation string, timeout time.Duration) *AppError {
 	}
 }
 
-// NewFileError creates a new file-related error
+// NewFileError creates a new file-related error.
 func NewFileError(operation, filename string, cause error) *AppError {
 	return &AppError{
 		Code:       ErrCodeUploadFailed,
@@ -432,7 +437,7 @@ func NewFileError(operation, filename string, cause error) *AppError {
 
 // Helper functions
 
-// getStackTrace captures the current stack trace
+// getStackTrace captures the current stack trace.
 func getStackTrace() string {
 	buf := make([]byte, 1024)
 	for {
@@ -444,7 +449,7 @@ func getStackTrace() string {
 	}
 }
 
-// IsAppError checks if an error is an AppError
+// IsAppError checks if an error is an AppError.
 func IsAppError(err error) (*AppError, bool) {
 	var appErr *AppError
 	if ok := errors.As(err, &appErr); ok {
@@ -453,7 +458,7 @@ func IsAppError(err error) (*AppError, bool) {
 	return nil, false
 }
 
-// WrapError wraps any error into an AppError
+// WrapError wraps any error into an AppError.
 func WrapError(err error, code ErrorCode, message string) *AppError {
 	if err == nil {
 		return nil
@@ -475,7 +480,7 @@ func WrapError(err error, code ErrorCode, message string) *AppError {
 	}
 }
 
-// HandleError logs an error and returns an appropriate response
+// HandleError logs an error and returns an appropriate response.
 func HandleError(err error, requestID string) *AppError {
 	if err == nil {
 		return nil

@@ -883,7 +883,7 @@ func TestHandlerValidation(t *testing.T) {
 	})
 }
 
-// Helper function for simple string contains check
+// Helper function for simple string contains check.
 func contains(s, substr string) bool {
 	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) &&
 		(s[:len(substr)] == substr || s[len(s)-len(substr):] == substr ||

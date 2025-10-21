@@ -10,13 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Handlers provides HTTP handlers for SLA management
+// Handlers provides HTTP handlers for SLA management.
 type Handlers struct {
 	service    *Service
 	calculator *Calculator
 }
 
-// NewHandlers creates a new SLA handlers instance
+// NewHandlers creates a new SLA handlers instance.
 func NewHandlers(service *Service, calculator *Calculator) *Handlers {
 	return &Handlers{
 		service:    service,
@@ -24,7 +24,7 @@ func NewHandlers(service *Service, calculator *Calculator) *Handlers {
 	}
 }
 
-// parseTemplateID extracts and validates SLA template ID from request parameters
+// parseTemplateID extracts and validates SLA template ID from request parameters.
 func (h *Handlers) parseTemplateID(c *gin.Context) (uint, error) {
 	templateID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -35,7 +35,7 @@ func (h *Handlers) parseTemplateID(c *gin.Context) (uint, error) {
 	return uint(templateID), nil
 }
 
-// parseRuleID extracts and validates SLA rule ID from request parameters
+// parseRuleID extracts and validates SLA rule ID from request parameters.
 func (h *Handlers) parseRuleID(c *gin.Context) (uint, error) {
 	ruleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -46,7 +46,7 @@ func (h *Handlers) parseRuleID(c *gin.Context) (uint, error) {
 	return uint(ruleID), nil
 }
 
-// getUserInfo extracts user info from context with error handling
+// getUserInfo extracts user info from context with error handling.
 func (h *Handlers) getUserInfo(c *gin.Context) (*auth.UserInfo, error) {
 	userInfo, exists := c.Get("user")
 	if !exists {
@@ -57,7 +57,7 @@ func (h *Handlers) getUserInfo(c *gin.Context) (*auth.UserInfo, error) {
 	return userInfo.(*auth.UserInfo), nil
 }
 
-// parseAndValidateUser extracts user info from context with unified error handling
+// parseAndValidateUser extracts user info from context with unified error handling.
 func (h *Handlers) parseAndValidateUser(c *gin.Context) (*auth.UserInfo, error) {
 	userInfo, exists := c.Get("user")
 	if !exists {
@@ -68,7 +68,7 @@ func (h *Handlers) parseAndValidateUser(c *gin.Context) (*auth.UserInfo, error) 
 	return userInfo.(*auth.UserInfo), nil
 }
 
-// sendPaginatedResponse sends a standardized paginated response
+// sendPaginatedResponse sends a standardized paginated response.
 func (h *Handlers) sendPaginatedResponse(c *gin.Context, data interface{}, total int64, page, pageSize int) {
 	totalPages := (total + int64(pageSize) - 1) / int64(pageSize)
 	c.JSON(http.StatusOK, gin.H{
@@ -83,7 +83,7 @@ func (h *Handlers) sendPaginatedResponse(c *gin.Context, data interface{}, total
 	})
 }
 
-// sendSuccessResponse sends a standardized success response
+// sendSuccessResponse sends a standardized success response.
 func (h *Handlers) sendSuccessResponse(c *gin.Context, data interface{}, message string) {
 	response := gin.H{
 		"success": true,
@@ -95,7 +95,7 @@ func (h *Handlers) sendSuccessResponse(c *gin.Context, data interface{}, message
 	c.JSON(http.StatusOK, response)
 }
 
-// sendCreatedResponse sends a standardized created response
+// sendCreatedResponse sends a standardized created response.
 func (h *Handlers) sendCreatedResponse(c *gin.Context, data interface{}, message string) {
 	response := gin.H{
 		"success": true,
@@ -107,7 +107,7 @@ func (h *Handlers) sendCreatedResponse(c *gin.Context, data interface{}, message
 	c.JSON(http.StatusCreated, response)
 }
 
-// logSecurityEvent logs a security event with resource information
+// logSecurityEvent logs a security event with resource information.
 func (h *Handlers) logSecurityEvent(c *gin.Context, event, resource string, resourceID interface{}) {
 	c.Set("security_event", event)
 	c.Set("target_resource", resource)
@@ -116,7 +116,7 @@ func (h *Handlers) logSecurityEvent(c *gin.Context, event, resource string, reso
 	}
 }
 
-// logSecurityEventWithName logs a security event with resource information and name
+// logSecurityEventWithName logs a security event with resource information and name.
 func (h *Handlers) logSecurityEventWithName(c *gin.Context, event, resourceName string) {
 	c.Set("security_event", event)
 	c.Set("resource_name", resourceName)
@@ -124,7 +124,7 @@ func (h *Handlers) logSecurityEventWithName(c *gin.Context, event, resourceName 
 
 // SLA Template Handlers
 
-// CreateSLATemplate handles SLA template creation
+// CreateSLATemplate handles SLA template creation.
 func (h *Handlers) CreateSLATemplate(c *gin.Context) {
 	var req CreateSLATemplateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -153,7 +153,7 @@ func (h *Handlers) CreateSLATemplate(c *gin.Context) {
 	h.sendCreatedResponse(c, template, "SLA template created successfully")
 }
 
-// ListSLATemplates handles SLA template listing
+// ListSLATemplates handles SLA template listing.
 func (h *Handlers) ListSLATemplates(c *gin.Context) {
 	var req ListSLATemplatesRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -176,7 +176,7 @@ func (h *Handlers) ListSLATemplates(c *gin.Context) {
 	h.sendPaginatedResponse(c, templates, total, req.Page, req.PageSize)
 }
 
-// GetSLATemplate handles getting a single SLA template
+// GetSLATemplate handles getting a single SLA template.
 func (h *Handlers) GetSLATemplate(c *gin.Context) {
 	templateID, err := h.parseTemplateID(c)
 	if err != nil {
@@ -197,7 +197,7 @@ func (h *Handlers) GetSLATemplate(c *gin.Context) {
 	h.sendSuccessResponse(c, template, "")
 }
 
-// UpdateSLATemplate handles SLA template update
+// UpdateSLATemplate handles SLA template update.
 func (h *Handlers) UpdateSLATemplate(c *gin.Context) {
 	templateID, err := h.parseTemplateID(c)
 	if err != nil {
@@ -231,7 +231,7 @@ func (h *Handlers) UpdateSLATemplate(c *gin.Context) {
 	h.sendSuccessResponse(c, template, "SLA template updated successfully")
 }
 
-// DeleteSLATemplate handles SLA template deletion
+// DeleteSLATemplate handles SLA template deletion.
 func (h *Handlers) DeleteSLATemplate(c *gin.Context) {
 	templateID, err := h.parseTemplateID(c)
 	if err != nil {
@@ -259,7 +259,7 @@ func (h *Handlers) DeleteSLATemplate(c *gin.Context) {
 
 // SLA Rule Handlers
 
-// CreateSLARule handles SLA rule creation
+// CreateSLARule handles SLA rule creation.
 func (h *Handlers) CreateSLARule(c *gin.Context) {
 	var req CreateSLARuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -287,7 +287,7 @@ func (h *Handlers) CreateSLARule(c *gin.Context) {
 	h.sendCreatedResponse(c, rule, "SLA rule created successfully")
 }
 
-// ListSLARules handles SLA rule listing
+// ListSLARules handles SLA rule listing.
 func (h *Handlers) ListSLARules(c *gin.Context) {
 	var req ListSLARulesRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -310,7 +310,7 @@ func (h *Handlers) ListSLARules(c *gin.Context) {
 	h.sendPaginatedResponse(c, rules, total, req.Page, req.PageSize)
 }
 
-// GetSLARule handles getting a single SLA rule
+// GetSLARule handles getting a single SLA rule.
 func (h *Handlers) GetSLARule(c *gin.Context) {
 	ruleID, err := h.parseRuleID(c)
 	if err != nil {
@@ -331,7 +331,7 @@ func (h *Handlers) GetSLARule(c *gin.Context) {
 	h.sendSuccessResponse(c, rule, "")
 }
 
-// UpdateSLARule handles SLA rule update
+// UpdateSLARule handles SLA rule update.
 func (h *Handlers) UpdateSLARule(c *gin.Context) {
 	ruleID, err := h.parseRuleID(c)
 	if err != nil {
@@ -364,7 +364,7 @@ func (h *Handlers) UpdateSLARule(c *gin.Context) {
 	h.sendSuccessResponse(c, rule, "SLA rule updated successfully")
 }
 
-// DeleteSLARule handles SLA rule deletion
+// DeleteSLARule handles SLA rule deletion.
 func (h *Handlers) DeleteSLARule(c *gin.Context) {
 	ruleID, err := h.parseRuleID(c)
 	if err != nil {
@@ -390,7 +390,7 @@ func (h *Handlers) DeleteSLARule(c *gin.Context) {
 	h.sendSuccessResponse(c, nil, "SLA rule deleted successfully")
 }
 
-// ActivateSLARule handles SLA rule activation
+// ActivateSLARule handles SLA rule activation.
 func (h *Handlers) ActivateSLARule(c *gin.Context) {
 	ruleID, err := h.parseRuleID(c)
 	if err != nil {
@@ -416,7 +416,7 @@ func (h *Handlers) ActivateSLARule(c *gin.Context) {
 	h.sendSuccessResponse(c, nil, "SLA rule activated successfully")
 }
 
-// DeactivateSLARule handles SLA rule deactivation
+// DeactivateSLARule handles SLA rule deactivation.
 func (h *Handlers) DeactivateSLARule(c *gin.Context) {
 	ruleID, err := h.parseRuleID(c)
 	if err != nil {

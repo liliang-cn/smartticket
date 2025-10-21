@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestBaseModel tests the BaseModel struct
+// TestBaseModel tests the BaseModel struct.
 func TestBaseModel(t *testing.T) {
 	t.Run("Empty BaseModel", func(t *testing.T) {
 		model := BaseModel{}
@@ -45,7 +45,7 @@ func TestBaseModel(t *testing.T) {
 	})
 }
 
-// TestTenant tests the Tenant model
+// TestTenant tests the Tenant model.
 func TestTenant(t *testing.T) {
 	t.Run("Empty Tenant", func(t *testing.T) {
 		tenant := Tenant{}
@@ -160,7 +160,7 @@ func TestTenant(t *testing.T) {
 	})
 }
 
-// TestUser tests the User model
+// TestUser tests the User model.
 func TestUser(t *testing.T) {
 	t.Run("Empty User", func(t *testing.T) {
 		user := User{}
@@ -273,7 +273,7 @@ func TestUser(t *testing.T) {
 	})
 }
 
-// TestTicket tests the Ticket model
+// TestTicket tests the Ticket model.
 func TestTicket(t *testing.T) {
 	t.Run("Empty Ticket", func(t *testing.T) {
 		ticket := Ticket{}
@@ -421,7 +421,7 @@ func TestTicket(t *testing.T) {
 	})
 }
 
-// TestMessage tests the Message model
+// TestMessage tests the Message model.
 func TestMessage(t *testing.T) {
 	t.Run("Empty Message", func(t *testing.T) {
 		message := Message{}
@@ -502,7 +502,7 @@ func TestMessage(t *testing.T) {
 	})
 }
 
-// TestAttachment tests the Attachment model
+// TestAttachment tests the Attachment model.
 func TestAttachment(t *testing.T) {
 	t.Run("Empty Attachment", func(t *testing.T) {
 		attachment := Attachment{}
@@ -580,7 +580,7 @@ func TestAttachment(t *testing.T) {
 	})
 }
 
-// TestKnowledgeArticle tests the KnowledgeArticle model
+// TestKnowledgeArticle tests the KnowledgeArticle model.
 func TestKnowledgeArticle(t *testing.T) {
 	t.Run("Empty KnowledgeArticle", func(t *testing.T) {
 		article := KnowledgeArticle{}
@@ -717,7 +717,7 @@ func TestKnowledgeArticle(t *testing.T) {
 	})
 }
 
-// TestLLMProvider tests the LLMProvider model
+// TestLLMProvider tests the LLMProvider model.
 func TestLLMProvider(t *testing.T) {
 	t.Run("Empty LLMProvider", func(t *testing.T) {
 		provider := LLMProvider{}
@@ -833,7 +833,7 @@ func TestLLMProvider(t *testing.T) {
 	})
 }
 
-// TestImportExportJob tests the ImportExportJob model
+// TestImportExportJob tests the ImportExportJob model.
 func TestImportExportJob(t *testing.T) {
 	t.Run("Empty ImportExportJob", func(t *testing.T) {
 		job := ImportExportJob{}
@@ -942,7 +942,7 @@ func TestImportExportJob(t *testing.T) {
 	})
 }
 
-// TestAuditLog tests the AuditLog model
+// TestAuditLog tests the AuditLog model.
 func TestAuditLog(t *testing.T) {
 	t.Run("Empty AuditLog", func(t *testing.T) {
 		log := AuditLog{}
@@ -1044,7 +1044,7 @@ func TestAuditLog(t *testing.T) {
 	})
 }
 
-// TestPermission tests the Permission model
+// TestPermission tests the Permission model.
 func TestPermission(t *testing.T) {
 	t.Run("Empty Permission", func(t *testing.T) {
 		permission := Permission{}
@@ -1104,7 +1104,7 @@ func TestPermission(t *testing.T) {
 	})
 }
 
-// TestRole tests the Role model
+// TestRole tests the Role model.
 func TestRole(t *testing.T) {
 	t.Run("Empty Role", func(t *testing.T) {
 		role := Role{}
@@ -1176,7 +1176,7 @@ func TestRole(t *testing.T) {
 	})
 }
 
-// TestUserPermission tests the UserPermission model
+// TestUserPermission tests the UserPermission model.
 func TestUserPermission(t *testing.T) {
 	t.Run("Empty UserPermission", func(t *testing.T) {
 		up := UserPermission{}
@@ -1236,7 +1236,7 @@ func TestUserPermission(t *testing.T) {
 	})
 }
 
-// TestUserRole tests the UserRole model
+// TestUserRole tests the UserRole model.
 func TestUserRole(t *testing.T) {
 	t.Run("Empty UserRole", func(t *testing.T) {
 		ur := UserRole{}
@@ -1285,7 +1285,7 @@ func TestUserRole(t *testing.T) {
 	})
 }
 
-// TestModelCreationTimes tests timestamp behavior across models
+// TestModelCreationTimes tests timestamp behavior across models.
 func TestModelCreationTimes(t *testing.T) {
 	t.Run("Timestamp field handling", func(t *testing.T) {
 		now := time.Now()
@@ -1343,7 +1343,7 @@ func TestModelCreationTimes(t *testing.T) {
 	})
 }
 
-// TestModelFieldValidation tests field constraints and validations
+// TestModelFieldValidation tests field constraints and validations.
 func TestModelFieldValidation(t *testing.T) {
 	t.Run("Email validation", func(t *testing.T) {
 		t.Run("Valid email", func(t *testing.T) {
@@ -1418,7 +1418,7 @@ func TestModelFieldValidation(t *testing.T) {
 	})
 }
 
-// TestModelRelationships tests model relationships
+// TestModelRelationships tests model relationships.
 func TestModelRelationships(t *testing.T) {
 	t.Run("User-Tenant relationship", func(t *testing.T) {
 		user := User{
@@ -1472,7 +1472,7 @@ func TestModelRelationships(t *testing.T) {
 	})
 }
 
-// TestJSONSerialization tests JSON serialization for all models
+// TestJSONSerialization tests JSON serialization for all models.
 func TestJSONSerialization(t *testing.T) {
 	models := []interface{}{
 		&Tenant{},
@@ -1783,5 +1783,4 @@ func TestJSONSerialization(t *testing.T) {
 			}
 		})
 	}
-
 }

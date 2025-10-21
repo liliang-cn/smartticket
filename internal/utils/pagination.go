@@ -10,7 +10,7 @@ import (
 	"github.com/company/smartticket/internal/errors"
 )
 
-// Pagination represents pagination parameters
+// Pagination represents pagination parameters.
 type Pagination struct {
 	Page       int   `json:"page" form:"page"`
 	PageSize   int   `json:"page_size" form:"page_size"`
@@ -20,26 +20,26 @@ type Pagination struct {
 	HasPrev    bool  `json:"has_prev"`
 }
 
-// PaginationResult represents paginated result
+// PaginationResult represents paginated result.
 type PaginationResult struct {
 	Data       interface{} `json:"data"`
 	Pagination Pagination  `json:"pagination"`
 }
 
-// Filter represents filtering parameters
+// Filter represents filtering parameters.
 type Filter struct {
 	Field    string      `json:"field" form:"field"`
 	Operator string      `json:"operator" form:"operator"`
 	Value    interface{} `json:"value" form:"value"`
 }
 
-// Sort represents sorting parameters
+// Sort represents sorting parameters.
 type Sort struct {
 	Field     string `json:"field" form:"field"`
 	Direction string `json:"direction" form:"direction"`
 }
 
-// QueryBuilder helps build database queries with pagination, filtering, and sorting
+// QueryBuilder helps build database queries with pagination, filtering, and sorting.
 type QueryBuilder struct {
 	table       string
 	filters     []Filter
@@ -49,7 +49,7 @@ type QueryBuilder struct {
 	args        []interface{}
 }
 
-// NewQueryBuilder creates a new QueryBuilder
+// NewQueryBuilder creates a new QueryBuilder.
 func NewQueryBuilder(table string) *QueryBuilder {
 	return &QueryBuilder{
 		table:       table,
@@ -60,7 +60,7 @@ func NewQueryBuilder(table string) *QueryBuilder {
 	}
 }
 
-// AddFilter adds a filter condition
+// AddFilter adds a filter condition.
 func (qb *QueryBuilder) AddFilter(field, operator string, value interface{}) *QueryBuilder {
 	qb.filters = append(qb.filters, Filter{
 		Field:    field,
@@ -70,13 +70,13 @@ func (qb *QueryBuilder) AddFilter(field, operator string, value interface{}) *Qu
 	return qb
 }
 
-// AddFilters adds multiple filter conditions
+// AddFilters adds multiple filter conditions.
 func (qb *QueryBuilder) AddFilters(filters []Filter) *QueryBuilder {
 	qb.filters = append(qb.filters, filters...)
 	return qb
 }
 
-// AddSort adds a sort condition
+// AddSort adds a sort condition.
 func (qb *QueryBuilder) AddSort(field, direction string) *QueryBuilder {
 	qb.sorts = append(qb.sorts, Sort{
 		Field:     field,
@@ -85,13 +85,13 @@ func (qb *QueryBuilder) AddSort(field, direction string) *QueryBuilder {
 	return qb
 }
 
-// AddSorts adds multiple sort conditions
+// AddSorts adds multiple sort conditions.
 func (qb *QueryBuilder) AddSorts(sorts []Sort) *QueryBuilder {
 	qb.sorts = append(qb.sorts, sorts...)
 	return qb
 }
 
-// SetPagination sets pagination parameters
+// SetPagination sets pagination parameters.
 func (qb *QueryBuilder) SetPagination(page, pageSize int) *QueryBuilder {
 	qb.pagination = &Pagination{
 		Page:     page,
@@ -100,7 +100,7 @@ func (qb *QueryBuilder) SetPagination(page, pageSize int) *QueryBuilder {
 	return qb
 }
 
-// BuildWhere builds WHERE clause from filters
+// BuildWhere builds WHERE clause from filters.
 func (qb *QueryBuilder) BuildWhere() string {
 	if len(qb.filters) == 0 {
 		return ""
@@ -116,7 +116,7 @@ func (qb *QueryBuilder) BuildWhere() string {
 	return qb.whereClause
 }
 
-// GetArgs returns arguments for the WHERE clause
+// GetArgs returns arguments for the WHERE clause.
 func (qb *QueryBuilder) GetArgs() []interface{} {
 	var args []interface{}
 	for _, filter := range qb.filters {
@@ -127,7 +127,7 @@ func (qb *QueryBuilder) GetArgs() []interface{} {
 	return args
 }
 
-// BuildOrder builds ORDER BY clause from sorts
+// BuildOrder builds ORDER BY clause from sorts.
 func (qb *QueryBuilder) BuildOrder() string {
 	if len(qb.sorts) == 0 {
 		return ""
@@ -142,7 +142,7 @@ func (qb *QueryBuilder) BuildOrder() string {
 	return strings.Join(orders, ", ")
 }
 
-// buildFilterCondition builds a single filter condition
+// buildFilterCondition builds a single filter condition.
 func (qb *QueryBuilder) buildFilterCondition(filter Filter) string {
 	switch strings.ToUpper(filter.Operator) {
 	case "EQ", "=":
@@ -176,13 +176,13 @@ func (qb *QueryBuilder) buildFilterCondition(filter Filter) string {
 	}
 }
 
-// quoteIdentifier quotes a database identifier
+// quoteIdentifier quotes a database identifier.
 func (qb *QueryBuilder) quoteIdentifier(identifier string) string {
 	// Simple implementation - in production, use database-specific quoting
 	return fmt.Sprintf(`"%s"`, identifier)
 }
 
-// ValidatePagination validates pagination parameters
+// ValidatePagination validates pagination parameters.
 func ValidatePagination(page, pageSize int, maxPageSize int) (*Pagination, error) {
 	if page < 1 {
 		page = 1
@@ -202,7 +202,7 @@ func ValidatePagination(page, pageSize int, maxPageSize int) (*Pagination, error
 	}, nil
 }
 
-// CalculatePagination calculates pagination metadata
+// CalculatePagination calculates pagination metadata.
 func CalculatePagination(page, pageSize int, total int64) Pagination {
 	totalPages := int(math.Ceil(float64(total) / float64(pageSize)))
 	if totalPages == 0 {
@@ -219,7 +219,7 @@ func CalculatePagination(page, pageSize int, total int64) Pagination {
 	}
 }
 
-// ParseFilters parses filters from URL query parameters
+// ParseFilters parses filters from URL query parameters.
 func ParseFilters(query url.Values, allowedFilters map[string]string) ([]Filter, error) {
 	var filters []Filter
 
@@ -281,7 +281,7 @@ func ParseFilters(query url.Values, allowedFilters map[string]string) ([]Filter,
 	return filters, nil
 }
 
-// ParseSort parses sorting from URL query parameters
+// ParseSort parses sorting from URL query parameters.
 func ParseSort(query url.Values, allowedSorts map[string]bool) ([]Sort, error) {
 	var sorts []Sort
 
@@ -337,7 +337,7 @@ func ParseSort(query url.Values, allowedSorts map[string]bool) ([]Sort, error) {
 	return sorts, nil
 }
 
-// ParsePaginationFromQuery parses pagination from URL query parameters (renamed to avoid conflict)
+// ParsePaginationFromQuery parses pagination from URL query parameters (renamed to avoid conflict).
 func ParsePaginationFromQuery(query url.Values, defaultPageSize, maxPageSize int) (*Pagination, error) {
 	pageStr := query.Get("page")
 	pageSizeStr := query.Get("page_size")
@@ -363,13 +363,13 @@ func ParsePaginationFromQuery(query url.Values, defaultPageSize, maxPageSize int
 	return ValidatePagination(page, pageSize, maxPageSize)
 }
 
-// BuildLimitOffset builds LIMIT and OFFSET clause for pagination
+// BuildLimitOffset builds LIMIT and OFFSET clause for pagination.
 func BuildLimitOffset(pagination *Pagination) (string, []interface{}) {
 	offset := (pagination.Page - 1) * pagination.PageSize
 	return fmt.Sprintf("LIMIT %d OFFSET %d", pagination.PageSize, offset), []interface{}{pagination.PageSize, offset}
 }
 
-// CreatePaginationResult creates a pagination result
+// CreatePaginationResult creates a pagination result.
 func CreatePaginationResult(data interface{}, pagination Pagination) PaginationResult {
 	return PaginationResult{
 		Data:       data,
@@ -377,7 +377,7 @@ func CreatePaginationResult(data interface{}, pagination Pagination) PaginationR
 	}
 }
 
-// GetPaginationResponse returns a standard API response with pagination
+// GetPaginationResponse returns a standard API response with pagination.
 func GetPaginationResponse(data interface{}, pagination Pagination) map[string]interface{} {
 	return map[string]interface{}{
 		"success":    true,
@@ -386,7 +386,7 @@ func GetPaginationResponse(data interface{}, pagination Pagination) map[string]i
 	}
 }
 
-// ParseURLFromQuery parses URL query string into filter, sort, and pagination (renamed to avoid conflict)
+// ParseURLFromQuery parses URL query string into filter, sort, and pagination (renamed to avoid conflict).
 func ParseURLFromQuery(queryString string, allowedFilters map[string]string, allowedSorts map[string]bool, defaultPageSize, maxPageSize int) ([]Filter, []Sort, *Pagination, error) {
 	query, err := url.ParseQuery(queryString)
 	if err != nil {
@@ -411,13 +411,13 @@ func ParseURLFromQuery(queryString string, allowedFilters map[string]string, all
 	return filters, sorts, pagination, nil
 }
 
-// Default values
+// Default values.
 const (
 	defaultPageSize = 20
 	maxPageSize     = 100
 )
 
-// Filter operators
+// Filter operators.
 const (
 	OpEquals       = "eq"
 	OpNotEquals    = "neq"
@@ -434,7 +434,7 @@ const (
 	OpBetween      = "between"
 )
 
-// Sort directions
+// Sort directions.
 const (
 	SortAsc  = "asc"
 	SortDesc = "desc"

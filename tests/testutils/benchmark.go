@@ -10,54 +10,54 @@ import (
 	"github.com/company/smartticket/internal/database"
 )
 
-// Logger is a simple logger interface
+// Logger is a simple logger interface.
 type Logger interface {
 	Info(msg string, fields map[string]interface{})
 	Warn(msg string, fields map[string]interface{})
 }
 
-// DefaultLogger is a simple logger implementation
+// DefaultLogger is a simple logger implementation.
 type DefaultLogger struct{}
 
-// Info logs an info message
+// Info logs an info message.
 func (dl *DefaultLogger) Info(msg string, fields map[string]interface{}) {
 	// Simplified logging - in real usage would use proper logging library
 }
 
-// Warn logs a warning message
+// Warn logs a warning message.
 func (dl *DefaultLogger) Warn(msg string, fields map[string]interface{}) {
 	// Simplified logging - in real usage would use proper logging library
 }
 
-// Profiler provides profiling capabilities
+// Profiler provides profiling capabilities.
 type Profiler struct {
 	logger Logger
 }
 
-// NewProfiler creates a new profiler
+// NewProfiler creates a new profiler.
 func NewProfiler(logger Logger) *Profiler {
 	return &Profiler{logger: logger}
 }
 
-// saveBenchmarkResults saves benchmark results to a file
+// saveBenchmarkResults saves benchmark results to a file.
 func saveBenchmarkResults(results []BenchmarkResult, filename string) error {
 	// Simplified implementation - in real usage would save to file
 	return nil
 }
 
-// loadBenchmarkBaseline loads baseline results from a file
+// loadBenchmarkBaseline loads baseline results from a file.
 func loadBenchmarkBaseline(filename string) (map[string]int64, error) {
 	// Simplified implementation - in real usage would load from file
 	return make(map[string]int64), nil
 }
 
-// getGoroutineID returns the current goroutine ID (simplified version)
+// getGoroutineID returns the current goroutine ID (simplified version).
 func getGoroutineID() uint64 {
 	// Simplified implementation - in real usage would use runtime stack
 	return 0
 }
 
-// BenchmarkSuite manages benchmark execution and analysis
+// BenchmarkSuite manages benchmark execution and analysis.
 type BenchmarkSuite struct {
 	name         string
 	benchmarks   []BenchmarkFunc
@@ -67,7 +67,7 @@ type BenchmarkSuite struct {
 	results      []BenchmarkResult
 }
 
-// BenchmarkFunc represents a benchmark function with metadata
+// BenchmarkFunc represents a benchmark function with metadata.
 type BenchmarkFunc struct {
 	Name          string
 	Description   string
@@ -79,7 +79,7 @@ type BenchmarkFunc struct {
 	Parallel      bool
 }
 
-// BenchmarkResult represents the result of a benchmark execution
+// BenchmarkResult represents the result of a benchmark execution.
 type BenchmarkResult struct {
 	Name            string        `json:"name"`
 	Description     string        `json:"description"`
@@ -96,7 +96,7 @@ type BenchmarkResult struct {
 	BaselineNsPerOp int64         `json:"baseline_ns_per_op,omitempty"`
 }
 
-// NewBenchmarkSuite creates a new benchmark suite
+// NewBenchmarkSuite creates a new benchmark suite.
 func NewBenchmarkSuite(name string) *BenchmarkSuite {
 	logger := &DefaultLogger{}
 	return &BenchmarkSuite{
@@ -107,7 +107,7 @@ func NewBenchmarkSuite(name string) *BenchmarkSuite {
 	}
 }
 
-// AddBenchmark adds a benchmark to the suite
+// AddBenchmark adds a benchmark to the suite.
 func (bs *BenchmarkSuite) AddBenchmark(name, description string, benchmarkFunc func(b *testing.B)) {
 	bs.benchmarks = append(bs.benchmarks, BenchmarkFunc{
 		Name:          name,
@@ -118,7 +118,7 @@ func (bs *BenchmarkSuite) AddBenchmark(name, description string, benchmarkFunc f
 	})
 }
 
-// AddBenchmarkWithConfig adds a benchmark with custom configuration
+// AddBenchmarkWithConfig adds a benchmark with custom configuration.
 func (bs *BenchmarkSuite) AddBenchmarkWithConfig(name, description string, config BenchmarkConfig) {
 	bs.benchmarks = append(bs.benchmarks, BenchmarkFunc{
 		Name:          name,
@@ -132,7 +132,7 @@ func (bs *BenchmarkSuite) AddBenchmarkWithConfig(name, description string, confi
 	})
 }
 
-// BenchmarkConfig provides configuration for individual benchmarks
+// BenchmarkConfig provides configuration for individual benchmarks.
 type BenchmarkConfig struct {
 	Func          func(*testing.B)
 	SetupFunc     func() error
@@ -142,17 +142,17 @@ type BenchmarkConfig struct {
 	Parallel      bool
 }
 
-// SetSetupFunc sets the suite setup function
+// SetSetupFunc sets the suite setup function.
 func (bs *BenchmarkSuite) SetSetupFunc(setup func() error) {
 	bs.setupFunc = setup
 }
 
-// SetTeardownFunc sets the suite teardown function
+// SetTeardownFunc sets the suite teardown function.
 func (bs *BenchmarkSuite) SetTeardownFunc(teardown func() error) {
 	bs.teardownFunc = teardown
 }
 
-// Run runs all benchmarks in the suite
+// Run runs all benchmarks in the suite.
 func (bs *BenchmarkSuite) Run(t *testing.T) {
 	t.Logf("Running benchmark suite: %s (%d benchmarks)", bs.name, len(bs.benchmarks))
 
@@ -186,7 +186,7 @@ func (bs *BenchmarkSuite) Run(t *testing.T) {
 	bs.generateSummary(t)
 }
 
-// runBenchmark runs a single benchmark
+// runBenchmark runs a single benchmark.
 func (bs *BenchmarkSuite) runBenchmark(t *testing.T, benchmark BenchmarkFunc) BenchmarkResult {
 	start := time.Now()
 
@@ -251,7 +251,7 @@ func (bs *BenchmarkSuite) runBenchmark(t *testing.T, benchmark BenchmarkFunc) Be
 	return result
 }
 
-// logBenchmarkResult logs a benchmark result
+// logBenchmarkResult logs a benchmark result.
 func (bs *BenchmarkSuite) logBenchmarkResult(result BenchmarkResult) {
 	status := "✅"
 	if result.MemoryMB > 100 { // High memory usage warning
@@ -274,7 +274,7 @@ func (bs *BenchmarkSuite) logBenchmarkResult(result BenchmarkResult) {
 	)
 }
 
-// generateSummary generates a benchmark summary
+// generateSummary generates a benchmark summary.
 func (bs *BenchmarkSuite) generateSummary(t *testing.T) {
 	t.Logf("Benchmark Suite Summary: %s", bs.name)
 	t.Logf("Total benchmarks: %d", len(bs.results))
@@ -325,12 +325,12 @@ func (bs *BenchmarkSuite) generateSummary(t *testing.T) {
 	}
 }
 
-// GetResults returns all benchmark results
+// GetResults returns all benchmark results.
 func (bs *BenchmarkSuite) GetResults() []BenchmarkResult {
 	return bs.results
 }
 
-// GetResultByName returns a specific benchmark result
+// GetResultByName returns a specific benchmark result.
 func (bs *BenchmarkSuite) GetResultByName(name string) *BenchmarkResult {
 	for _, result := range bs.results {
 		if result.Name == name {
@@ -340,7 +340,7 @@ func (bs *BenchmarkSuite) GetResultByName(name string) *BenchmarkResult {
 	return nil
 }
 
-// CompareWithBaseline compares results with a baseline
+// CompareWithBaseline compares results with a baseline.
 func (bs *BenchmarkSuite) CompareWithBaseline(baseline map[string]int64) {
 	for i := range bs.results {
 		result := &bs.results[i]
@@ -365,22 +365,22 @@ func (bs *BenchmarkSuite) CompareWithBaseline(baseline map[string]int64) {
 	}
 }
 
-// SaveResults saves benchmark results to a file
+// SaveResults saves benchmark results to a file.
 func (bs *BenchmarkSuite) SaveResults(filename string) error {
 	return saveBenchmarkResults(bs.results, filename)
 }
 
-// LoadBaseline loads baseline results from a file
+// LoadBaseline loads baseline results from a file.
 func (bs *BenchmarkSuite) LoadBaseline(filename string) (map[string]int64, error) {
 	return loadBenchmarkBaseline(filename)
 }
 
-// MemoryProfiler provides memory profiling capabilities
+// MemoryProfiler provides memory profiling capabilities.
 type MemoryProfiler struct {
 	results []MemoryProfileResult
 }
 
-// MemoryProfileResult represents memory profiling results
+// MemoryProfileResult represents memory profiling results.
 type MemoryProfileResult struct {
 	Name        string    `json:"name"`
 	HeapAlloc   uint64    `json:"heap_alloc"`
@@ -394,14 +394,14 @@ type MemoryProfileResult struct {
 	Timestamp   time.Time `json:"timestamp"`
 }
 
-// NewMemoryProfiler creates a new memory profiler
+// NewMemoryProfiler creates a new memory profiler.
 func NewMemoryProfiler() *MemoryProfiler {
 	return &MemoryProfiler{
 		results: make([]MemoryProfileResult, 0),
 	}
 }
 
-// ProfileMemory profiles memory usage for a function
+// ProfileMemory profiles memory usage for a function.
 func (mp *MemoryProfiler) ProfileMemory(name string, fn func()) error {
 	// Get initial stats
 	var before, after runtime.MemStats
@@ -433,18 +433,18 @@ func (mp *MemoryProfiler) ProfileMemory(name string, fn func()) error {
 	return nil
 }
 
-// GetResults returns memory profiling results
+// GetResults returns memory profiling results.
 func (mp *MemoryProfiler) GetResults() []MemoryProfileResult {
 	return mp.results
 }
 
-// DatabaseBenchmarkSuite provides database-specific benchmarking
+// DatabaseBenchmarkSuite provides database-specific benchmarking.
 type DatabaseBenchmarkSuite struct {
 	*BenchmarkSuite
 	db *database.Database
 }
 
-// NewDatabaseBenchmarkSuite creates a new database benchmark suite
+// NewDatabaseBenchmarkSuite creates a new database benchmark suite.
 func NewDatabaseBenchmarkSuite(name string, db *database.Database) *DatabaseBenchmarkSuite {
 	suite := NewBenchmarkSuite(name)
 	return &DatabaseBenchmarkSuite{
@@ -453,7 +453,7 @@ func NewDatabaseBenchmarkSuite(name string, db *database.Database) *DatabaseBenc
 	}
 }
 
-// AddQueryBenchmark adds a database query benchmark
+// AddQueryBenchmark adds a database query benchmark.
 func (dbs *DatabaseBenchmarkSuite) AddQueryBenchmark(name, description string, queryFunc func(*database.Database) error) {
 	dbs.AddBenchmark(name, description, func(b *testing.B) {
 		b.ResetTimer()
@@ -466,7 +466,7 @@ func (dbs *DatabaseBenchmarkSuite) AddQueryBenchmark(name, description string, q
 	})
 }
 
-// AddInsertBenchmark adds a database insert benchmark
+// AddInsertBenchmark adds a database insert benchmark.
 func (dbs *DatabaseBenchmarkSuite) AddInsertBenchmark(name, description string, insertFunc func(*database.Database) error) {
 	dbs.AddBenchmark(name, description, func(b *testing.B) {
 		b.ResetTimer()
@@ -479,7 +479,7 @@ func (dbs *DatabaseBenchmarkSuite) AddInsertBenchmark(name, description string, 
 	})
 }
 
-// AddConcurrentBenchmark adds a concurrent database benchmark
+// AddConcurrentBenchmark adds a concurrent database benchmark.
 func (dbs *DatabaseBenchmarkSuite) AddConcurrentBenchmark(name, description string, concurrentFunc func(*database.Database, int) error) {
 	dbs.AddBenchmarkWithConfig(name, description, BenchmarkConfig{
 		Func: func(b *testing.B) {
@@ -495,24 +495,24 @@ func (dbs *DatabaseBenchmarkSuite) AddConcurrentBenchmark(name, description stri
 	})
 }
 
-// PerformanceAnalyzer analyzes performance metrics and provides insights
+// PerformanceAnalyzer analyzes performance metrics and provides insights.
 type PerformanceAnalyzer struct {
 	results []BenchmarkResult
 }
 
-// NewPerformanceAnalyzer creates a new performance analyzer
+// NewPerformanceAnalyzer creates a new performance analyzer.
 func NewPerformanceAnalyzer() *PerformanceAnalyzer {
 	return &PerformanceAnalyzer{
 		results: make([]BenchmarkResult, 0),
 	}
 }
 
-// AddResults adds benchmark results for analysis
+// AddResults adds benchmark results for analysis.
 func (pa *PerformanceAnalyzer) AddResults(results []BenchmarkResult) {
 	pa.results = append(pa.results, results...)
 }
 
-// AnalyzeTrends analyzes performance trends
+// AnalyzeTrends analyzes performance trends.
 func (pa *PerformanceAnalyzer) AnalyzeTrends() map[string]interface{} {
 	if len(pa.results) == 0 {
 		return map[string]interface{}{
@@ -577,7 +577,7 @@ func (pa *PerformanceAnalyzer) AnalyzeTrends() map[string]interface{} {
 	return analysis
 }
 
-// GetRecommendations provides performance optimization recommendations
+// GetRecommendations provides performance optimization recommendations.
 func (pa *PerformanceAnalyzer) GetRecommendations() []string {
 	var recommendations []string
 

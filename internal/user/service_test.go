@@ -167,7 +167,7 @@ func TestUserService_ActivateUser(t *testing.T) {
 		tenant := createTestTenant(t, db)
 		user := createTestUser(t, db, tenant.ID)
 		user.IsActive = false
-		db.DB.Save(user)
+		db.Save(user)
 
 		// Execute
 		err := service.ActivateUser(tenant.ID, user.ID)
