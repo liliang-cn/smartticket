@@ -1,3 +1,5 @@
+// Package services provides business logic and service layer implementations for the SmartTicket platform.
+// It includes services for user management, permission handling, and core business operations.
 package services
 
 import (
@@ -28,7 +30,7 @@ func (ps *PermissionService) GetDatabase() *gorm.DB {
 }
 
 // GetUserPermissions returns all permissions assigned to a user directly
-func (ps *PermissionService) GetUserPermissions(ctx context.Context, userID uint, tenantID string) ([]models.Permission, error) {
+func (ps *PermissionService) GetUserPermissions(ctx context.Context, userID uint, _ string) ([]models.Permission, error) {
 	var permissions []models.Permission
 
 	err := ps.db.WithContext(ctx).
@@ -157,7 +159,7 @@ func (ps *PermissionService) RemovePermissionFromRole(ctx context.Context, roleI
 }
 
 // AssignRoleToUser assigns a role to a user
-func (ps *PermissionService) AssignRoleToUser(ctx context.Context, userID uint, roleID uint, tenantID string) error {
+func (ps *PermissionService) AssignRoleToUser(ctx context.Context, userID uint, roleID uint, _ string) error {
 	userRole := &models.UserRole{
 		UserID:     userID,
 		RoleID:     roleID,
@@ -174,7 +176,7 @@ func (ps *PermissionService) AssignRoleToUser(ctx context.Context, userID uint, 
 }
 
 // RemoveRoleFromUser removes a role from a user
-func (ps *PermissionService) RemoveRoleFromUser(ctx context.Context, userID, roleID uint, tenantID string) error {
+func (ps *PermissionService) RemoveRoleFromUser(ctx context.Context, userID, roleID uint, _ string) error {
 	err := ps.db.WithContext(ctx).
 		Where("user_id = ? AND role_id = ?", userID, roleID).
 		Delete(&models.UserRole{}).Error
@@ -187,7 +189,7 @@ func (ps *PermissionService) RemoveRoleFromUser(ctx context.Context, userID, rol
 }
 
 // AssignPermissionToUser assigns a permission directly to a user
-func (ps *PermissionService) AssignPermissionToUser(ctx context.Context, userID, permissionID uint, tenantID string) error {
+func (ps *PermissionService) AssignPermissionToUser(ctx context.Context, userID, permissionID uint, _ string) error {
 	userPermission := &models.UserPermission{
 		UserID:       userID,
 		PermissionID: permissionID,

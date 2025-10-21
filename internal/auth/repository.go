@@ -42,7 +42,7 @@ func (r *Repository) GetUserByID(userID, tenantID uint) (*models.User, error) {
 }
 
 // GetUserByEmail retrieves a user by email
-func (r *Repository) GetUserByEmail(email, tenantID uint) (*models.User, error) {
+func (r *Repository) GetUserByEmail(email string, tenantID uint) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("email = ? AND tenant_id = ?", email, tenantID).
 		Preload("Tenant").First(&user).Error; err != nil {
@@ -55,7 +55,7 @@ func (r *Repository) GetUserByEmail(email, tenantID uint) (*models.User, error) 
 }
 
 // GetUserByUsername retrieves a user by username
-func (r *Repository) GetUserByUsername(username, tenantID uint) (*models.User, error) {
+func (r *Repository) GetUserByUsername(username string, tenantID uint) (*models.User, error) {
 	var user models.User
 	if err := r.db.Where("username = ? AND tenant_id = ?", username, tenantID).
 		Preload("Tenant").First(&user).Error; err != nil {

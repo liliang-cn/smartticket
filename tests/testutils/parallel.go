@@ -270,7 +270,7 @@ func (ptr *ParallelTestRunner) RunParallelWithBatches(t *testing.T, tests []Test
 type DatabaseParallelRunner struct {
 	*ParallelTestRunner
 	testDatabases chan *TestDatabaseParallel
-	dbPool        sync.Pool
+	dbPool        *sync.Pool
 }
 
 // NewDatabaseParallelRunner creates a new database parallel runner
@@ -279,7 +279,7 @@ func NewDatabaseParallelRunner(dbFactory func() *TestDatabaseParallel) *Database
 	testDatabases := make(chan *TestDatabaseParallel, pr.maxWorkers)
 
 	// Create database pool
-	dbPool := sync.Pool{
+	dbPool := &sync.Pool{
 		New: func() interface{} {
 			return dbFactory()
 		},

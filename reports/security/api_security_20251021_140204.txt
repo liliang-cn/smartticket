@@ -1,0 +1,22 @@
+API Security Testing Report
+==========================
+Date: 2025年10月21日 星期二 14时02分04秒 CST
+
+Starting application for API security testing...
+Config file not found, using environment variables and defaults
+{"level":"info","timestamp":"2025-10-21T14:02:05.098+0800","caller":"server/main.go:101","message":"Starting SmartTicket server","environment":"","version":"dev","server_address":"localhost:6533","database":"./data/smartticket.db"}
+{"level":"info","timestamp":"2025-10-21T14:02:05.101+0800","caller":"server/main.go:125","message":"Database connection established successfully"}
+
+2025/10/21 14:02:05 [31;1m/Users/liliang/Things/AI/projects/smartticket/internal/database/migration.go:39 [35;1mduplicate column name: product_id
+[0m[33m[0.032ms] [34;1m[rows:0][0m ALTER TABLE `tickets` ADD `product_id` integer
+{"level":"error","timestamp":"2025-10-21T14:02:05.141+0800","caller":"server/main.go:163","message":"Failed to auto-migrate models","error":"failed to auto-migrate model *models.Message: duplicate column name: product_id","stacktrace":"main.runServe\n\t/Users/liliang/Things/AI/projects/smartticket/cmd/server/main.go:163\ngithub.com/spf13/cobra.(*Command).execute\n\t/Users/liliang/go/pkg/mod/github.com/spf13/cobra@v1.10.1/command.go:1015\ngithub.com/spf13/cobra.(*Command).ExecuteC\n\t/Users/liliang/go/pkg/mod/github.com/spf13/cobra@v1.10.1/command.go:1148\ngithub.com/spf13/cobra.(*Command).Execute\n\t/Users/liliang/go/pkg/mod/github.com/spf13/cobra@v1.10.1/command.go:1071\nmain.main\n\t/Users/liliang/Things/AI/projects/smartticket/cmd/server/main.go:80\nruntime.main\n\t/opt/homebrew/Cellar/go/1.25.1/libexec/src/runtime/proc.go:285"}
+Error: failed to auto-migrate models: failed to auto-migrate model *models.Message: duplicate column name: product_id
+Usage:
+  smartticket serve [flags]
+
+Flags:
+      --config string   Configuration file path
+  -h, --help            help for serve
+
+2025/10/21 14:02:05 Failed to execute command: failed to auto-migrate models: failed to auto-migrate model *models.Message: duplicate column name: product_id
+❌ Server failed to start, skipping API security tests

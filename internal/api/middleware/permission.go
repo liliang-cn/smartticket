@@ -1,22 +1,31 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/company/smartticket/internal/models"
-	"github.com/company/smartticket/internal/services"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
+
+// PermissionServiceInterface defines the interface for permission services
+type PermissionServiceInterface interface {
+	GetUserPermissions(ctx context.Context, userID uint, tenantID string) ([]models.Permission, error)
+	GetUserRoles(ctx context.Context, userID uint, tenantID string) ([]models.Role, error)
+	GetDatabase() *gorm.DB
+	HasPermission(ctx context.Context, userID uint, tenantID string, permissionCode string) (bool, error)
+}
 
 // PermissionMiddleware provides permission checking functionality
 type PermissionMiddleware struct {
-	permissionService *services.PermissionService
+	permissionService PermissionServiceInterface
 }
 
 // NewPermissionMiddleware creates a new permission middleware
-func NewPermissionMiddleware(permissionService *services.PermissionService) *PermissionMiddleware {
+func NewPermissionMiddleware(permissionService PermissionServiceInterface) *PermissionMiddleware {
 	return &PermissionMiddleware{
 		permissionService: permissionService,
 	}
@@ -239,8 +248,9 @@ func (pm *PermissionMiddleware) RequireOwnership(resourceType string) gin.Handle
 		switch strings.ToLower(resourceType) {
 		case "ticket":
 			var ticket models.Ticket
+			userIDStr := strconv.FormatUint(uint64(permission.ID), 10)
 			if err := pm.permissionService.GetDatabase().Where("id = ? AND tenant_id = ? AND created_by = ?",
-				resourceID, tenantID, permission.ID).First(&ticket).Error; err == nil {
+				resourceID, tenantID, userIDStr).First(&ticket).Error; err == nil {
 				ownsResource = true
 			}
 		case "message":

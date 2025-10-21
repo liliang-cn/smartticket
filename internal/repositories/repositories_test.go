@@ -467,7 +467,7 @@ func TestDatabaseConstraints(t *testing.T) {
 		assert.Contains(t, err.Error(), "UNIQUE")
 	})
 
-	t.Run("Not null constraint", func(t *testing.T) {
+	t.Run("Not null constraint", func(_ *testing.T) {
 		// Try to create tenant with required field empty
 		tenant := &models.Tenant{
 			Name: "", // Empty name should violate not null constraint

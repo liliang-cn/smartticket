@@ -111,7 +111,7 @@ func TestRepository_GetUserByID(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Get existing user", func(t *testing.T) {
-		found, err := repo.GetUserByID(user.ID)
+		found, err := repo.GetUserByID(user.ID, user.TenantID)
 		assert.NoError(t, err)
 		assert.NotNil(t, found)
 		assert.Equal(t, user.Email, found.Email)
@@ -119,7 +119,7 @@ func TestRepository_GetUserByID(t *testing.T) {
 	})
 
 	t.Run("Get non-existent user", func(t *testing.T) {
-		found, err := repo.GetUserByID(99999)
+		found, err := repo.GetUserByID(99999, user.TenantID)
 		assert.Error(t, err)
 		assert.Nil(t, found)
 	})
@@ -152,7 +152,7 @@ func TestRepository_GetUserByEmail(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Get existing user by email", func(t *testing.T) {
-		found, err := repo.GetUserByEmail(user.Email)
+		found, err := repo.GetUserByEmail(user.Email, user.TenantID)
 		assert.NoError(t, err)
 		assert.NotNil(t, found)
 		assert.Equal(t, user.ID, found.ID)
@@ -160,7 +160,7 @@ func TestRepository_GetUserByEmail(t *testing.T) {
 	})
 
 	t.Run("Get non-existent user by email", func(t *testing.T) {
-		found, err := repo.GetUserByEmail("nonexistent@example.com")
+		found, err := repo.GetUserByEmail("nonexistent@example.com", user.TenantID)
 		assert.Error(t, err)
 		assert.Nil(t, found)
 	})
@@ -193,7 +193,7 @@ func TestRepository_GetUserByUsername(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Get existing user by username", func(t *testing.T) {
-		found, err := repo.GetUserByUsername(user.Username)
+		found, err := repo.GetUserByUsername(user.Username, user.TenantID)
 		assert.NoError(t, err)
 		assert.NotNil(t, found)
 		assert.Equal(t, user.ID, found.ID)
@@ -201,7 +201,7 @@ func TestRepository_GetUserByUsername(t *testing.T) {
 	})
 
 	t.Run("Get non-existent user by username", func(t *testing.T) {
-		found, err := repo.GetUserByUsername("nonexistent")
+		found, err := repo.GetUserByUsername("nonexistent", user.TenantID)
 		assert.Error(t, err)
 		assert.Nil(t, found)
 	})
@@ -242,7 +242,7 @@ func TestRepository_UpdateUser(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify update
-		updated, err := repo.GetUserByID(user.ID)
+		updated, err := repo.GetUserByID(user.ID, user.TenantID)
 		assert.NoError(t, err)
 		assert.Equal(t, "Updated", updated.FirstName)
 		assert.Equal(t, "Name", updated.LastName)
@@ -251,9 +251,10 @@ func TestRepository_UpdateUser(t *testing.T) {
 
 	t.Run("Update non-existent user", func(t *testing.T) {
 		nonExistentUser := &models.User{
-			ID:    99999,
 			Email: "nonexistent@example.com",
 		}
+		// Set the ID field from the embedded BaseModel
+		nonExistentUser.ID = 99999
 
 		err := repo.UpdateUser(nonExistentUser)
 		assert.Error(t, err)
@@ -289,7 +290,7 @@ func TestRepository_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify update
-		updated, err := repo.GetUserByID(user.ID)
+		updated, err := repo.GetUserByID(user.ID, user.TenantID)
 		assert.NoError(t, err)
 		assert.Equal(t, newPasswordHash, updated.PasswordHash)
 	})
@@ -325,18 +326,18 @@ func TestRepository_UpdateLastLogin(t *testing.T) {
 
 	t.Run("Update last login", func(t *testing.T) {
 		loginTime := time.Now()
-		err := repo.UpdateLastLogin(user.ID, loginTime)
+		err := repo.UpdateLastLogin(user.ID)
 		assert.NoError(t, err)
 
 		// Verify update
-		updated, err := repo.GetUserByID(user.ID)
+		updated, err := repo.GetUserByID(user.ID, user.TenantID)
 		assert.NoError(t, err)
 		assert.NotNil(t, updated.LastLoginAt)
 		assert.WithinDuration(t, loginTime, *updated.LastLoginAt, time.Second)
 	})
 
 	t.Run("Update last login for non-existent user", func(t *testing.T) {
-		err := repo.UpdateLastLogin(99999, time.Now())
+		err := repo.UpdateLastLogin(99999)
 		assert.Error(t, err)
 	})
 }
@@ -365,13 +366,13 @@ func TestRepository_CheckEmailExists(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Check existing email", func(t *testing.T) {
-		exists, err := repo.CheckEmailExists(user.Email)
+		exists, err := repo.CheckEmailExists(user.Email, user.TenantID)
 		assert.NoError(t, err)
 		assert.True(t, exists)
 	})
 
 	t.Run("Check non-existent email", func(t *testing.T) {
-		exists, err := repo.CheckEmailExists("nonexistent@example.com")
+		exists, err := repo.CheckEmailExists("nonexistent@example.com", user.TenantID)
 		assert.NoError(t, err)
 		assert.False(t, exists)
 	})
@@ -401,13 +402,13 @@ func TestRepository_CheckUsernameExists(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Check existing username", func(t *testing.T) {
-		exists, err := repo.CheckUsernameExists(user.Username)
+		exists, err := repo.CheckUsernameExists(user.Username, user.TenantID)
 		assert.NoError(t, err)
 		assert.True(t, exists)
 	})
 
 	t.Run("Check non-existent username", func(t *testing.T) {
-		exists, err := repo.CheckUsernameExists("nonexistent")
+		exists, err := repo.CheckUsernameExists("nonexistent", user.TenantID)
 		assert.NoError(t, err)
 		assert.False(t, exists)
 	})
@@ -540,21 +541,25 @@ func TestRepository_ListUsers(t *testing.T) {
 	}
 
 	t.Run("List all users", func(t *testing.T) {
-		allUsers, err := repo.ListUsers()
+		allUsers, total, err := repo.ListUsers(tenant.ID, 1, 10, nil)
 		assert.NoError(t, err)
 		assert.Len(t, allUsers, 5)
+		assert.Equal(t, int64(5), total)
 	})
 
-	t.Run("List users with tenant filter", func(t *testing.T) {
-		filteredUsers, err := repo.ListUsers()
+	t.Run("List users with role filter", func(t *testing.T) {
+		filters := map[string]interface{}{"role": "customer"}
+		filteredUsers, total, err := repo.ListUsers(tenant.ID, 1, 10, filters)
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(filteredUsers), 5)
+		assert.GreaterOrEqual(t, total, int64(5))
 	})
 
-	t.Run("List users with limit and offset", func(t *testing.T) {
-		usersPage, err := repo.ListUsers()
+	t.Run("List users with pagination", func(t *testing.T) {
+		usersPage, total, err := repo.ListUsers(tenant.ID, 1, 3, nil)
 		assert.NoError(t, err)
-		assert.GreaterOrEqual(t, len(usersPage), 3) // At least 3 users
+		assert.Len(t, usersPage, 3) // Exactly 3 users due to page size
+		assert.Equal(t, int64(5), total)
 	})
 }
 
@@ -573,7 +578,7 @@ func TestRepository_GetUserStats(t *testing.T) {
 
 	// Create users with different roles
 	roles := []string{"admin", "engineer", "support", "customer"}
-	for i, role := range roles {
+	for _, role := range roles {
 		user := &models.User{
 			TenantID:     tenant.ID,
 			Email:        fmt.Sprintf("%s@example.com", role),
@@ -587,9 +592,10 @@ func TestRepository_GetUserStats(t *testing.T) {
 	}
 
 	t.Run("Get user statistics", func(t *testing.T) {
-		stats, err := repo.GetUserStats()
+		stats, err := repo.GetUserStats(tenant.ID)
 		assert.NoError(t, err)
 		assert.NotNil(t, stats)
-		assert.GreaterOrEqual(t, stats.TotalUsers, 4)
+		assert.GreaterOrEqual(t, stats["total_users"], int64(4))
+		assert.GreaterOrEqual(t, stats["active_users"], int64(4))
 	})
 }

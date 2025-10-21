@@ -127,7 +127,7 @@ func runServe(cmd *cobra.Command, _ []string) error {
 	// Auto-migrate all models in correct order to avoid foreign key issues
 	logger.Debug("Running database migrations")
 	dbModels := []interface{}{
-		// Base tables first
+		// Base tables first (no foreign key dependencies)
 		&models.Tenant{},
 		&models.SystemSetting{},
 		&models.Product{},
@@ -136,24 +136,26 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		&models.SLARule{},
 		&models.LLMProvider{},
 
-		// Permission system tables
+		// Core business tables (only depend on base tables)
+		&models.User{},
+		&models.KnowledgeArticle{},
+		&models.APIKey{},
+
+		// Permission system tables (depend on users)
 		&models.Permission{},
 		&models.Role{},
 
-		// Relationship tables
+		// Relationship tables (depend on core tables)
 		&models.RolePermission{},
 		&models.UserPermission{},
 		&models.UserRole{},
 
-		// Business tables
-		&models.User{},
+		// Dependent business tables (depend on core tables)
 		&models.Ticket{},
 		&models.Message{},
 		&models.Attachment{},
-		&models.KnowledgeArticle{},
 		&models.ImportExportJob{},
 		&models.AuditLog{},
-		&models.APIKey{},
 	}
 
 	migrator := database.NewMigrator(db.DB)
@@ -163,6 +165,14 @@ func runServe(cmd *cobra.Command, _ []string) error {
 	}
 
 	logger.Info("Database models migrated successfully", zap.Int("model_count", len(dbModels)))
+
+	// Re-enable foreign key constraints after migration is complete
+	logger.Debug("Re-enabling foreign key constraints")
+	if err := db.EnableForeignKeys(); err != nil {
+		logger.Error("Failed to enable foreign key constraints", zap.Error(err))
+		return fmt.Errorf("failed to enable foreign key constraints: %w", err)
+	}
+	logger.Info("Foreign key constraints enabled successfully")
 
 	// Initialize database if this is first startup
 	logger.Debug("Checking if database initialization is needed")
@@ -269,7 +279,7 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 	// Auto-migrate all models in correct order to avoid foreign key issues
 	logger.Debug("Running GORM auto-migrations")
 	dbModels := []interface{}{
-		// Base tables first
+		// Base tables first (no foreign key dependencies)
 		&models.Tenant{},
 		&models.SystemSetting{},
 		&models.Product{},
@@ -278,30 +288,40 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		&models.SLARule{},
 		&models.LLMProvider{},
 
-		// Permission system tables
+		// Core business tables (only depend on base tables)
+		&models.User{},
+		&models.KnowledgeArticle{},
+		&models.APIKey{},
+
+		// Permission system tables (depend on users)
 		&models.Permission{},
 		&models.Role{},
 
-		// Relationship tables
+		// Relationship tables (depend on core tables)
 		&models.RolePermission{},
 		&models.UserPermission{},
 		&models.UserRole{},
 
-		// Business tables
-		&models.User{},
+		// Dependent business tables (depend on core tables)
 		&models.Ticket{},
 		&models.Message{},
 		&models.Attachment{},
-		&models.KnowledgeArticle{},
 		&models.ImportExportJob{},
 		&models.AuditLog{},
-		&models.APIKey{},
 	}
 
 	if err := migrator.AutoMigrate(dbModels...); err != nil {
 		logger.Error("Failed to auto-migrate models", zap.Error(err))
 		return fmt.Errorf("failed to auto-migrate models: %w", err)
 	}
+
+	// Re-enable foreign key constraints after migration is complete
+	logger.Debug("Re-enabling foreign key constraints")
+	if err := db.EnableForeignKeys(); err != nil {
+		logger.Error("Failed to enable foreign key constraints", zap.Error(err))
+		return fmt.Errorf("failed to enable foreign key constraints: %w", err)
+	}
+	logger.Info("Foreign key constraints enabled successfully")
 
 	logger.Info("Database migration completed successfully",
 		zap.Int("model_count", len(dbModels)),

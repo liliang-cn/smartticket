@@ -1,0 +1,25 @@
+Dependency Vulnerability Scanning Report
+======================================
+Date: 2025年10月21日 星期二 14时01分59秒 CST
+
+Running govulncheck...
+⚠️ govulncheck not installed. Install with: go install golang.org/x/vuln/cmd/govulncheck@latest
+Attempting to use alternative method...
+Checking go.mod for known vulnerable packages...
+  ⚠️  Potentially vulnerable package found: gopkg.in/yaml.v2
+
+Checking for outdated dependencies...
+Running 'go list -m -u all' to check for updates...
+cloud.google.com/go v0.110.7 [v0.123.0]
+cloud.google.com/go/bigquery v1.8.0 [v1.71.0]
+cloud.google.com/go/compute v1.23.0 [v1.49.1]
+cloud.google.com/go/compute/metadata v0.2.3 [v0.9.0]
+cloud.google.com/go/datastore v1.1.0 [v1.21.0]
+cloud.google.com/go/firestore v1.13.0 [v1.20.0]
+cloud.google.com/go/longrunning v0.5.1 [v0.7.0]
+cloud.google.com/go/pubsub v1.3.1 [v1.50.1]
+cloud.google.com/go/storage v1.14.0 [v1.57.0]
+dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9 [v0.0.0-20221208032759-85de2813cf6b]
+
+Checking Go module integrity...
+  ✅ Go module integrity verified

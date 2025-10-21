@@ -274,6 +274,62 @@ vuln-check: ## Check for vulnerabilities
 	@echo "Checking for vulnerabilities..."
 	govulncheck ./...
 
+# Advanced testing automation targets
+.PHONY: test-performance
+test-performance: ## Run comprehensive performance testing
+	@echo "Running performance testing..."
+	@./scripts/test-performance.sh all
+
+.PHONY: test-reports
+test-reports: ## Generate comprehensive test reports
+	@echo "Generating test reports..."
+	@./scripts/generate-test-reports.sh all
+
+.PHONY: test-backup-restore
+test-backup-restore: ## Test backup and restore procedures
+	@echo "Testing backup and restore..."
+	@./scripts/test-backup-restore.sh all
+
+.PHONY: test-security-comprehensive
+test-security-comprehensive: ## Run comprehensive security testing
+	@echo "Running comprehensive security testing..."
+	@./scripts/test-security.sh all
+
+.PHONY: test-multi-environment
+test-multi-environment: ## Test across multiple environments
+	@echo "Testing multi-environment deployment..."
+	@./scripts/test-multi-environment.sh all
+
+# Comprehensive test suite
+.PHONY: test-comprehensive
+test-comprehensive: ## Run comprehensive test suite with all automation
+	@echo "🚀 Running comprehensive test suite..."
+	@echo "This will run all test categories and generate reports"
+	@echo ""
+	@echo "1/6: Running unit tests..."
+	@$(MAKE) test-race
+	@echo ""
+	@echo "2/6: Running integration tests..."
+	@$(MAKE) test-integration
+	@echo ""
+	@echo "3/6: Running security tests..."
+	@$(MAKE) test-security-comprehensive
+	@echo ""
+	@echo "4/6: Running performance tests..."
+	@$(MAKE) test-performance
+	@echo ""
+	@echo "5/6: Testing backup/restore procedures..."
+	@$(MAKE) test-backup-restore
+	@echo ""
+	@echo "6/6: Testing multi-environment deployment..."
+	@$(MAKE) test-multi-environment
+	@echo ""
+	@echo "7/7: Generating comprehensive reports..."
+	@$(MAKE) test-reports
+	@echo ""
+	@echo "✅ Comprehensive test suite completed!"
+	@echo "📊 All reports are available in the reports/ directory"
+
 # Performance targets
 .PHONY: bench
 bench: ## Run benchmarks

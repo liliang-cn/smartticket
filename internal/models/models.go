@@ -27,15 +27,15 @@ type Tenant struct {
 	MaxUsers  int        `gorm:"default:100" json:"max_users"`
 	IsActive  bool       `gorm:"default:true" json:"is_active"`
 	ExpiredAt *time.Time `json:"expired_at"`
-	Users     []User     `gorm:"foreignKey:TenantID" json:"users,omitempty"`
-	Tickets   []Ticket   `gorm:"foreignKey:TenantID" json:"tickets,omitempty"`
+	Users     []User     `gorm:"foreignKey:TenantID;references:ID" json:"users,omitempty"`
+	Tickets   []Ticket   `gorm:"foreignKey:TenantID;references:ID" json:"tickets,omitempty"`
 }
 
 // User represents a user account
 type User struct {
 	BaseModel
 	TenantID     uint       `gorm:"not null;index" json:"tenant_id"`
-	Tenant       Tenant     `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+	Tenant       Tenant     `gorm:"foreignKey:TenantID;references:ID" json:"tenant,omitempty"`
 	Email        string     `gorm:"size:255;not null;uniqueIndex:idx_tenant_email" json:"email"`
 	Username     string     `gorm:"size:100;not null;uniqueIndex:idx_tenant_username" json:"username"`
 	PasswordHash string     `gorm:"size:255;not null" json:"-"`
@@ -45,8 +45,8 @@ type User struct {
 	IsActive     bool       `gorm:"default:true" json:"is_active"`
 	LastLoginAt  *time.Time `json:"last_login_at"`
 	Preferences  string     `gorm:"type:text" json:"preferences"` // JSON string
-	Tickets      []Ticket   `gorm:"foreignKey:CreatedBy" json:"tickets,omitempty"`
-	Messages     []Message  `gorm:"foreignKey:UserID" json:"messages,omitempty"`
+	Tickets      []Ticket   `gorm:"foreignKey:CreatedBy;references:ID" json:"tickets,omitempty"`
+	Messages     []Message  `gorm:"foreignKey:UserID;references:ID" json:"messages,omitempty"`
 }
 
 // Ticket represents a support ticket
@@ -340,23 +340,23 @@ type Role struct {
 type RolePermission struct {
 	BaseModel
 	RoleID       uint       `gorm:"not null;index" json:"role_id"`
-	Role         Role       `gorm:"foreignKey:RoleID" json:"role,omitempty"`
+	Role         Role       `gorm:"foreignKey:RoleID;references:ID" json:"role,omitempty"`
 	PermissionID uint       `gorm:"not null;index" json:"permission_id"`
-	Permission   Permission `gorm:"foreignKey:PermissionID" json:"permission,omitempty"`
+	Permission   Permission `gorm:"foreignKey:PermissionID;references:ID" json:"permission,omitempty"`
 	CreatedBy    uint       `gorm:"index" json:"created_by"`
-	Granter      *User      `gorm:"foreignKey:CreatedBy" json:"granter,omitempty"`
+	Granter      *User      `gorm:"foreignKey:CreatedBy;references:ID" json:"granter,omitempty"`
 }
 
 // UserPermission represents direct permission assignments to users (bypassing roles)
 type UserPermission struct {
 	BaseModel
 	UserID       uint       `gorm:"not null;index" json:"user_id"`
-	User         User       `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	User         User       `gorm:"foreignKey:UserID;references:ID" json:"user,omitempty"`
 	PermissionID uint       `gorm:"not null;index" json:"permission_id"`
-	Permission   Permission `gorm:"foreignKey:PermissionID" json:"permission,omitempty"`
+	Permission   Permission `gorm:"foreignKey:PermissionID;references:ID" json:"permission,omitempty"`
 	GrantedBy    uint       `gorm:"index" json:"granted_by"`
 	ExpiresAt    *time.Time `json:"expires_at"` // Optional expiration
-	Granter      *User      `gorm:"foreignKey:GrantedBy" json:"granter,omitempty"`
+	Granter      *User      `gorm:"foreignKey:GrantedBy;references:ID" json:"granter,omitempty"`
 }
 
 // UserRole represents many-to-many relationship between users and roles
@@ -367,9 +367,9 @@ type UserRole struct {
 	AssignedBy uint      `gorm:"not null;index" json:"assigned_by"`
 
 	// Relationships
-	User     User  `gorm:"foreignKey:UserID" json:"user,omitempty"`
-	Role     Role  `gorm:"foreignKey:RoleID" json:"role,omitempty"`
-	Assigner *User `gorm:"foreignKey:AssignedBy" json:"assigner,omitempty"`
+	User     User  `gorm:"foreignKey:UserID;references:ID" json:"user,omitempty"`
+	Role     Role  `gorm:"foreignKey:RoleID;references:ID" json:"role,omitempty"`
+	Assigner *User `gorm:"foreignKey:AssignedBy;references:ID" json:"assigner,omitempty"`
 }
 
 // Table name overrides

@@ -93,7 +93,7 @@ func NewDatabase(cfg *config.DatabaseConfig) (*Database, error) {
 
 // openSQLite creates a new SQLite database connection
 func openSQLite(dsn string, gormLogger logger.Interface) (*gorm.DB, error) {
-	// SQLite specific configuration (foreign keys disabled temporarily to fix migration issues)
+	// SQLite specific configuration (disable foreign keys during migration to prevent constraint issues)
 	dsn = fmt.Sprintf("%s?cache=shared&mode=rwc&_journal_mode=WAL&_foreign_keys=0", dsn)
 
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{
@@ -114,6 +114,24 @@ func (d *Database) Close() error {
 // GetConfig returns the database configuration
 func (d *Database) GetConfig() *config.DatabaseConfig {
 	return d.config
+}
+
+// EnableForeignKeys enables foreign key constraints (should be called after migrations)
+func (d *Database) EnableForeignKeys() error {
+	if d.config.Type != "sqlite" {
+		return nil // Only relevant for SQLite
+	}
+
+	return d.DB.Exec("PRAGMA foreign_keys = ON").Error
+}
+
+// DisableForeignKeys disables foreign key constraints (useful for migrations)
+func (d *Database) DisableForeignKeys() error {
+	if d.config.Type != "sqlite" {
+		return nil // Only relevant for SQLite
+	}
+
+	return d.DB.Exec("PRAGMA foreign_keys = OFF").Error
 }
 
 // GetDB returns the underlying GORM database instance

@@ -1,0 +1,25 @@
+Static Application Security Testing (SAST) Report
+==================================================
+Date: 2025年10月21日 星期二 14时01分56秒 CST
+Go Version: go version go1.25.1 darwin/arm64
+Project: /Users/liliang/Things/AI/projects/smartticket
+
+Running gosec security scanner...
+⚠️ gosec not installed. Install with: go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+
+Running additional SAST checks...
+Checking for hardcoded secrets...
+  ✅ No obvious hardcoded secrets detected
+
+Checking for unsafe functions...
+  ⚠️  Potentially unsafe function usage found: exec.Command
+./tests/testutils/runner.go
+./tests/testutils/coverage.go
+  ⚠️  Potentially unsafe function usage found: os/exec
+./tests/testutils/runner.go
+./tests/testutils/coverage.go
+  ⚠️  Potentially unsafe function usage found: eval
+./internal/importexport/service_test.go
+./internal/services/services_test.go
+  ⚠️  Potentially unsafe function usage found: unsafe
+./internal/server/middleware.go

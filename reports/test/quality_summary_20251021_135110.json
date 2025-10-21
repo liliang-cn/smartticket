@@ -1,0 +1,9 @@
+{
+    "timestamp": "2025-10-21T13:51:12+08:00",
+    "lint_issues": 0,
+    "gosec_issues": 0,
+    "lint_passed": false,
+    "gosec_passed": false,
+    "lint_report": "/Users/liliang/Things/AI/projects/smartticket/reports/test/lint_20251021_135110.txt",
+    "gosec_report": "/Users/liliang/Things/AI/projects/smartticket/reports/test/gosec_20251021_135110.txt"
+}

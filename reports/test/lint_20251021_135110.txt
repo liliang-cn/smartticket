@@ -1,0 +1,140 @@
+internal/api/middleware/permission_test.go:12:2: "github.com/company/smartticket/internal/services" imported and not used (typecheck)
+	"github.com/company/smartticket/internal/services"
+	^
+internal/api/middleware/permission_test.go:27:12: m.Called undefined (type *MockPermissionService has no field or method Called) (typecheck)
+	args := m.Called(ctx, userID, tenantID)
+	          ^
+internal/api/middleware/permission_test.go:32:12: m.Called undefined (type *MockPermissionService has no field or method Called) (typecheck)
+	args := m.Called(ctx, userID, tenantID)
+	          ^
+internal/api/middleware/permission_test.go:38:12: m.Called undefined (type *MockPermissionService has no field or method Called) (typecheck)
+	args := m.Called()
+	          ^
+internal/api/middleware/permission_test.go:43:12: m.Called undefined (type *MockPermissionService has no field or method Called) (typecheck)
+	args := m.Called(ctx, userID, tenantID, permissionCode)
+	          ^
+internal/api/middleware/permission_test.go:81:40: cannot use mockService (variable of type *MockPermissionService) as *services.PermissionService value in argument to NewPermissionMiddleware (typecheck)
+	middleware := NewPermissionMiddleware(mockService)
+	                                      ^
+internal/api/middleware/permission_test.go:96:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 1, Email: "test@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:113:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 1, Email: "test@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:136:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 1, Email: "test@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:175:17: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+				mockService.On("GetUserPermissions", mock.Anything, tt.setupUser().ID, tt.setupTenant()).
+				            ^
+internal/api/middleware/permission_test.go:177:17: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+				mockService.On("GetUserRoles", mock.Anything, tt.setupUser().ID, tt.setupTenant()).
+				            ^
+internal/api/middleware/permission_test.go:202:17: mockService.AssertExpectations undefined (type *MockPermissionService has no field or method AssertExpectations) (typecheck)
+				mockService.AssertExpectations(t)
+				            ^
+internal/api/middleware/permission_test.go:206:16: mockService.ExpectedCalls undefined (type *MockPermissionService has no field or method ExpectedCalls) (typecheck)
+			mockService.ExpectedCalls = nil
+			            ^
+internal/api/middleware/permission_test.go:213:40: cannot use mockService (variable of type *MockPermissionService) as *services.PermissionService value in argument to NewPermissionMiddleware (typecheck)
+	middleware := NewPermissionMiddleware(mockService)
+	                                      ^
+internal/api/middleware/permission_test.go:228:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 1, Email: "test@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:245:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 1, Email: "test@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:268:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 1, Email: "test@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:295:17: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+				mockService.On("GetUserPermissions", mock.Anything, tt.setupUser().ID, tt.setupTenant()).
+				            ^
+internal/api/middleware/permission_test.go:297:17: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+				mockService.On("GetUserRoles", mock.Anything, tt.setupUser().ID, tt.setupTenant()).
+				            ^
+internal/api/middleware/permission_test.go:322:17: mockService.AssertExpectations undefined (type *MockPermissionService has no field or method AssertExpectations) (typecheck)
+				mockService.AssertExpectations(t)
+				            ^
+internal/api/middleware/permission_test.go:326:16: mockService.ExpectedCalls undefined (type *MockPermissionService has no field or method ExpectedCalls) (typecheck)
+			mockService.ExpectedCalls = nil
+			            ^
+internal/api/middleware/permission_test.go:334:40: cannot use mockService (variable of type *MockPermissionService) as *services.PermissionService value in argument to NewPermissionMiddleware (typecheck)
+	middleware := NewPermissionMiddleware(mockService)
+	                                      ^
+internal/api/middleware/permission_test.go:337:14: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+	mockService.On("GetDatabase").Return(db)
+	            ^
+internal/api/middleware/permission_test.go:352:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 1, Email: "test@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:361:6: unknown field CreatedBy in struct literal of type models.Ticket (typecheck)
+					CreatedBy:    user.ID,
+					^
+internal/api/middleware/permission_test.go:374:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 2, Email: "other@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:383:6: unknown field CreatedBy in struct literal of type models.Ticket (typecheck)
+					CreatedBy:    1, // Different user
+					^
+internal/api/middleware/permission_test.go:397:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 2, Email: "admin@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:406:6: unknown field CreatedBy in struct literal of type models.Ticket (typecheck)
+					CreatedBy:    1, // Different user
+					^
+internal/api/middleware/permission_test.go:431:25: unknown field ID in struct literal of type models.User (typecheck)
+				return &models.User{ID: 1, Email: "test@example.com"}
+				                    ^
+internal/api/middleware/permission_test.go:461:18: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+					mockService.On("GetUserPermissions", mock.Anything, user.ID, tt.setupTenant()).
+					            ^
+internal/api/middleware/permission_test.go:466:18: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+					mockService.On("GetUserPermissions", mock.Anything, user.ID, tt.setupTenant()).
+					            ^
+internal/api/middleware/permission_test.go:494:16: mockService.ExpectedCalls undefined (type *MockPermissionService has no field or method ExpectedCalls) (typecheck)
+			mockService.ExpectedCalls = nil
+			            ^
+internal/api/middleware/permission_test.go:577:40: cannot use mockService (variable of type *MockPermissionService) as *services.PermissionService value in argument to NewPermissionMiddleware (typecheck)
+	middleware := NewPermissionMiddleware(mockService)
+	                                      ^
+internal/api/middleware/permission_test.go:580:14: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+	mockService.On("GetDatabase").Return(db)
+	            ^
+internal/api/middleware/permission_test.go:594:6: unknown field TenantID in struct literal of type models.Message (typecheck)
+					TenantID:  1,
+					^
+internal/api/middleware/permission_test.go:595:6: unknown field SenderID in struct literal of type models.Message (typecheck)
+					SenderID:  user.ID,
+					^
+internal/api/middleware/permission_test.go:656:25: unknown field ID in struct literal of type models.User (typecheck)
+			user := &models.User{ID: tt.userID, Email: "test@example.com"}
+			                     ^
+internal/api/middleware/permission_test.go:667:16: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+			mockService.On("GetUserPermissions", mock.Anything, user.ID, "1").
+			            ^
+internal/api/middleware/permission_test.go:680:16: mockService.ExpectedCalls undefined (type *MockPermissionService has no field or method ExpectedCalls) (typecheck)
+			mockService.ExpectedCalls = nil
+			            ^
+internal/api/middleware/permission_test.go:688:40: cannot use mockService (variable of type *MockPermissionService) as *services.PermissionService value in argument to NewPermissionMiddleware (typecheck)
+	middleware := NewPermissionMiddleware(mockService)
+	                                      ^
+internal/api/middleware/permission_test.go:693:24: unknown field ID in struct literal of type models.User (typecheck)
+		user := &models.User{ID: 1, Email: "test@example.com"}
+		                     ^
+internal/api/middleware/permission_test.go:698:15: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+		mockService.On("GetUserPermissions", mock.Anything, user.ID, "tenant-123").
+		            ^
+internal/api/middleware/permission_test.go:700:15: mockService.On undefined (type *MockPermissionService has no field or method On) (typecheck)
+		mockService.On("GetUserRoles", mock.Anything, user.ID, "tenant-123").
+		            ^
+internal/api/middleware/permission_test.go:719:15: mockService.AssertExpectations undefined (type *MockPermissionService has no field or method AssertExpectations) (typecheck)
+		mockService.AssertExpectations(t)
+		            ^
+internal/api/middleware/permission_test.go:723:6: declared and not used: w (typecheck)
+		c, w := setupTestGin()
+		   ^
+46 issues:
+* typecheck: 46

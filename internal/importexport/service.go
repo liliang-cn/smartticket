@@ -95,6 +95,7 @@ type JobResponse struct {
 	SourceFormat     string       `json:"source_format"`
 	TargetFormat     string       `json:"target_format"`
 	FilePath         string       `json:"file_path"`
+	Configuration    string       `json:"configuration"`
 	Error            string       `json:"error,omitempty"`
 	StartedAt        *time.Time   `json:"started_at,omitempty"`
 	CompletedAt      *time.Time   `json:"completed_at,omitempty"`
@@ -313,6 +314,7 @@ func (s *Service) getJobResponse(job *models.ImportExportJob) (*JobResponse, err
 		SourceFormat:     job.SourceFormat,
 		TargetFormat:     job.TargetFormat,
 		FilePath:         job.FilePath,
+		Configuration:    job.Configuration,
 		Error:            job.Error,
 		StartedAt:        job.StartedAt,
 		CompletedAt:      job.CompletedAt,
