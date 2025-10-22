@@ -125,6 +125,21 @@ func (h *Handlers) logSecurityEventWithName(c *gin.Context, event, resourceName 
 // SLA Template Handlers
 
 // CreateSLATemplate handles SLA template creation.
+// @Summary Create a new SLA template
+// @Description Creates a new SLA template with provided configuration
+// @Tags sla
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param request body sla.CreateSLATemplateRequest true "SLA template creation data"
+// @Success 201 {object} sla.SLATemplateResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/sla/templates [post]
 func (h *Handlers) CreateSLATemplate(c *gin.Context) {
 	var req CreateSLATemplateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -154,6 +169,24 @@ func (h *Handlers) CreateSLATemplate(c *gin.Context) {
 }
 
 // ListSLATemplates handles SLA template listing.
+// @Summary List SLA templates
+// @Description Retrieves a paginated list of SLA templates with optional filtering
+// @Tags sla
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param page query int false "Page number" default(1) minimum(1)
+// @Param page_size query int false "Number of templates per page" default(20) minimum(1) maximum(100)
+// @Param search query string false "Search templates by name or description"
+// @Param is_active query bool false "Filter by active status"
+// @Param is_default query bool false "Filter by default status"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/sla/templates [get]
 func (h *Handlers) ListSLATemplates(c *gin.Context) {
 	var req ListSLATemplatesRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -177,6 +210,21 @@ func (h *Handlers) ListSLATemplates(c *gin.Context) {
 }
 
 // GetSLATemplate handles getting a single SLA template.
+// @Summary Get an SLA template by ID
+// @Description Retrieves a specific SLA template by its unique identifier
+// @Tags sla
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "SLA Template ID"
+// @Success 200 {object} sla.SLATemplateResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/sla/templates/{id} [get]
 func (h *Handlers) GetSLATemplate(c *gin.Context) {
 	templateID, err := h.parseTemplateID(c)
 	if err != nil {
@@ -260,6 +308,21 @@ func (h *Handlers) DeleteSLATemplate(c *gin.Context) {
 // SLA Rule Handlers
 
 // CreateSLARule handles SLA rule creation.
+// @Summary Create a new SLA rule
+// @Description Creates a new SLA rule with provided configuration
+// @Tags sla
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param request body sla.CreateSLARuleRequest true "SLA rule creation data"
+// @Success 201 {object} sla.SLARuleResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/sla/rules [post]
 func (h *Handlers) CreateSLARule(c *gin.Context) {
 	var req CreateSLARuleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

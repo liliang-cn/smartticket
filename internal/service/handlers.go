@@ -49,6 +49,21 @@ func (h *Handlers) logServiceEvent(c *gin.Context, event, target string) {
 }
 
 // CreateService handles service creation.
+// @Summary Create a new service
+// @Description Creates a new service with provided information
+// @Tags services
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param request body service.CreateServiceRequest true "Service creation data"
+// @Success 201 {object} service.ServiceResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/services [post]
 func (h *Handlers) CreateService(c *gin.Context) {
 	var req CreateServiceRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -90,6 +105,25 @@ func (h *Handlers) CreateService(c *gin.Context) {
 }
 
 // ListServices handles service listing.
+// @Summary List services
+// @Description Retrieves a paginated list of services with optional filtering
+// @Tags services
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param page query int false "Page number" default(1) minimum(1)
+// @Param page_size query int false "Number of services per page" default(20) minimum(1) maximum(100)
+// @Param search query string false "Search services by name or description"
+// @Param type query string false "Filter by service type" Enums(infrastructure,application,support,consulting)
+// @Param status query string false "Filter by status" Enums(active,inactive,maintenance)
+// @Param product_id query int false "Filter by product ID"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/services [get]
 func (h *Handlers) ListServices(c *gin.Context) {
 	var req ListServicesRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -130,6 +164,21 @@ func (h *Handlers) ListServices(c *gin.Context) {
 }
 
 // GetService handles getting a single service.
+// @Summary Get a service by ID
+// @Description Retrieves a specific service by its unique identifier
+// @Tags services
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Service ID"
+// @Success 200 {object} service.ServiceResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/services/{id} [get]
 func (h *Handlers) GetService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {
@@ -154,6 +203,23 @@ func (h *Handlers) GetService(c *gin.Context) {
 }
 
 // UpdateService handles service update.
+// @Summary Update a service
+// @Description Updates an existing service with new information
+// @Tags services
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Service ID"
+// @Param request body service.UpdateServiceRequest true "Service update data"
+// @Success 200 {object} service.ServiceResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/services/{id} [put]
 func (h *Handlers) UpdateService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {
@@ -194,6 +260,21 @@ func (h *Handlers) UpdateService(c *gin.Context) {
 }
 
 // DeleteService handles service deletion.
+// @Summary Delete a service
+// @Description Soft deletes a service (marks as deleted but preserves data)
+// @Tags services
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Service ID"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/services/{id} [delete]
 func (h *Handlers) DeleteService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {
@@ -225,6 +306,21 @@ func (h *Handlers) DeleteService(c *gin.Context) {
 }
 
 // ActivateService handles service activation.
+// @Summary Activate a service
+// @Description Activates an existing service, making it available for use
+// @Tags services
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Service ID"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/services/{id}/activate [post]
 func (h *Handlers) ActivateService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {
@@ -256,6 +352,21 @@ func (h *Handlers) ActivateService(c *gin.Context) {
 }
 
 // DeactivateService handles service deactivation.
+// @Summary Deactivate a service
+// @Description Deactivates an existing service, making it unavailable for use
+// @Tags services
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Service ID"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/services/{id}/deactivate [post]
 func (h *Handlers) DeactivateService(c *gin.Context) {
 	serviceID, err := h.parseServiceID(c)
 	if err != nil {

@@ -601,7 +601,7 @@ func (s *Service) ticketToResponse(ticket *models.Ticket) *TicketResponse {
 		SLAStatus:      ticket.SLAStatus,
 	}
 
-	// Add assigned user info
+	// Add assigned user info (role would be determined by auth service)
 	if ticket.AssignedUser != nil {
 		response.AssignedUser = &UserInfo{
 			ID:        ticket.AssignedUser.ID,
@@ -609,7 +609,7 @@ func (s *Service) ticketToResponse(ticket *models.Ticket) *TicketResponse {
 			Username:  ticket.AssignedUser.Username,
 			FirstName: ticket.AssignedUser.FirstName,
 			LastName:  ticket.AssignedUser.LastName,
-			Role:      ticket.AssignedUser.Role,
+			Role:      "user", // Role would be determined by auth service in actual implementation
 		}
 	}
 

@@ -326,7 +326,6 @@ func TestUserHandlers(t *testing.T) {
 					Username:  "testuser",
 					FirstName: "Test",
 					LastName:  "User",
-					Role:      "customer",
 					IsActive:  true,
 				}
 				c.JSON(http.StatusOK, gin.H{
@@ -371,14 +370,12 @@ func TestUserHandlers(t *testing.T) {
 					BaseModel: models.BaseModel{ID: 1},
 					Email:     "user1@example.com",
 					Username:  "user1",
-					Role:      "customer",
 					IsActive:  true,
 				},
 				{
 					BaseModel: models.BaseModel{ID: 2},
 					Email:     "user2@example.com",
 					Username:  "user2",
-					Role:      "engineer",
 					IsActive:  true,
 				},
 			}

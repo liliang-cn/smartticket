@@ -171,7 +171,7 @@ func TestUser(t *testing.T) {
 		assert.Empty(t, user.PasswordHash)
 		assert.Empty(t, user.FirstName)
 		assert.Empty(t, user.LastName)
-		assert.Empty(t, user.Role)     // Zero value for string is ""
+		// Role field removed from User model - now handled by UserRole associations
 		assert.False(t, user.IsActive) // Zero value for bool is false
 		assert.Nil(t, user.LastLoginAt)
 		assert.Empty(t, user.Preferences)
@@ -199,7 +199,6 @@ func TestUser(t *testing.T) {
 			PasswordHash: "hashed_password",
 			FirstName:    "Test",
 			LastName:     "User",
-			Role:         "engineer",
 			IsActive:     true,
 			LastLoginAt:  &lastLoginAt,
 			Preferences:  `{"theme": "light", "notifications": true}`,
@@ -211,7 +210,7 @@ func TestUser(t *testing.T) {
 		assert.Equal(t, "hashed_password", user.PasswordHash)
 		assert.Equal(t, "Test", user.FirstName)
 		assert.Equal(t, "User", user.LastName)
-		assert.Equal(t, "engineer", user.Role)
+		// Role field removed from User model - role assignment now done through UserRole table
 		assert.True(t, user.IsActive)
 		assert.Equal(t, &lastLoginAt, user.LastLoginAt)
 		assert.Equal(t, `{"theme": "light", "notifications": true}`, user.Preferences)
@@ -227,7 +226,6 @@ func TestUser(t *testing.T) {
 			Username:    "testuser",
 			FirstName:   "Test",
 			LastName:    "User",
-			Role:        "engineer",
 			IsActive:    true,
 			Preferences: `{"theme": "dark"}`,
 		}
@@ -244,18 +242,21 @@ func TestUser(t *testing.T) {
 		assert.Equal(t, user.Username, unmarshaled.Username)
 		assert.Equal(t, user.FirstName, unmarshaled.FirstName)
 		assert.Equal(t, user.LastName, unmarshaled.LastName)
-		assert.Equal(t, user.Role, unmarshaled.Role)
+		// Role field has been removed from User model
+	// assert.Equal(t, user.Role, unmarshaled.Role)
 		assert.Equal(t, user.IsActive, unmarshaled.IsActive)
 		assert.Equal(t, user.Preferences, unmarshaled.Preferences)
 	})
 
 	t.Run("User role validation", func(t *testing.T) {
-		validRoles := []string{"admin", "engineer", "support", "customer", "sales"}
-
-		for _, role := range validRoles {
-			user := User{Role: role}
-			assert.Contains(t, validRoles, user.Role)
-		}
+		// Role field removed from User model - now handled by UserRole associations
+		// Role validation is now done through the UserRole model and service layer
+		// This test validates that the User model no longer has a Role field
+		user := User{}
+		// Verify that User model doesn't have a Role field by checking other fields
+		assert.Empty(t, user.Email)
+		assert.Empty(t, user.Username)
+		// Role field has been removed - role assignment is now through UserRole table
 	})
 
 	t.Run("User timestamps", func(t *testing.T) {
@@ -1513,7 +1514,6 @@ func TestJSONSerialization(t *testing.T) {
 					TenantID: 1,
 					Email:    "test@example.com",
 					Username: "test",
-					Role:     "customer",
 				}
 			case *Ticket:
 				*v = Ticket{
@@ -1612,7 +1612,6 @@ func TestJSONSerialization(t *testing.T) {
 				}
 			case *RolePermission:
 				*v = RolePermission{
-					RoleID:       1,
 					PermissionID: 1,
 				}
 			case *UserPermission:

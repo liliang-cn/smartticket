@@ -23,6 +23,10 @@ func setupAuthTestDB(t *testing.T) *gorm.DB {
 	err = db.AutoMigrate(
 		&models.Tenant{},
 		&models.User{},
+		&models.Role{},
+		&models.UserRole{},
+		&models.Permission{},
+		&models.RolePermission{},
 		&models.APIKey{},
 		&models.AuditLog{},
 	)
@@ -59,7 +63,6 @@ func TestRepository_CreateUser(t *testing.T) {
 			Username:     "testuser",
 			FirstName:    "Test",
 			LastName:     "User",
-			Role:         "customer",
 			PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
@@ -103,7 +106,6 @@ func TestRepository_GetUserByID(t *testing.T) {
 		Username:     "testuser",
 		FirstName:    "Test",
 		LastName:     "User",
-		Role:         "customer",
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
@@ -144,7 +146,6 @@ func TestRepository_GetUserByEmail(t *testing.T) {
 		Username:     "testuser",
 		FirstName:    "Test",
 		LastName:     "User",
-		Role:         "customer",
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
@@ -185,7 +186,6 @@ func TestRepository_GetUserByUsername(t *testing.T) {
 		Username:     "testuser",
 		FirstName:    "Test",
 		LastName:     "User",
-		Role:         "customer",
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
@@ -226,7 +226,6 @@ func TestRepository_UpdateUser(t *testing.T) {
 		Username:     "testuser",
 		FirstName:    "Test",
 		LastName:     "User",
-		Role:         "customer",
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
@@ -236,8 +235,7 @@ func TestRepository_UpdateUser(t *testing.T) {
 	t.Run("Update existing user", func(t *testing.T) {
 		user.FirstName = "Updated"
 		user.LastName = "Name"
-		user.Role = "admin"
-
+	
 		err := repo.UpdateUser(user)
 		assert.NoError(t, err)
 
@@ -246,8 +244,7 @@ func TestRepository_UpdateUser(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, "Updated", updated.FirstName)
 		assert.Equal(t, "Name", updated.LastName)
-		assert.Equal(t, "admin", updated.Role)
-	})
+		})
 
 	t.Run("Update non-existent user", func(t *testing.T) {
 		nonExistentUser := &models.User{
@@ -532,8 +529,7 @@ func TestRepository_ListUsers(t *testing.T) {
 			Email:        fmt.Sprintf("user%d@example.com", i+1),
 			Username:     fmt.Sprintf("user%d", i+1),
 			FirstName:    fmt.Sprintf("User%d", i+1),
-			Role:         "customer",
-			PasswordHash: "hashed_password",
+				PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
 		err = repo.CreateUser(users[i])
@@ -583,8 +579,7 @@ func TestRepository_GetUserStats(t *testing.T) {
 			TenantID:     tenant.ID,
 			Email:        fmt.Sprintf("%s@example.com", role),
 			Username:     role,
-			Role:         role,
-			PasswordHash: "hashed_password",
+				PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
 		err = repo.CreateUser(user)

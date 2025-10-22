@@ -233,8 +233,7 @@ func (s *Server) authMiddleware() gin.HandlerFunc {
 
 		token := parts[1]
 
-		// TODO: Implement actual JWT validation
-		// For now, we'll use a mock implementation
+		// Validate JWT token with auth service
 		userID, userRole, err := s.validateJWTToken(token)
 		if err != nil {
 			appErr := errors.NewUnauthorizedError("Invalid or expired token").
@@ -244,12 +243,41 @@ func (s *Server) authMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// Get tenant ID from context
+		tenantID, exists := c.Get("tenant_id")
+		if !exists {
+			appErr := errors.NewUnauthorizedError("Tenant context required").
+				WithRequestID(c.GetString("request_id"))
+			errors.ErrorHandler(c, appErr)
+			return
+		}
+
+		// Get effective role from role system
+		tenantIDUint, ok := tenantID.(uint)
+		if !ok {
+			appErr := errors.NewUnauthorizedError("Invalid tenant ID format").
+				WithRequestID(c.GetString("request_id"))
+			errors.ErrorHandler(c, appErr)
+			return
+		}
+
+		effectiveRole, err := s.authService.GetUserEffectiveRole(userID, tenantIDUint)
+		if err != nil {
+			logger.Error("Failed to get effective role",
+				zap.Uint("user_id", userID),
+				zap.Uint("tenant_id", tenantIDUint),
+				zap.Error(err))
+			// Fall back to JWT role if role system fails
+			effectiveRole = userRole
+		}
+
 		// Log successful authentication
 		logger.LogSecurityEvent("auth_success", fmt.Sprintf("%d", userID), clientIP, userAgent, true)
 
 		// Set user information in context
 		c.Set("user_id", userID)
-		c.Set("user_role", userRole)
+		c.Set("user_role", effectiveRole) // Use effective role from role system
+		c.Set("jwt_role", userRole) // Keep original JWT role for reference
 		c.Next()
 	}
 }
@@ -280,7 +308,7 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 		}
 
 		role, ok := userRole.(string)
-		if !ok || role != "admin" {
+		if !ok || (role != "admin" && role != "tenant_admin") {
 			logger.Debug("adminMiddleware: user_role found but not admin",
 				zap.String("role", role),
 				zap.Bool("ok", ok))
@@ -288,7 +316,7 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 				"success": false,
 				"error": gin.H{
 					"code":    "INSUFFICIENT_PERMISSIONS",
-					"message": "Admin privileges required",
+					"message": "Admin privileges required (system admin or tenant admin)",
 				},
 			})
 			c.Abort()
@@ -297,6 +325,90 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 
 		logger.Debug("adminMiddleware: admin check passed",
 			zap.String("role", role))
+		c.Next()
+	}
+}
+
+// tenantAdminOnlyMiddleware checks if user has tenant admin privileges (not system admin).
+func (s *Server) tenantAdminOnlyMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRole, exists := c.Get("user_role")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"error": gin.H{
+					"code":    "UNAUTHORIZED",
+					"message": "User authentication required",
+				},
+			})
+			c.Abort()
+			return
+		}
+
+		role, ok := userRole.(string)
+		if !ok || role != "tenant_admin" {
+			logger.Debug("tenantAdminOnlyMiddleware: user_role found but not tenant_admin",
+				zap.String("role", role),
+				zap.Bool("ok", ok))
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"error": gin.H{
+					"code":    "INSUFFICIENT_PERMISSIONS",
+					"message": "Tenant admin privileges required",
+				},
+			})
+			c.Abort()
+			return
+		}
+
+		logger.Debug("tenantAdminOnlyMiddleware: tenant admin check passed",
+			zap.String("role", role))
+		c.Next()
+	}
+}
+
+// checkUserPermission validates specific permission for the current user.
+func (s *Server) checkUserPermission(requiredRole string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userRole, exists := c.Get("user_role")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"error": gin.H{
+					"code":    "UNAUTHORIZED",
+					"message": "Authentication required",
+				},
+			})
+			c.Abort()
+			return
+		}
+
+		role, ok := userRole.(string)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"error": gin.H{
+					"code":    "UNAUTHORIZED",
+					"message": "Invalid user role format",
+				},
+			})
+			c.Abort()
+			return
+		}
+
+		// Check if user has required role or is admin (admin bypasses role check)
+		if role != requiredRole && role != "admin" && role != "tenant_admin" {
+			c.JSON(http.StatusForbidden, gin.H{
+				"success": false,
+				"error": gin.H{
+					"code":    "INSUFFICIENT_PERMISSIONS",
+					"message": fmt.Sprintf("Requires role: %s or admin", requiredRole),
+				},
+			})
+			c.Abort()
+			return
+		}
+
 		c.Next()
 	}
 }

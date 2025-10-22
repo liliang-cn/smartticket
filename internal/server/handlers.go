@@ -31,6 +31,13 @@ type MetaInfo struct {
 // Health check handlers
 
 // healthCheck handles health check requests.
+// @Summary Health check
+// @Description Checks the health status of the application and its dependencies
+// @Tags system
+// @Produce json
+// @Success 200 {object} server.Response
+// @Failure 503 {object} server.Response
+// @Router /api/v1/health [get]
 func (s *Server) healthCheck(c *gin.Context) {
 	requestID, exists := c.Get("request_id")
 	log := logger.GetGlobalLogger()
@@ -85,6 +92,12 @@ func (s *Server) healthCheck(c *gin.Context) {
 }
 
 // versionInfo handles version information requests.
+// @Summary Get version information
+// @Description Returns version and build information about the application
+// @Tags system
+// @Produce json
+// @Success 200 {object} server.Response
+// @Router /api/v1/version [get]
 func (s *Server) versionInfo(c *gin.Context) {
 	response := Response{
 		Success: true,
@@ -100,6 +113,12 @@ func (s *Server) versionInfo(c *gin.Context) {
 }
 
 // appInfo handles application information requests.
+// @Summary Get application information
+// @Description Returns general information about the SmartTicket application
+// @Tags system
+// @Produce json
+// @Success 200 {object} server.Response
+// @Router /api/v1/info [get]
 func (s *Server) appInfo(c *gin.Context) {
 	response := Response{
 		Success: true,

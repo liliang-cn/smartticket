@@ -1,876 +1,4382 @@
-openapi: 3.0.0
+definitions:
+  auth.ChangePasswordRequest:
+    properties:
+      confirm_password:
+        type: string
+      current_password:
+        type: string
+      new_password:
+        minLength: 6
+        type: string
+    required:
+    - confirm_password
+    - current_password
+    - new_password
+    type: object
+  auth.LoginRequest:
+    properties:
+      email:
+        example: admin@example.com
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.LoginResponse:
+    properties:
+      expires_in:
+        description: seconds
+        type: integer
+      refresh_in:
+        description: seconds
+        type: integer
+      success:
+        type: boolean
+      tokens:
+        $ref: '#/definitions/auth.TokenPair'
+      user:
+        $ref: '#/definitions/auth.UserInfo'
+    type: object
+  auth.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  auth.TokenPair:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: string
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  auth.UserInfo:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      last_login_at:
+        type: string
+      last_name:
+        type: string
+      role:
+        type: string
+      tenant_id:
+        type: integer
+      tenant_name:
+        type: string
+      username:
+        type: string
+    type: object
+  errors.ErrorInfo:
+    properties:
+      code:
+        type: string
+      context:
+        additionalProperties: true
+        type: object
+      details:
+        type: string
+      message:
+        type: string
+      request_id:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  errors.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/errors.ErrorInfo'
+      success:
+        type: boolean
+    type: object
+  importexport.JobResponse:
+    properties:
+      completed_at:
+        type: string
+      configuration:
+        type: string
+      created_at:
+        type: string
+      error:
+        type: string
+      failed_records:
+        type: integer
+      file_path:
+        type: string
+      id:
+        type: integer
+      processed_records:
+        type: integer
+      progress:
+        type: integer
+      source_format:
+        type: string
+      started_at:
+        type: string
+      started_by_user:
+        $ref: '#/definitions/models.User'
+      status:
+        type: string
+      target_format:
+        type: string
+      total_records:
+        type: integer
+      type:
+        type: string
+    type: object
+  knowledge.CreateKnowledgeArticleRequest:
+    properties:
+      category:
+        enum:
+        - technical
+        - troubleshooting
+        - guide
+        - faq
+        - tutorial
+        - other
+        type: string
+      content:
+        minLength: 10
+        type: string
+      product_id:
+        type: integer
+      service_id:
+        type: integer
+      status:
+        enum:
+        - draft
+        - published
+        - archived
+        type: string
+      summary:
+        maxLength: 1000
+        type: string
+      tags:
+        description: JSON array
+        type: string
+      title:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - category
+    - content
+    - title
+    type: object
+  knowledge.KnowledgeArticleResponse:
+    properties:
+      attachments:
+        items:
+          $ref: '#/definitions/models.Attachment'
+        type: array
+      category:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      id:
+        type: integer
+      is_deleted:
+        type: boolean
+      product:
+        $ref: '#/definitions/models.Product'
+      product_id:
+        type: integer
+      service:
+        $ref: '#/definitions/models.Service'
+      service_id:
+        type: integer
+      status:
+        type: string
+      summary:
+        type: string
+      tags:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      version:
+        type: integer
+      view_count:
+        type: integer
+    type: object
+  knowledge.KnowledgeArticleStatsResponse:
+    properties:
+      archived_articles:
+        type: integer
+      category_breakdown:
+        additionalProperties:
+          format: int64
+          type: integer
+        type: object
+      draft_articles:
+        type: integer
+      published_articles:
+        type: integer
+      recent_activity:
+        items:
+          $ref: '#/definitions/knowledge.RecentArticle'
+        type: array
+      total_articles:
+        type: integer
+      total_views:
+        type: integer
+    type: object
+  knowledge.RecentArticle:
+    properties:
+      id:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  knowledge.UpdateKnowledgeArticleRequest:
+    properties:
+      category:
+        enum:
+        - technical
+        - troubleshooting
+        - guide
+        - faq
+        - tutorial
+        - other
+        type: string
+      content:
+        minLength: 10
+        type: string
+      product_id:
+        type: integer
+      service_id:
+        type: integer
+      status:
+        enum:
+        - draft
+        - published
+        - archived
+        type: string
+      summary:
+        maxLength: 1000
+        type: string
+      tags:
+        type: string
+      title:
+        maxLength: 255
+        minLength: 3
+        type: string
+    type: object
+  models.Attachment:
+    properties:
+      content_type:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      file_name:
+        type: string
+      file_path:
+        type: string
+      file_size:
+        type: integer
+      hash:
+        description: SHA-256 hash
+        type: string
+      id:
+        type: integer
+      knowledge_article:
+        $ref: '#/definitions/models.KnowledgeArticle'
+      knowledge_article_id:
+        type: integer
+      message:
+        $ref: '#/definitions/models.Message'
+      message_id:
+        type: integer
+      original_name:
+        type: string
+      ticket:
+        $ref: '#/definitions/models.Ticket'
+      ticket_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  models.KnowledgeArticle:
+    properties:
+      access_level:
+        description: all, agents, admins
+        type: string
+      attachments:
+        items:
+          $ref: '#/definitions/models.Attachment'
+        type: array
+      author:
+        $ref: '#/definitions/models.User'
+      author_id:
+        type: integer
+      category:
+        type: string
+      content:
+        type: string
+      content_type:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      helpful_votes:
+        type: integer
+      id:
+        type: integer
+      parent:
+        $ref: '#/definitions/models.KnowledgeArticle'
+      parent_id:
+        type: integer
+      product:
+        $ref: '#/definitions/models.Product'
+      product_id:
+        type: integer
+      service:
+        $ref: '#/definitions/models.Service'
+      service_id:
+        type: integer
+      slug:
+        type: string
+      status:
+        description: draft, published, archived
+        type: string
+      summary:
+        type: string
+      tags:
+        description: JSON array
+        type: string
+      tenant:
+        $ref: '#/definitions/models.Tenant'
+      tenant_id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      version:
+        type: integer
+      views:
+        type: integer
+      visibility:
+        description: public, internal, private
+        type: string
+    type: object
+  models.Message:
+    properties:
+      attachments:
+        items:
+          $ref: '#/definitions/models.Attachment'
+        type: array
+      content:
+        type: string
+      content_type:
+        description: text, html, markdown
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      id:
+        type: integer
+      is_from_ai:
+        type: boolean
+      is_internal:
+        type: boolean
+      ticket:
+        $ref: '#/definitions/models.Ticket'
+      ticket_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: integer
+    type: object
+  models.Permission:
+    properties:
+      category:
+        description: tickets, users, knowledge, etc.
+        type: string
+      code:
+        description: 'Format: resource:action'
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_system:
+        description: System permissions cannot be deleted
+        type: boolean
+      name:
+        type: string
+      role_assignments:
+        items:
+          $ref: '#/definitions/models.RolePermission'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user_assignments:
+        items:
+          $ref: '#/definitions/models.UserPermission'
+        type: array
+    type: object
+  models.Product:
+    properties:
+      category:
+        type: string
+      code:
+        type: string
+      configuration:
+        description: JSON配置对象
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      documentation:
+        description: 文档链接
+        type: string
+      id:
+        type: integer
+      is_managed:
+        description: 是否为托管服务
+        type: boolean
+      knowledge_articles:
+        items:
+          $ref: '#/definitions/models.KnowledgeArticle'
+        type: array
+      name:
+        type: string
+      services:
+        items:
+          $ref: '#/definitions/models.Service'
+        type: array
+      status:
+        description: active, inactive, deprecated
+        type: string
+      support_level:
+        description: basic, premium, enterprise
+        type: string
+      tags:
+        description: JSON数组
+        type: string
+      tenant:
+        $ref: '#/definitions/models.Tenant'
+      tenant_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      version:
+        type: string
+    type: object
+  models.Role:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      creator:
+        $ref: '#/definitions/models.User'
+      description:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      is_system:
+        description: System roles cannot be deleted
+        type: boolean
+      name:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/models.Permission'
+        type: array
+      tenant:
+        $ref: '#/definitions/models.Tenant'
+      tenant_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  models.RolePermission:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      granter:
+        $ref: '#/definitions/models.User'
+      id:
+        type: integer
+      permission:
+        $ref: '#/definitions/models.Permission'
+      permission_id:
+        type: integer
+      role:
+        $ref: '#/definitions/models.Role'
+      role_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  models.Service:
+    properties:
+      availability:
+        description: 24x7, business_hours, custom
+        type: string
+      code:
+        type: string
+      configuration:
+        description: JSON配置对象
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      escalation_rules:
+        description: JSON配置对象
+        type: string
+      id:
+        type: integer
+      knowledge_articles:
+        items:
+          $ref: '#/definitions/models.KnowledgeArticle'
+        type: array
+      name:
+        type: string
+      product:
+        $ref: '#/definitions/models.Product'
+      product_id:
+        type: integer
+      status:
+        description: active, inactive, maintenance
+        type: string
+      support_channels:
+        description: 'JSON数组: email, phone, chat, portal'
+        type: string
+      tags:
+        description: JSON数组
+        type: string
+      tenant:
+        $ref: '#/definitions/models.Tenant'
+      tenant_id:
+        type: integer
+      tickets:
+        items:
+          $ref: '#/definitions/models.Ticket'
+        type: array
+      type:
+        description: infrastructure, application, support, consulting
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  models.Tenant:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      domain:
+        type: string
+      expired_at:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      max_users:
+        type: integer
+      name:
+        type: string
+      plan:
+        type: string
+      settings:
+        description: JSON string
+        type: string
+      slug:
+        type: string
+      tickets:
+        items:
+          $ref: '#/definitions/models.Ticket'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.Ticket:
+    properties:
+      assigned_to:
+        type: integer
+      assigned_user:
+        $ref: '#/definitions/models.User'
+      attachments:
+        items:
+          $ref: '#/definitions/models.Attachment'
+        type: array
+      category:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      custom_fields:
+        description: JSON object
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: integer
+      is_deleted:
+        type: boolean
+      messages:
+        items:
+          $ref: '#/definitions/models.Message'
+        type: array
+      priority:
+        description: low, medium, high, critical
+        type: string
+      product:
+        $ref: '#/definitions/models.Product'
+      product_id:
+        type: integer
+      requester_email:
+        type: string
+      requester_name:
+        type: string
+      resolution_time:
+        type: string
+      resolved_at:
+        type: string
+      service:
+        $ref: '#/definitions/models.Service'
+      service_id:
+        type: integer
+      severity:
+        description: trivial, minor, major, critical
+        type: string
+      sla_status:
+        description: within, breached, warning
+        type: string
+      status:
+        description: open, in_progress, resolved, closed, cancelled
+        type: string
+      tags:
+        description: JSON array
+        type: string
+      tenant:
+        $ref: '#/definitions/models.Tenant'
+      tenant_id:
+        type: integer
+      ticket_number:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      last_login_at:
+        type: string
+      last_name:
+        type: string
+      messages:
+        items:
+          $ref: '#/definitions/models.Message'
+        type: array
+      preferences:
+        description: JSON string
+        type: string
+      role:
+        description: admin, engineer, support, customer, sales
+        type: string
+      tenant:
+        $ref: '#/definitions/models.Tenant'
+      tenant_id:
+        type: integer
+      tickets:
+        items:
+          $ref: '#/definitions/models.Ticket'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      username:
+        type: string
+    type: object
+  models.UserPermission:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      expires_at:
+        description: Optional expiration
+        type: string
+      granted_by:
+        type: integer
+      granter:
+        $ref: '#/definitions/models.User'
+      id:
+        type: integer
+      permission:
+        $ref: '#/definitions/models.Permission'
+      permission_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: integer
+    type: object
+  product.CreateProductRequest:
+    properties:
+      category:
+        type: string
+      code:
+        maxLength: 100
+        minLength: 1
+        type: string
+      configuration:
+        type: string
+      description:
+        type: string
+      documentation:
+        type: string
+      is_managed:
+        type: boolean
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      status:
+        type: string
+      support_level:
+        type: string
+      tags:
+        type: string
+      version:
+        type: string
+    required:
+    - code
+    - name
+    type: object
+  product.ProductResponse:
+    properties:
+      category:
+        type: string
+      code:
+        type: string
+      configuration:
+        additionalProperties: true
+        type: object
+      created_at:
+        type: string
+      description:
+        type: string
+      documentation:
+        type: string
+      id:
+        type: integer
+      is_deleted:
+        type: boolean
+      is_managed:
+        type: boolean
+      name:
+        type: string
+      services:
+        items:
+          $ref: '#/definitions/product.ServiceResponse'
+        type: array
+      status:
+        type: string
+      support_level:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      tenant_id:
+        type: integer
+      updated_at:
+        type: string
+      version:
+        type: string
+    type: object
+  product.ServiceResponse:
+    properties:
+      availability:
+        type: string
+      code:
+        type: string
+      configuration:
+        additionalProperties: true
+        type: object
+      created_at:
+        type: string
+      description:
+        type: string
+      escalation_rules:
+        additionalProperties: true
+        type: object
+      id:
+        type: integer
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      product_id:
+        type: integer
+      status:
+        type: string
+      support_channels:
+        items:
+          type: string
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      tenant_id:
+        type: integer
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  product.UpdateProductRequest:
+    properties:
+      category:
+        type: string
+      code:
+        maxLength: 100
+        minLength: 1
+        type: string
+      configuration:
+        type: string
+      description:
+        type: string
+      documentation:
+        type: string
+      is_managed:
+        type: boolean
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      status:
+        type: string
+      support_level:
+        type: string
+      tags:
+        type: string
+      version:
+        type: string
+    type: object
+  server.MetaInfo:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  server.Response:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/errors.ErrorInfo'
+      meta:
+        $ref: '#/definitions/server.MetaInfo'
+      success:
+        type: boolean
+    type: object
+  service.CreateServiceRequest:
+    properties:
+      availability:
+        type: string
+      code:
+        maxLength: 100
+        minLength: 1
+        type: string
+      configuration:
+        type: string
+      description:
+        type: string
+      escalation_rules:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      product_id:
+        type: integer
+      status:
+        type: string
+      support_channels:
+        type: string
+      tags:
+        type: string
+      type:
+        type: string
+    required:
+    - code
+    - name
+    - product_id
+    - type
+    type: object
+  service.ProductResponse:
+    properties:
+      category:
+        type: string
+      code:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_managed:
+        type: boolean
+      name:
+        type: string
+      status:
+        type: string
+      support_level:
+        type: string
+      tenant_id:
+        type: integer
+      version:
+        type: string
+    type: object
+  service.ServiceResponse:
+    properties:
+      availability:
+        type: string
+      code:
+        type: string
+      configuration:
+        additionalProperties: true
+        type: object
+      created_at:
+        type: string
+      description:
+        type: string
+      escalation_rules:
+        additionalProperties: true
+        type: object
+      id:
+        type: integer
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      product:
+        $ref: '#/definitions/service.ProductResponse'
+      product_id:
+        type: integer
+      status:
+        type: string
+      support_channels:
+        items:
+          type: string
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      tenant_id:
+        type: integer
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  service.UpdateServiceRequest:
+    properties:
+      availability:
+        type: string
+      code:
+        maxLength: 100
+        minLength: 1
+        type: string
+      configuration:
+        type: string
+      description:
+        type: string
+      escalation_rules:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      product_id:
+        type: integer
+      status:
+        type: string
+      support_channels:
+        type: string
+      tags:
+        type: string
+      type:
+        type: string
+    type: object
+  sla.CreateSLARuleRequest:
+    properties:
+      business_only:
+        type: boolean
+      conditions:
+        type: string
+      priority:
+        enum:
+        - low
+        - medium
+        - high
+        - critical
+        type: string
+      product_id:
+        type: integer
+      resolution_time:
+        minimum: 1
+        type: integer
+      response_time:
+        minimum: 1
+        type: integer
+      service_id:
+        type: integer
+      severity:
+        enum:
+        - trivial
+        - minor
+        - major
+        - critical
+        type: string
+      template_id:
+        type: integer
+    required:
+    - priority
+    - resolution_time
+    - response_time
+    - severity
+    - template_id
+    type: object
+  sla.CreateSLATemplateRequest:
+    properties:
+      business_hours:
+        type: string
+      configuration:
+        type: string
+      description:
+        type: string
+      holidays:
+        type: string
+      is_active:
+        type: boolean
+      is_default:
+        type: boolean
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      priority_levels:
+        type: string
+      resolution_times:
+        type: string
+      response_times:
+        type: string
+      severity_levels:
+        type: string
+    required:
+    - name
+    type: object
+  sla.SLARuleResponse:
+    properties:
+      business_only:
+        type: boolean
+      conditions:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      is_deleted:
+        type: boolean
+      priority:
+        type: string
+      product_id:
+        type: integer
+      resolution_time:
+        type: integer
+      response_time:
+        type: integer
+      service_id:
+        type: integer
+      severity:
+        type: string
+      template_id:
+        type: integer
+      tenant_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  sla.SLATemplateResponse:
+    properties:
+      business_hours:
+        additionalProperties: true
+        type: object
+      configuration:
+        additionalProperties: true
+        type: object
+      created_at:
+        type: string
+      description:
+        type: string
+      holidays:
+        items:
+          type: string
+        type: array
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      is_default:
+        type: boolean
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+      priority_levels:
+        items:
+          type: string
+        type: array
+      resolution_times:
+        additionalProperties: true
+        type: object
+      response_times:
+        additionalProperties: true
+        type: object
+      severity_levels:
+        items:
+          type: string
+        type: array
+      tenant_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  tenant.CreateTenantRequest:
+    properties:
+      domain:
+        maxLength: 255
+        type: string
+      max_users:
+        maximum: 10000
+        minimum: 1
+        type: integer
+      name:
+        maxLength: 255
+        minLength: 2
+        type: string
+      plan:
+        enum:
+        - basic
+        - premium
+        - enterprise
+        type: string
+      settings:
+        description: JSON string
+        type: string
+      slug:
+        maxLength: 100
+        minLength: 2
+        type: string
+    required:
+    - name
+    - slug
+    type: object
+  tenant.TenantResponse:
+    properties:
+      created_at:
+        type: string
+      domain:
+        type: string
+      expired_at:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      max_users:
+        type: integer
+      name:
+        type: string
+      plan:
+        type: string
+      slug:
+        type: string
+      updated_at:
+        type: string
+      user_count:
+        type: integer
+    type: object
+  ticket.CreateTicketRequest:
+    properties:
+      category:
+        maxLength: 100
+        type: string
+      custom_fields:
+        description: JSON object
+        type: string
+      description:
+        minLength: 1
+        type: string
+      priority:
+        enum:
+        - low
+        - medium
+        - high
+        - critical
+        type: string
+      product_id:
+        type: integer
+      requester_email:
+        maxLength: 255
+        type: string
+      requester_name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      service_id:
+        type: integer
+      severity:
+        enum:
+        - trivial
+        - minor
+        - major
+        - critical
+        type: string
+      tags:
+        description: JSON array
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      type:
+        maxLength: 50
+        type: string
+    required:
+    - description
+    - requester_email
+    - requester_name
+    - title
+    type: object
+  ticket.TicketResponse:
+    properties:
+      assigned_to:
+        type: integer
+      assigned_user:
+        $ref: '#/definitions/ticket.UserInfo'
+      attachment_count:
+        type: integer
+      category:
+        type: string
+      created_at:
+        type: string
+      custom_fields:
+        additionalProperties: true
+        type: object
+      description:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: integer
+      is_deleted:
+        type: boolean
+      message_count:
+        type: integer
+      priority:
+        type: string
+      product_id:
+        type: integer
+      requester_email:
+        type: string
+      requester_name:
+        type: string
+      resolution_time:
+        type: string
+      resolved_at:
+        type: string
+      service_id:
+        type: integer
+      severity:
+        type: string
+      sla_status:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      ticket_number:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  ticket.UpdateTicketRequest:
+    properties:
+      assigned_to:
+        type: integer
+      category:
+        maxLength: 100
+        type: string
+      custom_fields:
+        description: JSON object
+        type: string
+      description:
+        minLength: 1
+        type: string
+      priority:
+        enum:
+        - low
+        - medium
+        - high
+        - critical
+        type: string
+      product_id:
+        type: integer
+      requester_email:
+        maxLength: 255
+        type: string
+      requester_name:
+        maxLength: 255
+        type: string
+      service_id:
+        type: integer
+      severity:
+        enum:
+        - trivial
+        - minor
+        - major
+        - critical
+        type: string
+      status:
+        enum:
+        - open
+        - in_progress
+        - resolved
+        - closed
+        - cancelled
+        type: string
+      tags:
+        description: JSON array
+        type: string
+      title:
+        maxLength: 255
+        minLength: 1
+        type: string
+      type:
+        maxLength: 50
+        type: string
+    type: object
+  ticket.UserInfo:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      last_name:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  user.CreateUserRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      first_name:
+        example: John
+        maxLength: 100
+        minLength: 1
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      last_name:
+        example: Doe
+        maxLength: 100
+        minLength: 1
+        type: string
+      password:
+        example: SecurePass123!
+        minLength: 8
+        type: string
+      preferences:
+        example: '{"timezone": "UTC", "language": "en"}'
+        type: string
+      role:
+        enum:
+        - admin
+        - engineer
+        - support
+        - customer
+        - sales
+        example: customer
+        type: string
+      username:
+        example: johndoe
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    - role
+    - username
+    type: object
+  user.PaginationMeta:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  user.UpdateUserRequest:
+    properties:
+      email:
+        example: user@example.com
+        type: string
+      first_name:
+        example: John
+        maxLength: 100
+        minLength: 1
+        type: string
+      is_active:
+        example: true
+        type: boolean
+      last_name:
+        example: Doe
+        maxLength: 100
+        minLength: 1
+        type: string
+      preferences:
+        example: '{"timezone": "UTC", "language": "en"}'
+        type: string
+      role:
+        enum:
+        - admin
+        - engineer
+        - support
+        - customer
+        - sales
+        example: customer
+        type: string
+      username:
+        example: johndoe
+        maxLength: 50
+        minLength: 3
+        type: string
+    type: object
+  user.UserListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/auth.UserInfo'
+        type: array
+      meta:
+        $ref: '#/definitions/user.PaginationMeta'
+      success:
+        type: boolean
+    type: object
 info:
-  title: SmartTicket API
-  description: Enterprise ticketing and knowledge collaboration platform API
-  version: 1.0.0
-  contact:
-    name: API Support
-    email: support@smartticket.local
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-
-servers:
-  - url: http://localhost:6533
-    description: Development server
-
+  contact: {}
 paths:
-  /health:
+  /api/v1/admin/permissions:
     get:
-      tags:
-        - Health
-      summary: Health check endpoint
-      description: Check if the API is running
+      description: Retrieves a list of all available system permissions
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
       responses:
-        '200':
-          description: Server is healthy
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "ok"
-                  timestamp:
-                    type: integer
-                    format: int64
-
-  /version:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Permission'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all permissions
+      tags:
+      - permissions
+    post:
+      consumes:
+      - application/json
+      description: Creates a new system permission with provided details
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Permission creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Permission'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Permission'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new permission
+      tags:
+      - permissions
+  /api/v1/admin/roles:
     get:
-      tags:
-        - Health
-      summary: Get API version
-      description: Returns the current API version
+      description: Retrieves a list of all roles for the current tenant
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
       responses:
-        '200':
-          description: Version information
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  version:
-                    type: string
-                  build_time:
-                    type: string
-
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Role'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all roles
+      tags:
+      - roles
+    post:
+      consumes:
+      - application/json
+      description: Creates a new role with provided details and permissions
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Role creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.Role'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Role'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new role
+      tags:
+      - roles
+  /api/v1/admin/tenants:
+    get:
+      description: Retrieves a paginated list of all tenant organizations
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Number of tenants per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Search tenants by name or domain
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List tenants
+      tags:
+      - tenants
+    post:
+      consumes:
+      - application/json
+      description: Creates a new tenant organization with provided details
+      parameters:
+      - description: Tenant creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/tenant.CreateTenantRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/tenant.TenantResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: Create a new tenant
+      tags:
+      - tenants
+  /api/v1/auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change the password of the currently authenticated user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Password change data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - auth
   /api/v1/auth/login:
     post:
-      tags:
-        - Authentication
-      summary: User login
-      description: Authenticate user and return JWT tokens
-      requestBody:
+      consumes:
+      - application/json
+      description: Authenticate a user with email and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
         required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  minLength: 6
-              required:
-                - email
-                - password
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
       responses:
-        '200':
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: object
-                    properties:
-                      access_token:
-                        type: string
-                      refresh_token:
-                        type: string
-                      user:
-                        $ref: '#/components/schemas/User'
-        '401':
-          description: Invalid credentials
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: User login
+      tags:
+      - auth
   /api/v1/auth/logout:
     post:
-      tags:
-        - Authentication
-      summary: User logout
-      description: Invalidate JWT tokens
-      security:
-        - bearerAuth: []
+      consumes:
+      - application/json
+      description: Logout user and invalidate tokens
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
       responses:
-        '200':
-          description: Logout successful
-        '401':
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: User logout
+      tags:
+      - auth
+  /api/v1/auth/me:
+    get:
+      description: Get basic information about the currently authenticated user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - auth
+  /api/v1/auth/profile:
+    get:
+      description: Get the profile information of the currently authenticated user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.UserInfo'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - auth
   /api/v1/auth/refresh:
     post:
-      tags:
-        - Authentication
+      consumes:
+      - application/json
+      description: Generate new access token using refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.TokenPair'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
       summary: Refresh access token
-      description: Get new access token using refresh token
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                refresh_token:
-                  type: string
-              required:
-                - refresh_token
-      responses:
-        '200':
-          description: Token refreshed successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: object
-                    properties:
-                      access_token:
-                        type: string
-        '401':
-          description: Invalid refresh token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /api/v1/tickets:
+      tags:
+      - auth
+  /api/v1/auth/validate:
     get:
-      tags:
-        - Tickets
-      summary: List tickets
-      description: Get paginated list of tickets
-      security:
-        - bearerAuth: []
+      description: Validate if an access token is still valid
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-            default: 20
-        - name: status
-          in: query
-          schema:
-            type: string
-            enum: [open, in_progress, resolved, closed]
-        - name: priority
-          in: query
-          schema:
-            type: string
-            enum: [low, medium, high, critical]
-      responses:
-        '200':
-          description: List of tickets
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Ticket'
-                  meta:
-                    type: object
-                    properties:
-                      total:
-                        type: integer
-                      page:
-                        type: integer
-                      page_size:
-                        type: integer
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-    post:
-      tags:
-        - Tickets
-      summary: Create ticket
-      description: Create a new ticket
-      security:
-        - bearerAuth: []
-      requestBody:
+      - description: Bearer token
+        in: header
+        name: Authorization
         required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                  minLength: 3
-                description:
-                  type: string
-                  minLength: 10
-                priority:
-                  type: string
-                  enum: [low, medium, high, critical]
-                severity:
-                  type: string
-                  enum: [minor, major, critical]
-                category:
-                  type: string
-                type:
-                  type: string
-                product_id:
-                  type: integer
-                service_id:
-                  type: integer
-                requester_name:
-                  type: string
-                requester_email:
-                  type: string
-                  format: email
-                tags:
-                  type: array
-                  items:
-                    type: string
-              required:
-                - title
-                - description
-                - requester_name
-                - requester_email
+        type: string
+      produces:
+      - application/json
       responses:
-        '201':
-          description: Ticket created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/Ticket'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /api/v1/tickets/{id}:
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Validate access token
+      tags:
+      - auth
+  /api/v1/data/import:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new data import job with file upload and configuration
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Import file (max 100MB)
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Import configuration
+        in: formData
+        name: request
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/importexport.JobResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new import job
+      tags:
+      - import-export
+  /api/v1/health:
     get:
-      tags:
-        - Tickets
-      summary: Get ticket
-      description: Get ticket by ID
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      description: Checks the health status of the application and its dependencies
+      produces:
+      - application/json
       responses:
-        '200':
-          description: Ticket details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/Ticket'
-        '404':
-          description: Ticket not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-    put:
-      tags:
-        - Tickets
-      summary: Update ticket
-      description: Update ticket by ID
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
+        "200":
+          description: OK
           schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                  minLength: 3
-                description:
-                  type: string
-                  minLength: 10
-                status:
-                  type: string
-                  enum: [open, in_progress, resolved, closed]
-                priority:
-                  type: string
-                  enum: [low, medium, high, critical]
-                severity:
-                  type: string
-                  enum: [minor, major, critical]
-                category:
-                  type: string
-                type:
-                  type: string
-                assigned_to:
-                  type: integer
-                tags:
-                  type: array
-                  items:
-                    type: string
-      responses:
-        '200':
-          description: Ticket updated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/Ticket'
-        '404':
-          description: Ticket not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-    delete:
-      tags:
-        - Tickets
-      summary: Delete ticket
-      description: Delete ticket by ID (soft delete)
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
+            $ref: '#/definitions/server.Response'
+        "503":
+          description: Service Unavailable
           schema:
-            type: integer
-      responses:
-        '200':
-          description: Ticket deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-        '404':
-          description: Ticket not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /api/v1/tickets/{id}/assign:
-    post:
+            $ref: '#/definitions/server.Response'
+      summary: Health check
       tags:
-        - Tickets
-      summary: Assign ticket
-      description: Assign ticket to a user
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                assigned_to:
-                  type: integer
-              required:
-                - assigned_to
+      - system
+  /api/v1/info:
+    get:
+      description: Returns general information about the SmartTicket application
+      produces:
+      - application/json
       responses:
-        '200':
-          description: Ticket assigned successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/Ticket'
-        '404':
-          description: Ticket not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+      summary: Get application information
+      tags:
+      - system
   /api/v1/knowledge/articles:
     get:
-      tags:
-        - Knowledge Base
+      description: Retrieves a paginated list of knowledge base articles with optional
+        filtering
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Number of articles per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Filter by article status
+        enum:
+        - draft
+        - published
+        - archived
+        in: query
+        name: status
+        type: string
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      - description: Filter by product ID
+        in: query
+        name: product_id
+        type: integer
+      - description: Filter by service ID
+        in: query
+        name: service_id
+        type: integer
+      - description: Search articles by title, content, or summary
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: List knowledge articles
-      description: Get paginated list of knowledge articles
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-            default: 20
-        - name: category
-          in: query
-          schema:
-            type: string
-        - name: search
-          in: query
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of knowledge articles
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/KnowledgeArticle'
-                  meta:
-                    type: object
-                    properties:
-                      total:
-                        type: integer
-                      page:
-                        type: integer
-                      page_size:
-                        type: integer
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
+      tags:
+      - knowledge
     post:
-      tags:
-        - Knowledge Base
-      summary: Create knowledge article
-      description: Create a new knowledge article
-      security:
-        - bearerAuth: []
-      requestBody:
+      consumes:
+      - application/json
+      description: Creates a new knowledge base article with the provided content
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
         required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                  minLength: 3
-                content:
-                  type: string
-                  minLength: 50
-                category:
-                  type: string
-                tags:
-                  type: array
-                  items:
-                    type: string
-                visibility:
-                  type: string
-                  enum: [public, internal, private]
-              required:
-                - title
-                - content
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Knowledge article creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/knowledge.CreateKnowledgeArticleRequest'
+      produces:
+      - application/json
       responses:
-        '201':
-          description: Knowledge article created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/KnowledgeArticle'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/knowledge.KnowledgeArticleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new knowledge article
+      tags:
+      - knowledge
   /api/v1/knowledge/articles/{id}:
-    get:
-      tags:
-        - Knowledge Base
-      summary: Get knowledge article
-      description: Get knowledge article by ID
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Knowledge article details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/KnowledgeArticle'
-        '404':
-          description: Knowledge article not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-    put:
-      tags:
-        - Knowledge Base
-      summary: Update knowledge article
-      description: Update knowledge article by ID
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                title:
-                  type: string
-                  minLength: 3
-                content:
-                  type: string
-                  minLength: 50
-                category:
-                  type: string
-                tags:
-                  type: array
-                  items:
-                    type: string
-                visibility:
-                  type: string
-                  enum: [public, internal, private]
-      responses:
-        '200':
-          description: Knowledge article updated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  data:
-                    $ref: '#/components/schemas/KnowledgeArticle'
-        '404':
-          description: Knowledge article not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
     delete:
-      tags:
-        - Knowledge Base
-      summary: Delete knowledge article
-      description: Delete knowledge article by ID (soft delete)
-      security:
-        - bearerAuth: []
+      description: Soft deletes a knowledge base article (marks as deleted but preserves
+        data)
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Knowledge Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
       responses:
-        '200':
-          description: Knowledge article deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  message:
-                    type: string
-        '404':
-          description: Knowledge article not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '401':
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-components:
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-        email:
-          type: string
-          format: email
-        first_name:
-          type: string
-        last_name:
-          type: string
-        role:
-          type: string
-          enum: [admin, engineer, support, customer, sales]
-        is_active:
-          type: boolean
-        created_at:
-          type: integer
-          format: int64
-        updated_at:
-          type: integer
-          format: int64
-
-    Ticket:
-      type: object
-      properties:
-        id:
-          type: integer
-        ticket_number:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-        status:
-          type: string
-          enum: [open, in_progress, resolved, closed]
-        priority:
-          type: string
-          enum: [low, medium, high, critical]
-        severity:
-          type: string
-          enum: [minor, major, critical]
-        category:
-          type: string
-        type:
-          type: string
-        requester_name:
-          type: string
-        requester_email:
-          type: string
-        assigned_to:
-          type: integer
-          nullable: true
-        created_at:
-          type: integer
-          format: int64
-        updated_at:
-          type: integer
-          format: int64
-        resolved_at:
-          type: integer
-          format: int64
-          nullable: true
-        due_date:
-          type: integer
-          format: int64
-          nullable: true
-        sla_status:
-          type: string
-          enum: [within, approaching, breached]
-        tags:
-          type: array
-          items:
-            type: string
-
-    KnowledgeArticle:
-      type: object
-      properties:
-        id:
-          type: integer
-        title:
-          type: string
-        content:
-          type: string
-        category:
-          type: string
-        tags:
-          type: array
-          items:
-            type: string
-        visibility:
-          type: string
-          enum: [public, internal, private]
-        views:
-          type: integer
-        created_by:
-          type: integer
-        created_at:
-          type: integer
-          format: int64
-        updated_at:
-          type: integer
-          format: int64
-
-    Error:
-      type: object
-      properties:
-        success:
-          type: boolean
-          example: false
-        error:
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a knowledge article
+      tags:
+      - knowledge
+    get:
+      description: Retrieves a specific knowledge base article by its unique identifier
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Knowledge Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/knowledge.KnowledgeArticleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a knowledge article by ID
+      tags:
+      - knowledge
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing knowledge base article with new information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Knowledge Article ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Knowledge article update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/knowledge.UpdateKnowledgeArticleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/knowledge.KnowledgeArticleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a knowledge article
+      tags:
+      - knowledge
+  /api/v1/knowledge/articles/stats:
+    get:
+      description: Retrieves statistical information about knowledge base articles
+        for the current tenant
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/knowledge.KnowledgeArticleStatsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get knowledge article statistics
+      tags:
+      - knowledge
+  /api/v1/products:
+    get:
+      description: Retrieves a paginated list of products with optional filtering
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Number of products per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Search products by name or description
+        in: query
+        name: search
+        type: string
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      - description: Filter by status
+        enum:
+        - active
+        - inactive
+        - deprecated
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Creates a new product with the provided information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Product creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/product.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/product.ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new product
+      tags:
+      - products
+  /api/v1/products/{id}:
+    delete:
+      description: Soft deletes a product (marks as deleted but preserves data)
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a product
+      tags:
+      - products
+    get:
+      description: Retrieves a specific product by its unique identifier
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product.ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a product by ID
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing product with new information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/product.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/product.ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a product
+      tags:
+      - products
+  /api/v1/products/{id}/activate:
+    post:
+      description: Activates an existing product, making it available for use
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Activate a product
+      tags:
+      - products
+  /api/v1/products/{id}/deactivate:
+    post:
+      description: Deactivates an existing product, making it unavailable for use
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Deactivate a product
+      tags:
+      - products
+  /api/v1/services:
+    get:
+      description: Retrieves a paginated list of services with optional filtering
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Number of services per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Search services by name or description
+        in: query
+        name: search
+        type: string
+      - description: Filter by service type
+        enum:
+        - infrastructure
+        - application
+        - support
+        - consulting
+        in: query
+        name: type
+        type: string
+      - description: Filter by status
+        enum:
+        - active
+        - inactive
+        - maintenance
+        in: query
+        name: status
+        type: string
+      - description: Filter by product ID
+        in: query
+        name: product_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List services
+      tags:
+      - services
+    post:
+      consumes:
+      - application/json
+      description: Creates a new service with provided information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Service creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateServiceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/service.ServiceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new service
+      tags:
+      - services
+  /api/v1/services/{id}:
+    delete:
+      description: Soft deletes a service (marks as deleted but preserves data)
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Service ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a service
+      tags:
+      - services
+    get:
+      description: Retrieves a specific service by its unique identifier
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Service ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.ServiceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a service by ID
+      tags:
+      - services
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing service with new information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Service ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Service update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateServiceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.ServiceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a service
+      tags:
+      - services
+  /api/v1/services/{id}/activate:
+    post:
+      description: Activates an existing service, making it available for use
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Service ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Activate a service
+      tags:
+      - services
+  /api/v1/services/{id}/deactivate:
+    post:
+      description: Deactivates an existing service, making it unavailable for use
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Service ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Deactivate a service
+      tags:
+      - services
+  /api/v1/sla/rules:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new SLA rule with provided configuration
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: SLA rule creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/sla.CreateSLARuleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/sla.SLARuleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new SLA rule
+      tags:
+      - sla
+  /api/v1/sla/templates:
+    get:
+      description: Retrieves a paginated list of SLA templates with optional filtering
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Number of templates per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Search templates by name or description
+        in: query
+        name: search
+        type: string
+      - description: Filter by active status
+        in: query
+        name: is_active
+        type: boolean
+      - description: Filter by default status
+        in: query
+        name: is_default
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List SLA templates
+      tags:
+      - sla
+    post:
+      consumes:
+      - application/json
+      description: Creates a new SLA template with provided configuration
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: SLA template creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/sla.CreateSLATemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/sla.SLATemplateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new SLA template
+      tags:
+      - sla
+  /api/v1/sla/templates/{id}:
+    get:
+      description: Retrieves a specific SLA template by its unique identifier
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: SLA Template ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sla.SLATemplateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get an SLA template by ID
+      tags:
+      - sla
+  /api/v1/tickets:
+    get:
+      description: Retrieves a paginated list of tickets with optional filtering
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Number of tickets per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Filter by ticket status
+        enum:
+        - open
+        - in_progress
+        - resolved
+        - closed
+        - cancelled
+        in: query
+        name: status
+        type: string
+      - description: Filter by priority
+        enum:
+        - low
+        - medium
+        - high
+        - critical
+        in: query
+        name: priority
+        type: string
+      - description: Filter by category
+        in: query
+        name: category
+        type: string
+      - description: Filter by assigned user ID
+        in: query
+        name: assigned_to
+        type: integer
+      - description: Search tickets by title, description, or requester
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List tickets
+      tags:
+      - tickets
+    post:
+      consumes:
+      - application/json
+      description: Creates a new support ticket with the provided details
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Ticket creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ticket.CreateTicketRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/ticket.TicketResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new ticket
+      tags:
+      - tickets
+  /api/v1/tickets/{id}:
+    delete:
+      description: Soft deletes a ticket (marks as deleted but preserves data)
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a ticket
+      tags:
+      - tickets
+    get:
+      description: Retrieves a specific ticket by its unique identifier
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ticket.TicketResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a ticket by ID
+      tags:
+      - tickets
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing ticket with new information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Ticket update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ticket.UpdateTicketRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ticket.TicketResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a ticket
+      tags:
+      - tickets
+  /api/v1/tickets/{id}/assign:
+    post:
+      consumes:
+      - application/json
+      description: Assigns a ticket to a specific user for handling
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Assignment data
+        in: body
+        name: request
+        required: true
+        schema:
           type: object
-          properties:
-            code:
-              type: string
-            message:
-              type: string
-            details:
-              type: object
-            request_id:
-              type: string
-            timestamp:
-              type: integer
-              format: int64
-
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Assign a ticket
+      tags:
+      - tickets
+  /api/v1/tickets/my:
+    get:
+      description: Retrieves tickets assigned to the currently authenticated user
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Number of tickets per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Filter by ticket status
+        enum:
+        - open
+        - in_progress
+        - resolved
+        - closed
+        - cancelled
+        in: query
+        name: status
+        type: string
+      - description: Filter by priority
+        enum:
+        - low
+        - medium
+        - high
+        - critical
+        in: query
+        name: priority
+        type: string
+      - description: Search tickets by title, description, or requester
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get my tickets
+      tags:
+      - tickets
+  /api/v1/tickets/stats:
+    get:
+      description: Retrieves statistical information about tickets for the current
+        tenant
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get ticket statistics
+      tags:
+      - tickets
+  /api/v1/users:
+    get:
+      description: Get a paginated list of users with optional filters
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: Filter by role
+        in: query
+        name: role
+        type: string
+      - description: Filter by active status
+        in: query
+        name: is_active
+        type: boolean
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.UserListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user in the current tenant
+      parameters:
+      - description: User creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateUserRequest'
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/auth.UserInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new user
+      tags:
+      - users
+  /api/v1/users/{id}:
+    delete:
+      description: Soft delete a user account
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - users
+    get:
+      description: Get detailed information about a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.UserInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update user information
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserRequest'
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.UserInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - users
+  /api/v1/users/{id}/activate:
+    post:
+      description: Activate a user account
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Activate user
+      tags:
+      - users
+  /api/v1/users/{id}/deactivate:
+    post:
+      description: Deactivate a user account
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Deactivate user
+      tags:
+      - users
+  /api/v1/users/stats:
+    get:
+      description: Get user statistics for the current tenant
+      parameters:
+      - description: Tenant ID
+        in: header
+        name: X-Tenant-ID
+        required: true
+        type: string
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user statistics
+      tags:
+      - users
+  /api/v1/version:
+    get:
+      description: Returns version and build information about the application
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/server.Response'
+      summary: Get version information
+      tags:
+      - system
+swagger: "2.0"

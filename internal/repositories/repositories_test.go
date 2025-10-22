@@ -56,7 +56,7 @@ func TestBasicDatabaseOperations(t *testing.T) {
 			Slug:     "test-corporation",
 			Domain:   "test.example.com",
 			Plan:     "basic",
-			MaxUsers: 100,
+			MaxUsers:  100,
 			IsActive: true,
 			Settings: `{"timezone": "UTC"}`,
 		}
@@ -107,7 +107,6 @@ func TestBasicDatabaseOperations(t *testing.T) {
 			Username:     "testuser",
 			FirstName:    "Test",
 			LastName:     "User",
-			Role:         "customer",
 			PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
@@ -154,7 +153,6 @@ func TestBasicDatabaseOperations(t *testing.T) {
 			TenantID: tenant.ID,
 			Email:    "ticket@example.com",
 			Username: "ticketuser",
-			Role:     "customer",
 			IsActive: true,
 		}
 		err = db.Create(user).Error
@@ -216,33 +214,25 @@ func TestDatabaseQueries(t *testing.T) {
 		err := db.Create(tenant).Error
 		require.NoError(t, err)
 
-		// Create users with different roles
-		roles := []string{"admin", "engineer", "support", "customer"}
-		for i, role := range roles {
+		// Create users with different permissions
+		// Note: Role field removed from User model - roles are now handled through UserRole associations
+		for i := 0; i < 4; i++ {
 			user := &models.User{
 				TenantID: tenant.ID,
 				Email:    fmt.Sprintf("user%d@example.com", i+1),
 				Username: fmt.Sprintf("user%d", i+1),
-				Role:     role,
 				IsActive: true,
 			}
 			err = db.Create(user).Error
 			require.NoError(t, err)
 		}
 
-		// Query by role
-		var engineers []models.User
-		err = db.Where("role = ? AND tenant_id = ?", "engineer", tenant.ID).Find(&engineers).Error
-		assert.NoError(t, err)
-		if len(engineers) > 0 {
-			assert.Equal(t, "engineer", engineers[0].Role)
-		}
-
-		// Query active users
+		// Query active users since User.Role field no longer exists
 		var activeUsers []models.User
 		err = db.Where("is_active = ? AND tenant_id = ?", true, tenant.ID).Find(&activeUsers).Error
 		assert.NoError(t, err)
-		assert.Len(t, activeUsers, len(roles))
+		// Verify we have the expected number of active users
+		assert.Len(t, activeUsers, 4)
 
 		// Query with LIKE
 		var adminUsers []models.User
@@ -269,7 +259,6 @@ func TestDatabaseQueries(t *testing.T) {
 				TenantID: tenant.ID,
 				Email:    fmt.Sprintf("pageuser%d@example.com", i+1),
 				Username: fmt.Sprintf("pageuser%d", i+1),
-				Role:     "customer",
 				IsActive: true,
 			}
 			err = db.Create(user).Error
@@ -313,47 +302,32 @@ func TestDatabaseQueries(t *testing.T) {
 		err := db.Create(tenant).Error
 		require.NoError(t, err)
 
-		// Create users with different roles
-		roleCounts := map[string]int{
-			"admin":    2,
-			"engineer": 3,
-			"support":  1,
-			"customer": 4,
-		}
-
-		for role, count := range roleCounts {
-			for i := 0; i < count; i++ {
-				user := &models.User{
-					TenantID: tenant.ID,
-					Email:    fmt.Sprintf("%s%d@example.com", role, i+1),
-					Username: fmt.Sprintf("%s%d", role, i+1),
-					Role:     role,
-					IsActive: true,
-				}
-				err = db.Create(user).Error
-				require.NoError(t, err)
+		// Create users for counting
+		userCount := 10
+		for i := 0; i < userCount; i++ {
+			user := &models.User{
+				TenantID: tenant.ID,
+				Email:    fmt.Sprintf("countuser%d@example.com", i+1),
+				Username: fmt.Sprintf("countuser%d", i+1),
+				IsActive: true,
 			}
+			err = db.Create(user).Error
+			require.NoError(t, err)
 		}
 
 		// Count total users
 		var totalUsers int64
 		err = db.Model(&models.User{}).Where("tenant_id = ?", tenant.ID).Count(&totalUsers).Error
 		assert.NoError(t, err)
-		expectedTotal := int64(0)
-		for _, count := range roleCounts {
-			expectedTotal += int64(count)
-		}
-		assert.Equal(t, expectedTotal, totalUsers)
+		assert.Equal(t, int64(userCount), totalUsers)
 
-		// Count by role
-		for role, expectedCount := range roleCounts {
-			var roleCount int64
-			err = db.Model(&models.User{}).
-				Where("tenant_id = ? AND role = ?", tenant.ID, role).
-				Count(&roleCount).Error
-			assert.NoError(t, err)
-			assert.Equal(t, int64(expectedCount), roleCount)
-		}
+		// Count active users
+		var activeCount int64
+		err = db.Model(&models.User{}).
+			Where("tenant_id = ? AND is_active = ?", tenant.ID, true).
+			Count(&activeCount).Error
+		assert.NoError(t, err)
+		assert.Equal(t, int64(userCount), activeCount)
 	})
 }
 
@@ -490,7 +464,7 @@ func TestDatabaseConstraints(t *testing.T) {
 		// SQLite may not enforce foreign key constraints by default
 		// In production, you'd enable foreign key constraints
 		if err == nil {
-			// If no error, the ticket was created anyway (SQLite default behavior)
+			// If no error, ticket was created anyway (SQLite default behavior)
 			assert.NotZero(t, ticket.ID)
 		} else {
 			// If error occurred, it should be related to foreign key constraint
@@ -523,7 +497,6 @@ func TestDatabasePerformance(t *testing.T) {
 				TenantID: tenant.ID,
 				Email:    fmt.Sprintf("perfuser%d@example.com", i+1),
 				Username: fmt.Sprintf("perfuser%d", i+1),
-				Role:     "customer",
 				IsActive: true,
 			}
 		}
@@ -555,7 +528,6 @@ func TestDatabasePerformance(t *testing.T) {
 				TenantID: tenant.ID,
 				Email:    fmt.Sprintf("queryuser%d@example.com", i+1),
 				Username: fmt.Sprintf("queryuser%d", i+1),
-				Role:     []string{"admin", "engineer", "support", "customer"}[i%4],
 				IsActive: true,
 			}
 			err := db.Create(user).Error
@@ -566,11 +538,11 @@ func TestDatabasePerformance(t *testing.T) {
 		start := time.Now()
 
 		var users []models.User
-		err = db.Where("tenant_id = ? AND role = ?", tenant.ID, "engineer").Find(&users).Error
+		err = db.Where("tenant_id = ? AND is_active = ?", tenant.ID, true).Find(&users).Error
 		assert.NoError(t, err)
 
 		duration := time.Since(start)
-		t.Logf("Query of %d users by tenant and role took: %v", len(users), duration)
+		t.Logf("Query of %d users by tenant and active status took: %v", len(users), duration)
 		assert.Less(t, duration, 100*time.Millisecond) // Should complete within 100ms
 	})
 }

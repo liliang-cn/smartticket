@@ -26,6 +26,18 @@ func NewRoleHandler(permissionService *services.PermissionService) *RoleHandler 
 }
 
 // GetAllRoles returns all roles.
+// @Summary Get all roles
+// @Description Retrieves a list of all roles for the current tenant
+// @Tags roles
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Success 200 {array} models.Role
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/admin/roles [get]
 func (h *RoleHandler) GetAllRoles(c *gin.Context) {
 	tenantID := h.responseHelper.GetTenantIDFromContext(c)
 
@@ -54,6 +66,21 @@ func (h *RoleHandler) GetRoleByID(c *gin.Context) {
 }
 
 // CreateRole creates a new role.
+// @Summary Create a new role
+// @Description Creates a new role with provided details and permissions
+// @Tags roles
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param request body models.Role true "Role creation data"
+// @Success 201 {object} models.Role
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/admin/roles [post]
 func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var req models.Role
 

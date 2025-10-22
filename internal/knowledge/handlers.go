@@ -19,6 +19,21 @@ func NewHandlers(service *Service) *Handlers {
 }
 
 // CreateKnowledgeArticle creates a new knowledge article.
+// @Summary Create a new knowledge article
+// @Description Creates a new knowledge base article with the provided content
+// @Tags knowledge
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param request body knowledge.CreateKnowledgeArticleRequest true "Knowledge article creation data"
+// @Success 201 {object} knowledge.KnowledgeArticleResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/knowledge/articles [post]
 func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
 	// Get tenant ID from context
 	tenantID := c.GetUint("tenant_id")
@@ -56,6 +71,21 @@ func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
 }
 
 // GetKnowledgeArticle retrieves a knowledge article by ID.
+// @Summary Get a knowledge article by ID
+// @Description Retrieves a specific knowledge base article by its unique identifier
+// @Tags knowledge
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Knowledge Article ID"
+// @Success 200 {object} knowledge.KnowledgeArticleResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/knowledge/articles/{id} [get]
 func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 	// Parse article ID
 	articleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -82,6 +112,25 @@ func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 }
 
 // ListKnowledgeArticles retrieves knowledge articles with pagination and filtering.
+// @Summary List knowledge articles
+// @Description Retrieves a paginated list of knowledge base articles with optional filtering
+// @Tags knowledge
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param page query int false "Page number" default(1) minimum(1)
+// @Param page_size query int false "Number of articles per page" default(20) minimum(1) maximum(100)
+// @Param status query string false "Filter by article status" Enums(draft,published,archived)
+// @Param category query string false "Filter by category"
+// @Param product_id query int false "Filter by product ID"
+// @Param service_id query int false "Filter by service ID"
+// @Param search query string false "Search articles by title, content, or summary"
+// @Success 200 {object} server.Response
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/knowledge/articles [get]
 func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
 	// Get tenant ID from context
 	tenantID := c.GetUint("tenant_id")
@@ -139,6 +188,23 @@ func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
 }
 
 // UpdateKnowledgeArticle updates an existing knowledge article.
+// @Summary Update a knowledge article
+// @Description Updates an existing knowledge base article with new information
+// @Tags knowledge
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Knowledge Article ID"
+// @Param request body knowledge.UpdateKnowledgeArticleRequest true "Knowledge article update data"
+// @Success 200 {object} knowledge.KnowledgeArticleResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/knowledge/articles/{id} [put]
 func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 	// Parse article ID
 	articleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -184,6 +250,21 @@ func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 }
 
 // DeleteKnowledgeArticle soft deletes a knowledge article.
+// @Summary Delete a knowledge article
+// @Description Soft deletes a knowledge base article (marks as deleted but preserves data)
+// @Tags knowledge
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Knowledge Article ID"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/knowledge/articles/{id} [delete]
 func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 	// Parse article ID
 	articleID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -221,6 +302,18 @@ func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 }
 
 // GetKnowledgeArticleStats retrieves knowledge article statistics.
+// @Summary Get knowledge article statistics
+// @Description Retrieves statistical information about knowledge base articles for the current tenant
+// @Tags knowledge
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Success 200 {object} knowledge.KnowledgeArticleStatsResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/knowledge/articles/stats [get]
 func (h *Handlers) GetKnowledgeArticleStats(c *gin.Context) {
 	// Get tenant ID from context
 	tenantID := c.GetUint("tenant_id")

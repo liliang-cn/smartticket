@@ -33,7 +33,7 @@ func NewHandlers(userService *Service) *Handlers {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 201 {object} UserInfo
+// @Success 201 {object} auth.UserInfo
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 403 {object} errors.ErrorResponse
@@ -107,7 +107,7 @@ func (h *Handlers) CreateUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} UserInfo
+// @Success 200 {object} auth.UserInfo
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 404 {object} errors.ErrorResponse
@@ -161,7 +161,7 @@ func (h *Handlers) GetUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} UserInfo
+// @Success 200 {object} auth.UserInfo
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 403 {object} errors.ErrorResponse
@@ -254,7 +254,7 @@ func (h *Handlers) UpdateUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} server.Response
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 403 {object} errors.ErrorResponse
@@ -384,7 +384,7 @@ func (h *Handlers) ListUsers(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} server.Response
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 403 {object} errors.ErrorResponse
@@ -436,7 +436,7 @@ func (h *Handlers) ActivateUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} server.Response
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 403 {object} errors.ErrorResponse
@@ -497,7 +497,7 @@ func (h *Handlers) DeactivateUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} server.Response
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 403 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse

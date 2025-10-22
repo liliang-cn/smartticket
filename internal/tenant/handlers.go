@@ -24,6 +24,19 @@ func NewHandlers(service *Service) *Handlers {
 }
 
 // CreateTenant creates a new tenant.
+// @Summary Create a new tenant
+// @Description Creates a new tenant organization with provided details
+// @Tags tenants
+// @Accept json
+// @Produce json
+// @Param request body tenant.CreateTenantRequest true "Tenant creation data"
+// @Success 201 {object} tenant.TenantResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 409 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/admin/tenants [post]
 func (h *Handlers) CreateTenant(c *gin.Context) {
 	var req CreateTenantRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -105,6 +118,21 @@ func (h *Handlers) GetTenantBySlug(c *gin.Context) {
 }
 
 // ListTenants lists all tenants with pagination.
+// @Summary List tenants
+// @Description Retrieves a paginated list of all tenant organizations
+// @Tags tenants
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param page query int false "Page number" default(1) minimum(1)
+// @Param page_size query int false "Number of tenants per page" default(20) minimum(1) maximum(100)
+// @Param search query string false "Search tenants by name or domain"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/admin/tenants [get]
 func (h *Handlers) ListTenants(c *gin.Context) {
 	// Parse query parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))

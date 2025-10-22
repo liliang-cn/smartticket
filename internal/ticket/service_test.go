@@ -257,7 +257,6 @@ func createTestUser(t *testing.T, db *database.Database, tenantID uint) *models.
 		Username:  fmt.Sprintf("testuser-%d", timestamp),
 		FirstName: "Test",
 		LastName:  "User",
-		Role:      "admin",
 		IsActive:  true,
 	}
 

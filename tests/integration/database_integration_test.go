@@ -75,7 +75,6 @@ func TestDatabaseServiceIntegration(t *testing.T) {
 			Username:     "integrationuser",
 			FirstName:    "Integration",
 			LastName:     "User",
-			Role:         "admin",
 			PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
@@ -187,7 +186,6 @@ func TestTicketWorkflowIntegration(t *testing.T) {
 			Username:     "customer",
 			FirstName:    "Customer",
 			LastName:     "User",
-			Role:         "customer",
 			PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
@@ -200,7 +198,6 @@ func TestTicketWorkflowIntegration(t *testing.T) {
 			Username:     "engineer",
 			FirstName:    "Support",
 			LastName:     "Engineer",
-			Role:         "engineer",
 			PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
@@ -341,7 +338,6 @@ func TestMultiTenantIntegration(t *testing.T) {
 			TenantID: tenant1.ID,
 			Email:    "user1@tenant1.com",
 			Username: "user1",
-			Role:     "admin",
 			IsActive: true,
 		}
 		err = db.Create(user1).Error
@@ -351,7 +347,6 @@ func TestMultiTenantIntegration(t *testing.T) {
 			TenantID: tenant2.ID,
 			Email:    "user2@tenant2.com",
 			Username: "user2",
-			Role:     "admin",
 			IsActive: true,
 		}
 		err = db.Create(user2).Error
@@ -449,7 +444,6 @@ func TestTransactionIntegration(t *testing.T) {
 			TenantID: tenant.ID,
 			Email:    "txuser@example.com",
 			Username: "txuser",
-			Role:     "customer",
 			IsActive: true,
 		}
 		err = tx.Create(user).Error
@@ -542,7 +536,6 @@ func TestTransactionIntegration(t *testing.T) {
 				TenantID: tenant.ID,
 				Email:    fmt.Sprintf("user%d@successful-tx.com", i+1),
 				Username: fmt.Sprintf("user%d", i+1),
-				Role:     []string{"customer", "engineer", "admin"}[i],
 				IsActive: true,
 			}
 			err = tx.Create(users[i]).Error
@@ -631,7 +624,6 @@ func TestCascadeOperationsIntegration(t *testing.T) {
 				TenantID: tenant.ID,
 				Email:    fmt.Sprintf("cascade%d@example.com", i+1),
 				Username: fmt.Sprintf("cascade%d", i+1),
-				Role:     "customer",
 				IsActive: true,
 			}
 			err = db.Create(users[i]).Error

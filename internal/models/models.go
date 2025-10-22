@@ -41,7 +41,6 @@ type User struct {
 	PasswordHash string     `gorm:"size:255;not null" json:"-"`
 	FirstName    string     `gorm:"size:100" json:"first_name"`
 	LastName     string     `gorm:"size:100" json:"last_name"`
-	Role         string     `gorm:"size:50;not null;default:'customer'" json:"role"` // admin, engineer, support, customer, sales
 	IsActive     bool       `gorm:"default:true" json:"is_active"`
 	LastLoginAt  *time.Time `json:"last_login_at"`
 	Preferences  string     `gorm:"type:text" json:"preferences"` // JSON string

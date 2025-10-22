@@ -140,7 +140,7 @@ func (h *Handlers) RefreshToken(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} server.Response
 // @Failure 401 {object} errors.ErrorResponse
 // @Router /api/v1/auth/logout [post].
 func (h *Handlers) Logout(c *gin.Context) {
@@ -225,7 +225,7 @@ func (h *Handlers) GetProfile(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body ChangePasswordRequest true "Password change data"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} server.Response
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
 // @Failure 500 {object} errors.ErrorResponse
@@ -308,7 +308,7 @@ func (h *Handlers) ChangePassword(c *gin.Context) {
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} server.Response
 // @Failure 401 {object} errors.ErrorResponse
 // @Router /api/v1/auth/me [get].
 func (h *Handlers) GetMe(c *gin.Context) {
@@ -335,7 +335,7 @@ func (h *Handlers) GetMe(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} map[string]interface{}
+// @Success 200 {object} server.Response
 // @Failure 401 {object} errors.ErrorResponse
 // @Router /api/v1/auth/validate [get].
 func (h *Handlers) ValidateToken(c *gin.Context) {

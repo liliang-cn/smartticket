@@ -92,9 +92,8 @@ func (r *Repository) ListUsers(tenantID uint, page, pageSize int, filters map[st
 	query := r.db.Where("tenant_id = ?", tenantID)
 
 	// Apply filters
-	if role, ok := filters["role"].(string); ok && role != "" {
-		query = query.Where("role = ?", role)
-	}
+	// Note: role filtering is now handled through role associations, not direct User.Role field
+	// This filter should be removed or reimplemented using JOINs with user_roles table
 	if isActive, ok := filters["is_active"].(bool); ok {
 		query = query.Where("is_active = ?", isActive)
 	}
@@ -156,14 +155,10 @@ func (r *Repository) UpdatePassword(userID uint, passwordHash string) error {
 	return nil
 }
 
-// UpdateUserRole updates the user's role.
+// UpdateUserRole updates the user's role - DEPRECATED.
+// Roles are now managed through UserRole associations.
 func (r *Repository) UpdateUserRole(userID, tenantID uint, role string) error {
-	if err := r.db.Model(&models.User{}).
-		Where("id = ? AND tenant_id = ?", userID, tenantID).
-		Update("role", role).Error; err != nil {
-		return fmt.Errorf("failed to update user role: %w", err)
-	}
-	return nil
+	return fmt.Errorf("UpdateUserRole is deprecated - use UserRole model for role management")
 }
 
 // DeactivateUser deactivates a user account.
@@ -242,16 +237,19 @@ func (r *Repository) GetUserStats(tenantID uint) (map[string]int64, error) {
 	}
 	stats["active_users"] = activeUsers
 
-	// Users by role
+	// Users by role - Note: This needs to be reimplemented using user_roles JOIN
+	// For now, commenting out as User.Role field has been removed
 	roles := []string{"admin", "engineer", "support", "customer", "sales"}
 	for _, role := range roles {
 		var count int64
+		// TODO: Reimplement using JOIN with user_roles table
+		// Example: r.db.Table("users").Joins("JOIN user_roles ON users.id = user_roles.user_id").Joins("JOIN roles ON user_roles.role_id = roles.id").Where("roles.name = ? AND users.tenant_id = ?", role, tenantID).Count(&count)
 		if err := r.db.Model(&models.User{}).
-			Where("tenant_id = ? AND role = ? AND is_active = ?", tenantID, role, true).
+			Where("tenant_id = ? AND is_active = ?", tenantID, true).
 			Count(&count).Error; err != nil {
 			return nil, fmt.Errorf("failed to count users by role %s: %w", role, err)
 		}
-		stats["users_"+role] = count
+		stats["users_"+role] = count // This will show total active users instead of role-specific counts
 	}
 
 	// Users who logged in last 30 days

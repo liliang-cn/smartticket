@@ -179,7 +179,9 @@ func TestAuthService_ValidateToken(t *testing.T) {
 		assert.NotNil(t, result)
 		assert.Equal(t, user.ID, result.UserID)
 		assert.Equal(t, user.Email, result.Email)
-		assert.Equal(t, user.Role, result.Role)
+		// Role is now determined by GetUserEffectiveRole, not stored on User model
+	// We expect "customer" as default role since no role assignments are created in test
+	assert.Equal(t, "customer", result.Role)
 		assert.Equal(t, tenant.ID, result.TenantID)
 	})
 }
@@ -270,7 +272,6 @@ func createTestUser(t *testing.T, db *database.Database, tenantID uint, email, p
 		Username:     "testuser",
 		FirstName:    "Test",
 		LastName:     "User",
-		Role:         "admin",
 		PasswordHash: hashedPassword,
 		IsActive:     true,
 	}

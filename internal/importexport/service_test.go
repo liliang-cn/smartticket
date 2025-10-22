@@ -23,6 +23,11 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	err = db.AutoMigrate(
 		&models.Tenant{},
 		&models.User{},
+		&models.Role{},
+		&models.UserRole{},
+		&models.Permission{},
+		&models.RolePermission{},
+		&models.UserPermission{},
 		&models.Ticket{},
 		&models.Message{},
 		&models.Attachment{},
@@ -60,7 +65,6 @@ func createTestUser(t *testing.T, db *gorm.DB, tenantID uint) *models.User {
 		Username:     fmt.Sprintf("testuser-%d", time.Now().UnixNano()),
 		FirstName:    "Test",
 		LastName:     "User",
-		Role:         "admin",
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}

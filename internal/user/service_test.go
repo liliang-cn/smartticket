@@ -28,7 +28,6 @@ func TestUserService_CreateUser(t *testing.T) {
 			Username:  "newuser",
 			FirstName: "New",
 			LastName:  "User",
-			Role:      "engineer",
 			Password:  "Password123!",
 		}
 
@@ -118,7 +117,6 @@ func TestUserService_UpdateUser(t *testing.T) {
 		req := &UpdateUserRequest{
 			FirstName: "Updated",
 			LastName:  "Name",
-			Role:      "support",
 		}
 
 		// Execute
@@ -265,7 +263,6 @@ func createTestUser(t *testing.T, db *database.Database, tenantID uint) *models.
 		Username:     fmt.Sprintf("testuser-%d", timestamp),
 		FirstName:    "Test",
 		LastName:     "User",
-		Role:         "admin",
 		PasswordHash: "$2a$10$dummy.hash.for.testing",
 		IsActive:     true,
 	}
@@ -285,7 +282,6 @@ func createTestUserWithRole(t *testing.T, db *database.Database, tenantID uint, 
 		Username:     fmt.Sprintf("%s-user-%d", role, timestamp),
 		FirstName:    role,
 		LastName:     "User",
-		Role:         role,
 		PasswordHash: "$2a$10$dummy.hash.for.testing",
 	}
 

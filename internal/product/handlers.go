@@ -48,6 +48,21 @@ func (h *Handlers) logProductEvent(c *gin.Context, event, target string) {
 }
 
 // CreateProduct handles product creation.
+// @Summary Create a new product
+// @Description Creates a new product with the provided information
+// @Tags products
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param request body product.CreateProductRequest true "Product creation data"
+// @Success 201 {object} product.ProductResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/products [post]
 func (h *Handlers) CreateProduct(c *gin.Context) {
 	var req CreateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -87,6 +102,24 @@ func (h *Handlers) CreateProduct(c *gin.Context) {
 }
 
 // ListProducts handles product listing.
+// @Summary List products
+// @Description Retrieves a paginated list of products with optional filtering
+// @Tags products
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param page query int false "Page number" default(1) minimum(1)
+// @Param page_size query int false "Number of products per page" default(20) minimum(1) maximum(100)
+// @Param search query string false "Search products by name or description"
+// @Param category query string false "Filter by category"
+// @Param status query string false "Filter by status" Enums(active,inactive,deprecated)
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/products [get]
 func (h *Handlers) ListProducts(c *gin.Context) {
 	var req ListProductsRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
@@ -125,6 +158,21 @@ func (h *Handlers) ListProducts(c *gin.Context) {
 }
 
 // GetProduct handles getting a single product.
+// @Summary Get a product by ID
+// @Description Retrieves a specific product by its unique identifier
+// @Tags products
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Product ID"
+// @Success 200 {object} product.ProductResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/products/{id} [get]
 func (h *Handlers) GetProduct(c *gin.Context) {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -154,6 +202,23 @@ func (h *Handlers) GetProduct(c *gin.Context) {
 }
 
 // UpdateProduct handles product update.
+// @Summary Update a product
+// @Description Updates an existing product with new information
+// @Tags products
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Product ID"
+// @Param request body product.UpdateProductRequest true "Product update data"
+// @Success 200 {object} product.ProductResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/products/{id} [put]
 func (h *Handlers) UpdateProduct(c *gin.Context) {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
@@ -200,6 +265,21 @@ func (h *Handlers) UpdateProduct(c *gin.Context) {
 }
 
 // DeleteProduct handles product deletion.
+// @Summary Delete a product
+// @Description Soft deletes a product (marks as deleted but preserves data)
+// @Tags products
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Product ID"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/products/{id} [delete]
 func (h *Handlers) DeleteProduct(c *gin.Context) {
 	productID, err := h.parseProductID(c)
 	if err != nil {
@@ -231,6 +311,21 @@ func (h *Handlers) DeleteProduct(c *gin.Context) {
 }
 
 // ActivateProduct handles product activation.
+// @Summary Activate a product
+// @Description Activates an existing product, making it available for use
+// @Tags products
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Product ID"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/products/{id}/activate [post]
 func (h *Handlers) ActivateProduct(c *gin.Context) {
 	productID, err := h.parseProductID(c)
 	if err != nil {
@@ -262,6 +357,21 @@ func (h *Handlers) ActivateProduct(c *gin.Context) {
 }
 
 // DeactivateProduct handles product deactivation.
+// @Summary Deactivate a product
+// @Description Deactivates an existing product, making it unavailable for use
+// @Tags products
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Product ID"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/products/{id}/deactivate [post]
 func (h *Handlers) DeactivateProduct(c *gin.Context) {
 	productID, err := h.parseProductID(c)
 	if err != nil {

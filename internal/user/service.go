@@ -145,7 +145,7 @@ func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserI
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	// Create user
+	// Create user (role is managed separately through role assignments)
 	user := &models.User{
 		TenantID:     tenantID,
 		Email:        req.Email,
@@ -153,7 +153,6 @@ func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserI
 		FirstName:    req.FirstName,
 		LastName:     req.LastName,
 		PasswordHash: string(hashedPassword),
-		Role:         req.Role,
 		IsActive:     req.IsActive,
 		Preferences:  req.Preferences,
 	}
@@ -227,9 +226,7 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 		user.LastName = req.LastName
 	}
 
-	if req.Role != "" {
-		user.Role = req.Role
-	}
+	// Note: Role is managed separately through role assignments, not direct user updates
 
 	if req.IsActive != nil {
 		user.IsActive = *req.IsActive
@@ -411,21 +408,6 @@ func (s *Service) validatePassword(password string) error {
 
 // createUserInfo creates safe user info for responses.
 func (s *Service) createUserInfo(user *models.User) *auth.UserInfo {
-	info := &auth.UserInfo{
-		ID:          user.ID,
-		Email:       user.Email,
-		Username:    user.Username,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Role:        user.Role,
-		IsActive:    user.IsActive,
-		LastLoginAt: user.LastLoginAt,
-		TenantID:    user.TenantID,
-	}
-
-	if user.Tenant.ID != 0 {
-		info.TenantName = user.Tenant.Name
-	}
-
-	return info
+	// Use auth service to get user info with effective role
+	return s.authService.CreateUserInfo(user)
 }

@@ -36,6 +36,22 @@ func (h *Handlers) logSecurityEvent(c *gin.Context, event, target string) {
 }
 
 // CreateImportJob creates a new import job.
+// @Summary Create a new import job
+// @Description Creates a new data import job with file upload and configuration
+// @Tags import-export
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param file formData file true "Import file (max 100MB)"
+// @Param request formData string true "Import configuration"
+// @Success 201 {object} importexport.JobResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/data/import [post]
 func (h *Handlers) CreateImportJob(c *gin.Context) {
 	// Get tenant ID and user ID from context
 	tenantID := c.GetUint("tenant_id")

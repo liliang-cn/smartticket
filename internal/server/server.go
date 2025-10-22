@@ -279,6 +279,55 @@ func (s *Server) setupRoutes() {
 				myTenant.GET("/stats", tenantHandlers.GetMyTenantStats)
 			}
 
+			// Tenant admin routes (tenant admin only)
+			tenantAdmin := protected.Group("/tenant-admin")
+			tenantAdmin.Use(s.tenantAdminOnlyMiddleware())
+			{
+				// User management for tenant admins (only within their tenant)
+				tenantUsers := tenantAdmin.Group("/users")
+				{
+					tenantUsers.GET("/", userHandlers.ListUsers) // List only users in their tenant
+					tenantUsers.POST("/", userHandlers.CreateUser)
+					tenantUsers.GET("/:id", userHandlers.GetUser)
+					tenantUsers.PUT("/:id", userHandlers.UpdateUser)
+					tenantUsers.POST("/:id/activate", userHandlers.ActivateUser)
+					tenantUsers.POST("/:id/deactivate", userHandlers.DeactivateUser)
+					tenantUsers.GET("/stats", userHandlers.GetUserStats)
+
+					// User role management (tenant admin can assign roles within tenant)
+					tenantUsers.GET("/:id/roles", roleHandlers.GetUserRoles)
+					tenantUsers.POST("/:id/roles/assign", roleHandlers.AssignRoleToUser)
+					tenantUsers.DELETE("/:id/roles/:roleId", roleHandlers.RemoveRoleFromUser)
+
+					// User permission management (limited permissions)
+					tenantUsers.GET("/:id/permissions", permissionHandlers.GetUserPermissions)
+					tenantUsers.POST("/:id/permissions/assign", permissionHandlers.AssignPermissionToUser)
+					tenantUsers.DELETE("/:id/permissions/:permissionId", permissionHandlers.RemovePermissionFromUser)
+				}
+
+				// Role management for tenant admins (tenant-specific roles only)
+				tenantRoles := tenantAdmin.Group("/roles")
+				{
+					tenantRoles.GET("/", roleHandlers.GetAllRoles) // Only tenant roles
+					tenantRoles.POST("/", roleHandlers.CreateRole)
+					tenantRoles.GET("/:id", roleHandlers.GetRoleByID)
+					tenantRoles.PUT("/:id", roleHandlers.UpdateRole)
+					tenantRoles.DELETE("/:id", roleHandlers.DeleteRole)
+
+					// Role permission management
+					tenantRoles.GET("/:id/permissions", roleHandlers.GetRolePermissions)
+					tenantRoles.POST("/:id/permissions/assign", roleHandlers.AssignPermissionToRole)
+					tenantRoles.DELETE("/:id/permissions/:permissionId", roleHandlers.RemovePermissionFromRole)
+				}
+
+				// Permission management (view only, limited to tenant permissions)
+				tenantPermissions := tenantAdmin.Group("/permissions")
+				{
+					tenantPermissions.GET("/", permissionHandlers.GetAllPermissions)
+					tenantPermissions.GET("/:id", permissionHandlers.GetPermissionByID)
+				}
+			}
+
 			// Ticket routes
 			tickets := protected.Group("/tickets")
 			{

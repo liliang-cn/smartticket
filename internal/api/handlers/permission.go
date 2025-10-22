@@ -24,6 +24,17 @@ func NewPermissionHandler(permissionService *services.PermissionService) *Permis
 }
 
 // GetAllPermissions returns all permissions.
+// @Summary Get all permissions
+// @Description Retrieves a list of all available system permissions
+// @Tags permissions
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Success 200 {array} models.Permission
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/admin/permissions [get]
 func (h *PermissionHandler) GetAllPermissions(c *gin.Context) {
 	permissions, err := h.permissionService.GetAllPermissions(c.Request.Context())
 	if err != nil {
@@ -59,6 +70,20 @@ func (h *PermissionHandler) GetPermissionByID(c *gin.Context) {
 }
 
 // CreatePermission creates a new permission.
+// @Summary Create a new permission
+// @Description Creates a new system permission with provided details
+// @Tags permissions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param request body models.Permission true "Permission creation data"
+// @Success 201 {object} models.Permission
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/admin/permissions [post]
 func (h *PermissionHandler) CreatePermission(c *gin.Context) {
 	var req models.Permission
 

@@ -102,7 +102,6 @@ func (df *DataFactory) CreateUsers(ctx context.Context) error {
 			PasswordHash: "hashed_password", // Will be set below
 			FirstName:    names[i],
 			LastName:     "User",
-			Role:         role,
 			IsActive:     true,
 			Preferences:  `{"notifications": true, "theme": "light"}`,
 		}

@@ -90,7 +90,6 @@ func TestBasicServiceOperations(t *testing.T) {
 			Username:     "testuser",
 			FirstName:    "Test",
 			LastName:     "User",
-			Role:         "customer",
 			PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
@@ -123,7 +122,6 @@ func TestBasicServiceOperations(t *testing.T) {
 			TenantID: tenant.ID,
 			Email:    "ticket@example.com",
 			Username: "ticketuser",
-			Role:     "customer",
 			IsActive: true,
 		}
 		err = db.Create(user).Error
@@ -172,7 +170,6 @@ func TestServiceValidation(t *testing.T) {
 			user := &models.User{
 				Email:    email,
 				Username: "testuser",
-				Role:     "customer",
 			}
 			// In a real service, this would validate email format
 			assert.NotEmpty(t, user.Email)
@@ -197,19 +194,17 @@ func TestServiceValidation(t *testing.T) {
 		}
 	})
 
-	t.Run("Role validation", func(t *testing.T) {
-		// Test user role validation
-		validRoles := []string{"admin", "engineer", "support", "customer", "sales"}
+	t.Run("User validation without Role field", func(t *testing.T) {
+		// Test user validation - Role field has been removed from User model
+		// Roles are now handled through UserRole associations
 
-		for _, role := range validRoles {
-			user := &models.User{
-				Email:    "test@example.com",
-				Username: "testuser",
-				Role:     role,
-			}
-			// In a real service, this would validate role is one of the allowed values
-			assert.Contains(t, validRoles, user.Role)
+		user := &models.User{
+			Email:    "test@example.com",
+			Username: "testuser",
 		}
+		// Test basic user fields - Role field no longer exists on User model
+		assert.NotEmpty(t, user.Email)
+		assert.NotEmpty(t, user.Username)
 	})
 }
 
@@ -244,7 +239,6 @@ func TestServiceErrorHandling(t *testing.T) {
 			TenantID: 99999, // Non-existent tenant
 			Email:    "test@example.com",
 			Username: "testuser",
-			Role:     "customer",
 		}
 		err := db.Create(user).Error
 		// SQLite may not enforce foreign key constraints by default,
@@ -295,7 +289,6 @@ func TestPermissionService(t *testing.T) {
 			TenantID: tenant.ID,
 			Email:    fmt.Sprintf("test-%s@example.com", testID),
 			Username: fmt.Sprintf("testuser-%s", testID),
-			Role:     "customer",
 			IsActive: true,
 		}
 		require.NoError(t, db.Create(user).Error)
@@ -464,7 +457,6 @@ func TestPermissionServiceComplex(t *testing.T) {
 			TenantID: tenant.ID,
 			Email:    fmt.Sprintf("crud-%s@example.com", testID),
 			Username: fmt.Sprintf("cruduser-%s", testID),
-			Role:     "customer",
 			IsActive: true,
 		}
 		require.NoError(t, db.Create(user).Error)
@@ -510,7 +502,6 @@ func TestPermissionServiceComplex(t *testing.T) {
 			TenantID: tenant.ID,
 			Email:    fmt.Sprintf("assignment-%s@example.com", testID),
 			Username: fmt.Sprintf("assignmentuser-%s", testID),
-			Role:     "customer",
 			IsActive: true,
 		}
 		require.NoError(t, db.Create(user).Error)

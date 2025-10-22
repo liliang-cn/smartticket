@@ -83,7 +83,6 @@ func createTestUser(id uint, email string) *models.User {
 		Email:        email,
 		Username:     "testuser",
 		PasswordHash: "hashed_password",
-		Role:         "customer",
 		IsActive:     true,
 	}
 }
@@ -125,7 +124,9 @@ func TestPermissionMiddleware_RequirePermission(t *testing.T) {
 					{Code: "ticket:read", Name: "Read Tickets"},
 				}
 			},
-			setupRoles:     func() []models.Role { return []models.Role{} },
+			setupRoles: func() []models.Role {
+				return []models.Role{}
+			},
 			requiredPerm:   "ticket:read",
 			expectedStatus: http.StatusOK,
 		},
@@ -165,7 +166,9 @@ func TestPermissionMiddleware_RequirePermission(t *testing.T) {
 					{Code: "ticket:write", Name: "Write Tickets"},
 				}
 			},
-			setupRoles:     func() []models.Role { return []models.Role{} },
+			setupRoles: func() []models.Role {
+				return []models.Role{}
+			},
 			requiredPerm:   "ticket:read",
 			expectedStatus: http.StatusForbidden,
 			expectedError:  "Insufficient permissions",
@@ -257,7 +260,9 @@ func TestPermissionMiddleware_RequireAnyPermission(t *testing.T) {
 					{Code: "ticket:read", Name: "Read Tickets"},
 				}
 			},
-			setupRoles:     func() []models.Role { return []models.Role{} },
+			setupRoles: func() []models.Role {
+				return []models.Role{}
+			},
 			requiredPerms:  []string{"ticket:read", "ticket:write"},
 			expectedStatus: http.StatusOK,
 		},
@@ -297,7 +302,9 @@ func TestPermissionMiddleware_RequireAnyPermission(t *testing.T) {
 					{Code: "user:read", Name: "Read Users"},
 				}
 			},
-			setupRoles:     func() []models.Role { return []models.Role{} },
+			setupRoles: func() []models.Role {
+				return []models.Role{}
+			},
 			requiredPerms:  []string{"ticket:read", "ticket:write"},
 			expectedStatus: http.StatusForbidden,
 			expectedError:  "Insufficient permissions",
@@ -687,7 +694,6 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 					TenantID: 1,
 					Email:    "other@example.com",
 					Username: "otheruser",
-					Role:     "customer",
 					IsActive: true,
 				}
 				require.NoError(t, db.Create(otherUser).Error)
@@ -703,6 +709,7 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 			gin.SetMode(gin.TestMode)
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
+			c.Request = httptest.NewRequest("GET", "/test", nil)
 
 			user := createTestUser(tt.userID, "test@example.com")
 			resourceID := tt.setupResource(t, db, user)

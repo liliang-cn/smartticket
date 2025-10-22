@@ -24,6 +24,21 @@ func NewHandlers(service *Service) *Handlers {
 }
 
 // CreateTicket creates a new ticket.
+// @Summary Create a new ticket
+// @Description Creates a new support ticket with the provided details
+// @Tags tickets
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param request body ticket.CreateTicketRequest true "Ticket creation data"
+// @Success 201 {object} ticket.TicketResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/tickets [post]
 func (h *Handlers) CreateTicket(c *gin.Context) {
 	var req CreateTicketRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -66,6 +81,21 @@ func (h *Handlers) CreateTicket(c *gin.Context) {
 }
 
 // GetTicket gets a ticket by ID.
+// @Summary Get a ticket by ID
+// @Description Retrieves a specific ticket by its unique identifier
+// @Tags tickets
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Ticket ID"
+// @Success 200 {object} ticket.TicketResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/tickets/{id} [get]
 func (h *Handlers) GetTicket(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -90,6 +120,25 @@ func (h *Handlers) GetTicket(c *gin.Context) {
 }
 
 // ListTickets lists tickets with pagination and filtering.
+// @Summary List tickets
+// @Description Retrieves a paginated list of tickets with optional filtering
+// @Tags tickets
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param page query int false "Page number" default(1) minimum(1)
+// @Param page_size query int false "Number of tickets per page" default(20) minimum(1) maximum(100)
+// @Param status query string false "Filter by ticket status" Enums(open,in_progress,resolved,closed,cancelled)
+// @Param priority query string false "Filter by priority" Enums(low,medium,high,critical)
+// @Param category query string false "Filter by category"
+// @Param assigned_to query int false "Filter by assigned user ID"
+// @Param search query string false "Search tickets by title, description, or requester"
+// @Success 200 {object} server.Response
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/tickets [get]
 func (h *Handlers) ListTickets(c *gin.Context) {
 	// Parse query parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -136,6 +185,23 @@ func (h *Handlers) ListTickets(c *gin.Context) {
 }
 
 // UpdateTicket updates a ticket.
+// @Summary Update a ticket
+// @Description Updates an existing ticket with new information
+// @Tags tickets
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Ticket ID"
+// @Param request body ticket.UpdateTicketRequest true "Ticket update data"
+// @Success 200 {object} ticket.TicketResponse
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/tickets/{id} [put]
 func (h *Handlers) UpdateTicket(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -186,6 +252,21 @@ func (h *Handlers) UpdateTicket(c *gin.Context) {
 }
 
 // DeleteTicket deletes a ticket.
+// @Summary Delete a ticket
+// @Description Soft deletes a ticket (marks as deleted but preserves data)
+// @Tags tickets
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Ticket ID"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/tickets/{id} [delete]
 func (h *Handlers) DeleteTicket(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -217,6 +298,23 @@ func (h *Handlers) DeleteTicket(c *gin.Context) {
 }
 
 // AssignTicket assigns a ticket to a user.
+// @Summary Assign a ticket
+// @Description Assigns a ticket to a specific user for handling
+// @Tags tickets
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param id path int true "Ticket ID"
+// @Param request body object{assigned_to:int} true "Assignment data"
+// @Success 200 {object} server.Response
+// @Failure 400 {object} errors.ErrorResponse
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 404 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/tickets/{id}/assign [post]
 func (h *Handlers) AssignTicket(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -258,6 +356,18 @@ func (h *Handlers) AssignTicket(c *gin.Context) {
 }
 
 // GetTicketStats gets ticket statistics.
+// @Summary Get ticket statistics
+// @Description Retrieves statistical information about tickets for the current tenant
+// @Tags tickets
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Success 200 {object} server.Response
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/tickets/stats [get]
 func (h *Handlers) GetTicketStats(c *gin.Context) {
 	tenantID := c.GetUint("tenant_id")
 
@@ -274,6 +384,23 @@ func (h *Handlers) GetTicketStats(c *gin.Context) {
 }
 
 // GetMyTickets gets tickets for the current user.
+// @Summary Get my tickets
+// @Description Retrieves tickets assigned to the currently authenticated user
+// @Tags tickets
+// @Produce json
+// @Security BearerAuth
+// @Param Authorization header string true "Bearer token"
+// @Param X-Tenant-ID header string true "Tenant ID"
+// @Param page query int false "Page number" default(1) minimum(1)
+// @Param page_size query int false "Number of tickets per page" default(20) minimum(1) maximum(100)
+// @Param status query string false "Filter by ticket status" Enums(open,in_progress,resolved,closed,cancelled)
+// @Param priority query string false "Filter by priority" Enums(low,medium,high,critical)
+// @Param search query string false "Search tickets by title, description, or requester"
+// @Success 200 {object} server.Response
+// @Failure 401 {object} errors.ErrorResponse
+// @Failure 403 {object} errors.ErrorResponse
+// @Failure 500 {object} errors.ErrorResponse
+// @Router /api/v1/tickets/my [get]
 func (h *Handlers) GetMyTickets(c *gin.Context) {
 	// Parse query parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))

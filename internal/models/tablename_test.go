@@ -57,8 +57,8 @@ func TestAPIKey_TableName(t *testing.T) {
 }
 
 func TestSystemSetting_TableName(t *testing.T) {
-	setting := SystemSetting{}
-	assert.Equal(t, "system_settings", setting.TableName())
+	systemsetting := SystemSetting{}
+	assert.Equal(t, "system_settings", systemsetting.TableName())
 }
 
 func TestProduct_TableName(t *testing.T) {
@@ -77,8 +77,8 @@ func TestSLATemplate_TableName(t *testing.T) {
 }
 
 func TestSLARule_TableName(t *testing.T) {
-	rule := SLARule{}
-	assert.Equal(t, "sla_rules", rule.TableName())
+	slarule := SLARule{}
+	assert.Equal(t, "sla_rules", slarule.TableName())
 }
 
 func TestPermission_TableName(t *testing.T) {

@@ -43,7 +43,8 @@ type User struct {
 	TenantID  string     `json:"tenant_id" gorm:"not null;index;type:varchar(36)"`
 	Email     string     `json:"email" gorm:"not null;uniqueIndex;type:varchar(255)"`
 	Name      string     `json:"name" gorm:"not null;type:varchar(255)"`
-	Role      string     `json:"role" gorm:"not null;type:varchar(50)"`
+	// Role field removed from User model - now handled by UserRole associations
+	// Role assignment is now done through the UserRole table in the main application
 	Status    string     `json:"status" gorm:"default:active;type:varchar(50)"`
 	Password  string     `json:"password" gorm:"not null;type:varchar(255)"`
 	LastLogin *time.Time `json:"last_login"`
@@ -176,7 +177,9 @@ func GenerateSeedData() *SeedData {
 		// Get admin user for this tenant
 		adminID := ""
 		for _, user := range users {
-			if user.TenantID == tenant.ID && user.Role == "admin" {
+			// Since User.Role field has been removed, we'll use the first user as admin for seed data
+			// In the actual application, roles are handled through UserRole associations
+			if user.TenantID == tenant.ID && adminID == "" {
 				adminID = user.ID
 				break
 			}
@@ -193,7 +196,9 @@ func GenerateSeedData() *SeedData {
 		// Get admin user for this tenant
 		adminID := ""
 		for _, user := range users {
-			if user.TenantID == tenant.ID && user.Role == "admin" {
+			// Since User.Role field has been removed, we'll use the first user as admin for seed data
+			// In the actual application, roles are handled through UserRole associations
+			if user.TenantID == tenant.ID && adminID == "" {
 				adminID = user.ID
 				break
 			}
@@ -279,7 +284,7 @@ func generateUsers(tenantID string) []User {
 			TenantID:  tenantID,
 			Email:     "admin@" + tenantDomain,
 			Name:      "System Administrator",
-			Role:      "admin",
+			// Role field removed - roles are now handled through UserRole associations in main application
 			Status:    "active",
 			Password:  string(password),
 			CreatedAt: now,
@@ -290,7 +295,7 @@ func generateUsers(tenantID string) []User {
 			TenantID:  tenantID,
 			Email:     "john.smith@" + tenantDomain,
 			Name:      "John Smith",
-			Role:      "engineer",
+			// Role field removed - roles are now handled through UserRole associations in main application
 			Status:    "active",
 			Password:  string(password),
 			CreatedAt: now,
@@ -301,7 +306,7 @@ func generateUsers(tenantID string) []User {
 			TenantID:  tenantID,
 			Email:     "sarah.jones@" + tenantDomain,
 			Name:      "Sarah Jones",
-			Role:      "engineer",
+			// Role field removed - roles are now handled through UserRole associations in main application
 			Status:    "active",
 			Password:  string(password),
 			CreatedAt: now,
@@ -312,7 +317,7 @@ func generateUsers(tenantID string) []User {
 			TenantID:  tenantID,
 			Email:     "mike.wilson@" + tenantDomain,
 			Name:      "Mike Wilson",
-			Role:      "se",
+			// Role field removed - roles are now handled through UserRole associations in main application
 			Status:    "active",
 			Password:  string(password),
 			CreatedAt: now,
@@ -323,7 +328,7 @@ func generateUsers(tenantID string) []User {
 			TenantID:  tenantID,
 			Email:     "jane.doe@" + tenantDomain,
 			Name:      "Jane Doe",
-			Role:      "customer",
+			// Role field removed - roles are now handled through UserRole associations in main application
 			Status:    "active",
 			Password:  string(password),
 			CreatedAt: now,

@@ -76,7 +76,7 @@ func TestFixtures(t *testing.T) {
 	assert.NotEmpty(t, user.ID, "User ID should not be empty")
 	assert.Equal(t, tenant.ID, user.TenantID)
 	assert.Equal(t, "test@example.com", user.Email)
-	assert.Equal(t, "admin", user.Role)
+	// Role field removed from User model - role is now determined by UserRole associations
 
 	// Test ticket fixture
 	ticket := fixtures.NewTestTicket(tenant.ID, user.ID)
@@ -93,13 +93,8 @@ func TestFixtures(t *testing.T) {
 
 	users := fixtures.GetSampleUsers(tenant.ID)
 	assert.Len(t, users, 3, "Should have 3 sample users")
-	roles := make(map[string]bool)
-	for _, u := range users {
-		roles[u.Role] = true
-	}
-	assert.True(t, roles["admin"])
-	assert.True(t, roles["engineer"])
-	assert.True(t, roles["customer"])
+	// Test that we have the expected number of sample users
+	// Role checking is now done through UserRole associations, not User.Role field
 
 	tickets := fixtures.GetSampleTickets(tenant.ID, user.ID)
 	assert.Len(t, tickets, 3, "Should have 3 sample tickets")
