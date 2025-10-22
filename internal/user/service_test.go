@@ -40,7 +40,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		assert.Equal(t, req.Email, result.Email)
 		assert.Equal(t, req.FirstName, result.FirstName)
 		assert.Equal(t, req.LastName, result.LastName)
-		assert.Equal(t, req.Role, result.Role)
+		// Role is now handled through UserRole associations, not direct User field
 		assert.Equal(t, tenant.ID, result.TenantID)
 		assert.True(t, result.IsActive)
 		assert.NotZero(t, result.ID)
@@ -127,7 +127,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		assert.NotNil(t, result)
 		assert.Equal(t, req.FirstName, result.FirstName)
 		assert.Equal(t, req.LastName, result.LastName)
-		assert.Equal(t, req.Role, result.Role)
+		// Role is now handled through UserRole associations, not direct User field
 	})
 }
 

@@ -725,6 +725,9 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 			mockService.On("GetUserPermissions", mock.Anything, user.ID, "1").
 				Return([]models.Permission{}, nil)
 
+			// Setup mock for database access
+			mockService.On("GetDatabase").Return(db)
+
 			// Create middleware handler
 			handler := middleware.RequireOwnership(tt.resourceType)
 

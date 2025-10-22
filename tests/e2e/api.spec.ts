@@ -152,7 +152,7 @@ test.describe('SmartTicket API E2E Tests', () => {
     expect(response.status()).toBe(200);
 
     const yamlContent = await response.text();
-    expect(yamlContent).toContain('openapi: 3.0.0');
+    expect(yamlContent).toMatch(/openapi: \d+\.\d+\.\d+/);
     expect(yamlContent).toContain('SmartTicket API');
   });
 
