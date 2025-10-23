@@ -1593,8 +1593,21 @@ definitions:
       success:
         type: boolean
     type: object
+swagger: '2.0'
 info:
+  title: SmartTicket API
+  description: Multi-tenant ticketing and knowledge collaboration platform API
+  version: 1.0.0
   contact: {}
+host: localhost:6533
+schemes:
+  - http
+securityDefinitions:
+  BearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: 'Bearer token for authentication. Format: "Bearer {token}"'
 paths:
   /api/v1/admin/permissions:
     get:
@@ -4379,4 +4392,5 @@ paths:
       summary: Get version information
       tags:
       - system
-swagger: "2.0"
+security:
+  - BearerAuth: []

@@ -85,22 +85,96 @@ func (i *Initializer) seedEssentialData() error {
 			return fmt.Errorf("failed to generate admin password hash: %w", err)
 		}
 
-		// Create default admin user using raw SQL to avoid GORM relationship inference
-		if err := tx.Exec(`
-			INSERT INTO users (created_at, updated_at, tenant_id, email, username, password_hash, first_name, last_name, role, is_active, preferences)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		`, now, now, defaultTenant.ID, "admin@smartticket.local", "admin", adminPasswordHash, "System", "Administrator", "admin", true, `{"timezone": "UTC", "language": "en"}`).Error; err != nil {
+		// Create default admin user
+		adminUser := models.User{
+			TenantID:     defaultTenant.ID,
+			Email:        "admin@smartticket.local",
+			Username:     "admin",
+			PasswordHash: adminPasswordHash,
+			FirstName:    "System",
+			LastName:     "Administrator",
+			IsActive:     true,
+			Preferences:  `{"timezone": "UTC", "language": "en"}`,
+		}
+
+		if err := tx.Create(&adminUser).Error; err != nil {
 			return fmt.Errorf("failed to create default admin user: %w", err)
 		}
-
-		// Get the created admin user ID
-		var adminID uint
-		if err := tx.Raw("SELECT last_insert_rowid()").Scan(&adminID).Error; err != nil {
-			return fmt.Errorf("failed to get admin user ID: %w", err)
-		}
+		adminID := adminUser.ID
 		logger.Info("Created default admin user", zap.String("email", "admin@smartticket.local"), zap.Uint("id", adminID))
 
-		// Create essential system settings
+		// Create system roles
+		systemRoles := []models.Role{
+			{
+				BaseModel: models.BaseModel{
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				Name:        "admin",
+				Description: "System administrator with full access",
+				IsSystem:   true,
+				TenantID:   0, // System role (tenant_id = 0)
+			},
+			{
+				BaseModel: models.BaseModel{
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				Name:        "tenant_admin",
+				Description: "Tenant administrator with tenant-wide access",
+				IsSystem:   false,
+				TenantID:   defaultTenant.ID,
+			},
+			{
+				BaseModel: models.BaseModel{
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				Name:        "engineer",
+				Description: "Support engineer with technical access",
+				IsSystem:   false,
+				TenantID:   defaultTenant.ID,
+			},
+			{
+				BaseModel: models.BaseModel{
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				Name:        "customer",
+				Description: "Customer with basic access",
+				IsSystem:   false,
+				TenantID:   defaultTenant.ID,
+			},
+		}
+
+		// Create roles
+		for _, role := range systemRoles {
+			if err := tx.Create(&role).Error; err != nil {
+				return fmt.Errorf("failed to create role %s: %w", role.Name, err)
+			}
+		}
+		logger.Info("Created system roles", zap.Int("count", len(systemRoles)))
+
+		// Get the admin role ID
+		var adminRole models.Role
+		if err := tx.Where("name = ? AND tenant_id = ?", "admin", uint(0)).First(&adminRole).Error; err != nil {
+			return fmt.Errorf("failed to find admin role: %w", err)
+		}
+
+		// Assign admin role to admin user
+		adminUserRole := models.UserRole{
+			UserID:     adminID,
+			RoleID:     adminRole.ID,
+			AssignedAt: now,
+			AssignedBy: adminID, // Self-assigned by admin
+		}
+
+		if err := tx.Create(&adminUserRole).Error; err != nil {
+			return fmt.Errorf("failed to assign admin role to admin user: %w", err)
+		}
+		logger.Info("Assigned admin role to admin user", zap.Uint("user_id", adminID), zap.Uint("role_id", adminRole.ID))
+
+	// Create essential system settings
 		systemSettings := []models.SystemSetting{
 			{
 				BaseModel: models.BaseModel{

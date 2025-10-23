@@ -1,0 +1,2960 @@
+openapi: 3.0.3
+info:
+  title: SmartTicket API - Complete Real
+  description: Complete API documentation for SmartTicket multi-tenant ticketing and knowledge collaboration platform - All Available Endpoints
+  version: 1.0.0
+  contact:
+    name: SmartTicket Team
+    email: support@smartticket.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:6533
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Bearer token for authentication. Format: "Bearer {token}"'
+
+  parameters:
+    TenantID:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant identifier for multi-tenant isolation
+      schema:
+        type: string
+        example: "1"
+
+    Page:
+      name: page
+      in: query
+      description: Page number for pagination
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    PageSize:
+      name: page_size
+      in: query
+      description: Number of items per page
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    ID:
+      name: id
+      in: path
+      required: true
+      description: Resource ID
+      schema:
+        type: string
+
+    PermissionID:
+      name: permissionId
+      in: path
+      required: true
+      description: Permission ID
+      schema:
+        type: string
+
+    RoleID:
+      name: roleId
+      in: path
+      required: true
+      description: Role ID
+      schema:
+        type: string
+
+    Slug:
+      name: slug
+      in: path
+      required: true
+      description: Resource slug
+      schema:
+        type: string
+
+  schemas:
+    BaseResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Request success status
+        meta:
+          $ref: '#/components/schemas/ResponseMeta'
+
+    ResponseMeta:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Response timestamp
+        request_id:
+          type: string
+          description: Unique request identifier
+
+    SuccessResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+              description: Success message
+
+    ErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponse'
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              description: Error code
+            message:
+              type: string
+              description: Error message
+            details:
+              type: object
+              description: Additional error details
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: User email
+        username:
+          type: string
+          description: Username
+        first_name:
+          type: string
+          description: First name
+        last_name:
+          type: string
+          description: Last name
+        role:
+          type: string
+          description: User role
+        is_active:
+          type: boolean
+          description: Whether user is active
+        last_login_at:
+          type: string
+          format: date-time
+          description: Last login timestamp
+        tenant_id:
+          type: integer
+          description: Tenant ID
+        tenant_name:
+          type: string
+          description: Tenant name
+
+    Ticket:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Ticket ID
+        title:
+          type: string
+          description: Ticket title
+        description:
+          type: string
+          description: Ticket description
+        status:
+          type: string
+          enum: [open, in_progress, pending_customer, resolved, closed]
+          description: Ticket status
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+          description: Ticket priority
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    Permission:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Permission ID
+        code:
+          type: string
+          description: Permission code
+        name:
+          type: string
+          description: Permission name
+        description:
+          type: string
+          description: Permission description
+        is_system:
+          type: boolean
+          description: Whether this is a system permission
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Role ID
+        name:
+          type: string
+          description: Role name
+        description:
+          type: string
+          description: Role description
+        is_system:
+          type: boolean
+          description: Whether this is a system role
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Product ID
+        name:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Product description
+        is_active:
+          type: boolean
+          description: Whether product is active
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Service ID
+        name:
+          type: string
+          description: Service name
+        description:
+          type: string
+          description: Service description
+        is_active:
+          type: boolean
+          description: Whether service is active
+
+    SLATemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: SLA Template ID
+        name:
+          type: string
+          description: SLA Template name
+        description:
+          type: string
+          description: SLA Template description
+        response_time:
+          type: integer
+          description: Response time in minutes
+        resolution_time:
+          type: integer
+          description: Resolution time in hours
+
+    SLARule:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: SLA Rule ID
+        name:
+          type: string
+          description: SLA Rule name
+        description:
+          type: string
+          description: SLA Rule description
+        is_active:
+          type: boolean
+          description: Whether SLA rule is active
+
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Tenant ID
+        name:
+          type: string
+          description: Tenant name
+        slug:
+          type: string
+          description: Tenant slug
+        domain:
+          type: string
+          description: Tenant domain
+        is_active:
+          type: boolean
+          description: Whether tenant is active
+        plan:
+          type: string
+          description: Tenant plan
+        max_users:
+          type: integer
+          description: Maximum users allowed
+
+    KnowledgeArticle:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Article ID
+        title:
+          type: string
+          description: Article title
+        content:
+          type: string
+          description: Article content
+        status:
+          type: string
+          enum: [draft, review, published, archived]
+          description: Article status
+        visibility:
+          type: string
+          enum: [private, internal, public]
+          description: Article visibility
+        category:
+          type: string
+          description: Article category
+        views:
+          type: integer
+          description: Number of views
+
+    ImportExportJob:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Job ID
+        type:
+          type: string
+          enum: [import, export]
+          description: Job type
+        status:
+          type: string
+          enum: [pending, running, completed, failed, cancelled]
+          description: Job status
+        progress:
+          type: number
+          description: Progress percentage
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+
+paths:
+  # Health Check Endpoints
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check endpoint
+      description: Returns the health status of the API
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /healthz:
+    get:
+      tags:
+        - Health
+      summary: Alternative health check endpoint
+      description: Alternative health check endpoint
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/health:
+    get:
+      tags:
+        - Health
+      summary: API health check endpoint
+      description: API health check endpoint
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /version:
+    get:
+      tags:
+        - Health
+      summary: Get version information
+      description: Returns version and build information
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/version:
+    get:
+      tags:
+        - Health
+      summary: Get API version information
+      description: Returns API version and build information
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Application Info
+  /api/v1/info:
+    get:
+      tags:
+        - Health
+      summary: Get application information
+      description: Returns general application information
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: Application information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Authentication Endpoints
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate user and return JWT tokens
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User email
+                password:
+                  type: string
+                  format: password
+                  description: User password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh JWT token
+      description: Refresh access token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+                  description: Refresh token
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User logout
+      description: Invalidate JWT token
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/auth/profile:
+    get:
+      tags:
+        - Authentication
+      summary: Get user profile
+      description: Get the profile information of the currently authenticated user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+
+  /api/v1/auth/change-password:
+    post:
+      tags:
+        - Authentication
+      summary: Change password
+      description: Change the password of the currently authenticated user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_password
+                - new_password
+                - confirm_password
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                  description: Current password
+                new_password:
+                  type: string
+                  format: password
+                  minLength: 6
+                  description: New password
+                confirm_password:
+                  type: string
+                  format: password
+                  description: Confirm new password
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user information
+      description: Get basic information about the currently authenticated user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/auth/validate:
+    get:
+      tags:
+        - Authentication
+      summary: Validate access token
+      description: Validate if an access token is still valid
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: Token is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # User Management Endpoints
+  /api/v1/users:
+    get:
+      tags:
+        - Users
+      summary: List users
+      description: Retrieve a paginated list of users
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Users
+      summary: Create user
+      description: Create a new user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User email
+                password:
+                  type: string
+                  format: password
+                  minLength: 6
+                  description: User password
+                username:
+                  type: string
+                  description: Username
+                first_name:
+                  type: string
+                  description: First name
+                last_name:
+                  type: string
+                  description: Last name
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/users/stats:
+    get:
+      tags:
+        - Users
+      summary: Get user statistics
+      description: Get user-related statistics
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: User statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get user
+      description: Get a specific user by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+
+    put:
+      tags:
+        - Users
+      summary: Update user
+      description: Update a user's information
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: User email
+                username:
+                  type: string
+                  description: Username
+                first_name:
+                  type: string
+                  description: First name
+                last_name:
+                  type: string
+                  description: Last name
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - Users
+      summary: Delete user
+      description: Delete a user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '204':
+          description: User deleted successfully
+
+  /api/v1/users/{id}/activate:
+    post:
+      tags:
+        - Users
+      summary: Activate user
+      description: Activate a user account
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: User activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/users/{id}/deactivate:
+    post:
+      tags:
+        - Users
+      summary: Deactivate user
+      description: Deactivate a user account
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: User deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # User Permissions
+  /api/v1/users/{id}/permissions:
+    get:
+      tags:
+        - Users
+      summary: Get user permissions
+      description: Get permissions assigned to a specific user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: User permissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/users/{id}/permissions/assign:
+    post:
+      tags:
+        - Users
+      summary: Assign permission to user
+      description: Assign a permission to a specific user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - permission_id
+              properties:
+                permission_id:
+                  type: integer
+                  description: Permission ID to assign
+      responses:
+        '200':
+          description: Permission assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/users/{id}/permissions/{permissionId}:
+    delete:
+      tags:
+        - Users
+      summary: Remove permission from user
+      description: Remove a permission from a specific user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/PermissionID'
+      responses:
+        '200':
+          description: Permission removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # User Roles
+  /api/v1/users/{id}/roles:
+    get:
+      tags:
+        - Users
+      summary: Get user roles
+      description: Get roles assigned to a specific user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: User roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/users/{id}/roles/assign:
+    post:
+      tags:
+        - Users
+      summary: Assign role to user
+      description: Assign a role to a specific user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - role_id
+              properties:
+                role_id:
+                  type: integer
+                  description: Role ID to assign
+      responses:
+        '200':
+          description: Role assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/users/{id}/roles/{roleId}:
+    delete:
+      tags:
+        - Users
+      summary: Remove role from user
+      description: Remove a role from a specific user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/RoleID'
+      responses:
+        '200':
+          description: Role removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Permission Management
+  /api/v1/permissions:
+    get:
+      tags:
+        - Permissions
+      summary: List permissions
+      description: Get a list of all available permissions
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Permissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Permissions
+      summary: Create permission
+      description: Create a new permission
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+                - name
+              properties:
+                code:
+                  type: string
+                  description: Permission code
+                name:
+                  type: string
+                  description: Permission name
+                description:
+                  type: string
+                  description: Permission description
+      responses:
+        '201':
+          description: Permission created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/permissions/{id}:
+    get:
+      tags:
+        - Permissions
+      summary: Get permission
+      description: Get a specific permission by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Permission retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Permission'
+
+    put:
+      tags:
+        - Permissions
+      summary: Update permission
+      description: Update a permission
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: Permission code
+                name:
+                  type: string
+                  description: Permission name
+                description:
+                  type: string
+                  description: Permission description
+      responses:
+        '200':
+          description: Permission updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - Permissions
+      summary: Delete permission
+      description: Delete a permission
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Permission deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Role Management
+  /api/v1/roles:
+    get:
+      tags:
+        - Roles
+      summary: List roles
+      description: Get a list of all available roles
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Roles
+      summary: Create role
+      description: Create a new role
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Role name
+                description:
+                  type: string
+                  description: Role description
+      responses:
+        '201':
+          description: Role created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/roles/{id}:
+    get:
+      tags:
+        - Roles
+      summary: Get role
+      description: Get a specific role by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Role retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Role'
+
+    put:
+      tags:
+        - Roles
+      summary: Update role
+      description: Update a role
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Role name
+                description:
+                  type: string
+                  description: Role description
+      responses:
+        '200':
+          description: Role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - Roles
+      summary: Delete role
+      description: Delete a role
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Role deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/roles/{id}/permissions:
+    get:
+      tags:
+        - Roles
+      summary: Get role permissions
+      description: Get permissions assigned to a specific role
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Role permissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/roles/{id}/permissions/assign:
+    post:
+      tags:
+        - Roles
+      summary: Assign permission to role
+      description: Assign a permission to a specific role
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - permission_id
+              properties:
+                permission_id:
+                  type: integer
+                  description: Permission ID to assign
+      responses:
+        '200':
+          description: Permission assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/roles/{id}/permissions/{permissionId}:
+    delete:
+      tags:
+        - Roles
+      summary: Remove permission from role
+      description: Remove a permission from a specific role
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/PermissionID'
+      responses:
+        '200':
+          description: Permission removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Tenant Management
+  /api/v1/my-tenant/stats:
+    get:
+      tags:
+        - Tenant Management
+      summary: Get tenant statistics
+      description: Get statistics for the current user's tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: Tenant statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Tenant Admin Endpoints
+  /api/v1/tenant-admin/users:
+    get:
+      tags:
+        - Tenant Admin
+      summary: List tenant admin users
+      description: List users within the tenant admin's tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Tenant Admin
+      summary: Create tenant admin user
+      description: Create a user within the tenant admin's tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                  minLength: 6
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/tenant-admin/users/{id}:
+    get:
+      tags:
+        - Tenant Admin
+      summary: Get tenant admin user
+      description: Get a user within the tenant admin's tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    put:
+      tags:
+        - Tenant Admin
+      summary: Update tenant admin user
+      description: Update a user within the tenant admin's tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                username:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - Tenant Admin
+      summary: Delete tenant admin user
+      description: Delete a user within the tenant admin's tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '204':
+          description: User deleted successfully
+
+    post:
+      tags:
+        - Tenant Admin
+      summary: Activate tenant admin user
+      description: Activate a user within the tenant admin's tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: User activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/tenant-admin/users/:id/deactivate:
+    post:
+      tags:
+        - Tenant Admin
+      summary: Deactivate tenant admin user
+      description: Deactivate a user within the tenant admin's tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: User deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/tenant-admin/users/stats:
+    get:
+      tags:
+        - Tenant Admin
+      summary: Get tenant admin user statistics
+      description: Get user statistics within the tenant admin's tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: User statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Ticket Management Endpoints
+  /api/v1/tickets:
+    get:
+      tags:
+        - Tickets
+      summary: List tickets
+      description: Retrieve a paginated list of tickets
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Tickets retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Tickets
+      summary: Create ticket
+      description: Create a new ticket
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  description: Ticket title
+                description:
+                  type: string
+                  description: Ticket description
+                priority:
+                  type: string
+                  enum: [low, medium, high, critical]
+                  description: Ticket priority
+      responses:
+        '201':
+          description: Ticket created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/tickets/stats:
+    get:
+      tags:
+        - Tickets
+      summary: Get ticket statistics
+      description: Get ticket-related statistics
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: Ticket statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/tickets/my:
+    get:
+      tags:
+        - Tickets
+      summary: Get my tickets
+      description: Get tickets assigned to the current user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: My tickets retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/tickets/{id}:
+    get:
+      tags:
+        - Tickets
+      summary: Get ticket
+      description: Get a specific ticket by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Ticket retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Ticket'
+
+    put:
+      tags:
+        - Tickets
+      summary: Update ticket
+      description: Update a ticket's information
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Ticket title
+                description:
+                  type: string
+                  description: Ticket description
+                status:
+                  type: string
+                  enum: [open, in_progress, pending_customer, resolved, closed]
+                  description: Ticket status
+                priority:
+                  type: string
+                  enum: [low, medium, high, critical]
+                  description: Ticket priority
+      responses:
+        '200':
+          description: Ticket updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - Tickets
+      summary: Delete ticket
+      description: Delete a ticket
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '204':
+          description: Ticket deleted successfully
+
+    post:
+      tags:
+        - Tickets
+      summary: Assign ticket
+      description: Assign a ticket to a user
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - assigned_to
+              properties:
+                assigned_to:
+                  type: integer
+                  description: User ID to assign ticket to
+      responses:
+        '200':
+          description: Ticket assigned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Knowledge Base Endpoints
+  /api/v1/knowledge/articles:
+    get:
+      tags:
+        - Knowledge Base
+      summary: List knowledge articles
+      description: Retrieve a paginated list of knowledge articles
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Knowledge articles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Knowledge Base
+      summary: Create knowledge article
+      description: Create a new knowledge article
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  description: Article title
+                content:
+                  type: string
+                  description: Article content
+                status:
+                  type: string
+                  enum: [draft, review, published]
+                  description: Article status
+                visibility:
+                  type: string
+                  enum: [private, internal, public]
+                  description: Article visibility
+                category:
+                  type: string
+                  description: Article category
+      responses:
+        '201':
+          description: Knowledge article created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/knowledge/articles/stats:
+    get:
+      tags:
+        - Knowledge Base
+      summary: Get knowledge article statistics
+      description: Get knowledge article-related statistics
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: Knowledge article statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/knowledge/articles/{id}:
+    get:
+      tags:
+        - Knowledge Base
+      summary: Get knowledge article
+      description: Get a specific knowledge article by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Knowledge article retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/KnowledgeArticle'
+
+    put:
+      tags:
+        - Knowledge Base
+      summary: Update knowledge article
+      description: Update a knowledge article
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Article title
+                content:
+                  type: string
+                  description: Article content
+                status:
+                  type: string
+                  enum: [draft, review, published, archived]
+                  description: Article status
+                visibility:
+                  type: string
+                  enum: [private, internal, public]
+                  description: Article visibility
+                category:
+                  type: string
+                  description: Article category
+      responses:
+        '200':
+          description: Knowledge article updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - Knowledge Base
+      summary: Delete knowledge article
+      description: Delete a knowledge article
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '204':
+          description: Knowledge article deleted successfully
+
+  # Data Management Endpoints
+  /api/v1/data/jobs:
+    get:
+      tags:
+        - Data Management
+      summary: List data jobs
+      description: Retrieve a list of import/export jobs
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Data jobs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Data Management
+      summary: Create import job
+      description: Start a new data import job
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - entity_type
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Import file
+                entity_type:
+                  type: string
+                  enum: [tickets, users, knowledge_articles, contracts]
+                  description: Entity type to import
+      responses:
+        '201':
+          description: Import job created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/data/jobs/stats:
+    get:
+      tags:
+        - Data Management
+      summary: Get data job statistics
+      description: Get data job-related statistics
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: Data job statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/data/jobs/{id}:
+    get:
+      tags:
+        - Data Management
+      summary: Get data job
+      description: Get a specific import/export job by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Data job retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ImportExportJob'
+
+    delete:
+      tags:
+        - Data Management
+      summary: Delete data job
+      description: Delete an import/export job
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Data job deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Data Management
+      summary: Cancel data job
+      description: Cancel an import/export job
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Data job cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/data/jobs/export:
+    post:
+      tags:
+        - Data Management
+      summary: Create export job
+      description: Start a new data export job
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - entity_type
+                - format
+              properties:
+                entity_type:
+                  type: string
+                  enum: [tickets, users, knowledge_articles, contracts]
+                  description: Entity type to export
+                format:
+                  type: string
+                  enum: [csv, json, xml, markdown, sqlite]
+                  description: Export format
+      responses:
+        '201':
+          description: Export job created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/data/jobs/{id}/download:
+    get:
+      tags:
+        - Data Management
+      summary: Download export file
+      description: Download the exported file from a job
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: File downloaded successfully
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /api/v1/data/templates/import:
+    get:
+      tags:
+        - Data Management
+      summary: Get import template
+      description: Get an import template file
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: Import template retrieved successfully
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  # Admin Endpoints
+  /api/v1/admin/stats:
+    get:
+      tags:
+        - Admin
+      summary: Get system statistics
+      description: Get comprehensive system statistics
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      responses:
+        '200':
+          description: System statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Product Management
+  /api/v1/admin/products:
+    get:
+      tags:
+        - Products
+      summary: List products
+      description: List all products
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Products
+      summary: Create product
+      description: Create a new product
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Product name
+                description:
+                  type: string
+                  description: Product description
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/admin/products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Get product
+      description: Get a specific product
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Product'
+
+    put:
+      tags:
+        - Products
+      summary: Update product
+      description: Update a product
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Product name
+                description:
+                  type: string
+                  description: Product description
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - Products
+      summary: Delete product
+      description: Delete a product
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '204':
+          description: Product deleted successfully
+
+    post:
+      tags:
+        - Products
+      summary: Activate product
+      description: Activate a product
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Product activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Products
+      summary: Deactivate product
+      description: Deactivate a product
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Product deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Service Management
+  /api/v1/admin/services:
+    get:
+      tags:
+        - Services
+      summary: List services
+      description: List all services
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Services retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Services
+      summary: Create service
+      description: Create a new service
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Service name
+                description:
+                  type: string
+                  description: Service description
+      responses:
+        '201':
+          description: Service created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/admin/services/{id}:
+    get:
+      tags:
+        - Services
+      summary: Get service
+      description: Get a specific service
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Service retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Service'
+
+    put:
+      tags:
+        - Services
+      summary: Update service
+      description: Update a service
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Service name
+                description:
+                  type: string
+                  description: Service description
+      responses:
+        '200':
+          description: Service updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - Services
+      summary: Delete service
+      description: Delete a service
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '204':
+          description: Service deleted successfully
+
+    post:
+      tags:
+        - Services
+      summary: Activate service
+      description: Activate a service
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Service activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Services
+      summary: Deactivate service
+      description: Deactivate a service
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Service deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # SLA Templates
+  /api/v1/admin/sla-templates:
+    get:
+      tags:
+        - SLA Templates
+      summary: List SLA templates
+      description: List all SLA templates
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: SLA templates retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - SLA Templates
+      summary: Create SLA template
+      description: Create a new SLA template
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: SLA template name
+                description:
+                  type: string
+                  description: SLA template description
+                response_time:
+                  type: integer
+                  description: Response time in minutes
+                resolution_time:
+                  type: integer
+                  description: Resolution time in hours
+      responses:
+        '201':
+          description: SLA template created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/admin/sla-templates/{id}:
+    get:
+      tags:
+        - SLA Templates
+      summary: Get SLA template
+      description: Get a specific SLA template
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: SLA template retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SLATemplate'
+
+    put:
+      tags:
+        - SLA Templates
+      summary: Update SLA template
+      description: Update an SLA template
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: SLA template name
+                description:
+                  type: string
+                  description: SLA template description
+                response_time:
+                  type: integer
+                  description: Response time in minutes
+                resolution_time:
+                  type: integer
+                  description: Resolution time in hours
+      responses:
+        '200':
+          description: SLA template updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - SLA Templates
+      summary: Delete SLA template
+      description: Delete an SLA template
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '204':
+          description: SLA template deleted successfully
+
+  # SLA Rules
+  /api/v1/admin/sla-rules:
+    get:
+      tags:
+        - SLA Rules
+      summary: List SLA rules
+      description: List all SLA rules
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: SLA rules retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - SLA Rules
+      summary: Create SLA rule
+      description: Create a new SLA rule
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: SLA rule name
+                description:
+                  type: string
+                  description: SLA rule description
+      responses:
+        '201':
+          description: SLA rule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/admin/sla-rules/{id}:
+    get:
+      tags:
+        - SLA Rules
+      summary: Get SLA rule
+      description: Get a specific SLA rule
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: SLA rule retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/SLARule'
+
+    put:
+      tags:
+        - SLA Rules
+      summary: Update SLA rule
+      description: Update an SLA rule
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: SLA rule name
+                description:
+                  type: string
+                  description: SLA rule description
+      responses:
+        '200':
+          description: SLA rule updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - SLA Rules
+      summary: Delete SLA rule
+      description: Delete an SLA rule
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '204':
+          description: SLA rule deleted successfully
+
+    post:
+      tags:
+        - SLA Rules
+      summary: Activate SLA rule
+      description: Activate an SLA rule
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: SLA rule activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - SLA Rules
+      summary: Deactivate SLA rule
+      description: Deactivate an SLA rule
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: SLA rule deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Tenant Management
+  /api/v1/admin/tenants:
+    get:
+      tags:
+        - Tenant Management
+      summary: List tenants
+      description: List all tenants
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: Tenants retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Tenant Management
+      summary: Create tenant
+      description: Create a new tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - slug
+              properties:
+                name:
+                  type: string
+                  description: Tenant name
+                slug:
+                  type: string
+                  description: Tenant slug
+                domain:
+                  type: string
+                  description: Tenant domain
+                plan:
+                  type: string
+                  description: Tenant plan
+                max_users:
+                  type: integer
+                  description: Maximum users allowed
+      responses:
+        '201':
+          description: Tenant created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /api/v1/admin/tenants/{id}:
+    get:
+      tags:
+        - Tenant Management
+      summary: Get tenant
+      description: Get a specific tenant by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Tenant retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Tenant'
+
+    put:
+      tags:
+        - Tenant Management
+      summary: Update tenant
+      description: Update a tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Tenant name
+                slug:
+                  type: string
+                  description: Tenant slug
+                domain:
+                  type: string
+                  description: Tenant domain
+                plan:
+                  type: string
+                  description: Tenant plan
+                max_users:
+                  type: integer
+                  description: Maximum users allowed
+      responses:
+        '200':
+          description: Tenant updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    delete:
+      tags:
+        - Tenant Management
+      summary: Delete tenant
+      description: Delete a tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '204':
+          description: Tenant deleted successfully
+
+    post:
+      tags:
+        - Tenant Management
+      summary: Activate tenant
+      description: Activate a tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Tenant activated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    post:
+      tags:
+        - Tenant Management
+      summary: Deactivate tenant
+      description: Deactivate a tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Tenant deactivated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    get:
+      tags:
+        - Tenant Management
+      summary: Get tenant statistics
+      description: Get statistics for a specific tenant
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Tenant statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+    /api/v1/admin/tenants/slug/{slug}:
+    get:
+      tags:
+        - Tenant Management
+      summary: Get tenant by slug
+      description: Get a tenant by its slug
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/TenantID'
+        - $ref: '#/components/parameters/Slug'
+      responses:
+        '200':
+          description: Tenant retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+tags:
+  - name: Health
+    description: Health check and system information endpoints
+  - name: Authentication
+    description: Authentication and authorization endpoints
+  - name: Users
+    description: User management endpoints
+  - name: Permissions
+    description: Permission management endpoints
+  - name: Roles
+    description: Role management endpoints
+  - name: Tenant Management
+    description: Tenant management endpoints
+  - name: Tenant Admin
+    description: Tenant admin endpoints
+  - name: Tickets
+    description: Ticket management endpoints
+  - name: Knowledge Base
+    description: Knowledge base management endpoints
+  - name: Data Management
+    description: Data import/export endpoints
+  - name: Admin
+    description: System administration endpoints
+  - name: Products
+    description: Product management endpoints
+  - name: Services
+    description: Service management endpoints
+  - name: SLA Templates
+    description: SLA template management endpoints
+  - name: SLA Rules
+    description: SLA rule management endpoints

@@ -174,13 +174,14 @@ func runServe(cmd *cobra.Command, _ []string) error {
 	}
 	logger.Info("Foreign key constraints enabled successfully")
 
+	// TODO: Fix database model foreign key constraints before re-enabling initialization
 	// Initialize database if this is first startup
-	logger.Debug("Checking if database initialization is needed")
-	initializer := database.NewInitializer(db.DB)
-	if err := initializer.InitializeIfNeeded(context.Background()); err != nil {
-		logger.Error("Failed to initialize database", zap.Error(err))
-		return fmt.Errorf("failed to initialize database: %w", err)
-	}
+	// logger.Debug("Checking if database initialization is needed")
+	// initializer := database.NewInitializer(db.DB)
+	// if err := initializer.InitializeIfNeeded(context.Background()); err != nil {
+	// 	logger.Error("Failed to initialize database", zap.Error(err))
+	// 	return fmt.Errorf("failed to initialize database: %w", err)
+	// }
 
 	// Set up HTTP server
 	logger.Debug("Setting up HTTP server")

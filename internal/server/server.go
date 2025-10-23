@@ -51,9 +51,9 @@ func NewServer(cfg *config.Config, db *database.Database) *Server {
 	}
 
 	router := gin.New()
-	// Disable automatic trailing slash redirect to prevent infinite loops
-	router.RedirectTrailingSlash = false
-	router.RedirectFixedPath = false
+	// Enable trailing slash redirect for consistent API behavior
+	router.RedirectTrailingSlash = true
+	router.RedirectFixedPath = true
 
 	// Initialize auth service
 	authService := auth.NewService(
@@ -228,9 +228,9 @@ func (s *Server) setupRoutes() {
 			// User management routes (new implementation)
 			users := protected.Group("/users")
 			{
-				users.GET("/", userHandlers.ListUsers)
+				users.GET("", userHandlers.ListUsers)
 				users.GET("/stats", userHandlers.GetUserStats)
-				users.POST("/", userHandlers.CreateUser)
+				users.POST("", userHandlers.CreateUser)
 				users.GET("/:id", userHandlers.GetUser)
 				users.PUT("/:id", userHandlers.UpdateUser)
 				users.DELETE("/:id", userHandlers.DeleteUser)
@@ -251,9 +251,9 @@ func (s *Server) setupRoutes() {
 			// Permission management routes
 			permissions := protected.Group("/permissions")
 			{
-				permissions.GET("/", permissionHandlers.GetAllPermissions)
+				permissions.GET("", permissionHandlers.GetAllPermissions)
 				permissions.GET("/:id", permissionHandlers.GetPermissionByID)
-				permissions.POST("/", permissionHandlers.CreatePermission)
+				permissions.POST("", permissionHandlers.CreatePermission)
 				permissions.PUT("/:id", permissionHandlers.UpdatePermission)
 				permissions.DELETE("/:id", permissionHandlers.DeletePermission)
 			}
@@ -261,9 +261,9 @@ func (s *Server) setupRoutes() {
 			// Role management routes
 			roles := protected.Group("/roles")
 			{
-				roles.GET("/", roleHandlers.GetAllRoles)
+				roles.GET("", roleHandlers.GetAllRoles)
 				roles.GET("/:id", roleHandlers.GetRoleByID)
-				roles.POST("/", roleHandlers.CreateRole)
+				roles.POST("", roleHandlers.CreateRole)
 				roles.PUT("/:id", roleHandlers.UpdateRole)
 				roles.DELETE("/:id", roleHandlers.DeleteRole)
 
@@ -286,8 +286,8 @@ func (s *Server) setupRoutes() {
 				// User management for tenant admins (only within their tenant)
 				tenantUsers := tenantAdmin.Group("/users")
 				{
-					tenantUsers.GET("/", userHandlers.ListUsers) // List only users in their tenant
-					tenantUsers.POST("/", userHandlers.CreateUser)
+					tenantUsers.GET("", userHandlers.ListUsers) // List only users in their tenant
+					tenantUsers.POST("", userHandlers.CreateUser)
 					tenantUsers.GET("/:id", userHandlers.GetUser)
 					tenantUsers.PUT("/:id", userHandlers.UpdateUser)
 					tenantUsers.POST("/:id/activate", userHandlers.ActivateUser)
@@ -308,8 +308,8 @@ func (s *Server) setupRoutes() {
 				// Role management for tenant admins (tenant-specific roles only)
 				tenantRoles := tenantAdmin.Group("/roles")
 				{
-					tenantRoles.GET("/", roleHandlers.GetAllRoles) // Only tenant roles
-					tenantRoles.POST("/", roleHandlers.CreateRole)
+					tenantRoles.GET("", roleHandlers.GetAllRoles) // Only tenant roles
+					tenantRoles.POST("", roleHandlers.CreateRole)
 					tenantRoles.GET("/:id", roleHandlers.GetRoleByID)
 					tenantRoles.PUT("/:id", roleHandlers.UpdateRole)
 					tenantRoles.DELETE("/:id", roleHandlers.DeleteRole)
@@ -323,7 +323,7 @@ func (s *Server) setupRoutes() {
 				// Permission management (view only, limited to tenant permissions)
 				tenantPermissions := tenantAdmin.Group("/permissions")
 				{
-					tenantPermissions.GET("/", permissionHandlers.GetAllPermissions)
+					tenantPermissions.GET("", permissionHandlers.GetAllPermissions)
 					tenantPermissions.GET("/:id", permissionHandlers.GetPermissionByID)
 				}
 			}
@@ -382,8 +382,8 @@ func (s *Server) setupRoutes() {
 		// Product management routes (admin only)
 		products := admin.Group("/products")
 		{
-			products.GET("/", productHandlers.ListProducts)
-			products.POST("/", productHandlers.CreateProduct)
+			products.GET("", productHandlers.ListProducts)
+			products.POST("", productHandlers.CreateProduct)
 			products.GET("/:id", productHandlers.GetProduct)
 			products.PUT("/:id", productHandlers.UpdateProduct)
 			products.DELETE("/:id", productHandlers.DeleteProduct)
@@ -394,8 +394,8 @@ func (s *Server) setupRoutes() {
 		// Service management routes (admin only)
 		services := admin.Group("/services")
 		{
-			services.GET("/", serviceHandlers.ListServices)
-			services.POST("/", serviceHandlers.CreateService)
+			services.GET("", serviceHandlers.ListServices)
+			services.POST("", serviceHandlers.CreateService)
 			services.GET("/:id", serviceHandlers.GetService)
 			services.PUT("/:id", serviceHandlers.UpdateService)
 			services.DELETE("/:id", serviceHandlers.DeleteService)
@@ -406,8 +406,8 @@ func (s *Server) setupRoutes() {
 		// SLA management routes (admin only)
 		slaTemplates := admin.Group("/sla-templates")
 		{
-			slaTemplates.GET("/", slaHandlers.ListSLATemplates)
-			slaTemplates.POST("/", slaHandlers.CreateSLATemplate)
+			slaTemplates.GET("", slaHandlers.ListSLATemplates)
+			slaTemplates.POST("", slaHandlers.CreateSLATemplate)
 			slaTemplates.GET("/:id", slaHandlers.GetSLATemplate)
 			slaTemplates.PUT("/:id", slaHandlers.UpdateSLATemplate)
 			slaTemplates.DELETE("/:id", slaHandlers.DeleteSLATemplate)
@@ -415,8 +415,8 @@ func (s *Server) setupRoutes() {
 
 		slaRules := admin.Group("/sla-rules")
 		{
-			slaRules.GET("/", slaHandlers.ListSLARules)
-			slaRules.POST("/", slaHandlers.CreateSLARule)
+			slaRules.GET("", slaHandlers.ListSLARules)
+			slaRules.POST("", slaHandlers.CreateSLARule)
 			slaRules.GET("/:id", slaHandlers.GetSLARule)
 			slaRules.PUT("/:id", slaHandlers.UpdateSLARule)
 			slaRules.DELETE("/:id", slaHandlers.DeleteSLARule)
@@ -427,8 +427,8 @@ func (s *Server) setupRoutes() {
 		// Tenant management routes (admin only)
 		tenants := admin.Group("/tenants")
 		{
-			tenants.GET("/", tenantHandlers.ListTenants)
-			tenants.POST("/", tenantHandlers.CreateTenant)
+			tenants.GET("", tenantHandlers.ListTenants)
+			tenants.POST("", tenantHandlers.CreateTenant)
 			tenants.GET("/:id", tenantHandlers.GetTenant)
 			tenants.PUT("/:id", tenantHandlers.UpdateTenant)
 			tenants.DELETE("/:id", tenantHandlers.DeleteTenant)
@@ -483,19 +483,19 @@ func (s *Server) GetConfig() *config.Config {
 	return s.config
 }
 
-// serveSwaggerYAML serves the Swagger YAML specification.
+// serveSwaggerYAML serves the complete OpenAPI specification.
 func (s *Server) serveSwaggerYAML(c *gin.Context) {
-	swaggerPath := "./docs/swagger.yaml"
-	yamlContent, err := os.ReadFile(swaggerPath)
+	openAPIPath := "./docs/api/complete-openapi.yaml"
+	yamlContent, err := os.ReadFile(openAPIPath)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Swagger specification not found",
-			"path":  swaggerPath,
+			"error": "OpenAPI specification not found",
+			"path":  openAPIPath,
 		})
 		return
 	}
 
-	c.Data(http.StatusOK, "application/x-yaml", yamlContent)
+	c.Data(http.StatusOK, "application/vnd.oai.openapi", yamlContent)
 }
 
 // serveSwaggerUI serves the Swagger UI HTML page.
