@@ -86,7 +86,7 @@ func (h *Handlers) CreateService(c *gin.Context) {
 	c.Set("security_event", "service_creation_attempt")
 	c.Set("target_resource", req.Name)
 
-	service, err := h.service.CreateService(user.TenantID, &req)
+	service, err := h.service.CreateService(user.ID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -142,7 +142,7 @@ func (h *Handlers) ListServices(c *gin.Context) {
 
 	user := userInfo.(*auth.UserInfo)
 
-	services, total, err := h.service.ListServices(user.TenantID, &req)
+	services, total, err := h.service.ListServices(user.ID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -190,7 +190,7 @@ func (h *Handlers) GetService(c *gin.Context) {
 		return
 	}
 
-	service, err := h.service.GetService(user.TenantID, serviceID)
+	service, err := h.service.GetService(user.ID, serviceID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -241,7 +241,7 @@ func (h *Handlers) UpdateService(c *gin.Context) {
 	// Log service update attempt
 	h.logServiceEvent(c, "service_update_attempt", strconv.FormatUint(uint64(serviceID), 10))
 
-	service, err := h.service.UpdateService(user.TenantID, serviceID, &req)
+	service, err := h.service.UpdateService(user.ID, serviceID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -289,7 +289,7 @@ func (h *Handlers) DeleteService(c *gin.Context) {
 	// Log service deletion attempt
 	h.logServiceEvent(c, "service_deletion_attempt", strconv.FormatUint(uint64(serviceID), 10))
 
-	err = h.service.DeleteService(user.TenantID, serviceID)
+	err = h.service.DeleteService(user.ID, serviceID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -335,7 +335,7 @@ func (h *Handlers) ActivateService(c *gin.Context) {
 	// Log service activation attempt
 	h.logServiceEvent(c, "service_activation_attempt", strconv.FormatUint(uint64(serviceID), 10))
 
-	err = h.service.ActivateService(user.TenantID, serviceID)
+	err = h.service.ActivateService(user.ID, serviceID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -381,7 +381,7 @@ func (h *Handlers) DeactivateService(c *gin.Context) {
 	// Log service deactivation attempt
 	h.logServiceEvent(c, "service_deactivation_attempt", strconv.FormatUint(uint64(serviceID), 10))
 
-	err = h.service.DeactivateService(user.TenantID, serviceID)
+	err = h.service.DeactivateService(user.ID, serviceID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return

@@ -21,7 +21,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 	// Migrate all models needed for import/export testing
 	err = db.AutoMigrate(
-		&models.Tenant{},
+		&{},
 		&models.User{},
 		&models.Role{},
 		&models.UserRole{},
@@ -43,8 +43,8 @@ func setupTestDB(t *testing.T) *gorm.DB {
 }
 
 // createTestTenant creates a test tenant.
-func createTestTenant(t *testing.T, db *gorm.DB) *models.Tenant {
-	tenant := &models.Tenant{
+func createTestTenant(t *testing.T, db *gorm.DB) * {
+	tenant := &{
 		Name:     "Test Corporation",
 		Slug:     fmt.Sprintf("test-corp-%d", time.Now().UnixNano()),
 		Domain:   "test.example.com",
@@ -60,7 +60,6 @@ func createTestTenant(t *testing.T, db *gorm.DB) *models.Tenant {
 // createTestUser creates a test user.
 func createTestUser(t *testing.T, db *gorm.DB, tenantID uint) *models.User {
 	user := &models.User{
-		TenantID:     tenantID,
 		Email:        fmt.Sprintf("test-%d@example.com", time.Now().UnixNano()),
 		Username:     fmt.Sprintf("testuser-%d", time.Now().UnixNano()),
 		FirstName:    "Test",
@@ -300,7 +299,6 @@ func TestService_GetJob(t *testing.T) {
 
 	// Create a test job
 	job := &models.ImportExportJob{
-		TenantID:         tenant.ID,
 		Type:             string(ExportTypeTickets),
 		Status:           string(JobStatusCompleted),
 		Progress:         100,
@@ -377,7 +375,6 @@ func TestService_ListJobs(t *testing.T) {
 	// Create test jobs for tenant 1
 	for i := 0; i < 5; i++ {
 		job := &models.ImportExportJob{
-			TenantID:     tenant1.ID,
 			Type:         string(ExportTypeTickets),
 			Status:       string(JobStatusCompleted),
 			Progress:     100,
@@ -391,7 +388,6 @@ func TestService_ListJobs(t *testing.T) {
 	// Create test jobs for tenant 2
 	for i := 0; i < 3; i++ {
 		job := &models.ImportExportJob{
-			TenantID:     tenant2.ID,
 			Type:         string(ExportTypeUsers),
 			Status:       string(JobStatusPending),
 			Progress:     0,
@@ -486,7 +482,6 @@ func TestService_CancelJob(t *testing.T) {
 
 	// Create test jobs with different statuses
 	pendingJob := &models.ImportExportJob{
-		TenantID:     tenant.ID,
 		Type:         string(ExportTypeTickets),
 		Status:       string(JobStatusPending),
 		Progress:     0,
@@ -497,7 +492,6 @@ func TestService_CancelJob(t *testing.T) {
 	require.NoError(t, err)
 
 	runningJob := &models.ImportExportJob{
-		TenantID:     tenant.ID,
 		Type:         string(ExportTypeUsers),
 		Status:       string(JobStatusRunning),
 		Progress:     50,
@@ -508,7 +502,6 @@ func TestService_CancelJob(t *testing.T) {
 	require.NoError(t, err)
 
 	completedJob := &models.ImportExportJob{
-		TenantID:     tenant.ID,
 		Type:         string(ExportTypeProducts),
 		Status:       string(JobStatusCompleted),
 		Progress:     100,
@@ -578,7 +571,6 @@ func TestService_DeleteJob(t *testing.T) {
 
 	// Create a test job
 	job := &models.ImportExportJob{
-		TenantID:     tenant.ID,
 		Type:         string(ExportTypeTickets),
 		Status:       string(JobStatusCompleted),
 		StartedBy:    user.ID,
@@ -774,7 +766,6 @@ func TestService_GetJobStats(t *testing.T) {
 	for _, status := range jobStatuses {
 		for _, jobType := range jobTypes {
 			job := &models.ImportExportJob{
-				TenantID:     tenant.ID,
 				Type:         jobType,
 				Status:       status,
 				Progress:     50,
@@ -1022,7 +1013,6 @@ func BenchmarkService_ListJobs(b *testing.B) {
 	// Create some test data
 	for i := 0; i < 100; i++ {
 		job := &models.ImportExportJob{
-			TenantID:     tenant.ID,
 			Type:         string(ExportTypeTickets),
 			Status:       string(JobStatusCompleted),
 			StartedBy:    user.ID,

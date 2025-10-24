@@ -166,7 +166,6 @@ func (s *Service) CreateService(tenantID uint, req *CreateServiceRequest) (*Serv
 			CreatedBy: nil, // TODO: Set to current user
 			UpdatedBy: nil, // TODO: Set to current user
 		},
-		TenantID:        tenantID,
 		ProductID:       req.ProductID,
 		Name:            req.Name,
 		Code:            req.Code,
@@ -462,7 +461,6 @@ func (s *Service) serviceToResponse(service *models.Service, includeProduct bool
 		Type:         service.Type,
 		Status:       service.Status,
 		Availability: service.Availability,
-		TenantID:     service.TenantID,
 		IsDeleted:    service.DeletedAt.Valid,
 		CreatedAt:    service.CreatedAt,
 		UpdatedAt:    service.UpdatedAt,
@@ -513,7 +511,6 @@ func (s *Service) serviceToResponse(service *models.Service, includeProduct bool
 			Status:       service.Product.Status,
 			IsManaged:    service.Product.IsManaged,
 			SupportLevel: service.Product.SupportLevel,
-			TenantID:     service.Product.TenantID,
 		}
 	}
 

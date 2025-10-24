@@ -145,9 +145,8 @@ func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserI
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	// Create user (role is managed separately through role assignments)
+	// Create user with role assignment
 	user := &models.User{
-		TenantID:     tenantID,
 		Email:        req.Email,
 		Username:     req.Username,
 		FirstName:    req.FirstName,
@@ -157,8 +156,28 @@ func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserI
 		Preferences:  req.Preferences,
 	}
 
-	if err := s.repo.CreateUser(user); err != nil {
+	// Start transaction
+	tx := s.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Create(user).Error; err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	// Assign role to user
+	if err := s.assignRoleToUser(tx, user.ID, req.Role, tenantID); err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("failed to assign role: %w", err)
+	}
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		return nil, fmt.Errorf("failed to commit user creation: %w", err)
 	}
 
 	// Return user info
@@ -183,19 +202,30 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
 
+	// Start transaction
+	tx := s.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
 	// Update fields if provided
 	if req.Email != "" {
 		req.Email = strings.ToLower(strings.TrimSpace(req.Email))
 		if !s.isValidEmail(req.Email) {
+			tx.Rollback()
 			return nil, errors.New("invalid email format")
 		}
 
 		// Check if email already exists (excluding current user)
 		exists, err := s.repo.CheckEmailExists(req.Email, tenantID, userID)
 		if err != nil {
+			tx.Rollback()
 			return nil, fmt.Errorf("failed to check email existence: %w", err)
 		}
 		if exists {
+			tx.Rollback()
 			return nil, errors.New("email already exists")
 		}
 		user.Email = req.Email
@@ -204,15 +234,18 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 	if req.Username != "" {
 		req.Username = strings.TrimSpace(req.Username)
 		if !s.isValidUsername(req.Username) {
+			tx.Rollback()
 			return nil, errors.New("username can only contain letters, numbers, underscores, and hyphens")
 		}
 
 		// Check if username already exists (excluding current user)
 		exists, err := s.repo.CheckUsernameExists(req.Username, tenantID, userID)
 		if err != nil {
+			tx.Rollback()
 			return nil, fmt.Errorf("failed to check username existence: %w", err)
 		}
 		if exists {
+			tx.Rollback()
 			return nil, errors.New("username already exists")
 		}
 		user.Username = req.Username
@@ -226,8 +259,6 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 		user.LastName = req.LastName
 	}
 
-	// Note: Role is managed separately through role assignments, not direct user updates
-
 	if req.IsActive != nil {
 		user.IsActive = *req.IsActive
 	}
@@ -237,8 +268,34 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 	}
 
 	// Update user
-	if err := s.repo.UpdateUser(user); err != nil {
+	if err := tx.Save(user).Error; err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("failed to update user: %w", err)
+	}
+
+	// Handle role assignment if provided
+	if req.Role != "" {
+		// Remove existing role assignments
+		if err := tx.Where("user_id = ?", userID).Delete(&models.UserRole{}).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("failed to remove existing roles: %w", err)
+		}
+
+		// Assign new role
+		if err := s.assignRoleToUser(tx, userID, req.Role, tenantID); err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("failed to assign new role: %w", err)
+		}
+	}
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		return nil, fmt.Errorf("failed to commit user update: %w", err)
+	}
+
+	// Refresh user data with role
+	if err := s.db.Preload("Roles").First(user, userID).Error; err != nil {
+		return nil, fmt.Errorf("failed to refresh user data: %w", err)
 	}
 
 	return s.createUserInfo(user), nil
@@ -401,6 +458,28 @@ func (s *Service) validatePassword(password string) error {
 		if !hasSpecial {
 			return fmt.Errorf("password must contain at least one special character: %s", rules.SpecialChars)
 		}
+	}
+
+	return nil
+}
+
+// assignRoleToUser assigns a role to a user within a transaction.
+func (s *Service) assignRoleToUser(tx *gorm.DB, userID uint, roleName string, tenantID uint) error {
+	// Find the role in the tenant
+	var role models.Role
+	if err := tx.Where("name = ? AND tenant_id = ?", roleName, tenantID).First(&role).Error; err != nil {
+		return fmt.Errorf("role '%s' not found: %w", roleName, err)
+	}
+
+	// Create user-role assignment
+	userRole := &models.UserRole{
+		UserID:     userID,
+		RoleID:     role.ID,
+		AssignedBy: userID, // Self-assigned for now, could be improved
+	}
+
+	if err := tx.Create(userRole).Error; err != nil {
+		return fmt.Errorf("failed to create user role assignment: %w", err)
 	}
 
 	return nil

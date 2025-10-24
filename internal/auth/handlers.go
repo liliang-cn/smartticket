@@ -26,12 +26,11 @@ func NewHandlers(authService *Service) *Handlers {
 
 // Login handles user login
 // @Summary User login
-// @Description Authenticate a user with email and password
+// @Description Authenticate a user with email and password (tenant is auto-detected from email)
 // @Tags auth
 // @Accept json
 // @Produce json
 // @Param request body LoginRequest true "Login credentials"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Success 200 {object} LoginResponse
 // @Failure 400 {object} errors.ErrorResponse
 // @Failure 401 {object} errors.ErrorResponse
@@ -39,7 +38,6 @@ func NewHandlers(authService *Service) *Handlers {
 // @Router /api/v1/auth/login [post].
 func (h *Handlers) Login(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
-	tenantID, _ := c.Get("tenant_id")
 	requestIDStr, ok := requestID.(string)
 	if !ok {
 		requestIDStr = ""
@@ -62,13 +60,8 @@ func (h *Handlers) Login(c *gin.Context) {
 	clientIP := c.ClientIP()
 	userAgent := c.GetHeader("User-Agent")
 
-	tenantIDUint, ok := tenantID.(uint)
-	if !ok {
-		tenantIDUint = 0
-	}
 	log.Info("User login attempt",
 		zap.String("email", req.Email),
-		zap.Uint("tenant_id", tenantIDUint),
 		zap.String("client_ip", clientIP),
 	)
 

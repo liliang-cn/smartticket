@@ -265,34 +265,3 @@ func (r *Repository) GetUserStats(tenantID uint) (map[string]int64, error) {
 	return stats, nil
 }
 
-// CreateTenant creates a new tenant.
-func (r *Repository) CreateTenant(tenant *models.Tenant) error {
-	if err := r.db.Create(tenant).Error; err != nil {
-		return fmt.Errorf("failed to create tenant: %w", err)
-	}
-	return nil
-}
-
-// GetTenantByID retrieves a tenant by ID.
-func (r *Repository) GetTenantByID(tenantID uint) (*models.Tenant, error) {
-	var tenant models.Tenant
-	if err := r.db.Where("id = ?", tenantID).First(&tenant).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("tenant not found")
-		}
-		return nil, fmt.Errorf("failed to get tenant: %w", err)
-	}
-	return &tenant, nil
-}
-
-// GetTenantByDomain retrieves a tenant by domain.
-func (r *Repository) GetTenantByDomain(domain string) (*models.Tenant, error) {
-	var tenant models.Tenant
-	if err := r.db.Where("domain = ? AND is_active = ?", domain, true).First(&tenant).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("tenant not found")
-		}
-		return nil, fmt.Errorf("failed to get tenant: %w", err)
-	}
-	return &tenant, nil
-}

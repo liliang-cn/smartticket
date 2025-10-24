@@ -50,7 +50,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 	// Migrate essential models for middleware testing
 	err = db.AutoMigrate(
-		&models.Tenant{},
+		&{},
 		&models.User{},
 		&models.Ticket{},
 		&models.Message{},
@@ -79,7 +79,6 @@ func setupTestGin() (*gin.Context, *httptest.ResponseRecorder) {
 func createTestUser(id uint, email string) *models.User {
 	return &models.User{
 		BaseModel:    models.BaseModel{ID: id},
-		TenantID:     1,
 		Email:        email,
 		Username:     "testuser",
 		PasswordHash: "hashed_password",
@@ -391,7 +390,6 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 				userIDStr := strconv.FormatUint(uint64(user.ID), 10)
 				ticket := &models.Ticket{
 					BaseModel:    models.BaseModel{CreatedBy: &userIDStr},
-					TenantID:     1, // Use integer to match DB schema
 					TicketNumber: "TICKET-001",
 					Title:        "Test Ticket",
 				}
@@ -417,7 +415,6 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 				diffUserID := "1"
 				ticket := &models.Ticket{
 					BaseModel:    models.BaseModel{CreatedBy: &diffUserID},
-					TenantID:     1,
 					TicketNumber: "TICKET-002", // Use different ticket number
 					Title:        "Test Ticket",
 				}
@@ -444,7 +441,6 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 				diffUserID := "1"
 				ticket := &models.Ticket{
 					BaseModel:    models.BaseModel{CreatedBy: &diffUserID},
-					TenantID:     1,
 					TicketNumber: "TICKET-003", // Use different ticket number
 					Title:        "Test Ticket",
 				}
@@ -641,7 +637,6 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 				userIDStr := strconv.FormatUint(uint64(user.ID), 10)
 				ticket := &models.Ticket{
 					BaseModel:    models.BaseModel{CreatedBy: &userIDStr},
-					TenantID:     1,
 					TicketNumber: "MSG-TICKET-001",
 					Title:        "Test Ticket for Message",
 				}
@@ -665,7 +660,6 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 			resourceType: "knowledge",
 			setupResource: func(t *testing.T, db *gorm.DB, user *models.User) uint {
 				article := &models.KnowledgeArticle{
-					TenantID: 1,
 					AuthorID: user.ID,
 					Title:    "Test Article",
 					Content:  "Test content",
@@ -691,7 +685,6 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 			setupResource: func(t *testing.T, db *gorm.DB, user *models.User) uint {
 				// Create another user
 				otherUser := &models.User{
-					TenantID: 1,
 					Email:    "other@example.com",
 					Username: "otheruser",
 					IsActive: true,

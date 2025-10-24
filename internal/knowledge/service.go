@@ -125,7 +125,7 @@ func (s *Service) CreateKnowledgeArticle(tenantID uint, userID uint, req *Create
 
 	// Create knowledge article
 	article := &models.KnowledgeArticle{
-		TenantID:  tenantID,
+		
 		Title:     req.Title,
 		Slug:      slug,
 		Content:   req.Content,

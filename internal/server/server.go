@@ -24,7 +24,6 @@ import (
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/services"
 	"github.com/company/smartticket/internal/sla"
-	"github.com/company/smartticket/internal/tenant"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
 )
@@ -148,7 +147,6 @@ func (s *Server) setupRoutes() {
 	// Initialize services and handlers
 	authRepo := auth.NewRepository(s.db.DB)
 	userService := user.NewService(s.db.DB, authRepo, s.authService)
-	tenantService := tenant.NewService(s.db.DB)
 
 	// Initialize permission service
 	permissionService := services.NewPermissionService(s.db.DB)
@@ -168,7 +166,6 @@ func (s *Server) setupRoutes() {
 
 	authHandlers := auth.NewHandlers(s.authService)
 	userHandlers := user.NewHandlers(userService)
-	tenantHandlers := tenant.NewHandlers(tenantService)
 	ticketHandlers := ticket.NewHandlers(ticketService)
 	productHandlers := product.NewHandlers(productService)
 	serviceHandlers := servicemgmt.NewHandlers(serviceManagementService)
@@ -194,17 +191,16 @@ func (s *Server) setupRoutes() {
 		health.GET("/swagger.yaml", s.serveSwaggerYAML)
 	}
 
-	// API routes group with tenant isolation
-	api := s.router.Group("/api/v1")
-	api.Use(s.tenantIsolationMiddleware())
+	// API routes group - authentication endpoints without tenant isolation
+	authPublic := s.router.Group("/api/v1/auth")
 	{
-		// Authentication endpoints (no auth required, but tenant validation needed)
-		auth := api.Group("/auth")
-		{
-			auth.POST("/login", authHandlers.Login)
-			auth.POST("/refresh", authHandlers.RefreshToken)
-		}
+		authPublic.POST("/login", authHandlers.Login)
+		authPublic.POST("/refresh", authHandlers.RefreshToken)
+	}
 
+	// API routes group for all other endpoints
+	api := s.router.Group("/api/v1")
+	{
 		// Public endpoints (no auth required)
 		public := api.Group("/")
 		{
@@ -273,61 +269,6 @@ func (s *Server) setupRoutes() {
 				roles.DELETE("/:id/permissions/:permissionId", roleHandlers.RemovePermissionFromRole)
 			}
 
-			// Tenant management routes (for current user's tenant)
-			myTenant := protected.Group("/my-tenant")
-			{
-				myTenant.GET("/stats", tenantHandlers.GetMyTenantStats)
-			}
-
-			// Tenant admin routes (tenant admin only)
-			tenantAdmin := protected.Group("/tenant-admin")
-			tenantAdmin.Use(s.tenantAdminOnlyMiddleware())
-			{
-				// User management for tenant admins (only within their tenant)
-				tenantUsers := tenantAdmin.Group("/users")
-				{
-					tenantUsers.GET("", userHandlers.ListUsers) // List only users in their tenant
-					tenantUsers.POST("", userHandlers.CreateUser)
-					tenantUsers.GET("/:id", userHandlers.GetUser)
-					tenantUsers.PUT("/:id", userHandlers.UpdateUser)
-					tenantUsers.POST("/:id/activate", userHandlers.ActivateUser)
-					tenantUsers.POST("/:id/deactivate", userHandlers.DeactivateUser)
-					tenantUsers.GET("/stats", userHandlers.GetUserStats)
-
-					// User role management (tenant admin can assign roles within tenant)
-					tenantUsers.GET("/:id/roles", roleHandlers.GetUserRoles)
-					tenantUsers.POST("/:id/roles/assign", roleHandlers.AssignRoleToUser)
-					tenantUsers.DELETE("/:id/roles/:roleId", roleHandlers.RemoveRoleFromUser)
-
-					// User permission management (limited permissions)
-					tenantUsers.GET("/:id/permissions", permissionHandlers.GetUserPermissions)
-					tenantUsers.POST("/:id/permissions/assign", permissionHandlers.AssignPermissionToUser)
-					tenantUsers.DELETE("/:id/permissions/:permissionId", permissionHandlers.RemovePermissionFromUser)
-				}
-
-				// Role management for tenant admins (tenant-specific roles only)
-				tenantRoles := tenantAdmin.Group("/roles")
-				{
-					tenantRoles.GET("", roleHandlers.GetAllRoles) // Only tenant roles
-					tenantRoles.POST("", roleHandlers.CreateRole)
-					tenantRoles.GET("/:id", roleHandlers.GetRoleByID)
-					tenantRoles.PUT("/:id", roleHandlers.UpdateRole)
-					tenantRoles.DELETE("/:id", roleHandlers.DeleteRole)
-
-					// Role permission management
-					tenantRoles.GET("/:id/permissions", roleHandlers.GetRolePermissions)
-					tenantRoles.POST("/:id/permissions/assign", roleHandlers.AssignPermissionToRole)
-					tenantRoles.DELETE("/:id/permissions/:permissionId", roleHandlers.RemovePermissionFromRole)
-				}
-
-				// Permission management (view only, limited to tenant permissions)
-				tenantPermissions := tenantAdmin.Group("/permissions")
-				{
-					tenantPermissions.GET("", permissionHandlers.GetAllPermissions)
-					tenantPermissions.GET("/:id", permissionHandlers.GetPermissionByID)
-				}
-			}
-
 			// Ticket routes
 			tickets := protected.Group("/tickets")
 			{
@@ -371,9 +312,8 @@ func (s *Server) setupRoutes() {
 		}
 	}
 
-	// Admin routes with tenant isolation
+	// Admin routes
 	admin := s.router.Group("/api/v1/admin")
-	admin.Use(s.tenantIsolationMiddleware())
 	admin.Use(s.authMiddleware())
 	admin.Use(s.adminMiddleware())
 	{
@@ -424,19 +364,6 @@ func (s *Server) setupRoutes() {
 			slaRules.POST("/:id/deactivate", slaHandlers.DeactivateSLARule)
 		}
 
-		// Tenant management routes (admin only)
-		tenants := admin.Group("/tenants")
-		{
-			tenants.GET("", tenantHandlers.ListTenants)
-			tenants.POST("", tenantHandlers.CreateTenant)
-			tenants.GET("/:id", tenantHandlers.GetTenant)
-			tenants.PUT("/:id", tenantHandlers.UpdateTenant)
-			tenants.DELETE("/:id", tenantHandlers.DeleteTenant)
-			tenants.POST("/:id/activate", tenantHandlers.ActivateTenant)
-			tenants.POST("/:id/deactivate", tenantHandlers.DeactivateTenant)
-			tenants.GET("/:id/stats", tenantHandlers.GetTenantStats)
-			tenants.GET("/slug/:slug", tenantHandlers.GetTenantBySlug)
-		}
 	}
 }
 

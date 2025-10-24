@@ -41,7 +41,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		assert.Equal(t, req.FirstName, result.FirstName)
 		assert.Equal(t, req.LastName, result.LastName)
 		// Role is now handled through UserRole associations, not direct User field
-		assert.Equal(t, tenant.ID, result.TenantID)
+		assert.Equal(t, tenant.ID, result)
 		assert.True(t, result.IsActive)
 		assert.NotZero(t, result.ID)
 
@@ -72,7 +72,7 @@ func TestUserService_GetUser(t *testing.T) {
 		assert.NotNil(t, result)
 		assert.Equal(t, user.ID, result.ID)
 		assert.Equal(t, user.Email, result.Email)
-		assert.Equal(t, tenant.ID, result.TenantID)
+		assert.Equal(t, tenant.ID, result)
 	})
 }
 
@@ -237,10 +237,10 @@ func TestUserService_GetUserStats(t *testing.T) {
 
 // Helper functions for creating test data
 
-func createTestTenant(t *testing.T, db *database.Database) *models.Tenant {
+func createTestTenant(t *testing.T, db *database.Database) * {
 	// Generate unique tenant values using timestamp
 	timestamp := time.Now().UnixNano()
-	tenant := &models.Tenant{
+	tenant := &{
 		Name:     fmt.Sprintf("Test Tenant %d", timestamp),
 		Slug:     fmt.Sprintf("test-tenant-%d", timestamp),
 		Domain:   fmt.Sprintf("test%d.example.com", timestamp),
@@ -258,7 +258,6 @@ func createTestUser(t *testing.T, db *database.Database, tenantID uint) *models.
 	// Generate unique email and username using timestamp
 	timestamp := time.Now().UnixNano()
 	user := &models.User{
-		TenantID:     tenantID,
 		Email:        fmt.Sprintf("test-%d@example.com", timestamp),
 		Username:     fmt.Sprintf("testuser-%d", timestamp),
 		FirstName:    "Test",
@@ -277,7 +276,6 @@ func createTestUserWithRole(t *testing.T, db *database.Database, tenantID uint, 
 	// Generate unique email and username using timestamp
 	timestamp := time.Now().UnixNano()
 	user := &models.User{
-		TenantID:     tenantID,
 		Email:        fmt.Sprintf("%s-%d@example.com", role, timestamp),
 		Username:     fmt.Sprintf("%s-user-%d", role, timestamp),
 		FirstName:    role,

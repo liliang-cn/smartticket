@@ -42,7 +42,7 @@ cors:
   exposed_headers:
     - "X-Total-Count"
     - "X-Request-ID"
-    - "X-Tenant-ID"
+
   allow_credentials: false
   max_age: 300
 

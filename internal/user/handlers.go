@@ -318,10 +318,7 @@ func (h *Handlers) DeleteUser(c *gin.Context) {
 		zap.Uint("target_user_id", uint(targetUserID)),
 	)
 
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "User deleted successfully",
-	})
+	c.Status(http.StatusNoContent)
 }
 
 // ListUsers handles listing users with pagination and filters

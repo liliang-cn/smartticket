@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -88,17 +87,7 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 		return
 	}
 
-	// Set tenant ID from context
-	tenantIDStr := h.responseHelper.GetTenantIDFromContext(c)
-	if tenantIDStr != "" {
-		// Extract numeric part from tenant ID string (handle UUID or string formats)
-		tenantIDStr = strings.Trim(tenantIDStr, `"'`)
-		if tenantIDUint, err := strconv.ParseUint(tenantIDStr, 10, 32); err == nil {
-			req.TenantID = uint(tenantIDUint)
-		}
-		// If parsing fails, TenantID will remain 0 and the database will handle it
-	}
-
+	
 	err := h.permissionService.CreateRole(c.Request.Context(), &req)
 	if err != nil {
 		h.responseHelper.SendInternalError(c, "Failed to create role")

@@ -27,16 +27,16 @@ func NewInitializer(db *gorm.DB) *Initializer {
 func (i *Initializer) InitializeIfNeeded(ctx context.Context) error {
 	logger := zap.L().Named("database.initializer")
 
-	// Check if database is already initialized by looking for existing tenants
-	var tenantCount int64
-	if err := i.db.Model(&models.Tenant{}).Count(&tenantCount).Error; err != nil {
+	// Check if database is already initialized by looking for existing users
+	var userCount int64
+	if err := i.db.Model(&models.User{}).Count(&userCount).Error; err != nil {
 		logger.Error("Failed to check database initialization status", zap.Error(err))
 		return fmt.Errorf("failed to check database initialization status: %w", err)
 	}
 
-	// If we already have tenants, assume database is initialized
-	if tenantCount > 0 {
-		logger.Info("Database already initialized", zap.Int64("tenant_count", tenantCount))
+	// If we already have users, assume database is initialized
+	if userCount > 0 {
+		logger.Info("Database already initialized", zap.Int64("user_count", userCount))
 		return nil
 	}
 
@@ -59,25 +59,6 @@ func (i *Initializer) seedEssentialData() error {
 
 	// Use a transaction to ensure atomicity
 	return i.db.Transaction(func(tx *gorm.DB) error {
-		// Create default tenant first (no audit fields to avoid circular dependencies)
-		defaultTenant := models.Tenant{
-			BaseModel: models.BaseModel{
-				CreatedAt: now,
-				UpdatedAt: now,
-			},
-			Name:     "Default Organization",
-			Slug:     "default-org",
-			Domain:   "smartticket.local",
-			Settings: `{"timezone": "UTC", "language": "en", "theme": "light"}`,
-			Plan:     "basic",
-			MaxUsers: 100,
-			IsActive: true,
-		}
-
-		if err := tx.Create(&defaultTenant).Error; err != nil {
-			return fmt.Errorf("failed to create default tenant: %w", err)
-		}
-		logger.Info("Created default tenant", zap.String("name", defaultTenant.Name), zap.Uint("id", defaultTenant.ID))
 
 		// Generate admin password hash
 		adminPasswordHash, err := generatePasswordHash("admin123")
@@ -87,12 +68,12 @@ func (i *Initializer) seedEssentialData() error {
 
 		// Create default admin user
 		adminUser := models.User{
-			TenantID:     defaultTenant.ID,
 			Email:        "admin@smartticket.local",
 			Username:     "admin",
 			PasswordHash: adminPasswordHash,
 			FirstName:    "System",
 			LastName:     "Administrator",
+			Role:         "admin",
 			IsActive:     true,
 			Preferences:  `{"timezone": "UTC", "language": "en"}`,
 		}
@@ -113,7 +94,7 @@ func (i *Initializer) seedEssentialData() error {
 				Name:        "admin",
 				Description: "System administrator with full access",
 				IsSystem:   true,
-				TenantID:   0, // System role (tenant_id = 0)
+				// System role (tenant_id = 0)
 			},
 			{
 				BaseModel: models.BaseModel{
@@ -123,7 +104,6 @@ func (i *Initializer) seedEssentialData() error {
 				Name:        "tenant_admin",
 				Description: "Tenant administrator with tenant-wide access",
 				IsSystem:   false,
-				TenantID:   defaultTenant.ID,
 			},
 			{
 				BaseModel: models.BaseModel{
@@ -133,7 +113,6 @@ func (i *Initializer) seedEssentialData() error {
 				Name:        "engineer",
 				Description: "Support engineer with technical access",
 				IsSystem:   false,
-				TenantID:   defaultTenant.ID,
 			},
 			{
 				BaseModel: models.BaseModel{
@@ -143,7 +122,6 @@ func (i *Initializer) seedEssentialData() error {
 				Name:        "customer",
 				Description: "Customer with basic access",
 				IsSystem:   false,
-				TenantID:   defaultTenant.ID,
 			},
 		}
 
@@ -258,7 +236,6 @@ func (i *Initializer) seedEssentialData() error {
 				CreatedAt: now,
 				UpdatedAt: now,
 			},
-			TenantID:      defaultTenant.ID,
 			Name:          "OpenAI GPT",
 			ProviderType:  "openai",
 			APIEndpoint:   "https://api.openai.com/v1",
@@ -285,7 +262,7 @@ func (i *Initializer) seedEssentialData() error {
 				CreatedAt: now,
 				UpdatedAt: now,
 			},
-			TenantID: defaultTenant.ID,
+			
 			Title:    "Welcome to SmartTicket",
 			Slug:     "welcome-to-smartticket",
 			Content: `# Welcome to SmartTicket

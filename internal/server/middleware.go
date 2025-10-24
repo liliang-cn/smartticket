@@ -67,7 +67,7 @@ func (s *Server) setupCORS() {
 
 		// Set other CORS headers
 		c.Header("Access-Control-Allow-Methods", strings.Join(s.config.CORS.AllowedMethods, ", "))
-		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Tenant-ID, X-Request-ID")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Request-ID")
 		c.Header("Access-Control-Expose-Headers", strings.Join(s.config.CORS.ExposedHeaders, ", "))
 		c.Header("Access-Control-Allow-Credentials", strconv.FormatBool(s.config.CORS.AllowCredentials))
 		c.Header("Access-Control-Max-Age", strconv.Itoa(s.config.CORS.MaxAge))
@@ -156,37 +156,6 @@ func (s *Server) requestIDMiddleware() gin.HandlerFunc {
 	}
 }
 
-// tenantIsolationMiddleware extracts and validates tenant information.
-func (s *Server) tenantIsolationMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		// Get tenant ID from header or path parameter
-		tenantIDStr := c.GetHeader("X-Tenant-ID")
-		if tenantIDStr == "" {
-			// Try to get from query parameter (for development)
-			tenantIDStr = c.Query("tenant_id")
-		}
-
-		if tenantIDStr == "" {
-			appErr := errors.NewValidationError("Tenant ID is required").
-				WithRequestID(c.GetString("request_id"))
-			errors.ErrorHandler(c, appErr)
-			return
-		}
-
-		tenantID, err := strconv.ParseUint(tenantIDStr, 10, 32)
-		if err != nil {
-			appErr := errors.NewInvalidInputError("tenant_id", tenantIDStr).
-				WithRequestID(c.GetString("request_id")).
-				WithDetails(err.Error())
-			errors.ErrorHandler(c, appErr)
-			return
-		}
-
-		// Set tenant ID in context
-		c.Set("tenant_id", uint(tenantID))
-		c.Next()
-	}
-}
 
 // authMiddleware validates JWT tokens.
 func (s *Server) authMiddleware() gin.HandlerFunc {
@@ -243,41 +212,12 @@ func (s *Server) authMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Get tenant ID from context
-		tenantID, exists := c.Get("tenant_id")
-		if !exists {
-			appErr := errors.NewUnauthorizedError("Tenant context required").
-				WithRequestID(c.GetString("request_id"))
-			errors.ErrorHandler(c, appErr)
-			return
-		}
-
-		// Get effective role from role system
-		tenantIDUint, ok := tenantID.(uint)
-		if !ok {
-			appErr := errors.NewUnauthorizedError("Invalid tenant ID format").
-				WithRequestID(c.GetString("request_id"))
-			errors.ErrorHandler(c, appErr)
-			return
-		}
-
-		effectiveRole, err := s.authService.GetUserEffectiveRole(userID, tenantIDUint)
-		if err != nil {
-			logger.Error("Failed to get effective role",
-				zap.Uint("user_id", userID),
-				zap.Uint("tenant_id", tenantIDUint),
-				zap.Error(err))
-			// Fall back to JWT role if role system fails
-			effectiveRole = userRole
-		}
-
 		// Log successful authentication
 		logger.LogSecurityEvent("auth_success", fmt.Sprintf("%d", userID), clientIP, userAgent, true)
 
 		// Set user information in context
 		c.Set("user_id", userID)
-		c.Set("user_role", effectiveRole) // Use effective role from role system
-		c.Set("jwt_role", userRole) // Keep original JWT role for reference
+		c.Set("user_role", userRole)
 		c.Next()
 	}
 }
@@ -287,14 +227,10 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRole, exists := c.Get("user_role")
 		if !exists {
-			// Debug: Check what keys are available in context
 			userID, userIDExists := c.Get("user_id")
-			tenantID, tenantIDExists := c.Get("tenant_id")
 			logger.Debug("adminMiddleware: user_role not found",
 				zap.Bool("userID_exists", userIDExists),
-				zap.Bool("tenantID_exists", tenantIDExists),
-				zap.Any("userID", userID),
-				zap.Any("tenantID", tenantID))
+				zap.Any("userID", userID))
 
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"success": false,
@@ -308,7 +244,7 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 		}
 
 		role, ok := userRole.(string)
-		if !ok || (role != "admin" && role != "tenant_admin") {
+		if !ok || role != "admin" {
 			logger.Debug("adminMiddleware: user_role found but not admin",
 				zap.String("role", role),
 				zap.Bool("ok", ok))
@@ -316,7 +252,7 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 				"success": false,
 				"error": gin.H{
 					"code":    "INSUFFICIENT_PERMISSIONS",
-					"message": "Admin privileges required (system admin or tenant admin)",
+					"message": "Admin privileges required",
 				},
 			})
 			c.Abort()
@@ -329,43 +265,6 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 	}
 }
 
-// tenantAdminOnlyMiddleware checks if user has tenant admin privileges (not system admin).
-func (s *Server) tenantAdminOnlyMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		userRole, exists := c.Get("user_role")
-		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"success": false,
-				"error": gin.H{
-					"code":    "UNAUTHORIZED",
-					"message": "User authentication required",
-				},
-			})
-			c.Abort()
-			return
-		}
-
-		role, ok := userRole.(string)
-		if !ok || role != "tenant_admin" {
-			logger.Debug("tenantAdminOnlyMiddleware: user_role found but not tenant_admin",
-				zap.String("role", role),
-				zap.Bool("ok", ok))
-			c.JSON(http.StatusForbidden, gin.H{
-				"success": false,
-				"error": gin.H{
-					"code":    "INSUFFICIENT_PERMISSIONS",
-					"message": "Tenant admin privileges required",
-				},
-			})
-			c.Abort()
-			return
-		}
-
-		logger.Debug("tenantAdminOnlyMiddleware: tenant admin check passed",
-			zap.String("role", role))
-		c.Next()
-	}
-}
 
 // checkUserPermission validates specific permission for the current user.
 func (s *Server) checkUserPermission(requiredRole string) gin.HandlerFunc {
@@ -397,7 +296,7 @@ func (s *Server) checkUserPermission(requiredRole string) gin.HandlerFunc {
 		}
 
 		// Check if user has required role or is admin (admin bypasses role check)
-		if role != requiredRole && role != "admin" && role != "tenant_admin" {
+		if role != requiredRole && role != "admin" {
 			c.JSON(http.StatusForbidden, gin.H{
 				"success": false,
 				"error": gin.H{

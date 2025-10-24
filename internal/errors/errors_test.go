@@ -54,7 +54,7 @@ func TestErrorWithMethods(t *testing.T) {
 
 	assert.Equal(t, "req-123", err.RequestID)
 	assert.Equal(t, uint(456), err.UserID)
-	assert.Equal(t, uint(789), err.TenantID)
+	assert.Equal(t, uint(789), err)
 	assert.Equal(t, originalErr, err.Cause)
 	assert.Equal(t, "email", err.Context["field"])
 	assert.NotEmpty(t, err.StackTrace)

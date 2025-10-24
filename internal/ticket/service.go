@@ -132,7 +132,7 @@ func (s *Service) CreateTicket(tenantID uint, userID uint, req *CreateTicketRequ
 	}
 
 	// Calculate SLA using the SLA calculator
-	slaDueDate, err := s.slaCalculator.CalculateSLADueDates(tenantID, req.Priority, req.Severity, req.ProductID, req.ServiceID)
+	slaDueDate, err := s.slaCalculator.CalculateSLADueDates(req.Priority, req.Severity, req.ProductID, req.ServiceID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to calculate SLA: %w", err)
 	}
@@ -145,7 +145,6 @@ func (s *Service) CreateTicket(tenantID uint, userID uint, req *CreateTicketRequ
 			CreatedBy: nil, // Temporarily nil to avoid FK constraints
 			UpdatedBy: nil,
 		},
-		TenantID:       tenantID,
 		TicketNumber:   ticketNumber,
 		Title:          req.Title,
 		Description:    req.Description,
@@ -348,7 +347,7 @@ func (s *Service) UpdateTicket(tenantID uint, ticketID uint, userID uint, req *U
 
 	// Recalculate SLA if priority, severity, product, or service changed
 	if priorityChanged || severityChanged || req.ProductID != nil || req.ServiceID != nil {
-		slaDueDate, err := s.slaCalculator.CalculateSLADueDates(tenantID, ticket.Priority, ticket.Severity, ticket.ProductID, ticket.ServiceID)
+		slaDueDate, err := s.slaCalculator.CalculateSLADueDates(ticket.Priority, ticket.Severity, ticket.ProductID, ticket.ServiceID)
 		if err != nil {
 			return nil, fmt.Errorf("failed to recalculate SLA: %w", err)
 		}

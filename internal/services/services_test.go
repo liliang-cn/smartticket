@@ -20,7 +20,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 	// Migrate all models
 	err = db.AutoMigrate(
-		&models.Tenant{},
+		&{},
 		&models.User{},
 		&models.Ticket{},
 		&models.Message{},
@@ -52,7 +52,7 @@ func TestBasicServiceOperations(t *testing.T) {
 
 	t.Run("Create and retrieve tenant", func(t *testing.T) {
 		// Create a tenant directly using GORM (simulating service layer)
-		tenant := &models.Tenant{
+		tenant := &{
 			Name:     "Test Corporation",
 			Slug:     "test-corporation",
 			Domain:   "test.example.com",
@@ -66,7 +66,7 @@ func TestBasicServiceOperations(t *testing.T) {
 		assert.NotZero(t, tenant.ID)
 
 		// Retrieve the tenant
-		var found models.Tenant
+		var found 
 		err = db.First(&found, tenant.ID).Error
 		assert.NoError(t, err)
 		assert.Equal(t, tenant.Name, found.Name)
@@ -75,7 +75,7 @@ func TestBasicServiceOperations(t *testing.T) {
 
 	t.Run("Create and retrieve user", func(t *testing.T) {
 		// Create a tenant first
-		tenant := &models.Tenant{
+		tenant := &{
 			Name:     "User Test Tenant",
 			Slug:     "user-test-tenant",
 			IsActive: true,
@@ -85,7 +85,6 @@ func TestBasicServiceOperations(t *testing.T) {
 
 		// Create a user
 		user := &models.User{
-			TenantID:     tenant.ID,
 			Email:        "test@example.com",
 			Username:     "testuser",
 			FirstName:    "Test",
@@ -104,12 +103,12 @@ func TestBasicServiceOperations(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, user.Email, found.Email)
 		assert.Equal(t, user.Username, found.Username)
-		assert.Equal(t, tenant.ID, found.TenantID)
+		assert.Equal(t, tenant.ID, found)
 	})
 
 	t.Run("Create and retrieve ticket", func(t *testing.T) {
 		// Create a tenant first
-		tenant := &models.Tenant{
+		tenant := &{
 			Name:     "Ticket Test Tenant",
 			Slug:     "ticket-test-tenant",
 			IsActive: true,
@@ -119,7 +118,6 @@ func TestBasicServiceOperations(t *testing.T) {
 
 		// Create a user
 		user := &models.User{
-			TenantID: tenant.ID,
 			Email:    "ticket@example.com",
 			Username: "ticketuser",
 			IsActive: true,
@@ -129,7 +127,6 @@ func TestBasicServiceOperations(t *testing.T) {
 
 		// Create a ticket
 		ticket := &models.Ticket{
-			TenantID:       tenant.ID,
 			TicketNumber:   "TICKET-001",
 			Title:          "Test Ticket",
 			Description:    "This is a test ticket",
@@ -150,7 +147,7 @@ func TestBasicServiceOperations(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, ticket.TicketNumber, found.TicketNumber)
 		assert.Equal(t, ticket.Title, found.Title)
-		assert.Equal(t, tenant.ID, found.TenantID)
+		assert.Equal(t, tenant.ID, found)
 	})
 }
 
@@ -214,7 +211,7 @@ func TestServiceErrorHandling(t *testing.T) {
 
 	t.Run("Database constraint violations", func(t *testing.T) {
 		// Create a tenant
-		tenant := &models.Tenant{
+		tenant := &{
 			Name:     "Test Corp",
 			Slug:     "test-corp",
 			IsActive: true,
@@ -223,7 +220,7 @@ func TestServiceErrorHandling(t *testing.T) {
 		require.NoError(t, err)
 
 		// Try to create another tenant with the same slug
-		duplicateTenant := &models.Tenant{
+		duplicateTenant := &{
 			Name:     "Duplicate Corp",
 			Slug:     "test-corp", // Same slug
 			IsActive: true,
@@ -236,7 +233,6 @@ func TestServiceErrorHandling(t *testing.T) {
 	t.Run("Foreign key constraints", func(t *testing.T) {
 		// Try to create a user with non-existent tenant ID
 		user := &models.User{
-			TenantID: 99999, // Non-existent tenant
 			Email:    "test@example.com",
 			Username: "testuser",
 		}
@@ -257,7 +253,7 @@ func TestServiceErrorHandling(t *testing.T) {
 		cancel() // Cancel immediately
 
 		// Try to perform database operations with cancelled context
-		tenant := &models.Tenant{
+		tenant := &{
 			Name:     "Cancelled Test",
 			Slug:     "cancelled-test",
 			IsActive: true,
@@ -274,11 +270,11 @@ func TestPermissionService(t *testing.T) {
 	ctx := context.Background()
 
 	// Setup test data for each sub-test
-	setupTestData := func(t *testing.T) (*models.Tenant, *models.User) {
+	setupTestData := func(t *testing.T) (*, *models.User) {
 		// Use unique identifiers for each test
 		testID := fmt.Sprintf("test-%d", time.Now().UnixNano())
 
-		tenant := &models.Tenant{
+		tenant := &{
 			Name:     fmt.Sprintf("Test Tenant %s", testID),
 			Slug:     fmt.Sprintf("test-tenant-%s", testID),
 			IsActive: true,
@@ -286,7 +282,6 @@ func TestPermissionService(t *testing.T) {
 		require.NoError(t, db.Create(tenant).Error)
 
 		user := &models.User{
-			TenantID: tenant.ID,
 			Email:    fmt.Sprintf("test-%s@example.com", testID),
 			Username: fmt.Sprintf("testuser-%s", testID),
 			IsActive: true,
@@ -321,7 +316,6 @@ func TestPermissionService(t *testing.T) {
 		tenant, _ := setupTestData(t)
 
 		role := &models.Role{
-			TenantID:    tenant.ID,
 			Name:        "Test Role",
 			Description: "Test role description",
 			IsSystem:    false,
@@ -352,7 +346,6 @@ func TestPermissionService(t *testing.T) {
 
 		// Create role
 		role := &models.Role{
-			TenantID: tenant.ID,
 			Name:     "Test Role for Assignment",
 			IsActive: true,
 		}
@@ -374,7 +367,6 @@ func TestPermissionService(t *testing.T) {
 
 		// Create role
 		role := &models.Role{
-			TenantID: tenant.ID,
 			Name:     "User Test Role",
 			IsActive: true,
 		}
@@ -446,7 +438,7 @@ func TestPermissionServiceComplex(t *testing.T) {
 	t.Run("Basic CRUD operations", func(t *testing.T) {
 		// Setup fresh data
 		testID := fmt.Sprintf("crud-%d", time.Now().UnixNano())
-		tenant := &models.Tenant{
+		tenant := &{
 			Name:     fmt.Sprintf("CRUD Tenant %s", testID),
 			Slug:     fmt.Sprintf("crud-tenant-%s", testID),
 			IsActive: true,
@@ -454,7 +446,6 @@ func TestPermissionServiceComplex(t *testing.T) {
 		require.NoError(t, db.Create(tenant).Error)
 
 		user := &models.User{
-			TenantID: tenant.ID,
 			Email:    fmt.Sprintf("crud-%s@example.com", testID),
 			Username: fmt.Sprintf("cruduser-%s", testID),
 			IsActive: true,
@@ -491,7 +482,7 @@ func TestPermissionServiceComplex(t *testing.T) {
 	t.Run("Role and permission assignment", func(t *testing.T) {
 		// Setup fresh data
 		testID := fmt.Sprintf("assignment-%d", time.Now().UnixNano())
-		tenant := &models.Tenant{
+		tenant := &{
 			Name:     fmt.Sprintf("Assignment Tenant %s", testID),
 			Slug:     fmt.Sprintf("assignment-tenant-%s", testID),
 			IsActive: true,
@@ -499,7 +490,6 @@ func TestPermissionServiceComplex(t *testing.T) {
 		require.NoError(t, db.Create(tenant).Error)
 
 		user := &models.User{
-			TenantID: tenant.ID,
 			Email:    fmt.Sprintf("assignment-%s@example.com", testID),
 			Username: fmt.Sprintf("assignmentuser-%s", testID),
 			IsActive: true,
@@ -515,7 +505,6 @@ func TestPermissionServiceComplex(t *testing.T) {
 		require.NoError(t, ps.CreatePermission(ctx, permission))
 
 		role := &models.Role{
-			TenantID: tenant.ID,
 			Name:     "Assignment Test Role",
 			IsActive: true,
 		}

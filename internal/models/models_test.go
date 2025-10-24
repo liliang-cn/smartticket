@@ -165,7 +165,7 @@ func TestUser(t *testing.T) {
 	t.Run("Empty User", func(t *testing.T) {
 		user := User{}
 
-		assert.Zero(t, user.TenantID)
+		assert.Zero(t, user)
 		assert.Empty(t, user.Email)
 		assert.Empty(t, user.Username)
 		assert.Empty(t, user.PasswordHash)
@@ -193,7 +193,6 @@ func TestUser(t *testing.T) {
 				CreatedBy: &createdBy,
 				UpdatedBy: &updatedBy,
 			},
-			TenantID:     1,
 			Email:        "test@example.com",
 			Username:     "testuser",
 			PasswordHash: "hashed_password",
@@ -204,7 +203,7 @@ func TestUser(t *testing.T) {
 			Preferences:  `{"theme": "light", "notifications": true}`,
 		}
 
-		assert.Equal(t, uint(1), user.TenantID)
+		assert.Equal(t, uint(1), user)
 		assert.Equal(t, "test@example.com", user.Email)
 		assert.Equal(t, "testuser", user.Username)
 		assert.Equal(t, "hashed_password", user.PasswordHash)
@@ -221,7 +220,6 @@ func TestUser(t *testing.T) {
 			BaseModel: BaseModel{
 				ID: 1,
 			},
-			TenantID:    1,
 			Email:       "test@example.com",
 			Username:    "testuser",
 			FirstName:   "Test",
@@ -237,7 +235,7 @@ func TestUser(t *testing.T) {
 		err = json.Unmarshal(jsonData, &unmarshaled)
 		require.NoError(t, err)
 
-		assert.Equal(t, user.TenantID, unmarshaled.TenantID)
+		assert.Equal(t, user, unmarshaled)
 		assert.Equal(t, user.Email, unmarshaled.Email)
 		assert.Equal(t, user.Username, unmarshaled.Username)
 		assert.Equal(t, user.FirstName, unmarshaled.FirstName)
@@ -279,7 +277,7 @@ func TestTicket(t *testing.T) {
 	t.Run("Empty Ticket", func(t *testing.T) {
 		ticket := Ticket{}
 
-		assert.Zero(t, ticket.TenantID)
+		assert.Zero(t, ticket)
 		assert.Empty(t, ticket.TicketNumber)
 		assert.Empty(t, ticket.Title)
 		assert.Empty(t, ticket.Description)
@@ -320,7 +318,6 @@ func TestTicket(t *testing.T) {
 				CreatedBy: &createdBy,
 				UpdatedBy: &updatedBy,
 			},
-			TenantID:       1,
 			TicketNumber:   "TICKET-001",
 			Title:          "Test Ticket",
 			Description:    "This is a test ticket",
@@ -341,7 +338,7 @@ func TestTicket(t *testing.T) {
 			SLAStatus:      "within",
 		}
 
-		assert.Equal(t, uint(1), ticket.TenantID)
+		assert.Equal(t, uint(1), ticket)
 		assert.Equal(t, "TICKET-001", ticket.TicketNumber)
 		assert.Equal(t, "Test Ticket", ticket.Title)
 		assert.Equal(t, "This is a test ticket", ticket.Description)
@@ -367,7 +364,6 @@ func TestTicket(t *testing.T) {
 			BaseModel: BaseModel{
 				ID: 1,
 			},
-			TenantID:     1,
 			TicketNumber: "TICKET-001",
 			Title:        "Test Ticket",
 			Description:  "Test description",
@@ -384,7 +380,7 @@ func TestTicket(t *testing.T) {
 		err = json.Unmarshal(jsonData, &unmarshaled)
 		require.NoError(t, err)
 
-		assert.Equal(t, ticket.TenantID, unmarshaled.TenantID)
+		assert.Equal(t, ticket, unmarshaled)
 		assert.Equal(t, ticket.TicketNumber, unmarshaled.TicketNumber)
 		assert.Equal(t, ticket.Title, unmarshaled.Title)
 		assert.Equal(t, ticket.Description, unmarshaled.Description)
@@ -586,7 +582,7 @@ func TestKnowledgeArticle(t *testing.T) {
 	t.Run("Empty KnowledgeArticle", func(t *testing.T) {
 		article := KnowledgeArticle{}
 
-		assert.Zero(t, article.TenantID)
+		assert.Zero(t, article)
 		assert.Empty(t, article.Title)
 		assert.Empty(t, article.Slug)
 		assert.Empty(t, article.Content)
@@ -619,7 +615,6 @@ func TestKnowledgeArticle(t *testing.T) {
 				CreatedBy: &createdBy,
 				UpdatedBy: &updatedBy,
 			},
-			TenantID:     1,
 			Title:        "Test Article",
 			Slug:         "test-article",
 			Content:      "# Test Article\nThis is a test article content",
@@ -637,7 +632,7 @@ func TestKnowledgeArticle(t *testing.T) {
 			ParentID:     &parentID,
 		}
 
-		assert.Equal(t, uint(1), article.TenantID)
+		assert.Equal(t, uint(1), article)
 		assert.Equal(t, "Test Article", article.Title)
 		assert.Equal(t, "test-article", article.Slug)
 		assert.Equal(t, "# Test Article\nThis is a test article content", article.Content)
@@ -660,7 +655,6 @@ func TestKnowledgeArticle(t *testing.T) {
 			BaseModel: BaseModel{
 				ID: 1,
 			},
-			TenantID:     1,
 			Title:        "Test Article",
 			Slug:         "test-article",
 			Content:      "Test content",
@@ -683,7 +677,7 @@ func TestKnowledgeArticle(t *testing.T) {
 		err = json.Unmarshal(jsonData, &unmarshaled)
 		require.NoError(t, err)
 
-		assert.Equal(t, article.TenantID, unmarshaled.TenantID)
+		assert.Equal(t, article, unmarshaled)
 		assert.Equal(t, article.Title, unmarshaled.Title)
 		assert.Equal(t, article.Slug, unmarshaled.Slug)
 		assert.Equal(t, article.Content, unmarshaled.Content)
@@ -723,7 +717,7 @@ func TestLLMProvider(t *testing.T) {
 	t.Run("Empty LLMProvider", func(t *testing.T) {
 		provider := LLMProvider{}
 
-		assert.Zero(t, provider.TenantID)
+		assert.Zero(t, provider)
 		assert.Empty(t, provider.Name)
 		assert.Empty(t, provider.ProviderType)
 		assert.Empty(t, provider.APIEndpoint)
@@ -752,7 +746,6 @@ func TestLLMProvider(t *testing.T) {
 				CreatedBy: &createdBy,
 				UpdatedBy: &updatedBy,
 			},
-			TenantID:      1,
 			Name:          "OpenAI GPT-4",
 			ProviderType:  "openai",
 			APIEndpoint:   "https://api.openai.com/v1",
@@ -768,7 +761,7 @@ func TestLLMProvider(t *testing.T) {
 			Configuration: `{"timeout": 30}`,
 		}
 
-		assert.Equal(t, uint(1), provider.TenantID)
+		assert.Equal(t, uint(1), provider)
 		assert.Equal(t, "OpenAI GPT-4", provider.Name)
 		assert.Equal(t, "openai", provider.ProviderType)
 		assert.Equal(t, "https://api.openai.com/v1", provider.APIEndpoint)
@@ -789,7 +782,6 @@ func TestLLMProvider(t *testing.T) {
 			BaseModel: BaseModel{
 				ID: 1,
 			},
-			TenantID:     1,
 			Name:         "Test Provider",
 			ProviderType: "test",
 			APIEndpoint:  "https://api.test.com/v1",
@@ -810,7 +802,7 @@ func TestLLMProvider(t *testing.T) {
 		err = json.Unmarshal(jsonData, &unmarshaled)
 		require.NoError(t, err)
 
-		assert.Equal(t, provider.TenantID, unmarshaled.TenantID)
+		assert.Equal(t, provider, unmarshaled)
 		assert.Equal(t, provider.Name, unmarshaled.Name)
 		assert.Equal(t, provider.ProviderType, unmarshaled.ProviderType)
 		assert.Equal(t, provider.APIEndpoint, unmarshaled.APIEndpoint)
@@ -839,7 +831,7 @@ func TestImportExportJob(t *testing.T) {
 	t.Run("Empty ImportExportJob", func(t *testing.T) {
 		job := ImportExportJob{}
 
-		assert.Zero(t, job.TenantID)
+		assert.Zero(t, job)
 		assert.Empty(t, job.Type)   // Zero value for string is ""
 		assert.Empty(t, job.Status) // Zero value for string is ""
 		assert.Zero(t, job.Progress)
@@ -871,7 +863,6 @@ func TestImportExportJob(t *testing.T) {
 				CreatedBy: &createdBy,
 				UpdatedBy: &updatedBy,
 			},
-			TenantID:         1,
 			Type:             "export",
 			Status:           "completed",
 			Progress:         100,
@@ -888,7 +879,7 @@ func TestImportExportJob(t *testing.T) {
 			StartedBy:        2,
 		}
 
-		assert.Equal(t, uint(1), job.TenantID)
+		assert.Equal(t, uint(1), job)
 		assert.Equal(t, "export", job.Type)
 		assert.Equal(t, "completed", job.Status)
 		assert.Equal(t, 100, job.Progress)
@@ -910,7 +901,6 @@ func TestImportExportJob(t *testing.T) {
 			BaseModel: BaseModel{
 				ID: 1,
 			},
-			TenantID:     1,
 			Type:         "import",
 			Status:       "running",
 			Progress:     50,
@@ -925,7 +915,7 @@ func TestImportExportJob(t *testing.T) {
 		err = json.Unmarshal(jsonData, &unmarshaled)
 		require.NoError(t, err)
 
-		assert.Equal(t, job.TenantID, unmarshaled.TenantID)
+		assert.Equal(t, job, unmarshaled)
 		assert.Equal(t, job.Type, unmarshaled.Type)
 		assert.Equal(t, job.Status, unmarshaled.Status)
 		assert.Equal(t, job.Progress, unmarshaled.Progress)
@@ -948,7 +938,7 @@ func TestAuditLog(t *testing.T) {
 	t.Run("Empty AuditLog", func(t *testing.T) {
 		log := AuditLog{}
 
-		assert.Zero(t, log.TenantID)
+		assert.Zero(t, log)
 		assert.Zero(t, log.UserID)
 		assert.Empty(t, log.Action)
 		assert.Empty(t, log.ResourceType)
@@ -976,7 +966,6 @@ func TestAuditLog(t *testing.T) {
 				CreatedBy: &createdBy,
 				UpdatedBy: &updatedBy,
 			},
-			TenantID:     1,
 			UserID:       2,
 			Action:       "ticket.created",
 			ResourceType: "ticket",
@@ -991,7 +980,7 @@ func TestAuditLog(t *testing.T) {
 			Hash:         "abc123def456",
 		}
 
-		assert.Equal(t, uint(1), log.TenantID)
+		assert.Equal(t, uint(1), log)
 		assert.Equal(t, uint(2), log.UserID)
 		assert.Equal(t, "ticket.created", log.Action)
 		assert.Equal(t, "ticket", log.ResourceType)
@@ -1011,7 +1000,6 @@ func TestAuditLog(t *testing.T) {
 			BaseModel: BaseModel{
 				ID: 1,
 			},
-			TenantID:     1,
 			UserID:       1,
 			Action:       "user.updated",
 			ResourceType: "user",
@@ -1031,7 +1019,7 @@ func TestAuditLog(t *testing.T) {
 		err = json.Unmarshal(jsonData, &unmarshaled)
 		require.NoError(t, err)
 
-		assert.Equal(t, log.TenantID, unmarshaled.TenantID)
+		assert.Equal(t, log, unmarshaled)
 		assert.Equal(t, log.UserID, unmarshaled.UserID)
 		assert.Equal(t, log.Action, unmarshaled.Action)
 		assert.Equal(t, log.ResourceType, unmarshaled.ResourceType)
@@ -1110,7 +1098,7 @@ func TestRole(t *testing.T) {
 	t.Run("Empty Role", func(t *testing.T) {
 		role := Role{}
 
-		assert.Zero(t, role.TenantID)
+		assert.Zero(t, role)
 		assert.Empty(t, role.Name)
 		assert.Empty(t, role.Description)
 		assert.False(t, role.IsSystem)
@@ -1132,7 +1120,6 @@ func TestRole(t *testing.T) {
 				CreatedBy: &createdBy,
 				UpdatedBy: &updatedBy,
 			},
-			TenantID:    1,
 			Name:        "Engineer",
 			Description: "Engineer role with ticket permissions",
 			IsSystem:    false,
@@ -1140,7 +1127,7 @@ func TestRole(t *testing.T) {
 			CreatedBy:   2,
 		}
 
-		assert.Equal(t, uint(1), role.TenantID)
+		assert.Equal(t, uint(1), role)
 		assert.Equal(t, "Engineer", role.Name)
 		assert.Equal(t, "Engineer role with ticket permissions", role.Description)
 		assert.False(t, role.IsSystem)
@@ -1153,7 +1140,6 @@ func TestRole(t *testing.T) {
 			BaseModel: BaseModel{
 				ID: 1,
 			},
-			TenantID:    1,
 			Name:        "Admin",
 			Description: "Administrator role",
 			IsSystem:    true,
@@ -1168,7 +1154,7 @@ func TestRole(t *testing.T) {
 		err = json.Unmarshal(jsonData, &unmarshaled)
 		require.NoError(t, err)
 
-		assert.Equal(t, role.TenantID, unmarshaled.TenantID)
+		assert.Equal(t, role, unmarshaled)
 		assert.Equal(t, role.Name, unmarshaled.Name)
 		assert.Equal(t, role.Description, unmarshaled.Description)
 		assert.Equal(t, role.IsSystem, unmarshaled.IsSystem)
@@ -1423,19 +1409,17 @@ func TestModelFieldValidation(t *testing.T) {
 func TestModelRelationships(t *testing.T) {
 	t.Run("User-Tenant relationship", func(t *testing.T) {
 		user := User{
-			TenantID: 1,
 		}
 
-		assert.Equal(t, uint(1), user.TenantID)
+		assert.Equal(t, uint(1), user)
 		// Actual relationship testing would require database setup
 	})
 
 	t.Run("Ticket-Tenant relationship", func(t *testing.T) {
 		ticket := Ticket{
-			TenantID: 1,
 		}
 
-		assert.Equal(t, uint(1), ticket.TenantID)
+		assert.Equal(t, uint(1), ticket)
 		// Actual relationship testing would require database setup
 	})
 
@@ -1511,13 +1495,11 @@ func TestJSONSerialization(t *testing.T) {
 				}
 			case *User:
 				*v = User{
-					TenantID: 1,
 					Email:    "test@example.com",
 					Username: "test",
 				}
 			case *Ticket:
 				*v = Ticket{
-					TenantID:     1,
 					TicketNumber: "TICKET-001",
 					Title:        "Test Ticket",
 					Description:  "Test",
@@ -1539,31 +1521,26 @@ func TestJSONSerialization(t *testing.T) {
 				}
 			case *KnowledgeArticle:
 				*v = KnowledgeArticle{
-					TenantID: 1,
 					Title:    "Test Article",
 					Slug:     "test-article",
 					Status:   "draft",
 				}
 			case *LLMProvider:
 				*v = LLMProvider{
-					TenantID: 1,
 					Name:     "Test Provider",
 					Model:    "test-model",
 				}
 			case *ImportExportJob:
 				*v = ImportExportJob{
-					TenantID: 1,
 					Type:     "import",
 					Status:   "pending",
 				}
 			case *AuditLog:
 				*v = AuditLog{
-					TenantID: 1,
 					Action:   "test",
 				}
 			case *APIKey:
 				*v = APIKey{
-					TenantID: 1,
 					Name:     "Test Key",
 					KeyHash:  "test-hash",
 				}
@@ -1575,26 +1552,22 @@ func TestJSONSerialization(t *testing.T) {
 				}
 			case *Product:
 				*v = Product{
-					TenantID: 1,
 					Name:     "Test Product",
 					Code:     "PROD-001",
 				}
 			case *Service:
 				*v = Service{
-					TenantID:  1,
 					ProductID: 1,
 					Name:      "Test Service",
 					Code:      "SRV-001",
 				}
 			case *SLATemplate:
 				*v = SLATemplate{
-					TenantID: 1,
 					Name:     "Test SLA",
 					IsActive: true,
 				}
 			case *SLARule:
 				*v = SLARule{
-					TenantID: 1,
 					Priority: "high",
 					Severity: "critical",
 				}
@@ -1606,7 +1579,6 @@ func TestJSONSerialization(t *testing.T) {
 				}
 			case *Role:
 				*v = Role{
-					TenantID: 1,
 					Name:     "Test Role",
 					IsActive: true,
 				}
@@ -1689,12 +1661,12 @@ func TestJSONSerialization(t *testing.T) {
 			case *User:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*User)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Email, unmarshaledTyped.Email)
 			case *Ticket:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*Ticket)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.TicketNumber, unmarshaledTyped.TicketNumber)
 			case *Message:
 				original := *v
@@ -1709,27 +1681,27 @@ func TestJSONSerialization(t *testing.T) {
 			case *KnowledgeArticle:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*KnowledgeArticle)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Title, unmarshaledTyped.Title)
 			case *LLMProvider:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*LLMProvider)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Name, unmarshaledTyped.Name)
 			case *ImportExportJob:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*ImportExportJob)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Type, unmarshaledTyped.Type)
 			case *AuditLog:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*AuditLog)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Action, unmarshaledTyped.Action)
 			case *APIKey:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*APIKey)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Name, unmarshaledTyped.Name)
 			case *SystemSetting:
 				original := *v
@@ -1738,22 +1710,22 @@ func TestJSONSerialization(t *testing.T) {
 			case *Product:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*Product)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Name, unmarshaledTyped.Name)
 			case *Service:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*Service)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.ProductID, unmarshaledTyped.ProductID)
 			case *SLATemplate:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*SLATemplate)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Name, unmarshaledTyped.Name)
 			case *SLARule:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*SLARule)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Priority, unmarshaledTyped.Priority)
 			case *Permission:
 				original := *v
@@ -1762,7 +1734,7 @@ func TestJSONSerialization(t *testing.T) {
 			case *Role:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*Role)
-				assert.Equal(t, original.TenantID, unmarshaledTyped.TenantID)
+				assert.Equal(t, original, unmarshaledTyped)
 				assert.Equal(t, original.Name, unmarshaledTyped.Name)
 			case *RolePermission:
 				original := *v

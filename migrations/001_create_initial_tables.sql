@@ -26,29 +26,6 @@ CREATE TABLE IF NOT EXISTS system_settings (
 -- Create unique index for system_settings key
 CREATE UNIQUE INDEX IF NOT EXISTS idx_system_settings_key ON system_settings(key);
 
--- Create tenants table
-CREATE TABLE IF NOT EXISTS tenants (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    deleted_at DATETIME,
-    created_by TEXT(255),
-    updated_by TEXT(255),
-    name TEXT(255) NOT NULL,
-    slug TEXT(100) NOT NULL UNIQUE,
-    domain TEXT(255),
-    settings TEXT,
-    plan TEXT(50) DEFAULT 'basic',
-    max_users INTEGER DEFAULT 100,
-    is_active BOOLEAN DEFAULT 1,
-    expired_at DATETIME
-);
-
--- Create unique index for tenants slug
-CREATE UNIQUE INDEX IF NOT EXISTS idx_tenants_slug ON tenants(slug);
-
--- Create index for tenants active status
-CREATE INDEX IF NOT EXISTS idx_tenants_is_active ON tenants(is_active);
 
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
@@ -58,23 +35,16 @@ CREATE TABLE IF NOT EXISTS users (
     deleted_at DATETIME,
     created_by TEXT(255),
     updated_by TEXT(255),
-    tenant_id INTEGER NOT NULL,
-    email TEXT(255) NOT NULL,
-    username TEXT(100) NOT NULL,
+    email TEXT(255) NOT NULL UNIQUE,
+    username TEXT(100) NOT NULL UNIQUE,
     password_hash TEXT(255) NOT NULL,
     first_name TEXT(100),
     last_name TEXT(100),
     role TEXT(50) DEFAULT 'customer',
     is_active BOOLEAN DEFAULT 1,
     last_login_at DATETIME,
-    preferences TEXT,
-    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
-    UNIQUE(tenant_id, email),
-    UNIQUE(tenant_id, username)
+    preferences TEXT
 );
-
--- Create index for users tenant_id
-CREATE INDEX IF NOT EXISTS idx_users_tenant_id ON users(tenant_id);
 
 -- Create index for users role
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
@@ -90,8 +60,7 @@ CREATE TABLE IF NOT EXISTS tickets (
     deleted_at DATETIME,
     created_by TEXT(255),
     updated_by TEXT(255),
-    tenant_id INTEGER NOT NULL,
-    ticket_number TEXT(50) NOT NULL,
+    ticket_number TEXT(50) NOT NULL UNIQUE,
     title TEXT(255) NOT NULL,
     description TEXT,
     status TEXT(50) DEFAULT 'open',
@@ -109,14 +78,9 @@ CREATE TABLE IF NOT EXISTS tickets (
     resolved_at DATETIME,
     due_date DATETIME,
     sla_status TEXT(20) DEFAULT 'within',
-    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
     FOREIGN KEY (assigned_to) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
-    UNIQUE(tenant_id, ticket_number)
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
-
--- Create index for tickets tenant_id
-CREATE INDEX IF NOT EXISTS idx_tickets_tenant_id ON tickets(tenant_id);
 
 -- Create index for tickets status
 CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
@@ -207,7 +171,6 @@ CREATE TABLE IF NOT EXISTS knowledge_articles (
     deleted_at DATETIME,
     created_by TEXT(255),
     updated_by TEXT(255),
-    tenant_id INTEGER NOT NULL,
     title TEXT(255) NOT NULL,
     slug TEXT(255) NOT NULL,
     content TEXT,
@@ -223,13 +186,9 @@ CREATE TABLE IF NOT EXISTS knowledge_articles (
     helpful_votes INTEGER DEFAULT 0,
     version INTEGER DEFAULT 1,
     parent_id INTEGER,
-    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
     FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (parent_id) REFERENCES knowledge_articles(id) ON DELETE SET NULL
 );
-
--- Create index for knowledge_articles tenant_id
-CREATE INDEX IF NOT EXISTS idx_knowledge_articles_tenant_id ON knowledge_articles(tenant_id);
 
 -- Create index for knowledge_articles slug
 CREATE INDEX IF NOT EXISTS idx_knowledge_articles_slug ON knowledge_articles(slug);
@@ -251,7 +210,6 @@ CREATE TABLE IF NOT EXISTS llm_providers (
     deleted_at DATETIME,
     created_by TEXT(255),
     updated_by TEXT(255),
-    tenant_id INTEGER NOT NULL,
     name TEXT(255) NOT NULL,
     provider_type TEXT(50) NOT NULL,
     api_endpoint TEXT(500),
@@ -265,12 +223,8 @@ CREATE TABLE IF NOT EXISTS llm_providers (
     quota_limit INTEGER DEFAULT 1000,
     quota_used INTEGER DEFAULT 0,
     configuration TEXT,
-    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
-
--- Create index for llm_providers tenant_id
-CREATE INDEX IF NOT EXISTS idx_llm_providers_tenant_id ON llm_providers(tenant_id);
 
 -- Create index for llm_providers is_enabled
 CREATE INDEX IF NOT EXISTS idx_llm_providers_is_enabled ON llm_providers(is_enabled);
@@ -283,7 +237,6 @@ CREATE TABLE IF NOT EXISTS import_export_jobs (
     deleted_at DATETIME,
     created_by TEXT(255),
     updated_by TEXT(255),
-    tenant_id INTEGER NOT NULL,
     type TEXT(20) NOT NULL,
     status TEXT(50) DEFAULT 'pending',
     progress INTEGER DEFAULT 0,
@@ -298,13 +251,9 @@ CREATE TABLE IF NOT EXISTS import_export_jobs (
     started_at DATETIME,
     completed_at DATETIME,
     started_by INTEGER,
-    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
     FOREIGN KEY (started_by) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
-
--- Create index for import_export_jobs tenant_id
-CREATE INDEX IF NOT EXISTS idx_import_export_jobs_tenant_id ON import_export_jobs(tenant_id);
 
 -- Create index for import_export_jobs status
 CREATE INDEX IF NOT EXISTS idx_import_export_jobs_status ON import_export_jobs(status);
@@ -320,7 +269,6 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     deleted_at DATETIME,
     created_by TEXT(255),
     updated_by TEXT(255),
-    tenant_id INTEGER NOT NULL,
     user_id INTEGER,
     action TEXT(100) NOT NULL,
     resource_type TEXT(100) NOT NULL,
@@ -333,13 +281,9 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     new_values TEXT,
     request_id TEXT(100),
     hash TEXT(64),
-    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
-
--- Create index for audit_logs tenant_id
-CREATE INDEX IF NOT EXISTS idx_audit_logs_tenant_id ON audit_logs(tenant_id);
 
 -- Create index for audit_logs user_id
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
@@ -364,7 +308,6 @@ CREATE TABLE IF NOT EXISTS api_keys (
     deleted_at DATETIME,
     created_by TEXT(255),
     updated_by TEXT(255),
-    tenant_id INTEGER NOT NULL,
     name TEXT(255) NOT NULL,
     key_hash TEXT(255) NOT NULL UNIQUE,
     key_prefix TEXT(20) NOT NULL,
@@ -374,13 +317,9 @@ CREATE TABLE IF NOT EXISTS api_keys (
     last_used_at DATETIME,
     usage_count INTEGER DEFAULT 0,
     creator_id INTEGER,
-    FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE,
     FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
-
--- Create index for api_keys tenant_id
-CREATE INDEX IF NOT EXISTS idx_api_keys_tenant_id ON api_keys(tenant_id);
 
 -- Create index for api_keys key_hash
 CREATE UNIQUE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);

@@ -21,7 +21,7 @@ func TestTenantHandlers(t *testing.T) {
 
 		// Mock handler function
 		router.POST("/tenants", func(c *gin.Context) {
-			var tenant models.Tenant
+			var tenant 
 			if err := c.ShouldBindJSON(&tenant); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
@@ -75,7 +75,7 @@ func TestTenantHandlers(t *testing.T) {
 
 			// Simulate finding a tenant
 			if id == "1" {
-				tenant := models.Tenant{
+				tenant := {
 					BaseModel: models.BaseModel{ID: 1},
 					Name:      "Test Corporation",
 					Slug:      "test-corporation",
@@ -116,7 +116,7 @@ func TestTenantHandlers(t *testing.T) {
 
 		// Mock handler function
 		router.GET("/tenants", func(c *gin.Context) {
-			tenants := []models.Tenant{
+			tenants := []{
 				{
 					BaseModel: models.BaseModel{ID: 1},
 					Name:      "Test Corp 1",
@@ -168,7 +168,7 @@ func TestTenantHandlers(t *testing.T) {
 		// Mock handler function
 		router.PUT("/tenants/:id", func(c *gin.Context) {
 			id := c.Param("id")
-			var tenant models.Tenant
+			var tenant 
 
 			if err := c.ShouldBindJSON(&tenant); err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

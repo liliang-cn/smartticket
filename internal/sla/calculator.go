@@ -28,11 +28,11 @@ type SLADueDate struct {
 }
 
 // CalculateSLADueDates calculates due dates for a ticket based on SLA rules.
-func (c *Calculator) CalculateSLADueDates(tenantID uint, priority, severity string, productID, serviceID *uint) (*SLADueDate, error) {
+func (c *Calculator) CalculateSLADueDates(priority, severity string, productID, serviceID *uint) (*SLADueDate, error) {
 	// Find matching SLA rule
 	var rule models.SLARule
-	query := c.db.Where("tenant_id = ? AND priority = ? AND severity = ? AND is_active = ?",
-		tenantID, priority, severity, true)
+	query := c.db.Where("priority = ? AND severity = ? AND is_active = ?",
+		priority, severity, true)
 
 	// Filter by product if provided
 	if productID != nil {
@@ -172,7 +172,7 @@ func (c *Calculator) CheckSLACompliance(ticket *models.Ticket) (responseMet, res
 	}
 
 	// Get SLA due dates
-	slaDates, err := c.CalculateSLADueDates(ticket.TenantID, ticket.Priority, ticket.Severity, ticket.ProductID, ticket.ServiceID)
+	slaDates, err := c.CalculateSLADueDates(ticket.Priority, ticket.Severity, ticket.ProductID, ticket.ServiceID)
 	if err != nil {
 		// If no SLA rule found, use default calculation
 		defaultSLA := c.getDefaultSLADueDates(ticket.Priority, ticket.Severity)

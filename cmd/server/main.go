@@ -128,7 +128,6 @@ func runServe(cmd *cobra.Command, _ []string) error {
 	logger.Debug("Running database migrations")
 	dbModels := []interface{}{
 		// Base tables first (no foreign key dependencies)
-		&models.Tenant{},
 		&models.SystemSetting{},
 		&models.Product{},
 		&models.Service{},
@@ -281,7 +280,6 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 	logger.Debug("Running GORM auto-migrations")
 	dbModels := []interface{}{
 		// Base tables first (no foreign key dependencies)
-		&models.Tenant{},
 		&models.SystemSetting{},
 		&models.Product{},
 		&models.Service{},

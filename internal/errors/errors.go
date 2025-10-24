@@ -140,11 +140,6 @@ func (e *AppError) WithUserID(userID uint) *AppError {
 	return e
 }
 
-// WithTenantID adds tenant ID to the error.
-func (e *AppError) WithTenantID(tenantID uint) *AppError {
-	e.TenantID = tenantID
-	return e
-}
 
 // WithStackTrace adds stack trace to the error.
 func (e *AppError) WithStackTrace() *AppError {
@@ -205,10 +200,7 @@ func (e *AppError) Log() {
 	if e.UserID != 0 {
 		fields = append(fields, zap.Uint("user_id", e.UserID))
 	}
-	if e.TenantID != 0 {
-		fields = append(fields, zap.Uint("tenant_id", e.TenantID))
-	}
-	if e.Cause != nil {
+		if e.Cause != nil {
 		fields = append(fields, zap.Error(e.Cause))
 	}
 	if e.StackTrace != "" {

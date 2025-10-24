@@ -14,10 +14,9 @@ import (
 
 // JWTClaims represents the claims structure for JWT tokens.
 type JWTClaims struct {
-	UserID   uint   `json:"user_id"`
-	TenantID uint   `json:"tenant_id"`
-	Email    string `json:"email"`
-	Role     string `json:"role"`
+	UserID uint   `json:"user_id"`
+	Email  string `json:"email"`
+	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -54,8 +53,6 @@ type UserInfo struct {
 	Role        string     `json:"role"`
 	IsActive    bool       `json:"is_active"`
 	LastLoginAt *time.Time `json:"last_login_at"`
-	TenantID    uint       `json:"tenant_id"`
-	TenantName  string     `json:"tenant_name,omitempty"`
 }
 
 // RefreshTokenRequest represents the refresh token request.
@@ -95,7 +92,7 @@ func (s *Service) Login(req *LoginRequest, clientIP, userAgent string) (*LoginRe
 	// Find user by email
 	var user models.User
 	if err := s.db.Where("email = ? AND is_active = ?", req.Email, true).
-		Preload("Tenant").First(&user).Error; err != nil {
+		First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("invalid email or password")
 		}
@@ -160,7 +157,7 @@ func (s *Service) RefreshToken(refreshToken string) (*TokenPair, error) {
 	// Find user
 	var user models.User
 	if err := s.db.Where("id = ? AND is_active = ?", claims.UserID, true).
-		Preload("Tenant").First(&user).Error; err != nil {
+		First(&user).Error; err != nil {
 		return nil, fmt.Errorf("user not found or inactive: %w", err)
 	}
 
@@ -232,7 +229,7 @@ func (s *Service) ChangePassword(userID uint, req *ChangePasswordRequest) error 
 func (s *Service) GetUserInfo(userID uint) (*UserInfo, error) {
 	var user models.User
 	if err := s.db.Where("id = ? AND is_active = ?", userID, true).
-		Preload("Tenant").First(&user).Error; err != nil {
+		First(&user).Error; err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
 
@@ -251,19 +248,14 @@ func (s *Service) CreateUserInfo(user *models.User) *UserInfo {
 func (s *Service) generateTokenPair(user *models.User) (*TokenPair, error) {
 	now := time.Now()
 
-	// Get user's effective role for token generation
-	effectiveRole, err := s.GetUserEffectiveRole(user.ID, user.TenantID)
-	if err != nil {
-		// Default to customer role if we can't determine the role
-		effectiveRole = "customer"
-	}
+	// Use user's role directly for token generation
+	effectiveRole := user.Role
 
 	// Generate access token
 	accessClaims := &JWTClaims{
-		UserID:   user.ID,
-		TenantID: user.TenantID,
-		Email:    user.Email,
-		Role:     effectiveRole,
+		UserID: user.ID,
+		Email:  user.Email,
+		Role:   effectiveRole,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   "access",
 			Issuer:    s.issuer,
@@ -280,10 +272,9 @@ func (s *Service) generateTokenPair(user *models.User) (*TokenPair, error) {
 
 	// Generate refresh token
 	refreshClaims := &JWTClaims{
-		UserID:   user.ID,
-		TenantID: user.TenantID,
-		Email:    user.Email,
-		Role:     effectiveRole,
+		UserID: user.ID,
+		Email:  user.Email,
+		Role:   effectiveRole,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   "refresh",
 			Issuer:    s.issuer,
@@ -317,79 +308,18 @@ func (s *Service) verifyPassword(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
-// GetUserEffectiveRole returns the most effective role for a user.
-func (s *Service) GetUserEffectiveRole(userID uint, tenantID uint) (string, error) {
-	// Check if user is tenant admin by looking for tenant_admin role assignment
-	var count int64
-	err := s.db.Table("user_roles").
-		Joins("JOIN roles ON user_roles.role_id = roles.id").
-		Where("user_roles.user_id = ? AND roles.tenant_id = ? AND roles.name = ?", userID, tenantID, "tenant_admin").
-		Count(&count).Error
-
-	if err != nil {
-		return "", fmt.Errorf("failed to check tenant admin role: %w", err)
-	}
-
-	if count > 0 {
-		return "tenant_admin", nil
-	}
-
-	// Check for system admin role (roles with tenant_id = 0 or is_system = true)
-	err = s.db.Table("user_roles").
-		Joins("JOIN roles ON user_roles.role_id = roles.id").
-		Where("user_roles.user_id = ? AND (roles.tenant_id = 0 OR roles.is_system = ?) AND roles.name = ?", userID, true, "admin").
-		Count(&count).Error
-
-	if err != nil {
-		return "", fmt.Errorf("failed to check system admin role: %w", err)
-	}
-
-	if count > 0 {
-		return "admin", nil
-	}
-
-	// Return default role or highest priority role found
-	var role struct {
-		Name string `json:"name"`
-	}
-
-	err = s.db.Table("user_roles").
-		Joins("JOIN roles ON user_roles.role_id = roles.id").
-		Where("user_roles.user_id = ? AND (roles.tenant_id = ? OR roles.tenant_id = 0)", userID, tenantID).
-		Order("CASE WHEN roles.is_system = true THEN 0 ELSE 1 END, roles.name").
-		First(&role).Error
-
-	if err != nil {
-		// If no role found, return default role
-		return "customer", nil
-	}
-
-	return role.Name, nil
-}
 
 // createUserInfo creates safe user info for responses.
 func (s *Service) createUserInfo(user *models.User) *UserInfo {
-	// Get user's effective role
-	effectiveRole, err := s.GetUserEffectiveRole(user.ID, user.TenantID)
-	if err != nil {
-		// Default to customer role if we can't determine the role
-		effectiveRole = "customer"
-	}
-
 	info := &UserInfo{
 		ID:          user.ID,
 		Email:       user.Email,
 		Username:    user.Username,
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
-		Role:        effectiveRole,
+		Role:        user.Role,
 		IsActive:    user.IsActive,
 		LastLoginAt: user.LastLoginAt,
-		TenantID:    user.TenantID,
-	}
-
-	if user.Tenant.ID != 0 {
-		info.TenantName = user.Tenant.Name
 	}
 
 	return info

@@ -155,7 +155,7 @@ func (h *Handlers) CreateSLATemplate(c *gin.Context) {
 
 	h.logSecurityEventWithName(c, "sla_template_creation_attempt", req.Name)
 
-	template, err := h.service.CreateSLATemplate(user.TenantID, &req)
+	template, err := h.service.CreateSLATemplate(user.ID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -200,7 +200,7 @@ func (h *Handlers) ListSLATemplates(c *gin.Context) {
 		return
 	}
 
-	templates, total, err := h.service.ListSLATemplates(user.TenantID, &req)
+	templates, total, err := h.service.ListSLATemplates(user.ID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -236,7 +236,7 @@ func (h *Handlers) GetSLATemplate(c *gin.Context) {
 		return
 	}
 
-	template, err := h.service.GetSLATemplate(user.TenantID, templateID)
+	template, err := h.service.GetSLATemplate(user.ID, templateID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -266,7 +266,7 @@ func (h *Handlers) UpdateSLATemplate(c *gin.Context) {
 
 	h.logSecurityEvent(c, "sla_template_update_attempt", "sla_template", templateID)
 
-	template, err := h.service.UpdateSLATemplate(user.TenantID, templateID, &req)
+	template, err := h.service.UpdateSLATemplate(user.ID, templateID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -293,7 +293,7 @@ func (h *Handlers) DeleteSLATemplate(c *gin.Context) {
 
 	h.logSecurityEvent(c, "sla_template_deletion_attempt", "sla_template", templateID)
 
-	err = h.service.DeleteSLATemplate(user.TenantID, templateID)
+	err = h.service.DeleteSLATemplate(user.ID, templateID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -338,7 +338,7 @@ func (h *Handlers) CreateSLARule(c *gin.Context) {
 
 	h.logSecurityEvent(c, "sla_rule_creation_attempt", "sla_rule", nil)
 
-	rule, err := h.service.CreateSLARule(user.TenantID, &req)
+	rule, err := h.service.CreateSLARule(user.ID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -364,7 +364,7 @@ func (h *Handlers) ListSLARules(c *gin.Context) {
 		return
 	}
 
-	rules, total, err := h.service.ListSLARules(user.TenantID, &req)
+	rules, total, err := h.service.ListSLARules(user.ID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -385,7 +385,7 @@ func (h *Handlers) GetSLARule(c *gin.Context) {
 		return
 	}
 
-	rule, err := h.service.GetSLARule(user.TenantID, ruleID)
+	rule, err := h.service.GetSLARule(user.ID, ruleID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -415,7 +415,7 @@ func (h *Handlers) UpdateSLARule(c *gin.Context) {
 
 	h.logSecurityEvent(c, "sla_rule_update_attempt", "sla_rule", ruleID)
 
-	rule, err := h.service.UpdateSLARule(user.TenantID, ruleID, &req)
+	rule, err := h.service.UpdateSLARule(user.ID, ruleID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -441,7 +441,7 @@ func (h *Handlers) DeleteSLARule(c *gin.Context) {
 
 	h.logSecurityEvent(c, "sla_rule_deletion_attempt", "sla_rule", ruleID)
 
-	err = h.service.DeleteSLARule(user.TenantID, ruleID)
+	err = h.service.DeleteSLARule(user.ID, ruleID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -467,7 +467,7 @@ func (h *Handlers) ActivateSLARule(c *gin.Context) {
 
 	h.logSecurityEvent(c, "sla_rule_activation_attempt", "sla_rule", ruleID)
 
-	err = h.service.ActivateSLARule(user.TenantID, ruleID)
+	err = h.service.ActivateSLARule(user.ID, ruleID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -493,7 +493,7 @@ func (h *Handlers) DeactivateSLARule(c *gin.Context) {
 
 	h.logSecurityEvent(c, "sla_rule_deactivation_attempt", "sla_rule", ruleID)
 
-	err = h.service.DeactivateSLARule(user.TenantID, ruleID)
+	err = h.service.DeactivateSLARule(user.ID, ruleID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return

@@ -182,7 +182,7 @@ func TestAuthService_ValidateToken(t *testing.T) {
 		// Role is now determined by GetUserEffectiveRole, not stored on User model
 	// We expect "customer" as default role since no role assignments are created in test
 	assert.Equal(t, "customer", result.Role)
-		assert.Equal(t, tenant.ID, result.TenantID)
+		assert.Equal(t, tenant.ID, result)
 	})
 }
 
@@ -222,7 +222,7 @@ func TestAuthService_GetUserInfo(t *testing.T) {
 		assert.NotNil(t, result)
 		assert.Equal(t, user.ID, result.ID)
 		assert.Equal(t, user.Email, result.Email)
-		assert.Equal(t, tenant.ID, result.TenantID)
+		assert.Equal(t, tenant.ID, result)
 	})
 }
 
@@ -243,8 +243,8 @@ func TestAuthService_GetUserInfo_UserNotFound(t *testing.T) {
 
 // Helper functions for creating test data
 
-func createTestTenant(t *testing.T, db *database.Database) *models.Tenant {
-	tenant := &models.Tenant{
+func createTestTenant(t *testing.T, db *database.Database) * {
+	tenant := &{
 		Name:     "Test Tenant",
 		Slug:     "test-tenant",
 		Domain:   "test.example.com",
@@ -267,7 +267,6 @@ func createTestUser(t *testing.T, db *database.Database, tenantID uint, email, p
 	require.NoError(t, err)
 
 	user := &models.User{
-		TenantID:     tenantID,
 		Email:        email,
 		Username:     "testuser",
 		FirstName:    "Test",

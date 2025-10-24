@@ -179,7 +179,7 @@ func GenerateSeedData() *SeedData {
 		for _, user := range users {
 			// Since User.Role field has been removed, we'll use the first user as admin for seed data
 			// In the actual application, roles are handled through UserRole associations
-			if user.TenantID == tenant.ID && adminID == "" {
+			if user == tenant.ID && adminID == "" {
 				adminID = user.ID
 				break
 			}
@@ -198,7 +198,7 @@ func GenerateSeedData() *SeedData {
 		for _, user := range users {
 			// Since User.Role field has been removed, we'll use the first user as admin for seed data
 			// In the actual application, roles are handled through UserRole associations
-			if user.TenantID == tenant.ID && adminID == "" {
+			if user == tenant.ID && adminID == "" {
 				adminID = user.ID
 				break
 			}
@@ -281,7 +281,6 @@ func generateUsers(tenantID string) []User {
 	return []User{
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Email:     "admin@" + tenantDomain,
 			Name:      "System Administrator",
 			// Role field removed - roles are now handled through UserRole associations in main application
@@ -292,7 +291,6 @@ func generateUsers(tenantID string) []User {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Email:     "john.smith@" + tenantDomain,
 			Name:      "John Smith",
 			// Role field removed - roles are now handled through UserRole associations in main application
@@ -303,7 +301,6 @@ func generateUsers(tenantID string) []User {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Email:     "sarah.jones@" + tenantDomain,
 			Name:      "Sarah Jones",
 			// Role field removed - roles are now handled through UserRole associations in main application
@@ -314,7 +311,6 @@ func generateUsers(tenantID string) []User {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Email:     "mike.wilson@" + tenantDomain,
 			Name:      "Mike Wilson",
 			// Role field removed - roles are now handled through UserRole associations in main application
@@ -325,7 +321,6 @@ func generateUsers(tenantID string) []User {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Email:     "jane.doe@" + tenantDomain,
 			Name:      "Jane Doe",
 			// Role field removed - roles are now handled through UserRole associations in main application
@@ -344,7 +339,6 @@ func generateTicketCategories(tenantID string) []TicketCategory {
 	return []TicketCategory{
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Name:      "Bug Report",
 			Color:     "#dc3545",
 			CreatedAt: now,
@@ -352,7 +346,6 @@ func generateTicketCategories(tenantID string) []TicketCategory {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Name:      "Feature Request",
 			Color:     "#28a745",
 			CreatedAt: now,
@@ -360,7 +353,6 @@ func generateTicketCategories(tenantID string) []TicketCategory {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Name:      "Technical Issue",
 			Color:     "#ffc107",
 			CreatedAt: now,
@@ -368,7 +360,6 @@ func generateTicketCategories(tenantID string) []TicketCategory {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Name:      "General Inquiry",
 			Color:     "#17a2b8",
 			CreatedAt: now,
@@ -384,7 +375,6 @@ func generateTicketStatuses(tenantID string) []TicketStatus {
 	return []TicketStatus{
 		{
 			ID:          uuid.New().String(),
-			TenantID:    tenantID,
 			Name:        "Open",
 			Description: "Ticket has been opened and is awaiting triage",
 			Color:       "#007bff",
@@ -396,7 +386,6 @@ func generateTicketStatuses(tenantID string) []TicketStatus {
 		},
 		{
 			ID:          uuid.New().String(),
-			TenantID:    tenantID,
 			Name:        "In Progress",
 			Description: "Ticket is being worked on",
 			Color:       "#ffc107",
@@ -408,7 +397,6 @@ func generateTicketStatuses(tenantID string) []TicketStatus {
 		},
 		{
 			ID:          uuid.New().String(),
-			TenantID:    tenantID,
 			Name:        "Pending Customer Response",
 			Description: "Waiting for customer to respond",
 			Color:       "#fd7e14",
@@ -420,7 +408,6 @@ func generateTicketStatuses(tenantID string) []TicketStatus {
 		},
 		{
 			ID:          uuid.New().String(),
-			TenantID:    tenantID,
 			Name:        "Resolved",
 			Description: "Ticket has been resolved",
 			Color:       "#28a745",
@@ -432,7 +419,6 @@ func generateTicketStatuses(tenantID string) []TicketStatus {
 		},
 		{
 			ID:          uuid.New().String(),
-			TenantID:    tenantID,
 			Name:        "Closed",
 			Description: "Ticket has been closed",
 			Color:       "#6c757d",
@@ -452,7 +438,6 @@ func generateTickets(tenantID, createdBy string, tenantIndex int) []Ticket {
 	return []Ticket{
 		{
 			ID:          uuid.New().String(),
-			TenantID:    tenantID,
 			Number:      fmt.Sprintf("T%d-001", tenantIndex),
 			Title:       "Unable to login to system",
 			Description: "I've been trying to login for the past hour but keep getting an invalid credentials error. I'm sure my password is correct.",
@@ -466,7 +451,6 @@ func generateTickets(tenantID, createdBy string, tenantIndex int) []Ticket {
 		},
 		{
 			ID:          uuid.New().String(),
-			TenantID:    tenantID,
 			Number:      fmt.Sprintf("T%d-002", tenantIndex),
 			Title:       "System running slowly",
 			Description: "The system has been very slow today. Pages are taking a long time to load.",
@@ -480,7 +464,6 @@ func generateTickets(tenantID, createdBy string, tenantIndex int) []Ticket {
 		},
 		{
 			ID:          uuid.New().String(),
-			TenantID:    tenantID,
 			Number:      fmt.Sprintf("T%d-003", tenantIndex),
 			Title:       "Add dark mode feature",
 			Description: "It would be great to have a dark mode option for the interface to reduce eye strain during extended use.",
@@ -494,7 +477,6 @@ func generateTickets(tenantID, createdBy string, tenantIndex int) []Ticket {
 		},
 		{
 			ID:          uuid.New().String(),
-			TenantID:    tenantID,
 			Number:      fmt.Sprintf("T%d-004", tenantIndex),
 			Title:       "Export functionality not working",
 			Description: "When I try to export tickets to CSV, I get an error message saying the export failed.",
@@ -516,7 +498,6 @@ func generateKnowledgeArticles(tenantID, authorID string) []KnowledgeArticle {
 	return []KnowledgeArticle{
 		{
 			ID:       uuid.New().String(),
-			TenantID: tenantID,
 			Title:    "How to Reset Your Password",
 			Content: `# How to Reset Your Password
 
@@ -549,7 +530,6 @@ If you continue to have trouble, please contact support.`,
 		},
 		{
 			ID:       uuid.New().String(),
-			TenantID: tenantID,
 			Title:    "Common Login Issues and Solutions",
 			Content: `# Common Login Issues and Solutions
 
@@ -610,7 +590,6 @@ func generateSettings(tenantID string) []Setting {
 	return []Setting{
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Key:       fmt.Sprintf("%s.system.timezone", tenantID),
 			Value:     "America/New_York",
 			Type:      "string",
@@ -619,7 +598,6 @@ func generateSettings(tenantID string) []Setting {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Key:       fmt.Sprintf("%s.system.language", tenantID),
 			Value:     "en",
 			Type:      "string",
@@ -628,7 +606,6 @@ func generateSettings(tenantID string) []Setting {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Key:       fmt.Sprintf("%s.tickets.auto_number", tenantID),
 			Value:     "true",
 			Type:      "boolean",
@@ -637,7 +614,6 @@ func generateSettings(tenantID string) []Setting {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Key:       fmt.Sprintf("%s.notifications.email_enabled", tenantID),
 			Value:     "true",
 			Type:      "boolean",
@@ -646,7 +622,6 @@ func generateSettings(tenantID string) []Setting {
 		},
 		{
 			ID:        uuid.New().String(),
-			TenantID:  tenantID,
 			Key:       fmt.Sprintf("%s.security.session_timeout", tenantID),
 			Value:     "3600",
 			Type:      "integer",
@@ -663,7 +638,6 @@ func generateLLMProviders(tenantID string) []LLMProvider {
 	return []LLMProvider{
 		{
 			ID:           uuid.New().String(),
-			TenantID:     tenantID,
 			Name:         "OpenAI GPT",
 			ProviderType: "openai",
 			APIEndpoint:  "https://api.openai.com/v1",
@@ -680,7 +654,6 @@ func generateLLMProviders(tenantID string) []LLMProvider {
 		},
 		{
 			ID:           uuid.New().String(),
-			TenantID:     tenantID,
 			Name:         "Local Ollama",
 			ProviderType: "ollama",
 			APIEndpoint:  "http://localhost:11434",

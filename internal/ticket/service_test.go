@@ -231,10 +231,10 @@ func TestTicketService_GetTicketStats(t *testing.T) {
 
 // Helper functions for creating test data
 
-func createTestTenant(t *testing.T, db *database.Database) *models.Tenant {
+func createTestTenant(t *testing.T, db *database.Database) * {
 	// Generate unique tenant values using timestamp
 	timestamp := time.Now().UnixNano()
-	tenant := &models.Tenant{
+	tenant := &{
 		Name:     fmt.Sprintf("Test Tenant %d", timestamp),
 		Slug:     fmt.Sprintf("test-tenant-%d", timestamp),
 		Domain:   fmt.Sprintf("test%d.example.com", timestamp),
@@ -252,7 +252,6 @@ func createTestUser(t *testing.T, db *database.Database, tenantID uint) *models.
 	// Generate unique email using timestamp
 	timestamp := time.Now().UnixNano()
 	user := &models.User{
-		TenantID:  tenantID,
 		Email:     fmt.Sprintf("test-%d@example.com", timestamp),
 		Username:  fmt.Sprintf("testuser-%d", timestamp),
 		FirstName: "Test",
@@ -268,7 +267,6 @@ func createTestUser(t *testing.T, db *database.Database, tenantID uint) *models.
 
 func createTestTicket(t *testing.T, db *database.Database, tenantID, userID uint) *models.Ticket {
 	ticket := &models.Ticket{
-		TenantID:       tenantID,
 		TicketNumber:   generateTicketNumber(tenantID),
 		Title:          "Test Ticket",
 		Description:    "This is a test ticket",
@@ -289,7 +287,6 @@ func createTestTicket(t *testing.T, db *database.Database, tenantID, userID uint
 
 func createTestTicketWithStatus(t *testing.T, db *database.Database, tenantID, userID uint, status string) *models.Ticket {
 	ticket := &models.Ticket{
-		TenantID:       tenantID,
 		TicketNumber:   generateTicketNumber(tenantID),
 		Title:          "Test Ticket",
 		Description:    "This is a test ticket",

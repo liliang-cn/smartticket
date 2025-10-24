@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for:*)",
+      "Bash(do)",
+      "Bash(done:*)",
+      "Bash(go build:*)",
+      "Bash(find:*)",
+      "Bash(xargs sed:*)",
+      "Bash(./smartticket:*)",
+      "Bash(timeout:*)",
+      "Bash(curl:*)",
+      "Bash(npm test)",
+      "Bash(lsof:*)",
+      "Bash(go run:*)",
+      "Bash(python3:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

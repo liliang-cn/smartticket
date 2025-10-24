@@ -45,7 +45,7 @@ cors:
   exposed_headers:
     - "X-Total-Count"
     - "X-Request-ID"
-    - "X-Tenant-ID"
+
   allow_credentials: true
   max_age: 7200
 
@@ -159,7 +159,7 @@ features:
   enable_ticket_exports: true
   enable_knowledge_base: true
   enable_ai_features: true
-  enable_multi_tenancy: true
+  enable_multi_tenancy: false
   enable_analytics: true
 
 # Backup Configuration

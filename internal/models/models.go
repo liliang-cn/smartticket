@@ -16,44 +16,28 @@ type BaseModel struct {
 	UpdatedBy *string        `gorm:"size:255" json:"updated_by,omitempty"`
 }
 
-// Tenant represents a multi-tenant organization.
-type Tenant struct {
-	BaseModel
-	Name      string     `gorm:"size:255;not null" json:"name"`
-	Slug      string     `gorm:"size:100;uniqueIndex;not null" json:"slug"`
-	Domain    string     `gorm:"size:255" json:"domain"`
-	Settings  string     `gorm:"type:text" json:"settings"` // JSON string
-	Plan      string     `gorm:"size:50;default:'basic'" json:"plan"`
-	MaxUsers  int        `gorm:"default:100" json:"max_users"`
-	IsActive  bool       `gorm:"default:true" json:"is_active"`
-	ExpiredAt *time.Time `json:"expired_at"`
-	Users     []User     `gorm:"foreignKey:TenantID;references:ID" json:"users,omitempty"`
-	Tickets   []Ticket   `gorm:"foreignKey:TenantID;references:ID" json:"tickets,omitempty"`
-}
 
 // User represents a user account.
 type User struct {
 	BaseModel
-	TenantID     uint       `gorm:"not null;index" json:"tenant_id"`
-	Tenant       Tenant     `gorm:"foreignKey:TenantID;references:ID" json:"tenant,omitempty"`
-	Email        string     `gorm:"size:255;not null;uniqueIndex:idx_tenant_email" json:"email"`
-	Username     string     `gorm:"size:100;not null;uniqueIndex:idx_tenant_username" json:"username"`
+	Email        string `gorm:"size:255;not null;uniqueIndex" json:"email"`
+	Username     string `gorm:"size:100;not null;uniqueIndex" json:"username"`
 	PasswordHash string     `gorm:"size:255;not null" json:"-"`
 	FirstName    string     `gorm:"size:100" json:"first_name"`
 	LastName     string     `gorm:"size:100" json:"last_name"`
+	Role         string     `gorm:"size:50;default:'customer'" json:"role"`
 	IsActive     bool       `gorm:"default:true" json:"is_active"`
 	LastLoginAt  *time.Time `json:"last_login_at"`
 	Preferences  string     `gorm:"type:text" json:"preferences"` // JSON string
 	Tickets      []Ticket   `gorm:"foreignKey:CreatedBy;references:ID" json:"tickets,omitempty"`
 	Messages     []Message  `gorm:"foreignKey:UserID;references:ID" json:"messages,omitempty"`
+	Roles        []Role     `gorm:"many2many:user_roles;" json:"roles,omitempty"`
 }
 
 // Ticket represents a support ticket.
 type Ticket struct {
 	BaseModel
-	TenantID       uint         `gorm:"not null;index" json:"tenant_id"`
-	Tenant         Tenant       `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	TicketNumber   string       `gorm:"size:50;not null;uniqueIndex:idx_tenant_ticket" json:"ticket_number"`
+	TicketNumber   string `gorm:"size:50;not null;uniqueIndex" json:"ticket_number"`
 	Title          string       `gorm:"size:255;not null" json:"title"`
 	Description    string       `gorm:"type:text" json:"description"`
 	Status         string       `gorm:"size:50;not null;default:'open'" json:"status"`     // open, in_progress, resolved, closed, cancelled
@@ -114,9 +98,7 @@ type Attachment struct {
 // KnowledgeArticle represents a knowledge base article.
 type KnowledgeArticle struct {
 	BaseModel
-	TenantID     uint              `gorm:"not null;index" json:"tenant_id"`
-	Tenant       Tenant            `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	Title        string            `gorm:"size:255;not null" json:"title"`
+	Title        string `gorm:"size:255;not null" json:"title"`
 	Slug         string            `gorm:"size:255;not null;index" json:"slug"`
 	Content      string            `gorm:"type:text" json:"content"`
 	ContentType  string            `gorm:"size:50;default:'markdown'" json:"content_type"`
@@ -143,9 +125,7 @@ type KnowledgeArticle struct {
 // LLMProvider represents a configured LLM provider.
 type LLMProvider struct {
 	BaseModel
-	TenantID      uint    `gorm:"not null;index" json:"tenant_id"`
-	Tenant        Tenant  `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	Name          string  `gorm:"size:255;not null" json:"name"`
+	Name          string `gorm:"size:255;not null" json:"name"`
 	ProviderType  string  `gorm:"size:50;not null" json:"provider_type"` // openai, azure, anthropic, deepseek, ollama, local
 	APIEndpoint   string  `gorm:"size:500" json:"api_endpoint"`
 	APIKey        string  `gorm:"size:500" json:"api_key"` // encrypted
@@ -163,9 +143,7 @@ type LLMProvider struct {
 // ImportExportJob represents a data import/export job.
 type ImportExportJob struct {
 	BaseModel
-	TenantID         uint       `gorm:"not null;index" json:"tenant_id"`
-	Tenant           Tenant     `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	Type             string     `gorm:"size:20;not null" json:"type"`                     // import, export
+	Type             string `gorm:"size:20;not null" json:"type"` // import, export
 	Status           string     `gorm:"size:50;not null;default:'pending'" json:"status"` // pending, running, completed, failed
 	Progress         int        `gorm:"default:0" json:"progress"`
 	TotalRecords     int        `gorm:"default:0" json:"total_records"`
@@ -185,9 +163,7 @@ type ImportExportJob struct {
 // AuditLog represents an audit log entry.
 type AuditLog struct {
 	BaseModel
-	TenantID     uint   `gorm:"not null;index" json:"tenant_id"`
-	Tenant       Tenant `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	UserID       uint   `gorm:"index" json:"user_id"`
+	UserID       uint `gorm:"index" json:"user_id"`
 	User         *User  `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Action       string `gorm:"size:100;not null;index" json:"action"`
 	ResourceType string `gorm:"size:100;not null;index" json:"resource_type"`
@@ -205,9 +181,7 @@ type AuditLog struct {
 // APIKey represents an API key for external access.
 type APIKey struct {
 	BaseModel
-	TenantID    uint       `gorm:"not null;index" json:"tenant_id"`
-	Tenant      Tenant     `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	Name        string     `gorm:"size:255;not null" json:"name"`
+	Name        string `gorm:"size:255;not null" json:"name"`
 	KeyHash     string     `gorm:"size:255;not null;uniqueIndex" json:"key_hash"`
 	KeyPrefix   string     `gorm:"size:20;not null" json:"key_prefix"`
 	Permissions string     `gorm:"type:text" json:"permissions"` // JSON array
@@ -232,9 +206,7 @@ type SystemSetting struct {
 // Product represents a product or service offering.
 type Product struct {
 	BaseModel
-	TenantID          uint               `gorm:"not null;index" json:"tenant_id"`
-	Tenant            Tenant             `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	Name              string             `gorm:"size:255;not null" json:"name"`
+	Name              string `gorm:"size:255;not null" json:"name"`
 	Code              string             `gorm:"size:100;not null" json:"code"`
 	Description       string             `gorm:"type:text" json:"description"`
 	Category          string             `gorm:"size:100" json:"category"`
@@ -252,9 +224,7 @@ type Product struct {
 // Service represents a specific service within a product.
 type Service struct {
 	BaseModel
-	TenantID          uint               `gorm:"not null;index" json:"tenant_id"`
-	Tenant            Tenant             `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	ProductID         uint               `gorm:"index" json:"product_id"`
+	ProductID         uint `gorm:"index" json:"product_id"`
 	Product           Product            `gorm:"foreignKey:ProductID" json:"product,omitempty"`
 	Name              string             `gorm:"size:255;not null" json:"name"`
 	Code              string             `gorm:"size:100;not null" json:"code"`
@@ -273,9 +243,7 @@ type Service struct {
 // SLATemplate represents SLA模板.
 type SLATemplate struct {
 	BaseModel
-	TenantID        uint      `gorm:"not null;index" json:"tenant_id"`
-	Tenant          Tenant    `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	Name            string    `gorm:"size:255;not null" json:"name"`
+	Name            string `gorm:"size:255;not null" json:"name"`
 	Description     string    `gorm:"type:text" json:"description"`
 	IsDefault       bool      `gorm:"default:false" json:"is_default"`
 	IsActive        bool      `gorm:"default:true" json:"is_active"`
@@ -292,9 +260,7 @@ type SLATemplate struct {
 // SLARule represents具体的SLA规则.
 type SLARule struct {
 	BaseModel
-	TenantID       uint        `gorm:"not null;index" json:"tenant_id"`
-	Tenant         Tenant      `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	SLATemplateID  uint        `gorm:"index" json:"sla_template_id"`
+	SLATemplateID  uint `gorm:"index" json:"sla_template_id"`
 	SLATemplate    SLATemplate `gorm:"foreignKey:SLATemplateID" json:"sla_template,omitempty"`
 	ProductID      *uint       `gorm:"index" json:"product_id"`
 	Product        *Product    `gorm:"foreignKey:ProductID" json:"product,omitempty"`
@@ -324,9 +290,7 @@ type Permission struct {
 // Role represents role definitions with associated permission sets.
 type Role struct {
 	BaseModel
-	TenantID    uint         `gorm:"not null;index" json:"tenant_id"`
-	Tenant      Tenant       `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
-	Name        string       `gorm:"size:100;not null" json:"name"`
+	Name        string `gorm:"size:100;not null" json:"name"`
 	Description string       `gorm:"type:text" json:"description"`
 	IsSystem    bool         `gorm:"default:false" json:"is_system"` // System roles cannot be deleted
 	IsActive    bool         `gorm:"default:true" json:"is_active"`
@@ -372,7 +336,6 @@ type UserRole struct {
 }
 
 // Table name overrides.
-func (Tenant) TableName() string           { return "tenants" }
 func (User) TableName() string             { return "users" }
 func (Ticket) TableName() string           { return "tickets" }
 func (Message) TableName() string          { return "messages" }
