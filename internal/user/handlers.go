@@ -44,7 +44,6 @@ func (h *Handlers) CreateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
 	userRole, _ := c.Get("user_role")
-	tenantID, _ := c.Get("tenant_id")
 	log := logger.GetGlobalLogger().WithRequestID(requestID.(string))
 
 	// Check permissions - only admin can create users
@@ -70,7 +69,7 @@ func (h *Handlers) CreateUser(c *gin.Context) {
 		zap.String("role", req.Role),
 	)
 
-	userInfo, err := h.userService.CreateUser(tenantID.(uint), &req)
+	userInfo, err := h.userService.CreateUser(&req)
 	if err != nil {
 		log.Warn("User creation failed", zap.Error(err))
 
@@ -117,7 +116,6 @@ func (h *Handlers) GetUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
 	userRole, _ := c.Get("user_role")
-	tenantID, _ := c.Get("tenant_id")
 
 	// Parse user ID from path
 	targetUserID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -136,7 +134,7 @@ func (h *Handlers) GetUser(c *gin.Context) {
 		return
 	}
 
-	userInfo, err := h.userService.GetUser(uint(targetUserID), tenantID.(uint))
+	userInfo, err := h.userService.GetUser(uint(targetUserID))
 	if err != nil {
 		appErr := errors.NewNotFoundError("User").
 			WithRequestID(requestID.(string))
@@ -173,7 +171,6 @@ func (h *Handlers) UpdateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
 	userRole, _ := c.Get("user_role")
-	tenantID, _ := c.Get("tenant_id")
 	log := logger.GetGlobalLogger().WithRequestID(requestID.(string))
 
 	// Parse user ID from path
@@ -215,7 +212,7 @@ func (h *Handlers) UpdateUser(c *gin.Context) {
 		zap.Uint("target_user_id", uint(targetUserID)),
 	)
 
-	userInfo, err := h.userService.UpdateUser(uint(targetUserID), tenantID.(uint), &req)
+	userInfo, err := h.userService.UpdateUser(uint(targetUserID), &req)
 	if err != nil {
 		log.Warn("User update failed", zap.Error(err))
 
@@ -265,7 +262,6 @@ func (h *Handlers) DeleteUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
 	userRole, _ := c.Get("user_role")
-	tenantID, _ := c.Get("tenant_id")
 	log := logger.GetGlobalLogger().WithRequestID(requestID.(string))
 
 	// Only admins can delete users
@@ -298,7 +294,7 @@ func (h *Handlers) DeleteUser(c *gin.Context) {
 		zap.Uint("target_user_id", uint(targetUserID)),
 	)
 
-	if err := h.userService.DeleteUser(uint(targetUserID), tenantID.(uint)); err != nil {
+	if err := h.userService.DeleteUser(uint(targetUserID)); err != nil {
 		log.Warn("User deletion failed", zap.Error(err))
 
 		var appErr *errors.AppError
@@ -343,7 +339,6 @@ func (h *Handlers) DeleteUser(c *gin.Context) {
 func (h *Handlers) ListUsers(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userRole, _ := c.Get("user_role")
-	tenantID, _ := c.Get("tenant_id")
 
 	// Only admins can list all users
 	if userRole != "admin" {
@@ -362,7 +357,7 @@ func (h *Handlers) ListUsers(c *gin.Context) {
 		return
 	}
 
-	response, err := h.userService.ListUsers(tenantID.(uint), &req)
+	response, err := h.userService.ListUsers(&req)
 	if err != nil {
 		appErr := errors.NewInternalError("Failed to list users", err).
 			WithRequestID(requestID.(string))
@@ -391,7 +386,6 @@ func (h *Handlers) ListUsers(c *gin.Context) {
 func (h *Handlers) ActivateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userRole, _ := c.Get("user_role")
-	tenantID, _ := c.Get("tenant_id")
 
 	// Only admins can activate users
 	if userRole != "admin" {
@@ -410,7 +404,7 @@ func (h *Handlers) ActivateUser(c *gin.Context) {
 		return
 	}
 
-	if err := h.userService.ActivateUser(uint(targetUserID), tenantID.(uint)); err != nil {
+	if err := h.userService.ActivateUser(uint(targetUserID)); err != nil {
 		appErr := errors.NewInternalError("Failed to activate user", err).
 			WithRequestID(requestID.(string))
 		errors.ErrorHandler(c, appErr)
@@ -444,7 +438,6 @@ func (h *Handlers) DeactivateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
 	userRole, _ := c.Get("user_role")
-	tenantID, _ := c.Get("tenant_id")
 
 	// Only admins can deactivate users
 	if userRole != "admin" {
@@ -471,7 +464,7 @@ func (h *Handlers) DeactivateUser(c *gin.Context) {
 		return
 	}
 
-	if err := h.userService.DeactivateUser(uint(targetUserID), tenantID.(uint)); err != nil {
+	if err := h.userService.DeactivateUser(uint(targetUserID)); err != nil {
 		appErr := errors.NewInternalError("Failed to deactivate user", err).
 			WithRequestID(requestID.(string))
 		errors.ErrorHandler(c, appErr)
@@ -502,7 +495,6 @@ func (h *Handlers) DeactivateUser(c *gin.Context) {
 func (h *Handlers) GetUserStats(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userRole, _ := c.Get("user_role")
-	tenantID, _ := c.Get("tenant_id")
 
 	// Only admins can view user statistics
 	if userRole != "admin" {
@@ -512,7 +504,7 @@ func (h *Handlers) GetUserStats(c *gin.Context) {
 		return
 	}
 
-	stats, err := h.userService.GetUserStats(tenantID.(uint))
+	stats, err := h.userService.GetUserStats()
 	if err != nil {
 		appErr := errors.NewInternalError("Failed to get user statistics", err).
 			WithRequestID(requestID.(string))

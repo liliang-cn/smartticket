@@ -6,7 +6,6 @@
 set -e
 
 BASE_URL="http://localhost:6533"
-TENANT_ID="1"
 ADMIN_EMAIL="admin@smartticket.local"
 ADMIN_PASSWORD="admin123"
 
@@ -60,13 +59,11 @@ test_api() {
     if [ -n "$data" ]; then
         response=$(curl -s -w "\n%{http_code}" -X "$method" \
             -H "Content-Type: application/json" \
-            -H "X-Tenant-ID: $TENANT_ID" \
             $headers \
             -d "$data" \
             "$url")
     else
         response=$(curl -s -w "\n%{http_code}" -X "$method" \
-            -H "X-Tenant-ID: $TENANT_ID" \
             $headers \
             "$url")
     fi
@@ -112,10 +109,7 @@ fi
 # Test 6: Login with invalid credentials
 run_test "Login with invalid credentials" "! test_api 'POST' '$BASE_URL/api/v1/auth/login' '{\"email\": \"invalid@test.com\", \"password\": \"wrong\"}' | tail -n1 | grep -q '200'"
 
-# Test 7: Login without tenant header
-run_test "Login without tenant header" "! check_status '$BASE_URL/api/v1/auth/login' 200"
-
-# Test 8: Invalid email format
+# Test 7: Invalid email format
 run_test "Invalid email format" "! test_api 'POST' '$BASE_URL/api/v1/auth/login' '{\"email\": \"invalid-email\", \"password\": \"test\"}' | tail -n1 | grep -q '200'"
 
 echo ""
@@ -171,17 +165,17 @@ echo ""
 echo "⚡ Running Performance Tests..."
 echo ""
 
-# Test 16: Response time test
-start_time=$(date +%s%3N)
+# Test 16: Response time test (using seconds for macOS compatibility)
+start_time=$(date +%s)
 curl -s "$BASE_URL/health" > /dev/null
-end_time=$(date +%s%3N)
+end_time=$(date +%s)
 response_time=$((end_time - start_time))
 
-if [ $response_time -lt 1000 ]; then
-    echo -e "🔍 Testing: Health check response time ($response_time ms) ... ${GREEN}✓ PASSED${NC}"
+if [ $response_time -lt 2 ]; then
+    echo -e "🔍 Testing: Health check response time (< 2s) ... ${GREEN}✓ PASSED${NC}"
     ((TESTS_PASSED++))
 else
-    echo -e "🔍 Testing: Health check response time ($response_time ms) ... ${RED}✗ FAILED${NC}"
+    echo -e "🔍 Testing: Health check response time ($response_time s) ... ${RED}✗ FAILED${NC}"
     ((TESTS_FAILED++))
 fi
 

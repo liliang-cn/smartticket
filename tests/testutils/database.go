@@ -41,9 +41,8 @@ func WithTestDatabase(t *testing.T, testFunc func(t *testing.T, db *database.Dat
 		_ = os.Remove(dbPath)
 	}()
 
-	// Run auto-migration for all models
-	migrator := database.NewMigrator(db.DB)
-	if err := migrator.AutoMigrate(
+	// Run GORM auto-migration for all models
+	if err := db.DB.AutoMigrate(
 		&models.User{},
 		&models.Ticket{},
 		&models.Message{},

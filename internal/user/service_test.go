@@ -20,7 +20,7 @@ func TestUserService_CreateUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 
 		// Test data
 		req := &CreateUserRequest{
@@ -61,7 +61,7 @@ func TestUserService_GetUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 
 		// Execute
@@ -83,7 +83,7 @@ func TestUserService_ListUsers(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 
 		// Create multiple users
 		createTestUser(t, db, tenant.ID)
@@ -110,7 +110,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 
 		// Test data
@@ -138,7 +138,7 @@ func TestUserService_DeleteUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 
 		// Execute
@@ -162,7 +162,7 @@ func TestUserService_ActivateUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 		user.IsActive = false
 		db.Save(user)
@@ -188,7 +188,7 @@ func TestUserService_DeactivateUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 
 		// Execute
@@ -212,7 +212,7 @@ func TestUserService_GetUserStats(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 
 		// Create users with different roles and statuses
 		createTestUserWithRole(t, db, tenant.ID, "admin", true)
@@ -237,24 +237,9 @@ func TestUserService_GetUserStats(t *testing.T) {
 
 // Helper functions for creating test data
 
-func createTestTenant(t *testing.T, db *database.Database) * {
-	// Generate unique tenant values using timestamp
-	timestamp := time.Now().UnixNano()
-	tenant := &{
-		Name:     fmt.Sprintf("Test Tenant %d", timestamp),
-		Slug:     fmt.Sprintf("test-tenant-%d", timestamp),
-		Domain:   fmt.Sprintf("test%d.example.com", timestamp),
-		Plan:     "basic",
-		IsActive: true,
-	}
+// createTestTenant function removed - no longer needed in single-tenant architecture
 
-	err := db.DB.Create(tenant).Error
-	require.NoError(t, err)
-
-	return tenant
-}
-
-func createTestUser(t *testing.T, db *database.Database, tenantID uint) *models.User {
+func createTestUser(t *testing.T, db *database.Database) *models.User {
 	// Generate unique email and username using timestamp
 	timestamp := time.Now().UnixNano()
 	user := &models.User{

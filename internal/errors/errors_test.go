@@ -47,14 +47,12 @@ func TestErrorWithMethods(t *testing.T) {
 	err := NewValidationError("Test error").
 		WithRequestID("req-123").
 		WithUserID(456).
-		WithTenantID(789).
 		WithCause(originalErr).
 		WithContext("field", "email").
 		WithStackTrace()
 
 	assert.Equal(t, "req-123", err.RequestID)
 	assert.Equal(t, uint(456), err.UserID)
-	assert.Equal(t, uint(789), err)
 	assert.Equal(t, originalErr, err.Cause)
 	assert.Equal(t, "email", err.Context["field"])
 	assert.NotEmpty(t, err.StackTrace)

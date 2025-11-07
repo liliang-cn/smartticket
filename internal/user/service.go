@@ -101,7 +101,7 @@ type PaginationMeta struct {
 }
 
 // CreateUser creates a new user with validation.
-func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserInfo, error) {
+func (s *Service) CreateUser(req *CreateUserRequest) (*auth.UserInfo, error) {
 	// Normalize email
 	req.Email = strings.ToLower(strings.TrimSpace(req.Email))
 	req.Username = strings.TrimSpace(req.Username)
@@ -122,7 +122,7 @@ func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserI
 	}
 
 	// Check if email already exists
-	exists, err := s.repo.CheckEmailExists(req.Email, tenantID)
+	exists, err := s.repo.CheckEmailExists(req.Email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check email existence: %w", err)
 	}
@@ -131,7 +131,7 @@ func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserI
 	}
 
 	// Check if username already exists
-	exists, err = s.repo.CheckUsernameExists(req.Username, tenantID)
+	exists, err = s.repo.CheckUsernameExists(req.Username)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check username existence: %w", err)
 	}
@@ -170,7 +170,7 @@ func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserI
 	}
 
 	// Assign role to user
-	if err := s.assignRoleToUser(tx, user.ID, req.Role, tenantID); err != nil {
+	if err := s.assignRoleToUser(tx, user.ID, req.Role); err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("failed to assign role: %w", err)
 	}
@@ -185,8 +185,8 @@ func (s *Service) CreateUser(tenantID uint, req *CreateUserRequest) (*auth.UserI
 }
 
 // GetUser retrieves a user by ID.
-func (s *Service) GetUser(userID, tenantID uint) (*auth.UserInfo, error) {
-	user, err := s.repo.GetUserByID(userID, tenantID)
+func (s *Service) GetUser(userID uint) (*auth.UserInfo, error) {
+	user, err := s.repo.GetUserByID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
@@ -195,9 +195,9 @@ func (s *Service) GetUser(userID, tenantID uint) (*auth.UserInfo, error) {
 }
 
 // UpdateUser updates user information.
-func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*auth.UserInfo, error) {
+func (s *Service) UpdateUser(userID uint, req *UpdateUserRequest) (*auth.UserInfo, error) {
 	// Get existing user
-	user, err := s.repo.GetUserByID(userID, tenantID)
+	user, err := s.repo.GetUserByID(userID)
 	if err != nil {
 		return nil, fmt.Errorf("user not found: %w", err)
 	}
@@ -219,7 +219,7 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 		}
 
 		// Check if email already exists (excluding current user)
-		exists, err := s.repo.CheckEmailExists(req.Email, tenantID, userID)
+		exists, err := s.repo.CheckEmailExists(req.Email, userID)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to check email existence: %w", err)
@@ -239,7 +239,7 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 		}
 
 		// Check if username already exists (excluding current user)
-		exists, err := s.repo.CheckUsernameExists(req.Username, tenantID, userID)
+		exists, err := s.repo.CheckUsernameExists(req.Username, userID)
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to check username existence: %w", err)
@@ -282,7 +282,7 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 		}
 
 		// Assign new role
-		if err := s.assignRoleToUser(tx, userID, req.Role, tenantID); err != nil {
+		if err := s.assignRoleToUser(tx, userID, req.Role); err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf("failed to assign new role: %w", err)
 		}
@@ -302,15 +302,15 @@ func (s *Service) UpdateUser(userID, tenantID uint, req *UpdateUserRequest) (*au
 }
 
 // DeleteUser soft deletes a user.
-func (s *Service) DeleteUser(userID, tenantID uint) error {
+func (s *Service) DeleteUser(userID uint) error {
 	// Get user to verify existence
-	_, err := s.repo.GetUserByID(userID, tenantID)
+	_, err := s.repo.GetUserByID(userID)
 	if err != nil {
 		return fmt.Errorf("user not found: %w", err)
 	}
 
 	// Soft delete user
-	if err := s.repo.DeleteUser(userID, tenantID); err != nil {
+	if err := s.repo.DeleteUser(userID); err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
 
@@ -318,7 +318,7 @@ func (s *Service) DeleteUser(userID, tenantID uint) error {
 }
 
 // ListUsers retrieves a paginated list of users with filters.
-func (s *Service) ListUsers(tenantID uint, req *UserListRequest) (*UserListResponse, error) {
+func (s *Service) ListUsers(req *UserListRequest) (*UserListResponse, error) {
 	// Prepare filters
 	filters := make(map[string]interface{})
 	if req.Search != "" {
@@ -332,7 +332,7 @@ func (s *Service) ListUsers(tenantID uint, req *UserListRequest) (*UserListRespo
 	}
 
 	// Get users
-	users, total, err := s.repo.ListUsers(tenantID, req.Page, req.PageSize, filters)
+	users, total, err := s.repo.ListUsers(req.Page, req.PageSize, filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list users: %w", err)
 	}
@@ -359,17 +359,17 @@ func (s *Service) ListUsers(tenantID uint, req *UserListRequest) (*UserListRespo
 }
 
 // ActivateUser activates a user account.
-func (s *Service) ActivateUser(userID, tenantID uint) error {
-	return s.repo.ActivateUser(userID, tenantID)
+func (s *Service) ActivateUser(userID uint) error {
+	return s.repo.ActivateUser(userID)
 }
 
 // DeactivateUser deactivates a user account.
-func (s *Service) DeactivateUser(userID, tenantID uint) error {
-	return s.repo.DeactivateUser(userID, tenantID)
+func (s *Service) DeactivateUser(userID uint) error {
+	return s.repo.DeactivateUser(userID)
 }
 
 // ChangeUserPassword changes a user's password (admin function).
-func (s *Service) ChangeUserPassword(userID, tenantID uint, newPassword string) error {
+func (s *Service) ChangeUserPassword(userID uint, newPassword string) error {
 	// Validate password complexity
 	if err := s.validatePassword(newPassword); err != nil {
 		return fmt.Errorf("password validation failed: %w", err)
@@ -389,9 +389,9 @@ func (s *Service) ChangeUserPassword(userID, tenantID uint, newPassword string) 
 	return nil
 }
 
-// GetUserStats returns user statistics for a tenant.
-func (s *Service) GetUserStats(tenantID uint) (map[string]interface{}, error) {
-	stats, err := s.repo.GetUserStats(tenantID)
+// GetUserStats returns user statistics.
+func (s *Service) GetUserStats() (map[string]interface{}, error) {
+	stats, err := s.repo.GetUserStats()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user stats: %w", err)
 	}
@@ -464,10 +464,10 @@ func (s *Service) validatePassword(password string) error {
 }
 
 // assignRoleToUser assigns a role to a user within a transaction.
-func (s *Service) assignRoleToUser(tx *gorm.DB, userID uint, roleName string, tenantID uint) error {
-	// Find the role in the tenant
+func (s *Service) assignRoleToUser(tx *gorm.DB, userID uint, roleName string) error {
+	// Find the role
 	var role models.Role
-	if err := tx.Where("name = ? AND tenant_id = ?", roleName, tenantID).First(&role).Error; err != nil {
+	if err := tx.Where("name = ?", roleName).First(&role).Error; err != nil {
 		return fmt.Errorf("role '%s' not found: %w", roleName, err)
 	}
 

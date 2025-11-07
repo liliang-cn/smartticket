@@ -157,8 +157,8 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		&models.AuditLog{},
 	}
 
-	migrator := database.NewMigrator(db.DB)
-	if err := migrator.AutoMigrate(dbModels...); err != nil {
+	// Run GORM AutoMigrate for all models
+	if err := db.DB.AutoMigrate(dbModels...); err != nil {
 		logger.Error("Failed to auto-migrate models", zap.Error(err))
 		return fmt.Errorf("failed to auto-migrate models: %w", err)
 	}
@@ -173,14 +173,13 @@ func runServe(cmd *cobra.Command, _ []string) error {
 	}
 	logger.Info("Foreign key constraints enabled successfully")
 
-	// TODO: Fix database model foreign key constraints before re-enabling initialization
 	// Initialize database if this is first startup
-	// logger.Debug("Checking if database initialization is needed")
-	// initializer := database.NewInitializer(db.DB)
-	// if err := initializer.InitializeIfNeeded(context.Background()); err != nil {
-	// 	logger.Error("Failed to initialize database", zap.Error(err))
-	// 	return fmt.Errorf("failed to initialize database: %w", err)
-	// }
+	logger.Debug("Checking if database initialization is needed")
+	initializer := database.NewInitializer(db.DB)
+	if err := initializer.InitializeIfNeeded(context.Background()); err != nil {
+		logger.Error("Failed to initialize database", zap.Error(err))
+		return fmt.Errorf("failed to initialize database: %w", err)
+	}
 
 	// Set up HTTP server
 	logger.Debug("Setting up HTTP server")
@@ -268,14 +267,6 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		return fmt.Errorf("database connection is not healthy")
 	}
 
-	// Run SQL migrations from files
-	logger.Debug("Running SQL migrations from files")
-	migrator := database.NewMigrator(db.DB)
-	if err := migrator.RunMigrations("migrations"); err != nil {
-		logger.Error("Failed to run SQL migrations", zap.Error(err))
-		return fmt.Errorf("failed to run SQL migrations: %w", err)
-	}
-
 	// Auto-migrate all models in correct order to avoid foreign key issues
 	logger.Debug("Running GORM auto-migrations")
 	dbModels := []interface{}{
@@ -309,7 +300,8 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		&models.AuditLog{},
 	}
 
-	if err := migrator.AutoMigrate(dbModels...); err != nil {
+	// Run GORM AutoMigrate
+	if err := db.DB.AutoMigrate(dbModels...); err != nil {
 		logger.Error("Failed to auto-migrate models", zap.Error(err))
 		return fmt.Errorf("failed to auto-migrate models: %w", err)
 	}

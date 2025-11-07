@@ -46,7 +46,7 @@ func TestBaseModel(t *testing.T) {
 }
 
 // TestTenant tests the Tenant model.
-func TestTenant(t *testing.T) {
+// func TestTenant(t *testing.T) {
 	t.Run("Empty Tenant", func(t *testing.T) {
 		tenant := Tenant{}
 

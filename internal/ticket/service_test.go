@@ -20,7 +20,7 @@ func TestTicketService_CreateTicket(t *testing.T) {
 		service := NewService(db.DB, slaCalc)
 
 		// Create test tenant and user
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 
 		// Test data
@@ -55,7 +55,7 @@ func TestTicketService_GetTicket(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 
 		// Create a test ticket
@@ -79,7 +79,7 @@ func TestTicketService_GetTicket_NotFound(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 
 		// Execute
 		result, err := service.GetTicket(tenant.ID, 999999)
@@ -97,7 +97,7 @@ func TestTicketService_ListTickets(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 
 		// Create multiple test tickets
@@ -125,7 +125,7 @@ func TestTicketService_UpdateTicket(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 		ticket := createTestTicket(t, db, tenant.ID, user.ID)
 
@@ -155,7 +155,7 @@ func TestTicketService_AssignTicket(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user1 := createTestUser(t, db, tenant.ID)
 		user2 := createTestUser(t, db, tenant.ID)
 		ticket := createTestTicket(t, db, tenant.ID, user1.ID)
@@ -181,7 +181,7 @@ func TestTicketService_DeleteTicket(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 		ticket := createTestTicket(t, db, tenant.ID, user.ID)
 
@@ -205,7 +205,7 @@ func TestTicketService_GetTicketStats(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		tenant := createTestTenant(t, db)
+		// tenant := createTestTenant removed
 		user := createTestUser(t, db, tenant.ID)
 
 		// Create tickets with different statuses
@@ -231,24 +231,9 @@ func TestTicketService_GetTicketStats(t *testing.T) {
 
 // Helper functions for creating test data
 
-func createTestTenant(t *testing.T, db *database.Database) * {
-	// Generate unique tenant values using timestamp
-	timestamp := time.Now().UnixNano()
-	tenant := &{
-		Name:     fmt.Sprintf("Test Tenant %d", timestamp),
-		Slug:     fmt.Sprintf("test-tenant-%d", timestamp),
-		Domain:   fmt.Sprintf("test%d.example.com", timestamp),
-		Plan:     "basic",
-		IsActive: true,
-	}
+// createTestTenant function removed - no longer needed in single-tenant architecture
 
-	err := db.DB.Create(tenant).Error
-	require.NoError(t, err)
-
-	return tenant
-}
-
-func createTestUser(t *testing.T, db *database.Database, tenantID uint) *models.User {
+func createTestUser(t *testing.T, db *database.Database) *models.User {
 	// Generate unique email using timestamp
 	timestamp := time.Now().UnixNano()
 	user := &models.User{

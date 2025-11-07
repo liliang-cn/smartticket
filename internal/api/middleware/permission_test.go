@@ -50,7 +50,6 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 	// Migrate essential models for middleware testing
 	err = db.AutoMigrate(
-		&{},
 		&models.User{},
 		&models.Ticket{},
 		&models.Message{},
