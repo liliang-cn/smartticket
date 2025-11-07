@@ -135,7 +135,7 @@ func (i *Initializer) seedEssentialData() error {
 
 		// Get the admin role ID
 		var adminRole models.Role
-		if err := tx.Where("name = ? AND tenant_id = ?", "admin", uint(0)).First(&adminRole).Error; err != nil {
+		if err := tx.Where("name = ?", "admin").First(&adminRole).Error; err != nil {
 			return fmt.Errorf("failed to find admin role: %w", err)
 		}
 
@@ -267,7 +267,7 @@ func (i *Initializer) seedEssentialData() error {
 			Slug:     "welcome-to-smartticket",
 			Content: `# Welcome to SmartTicket
 
-SmartTicket is your self-hosted multi-tenant ticketing and knowledge collaboration platform.
+SmartTicket is your self-hosted ticketing and knowledge collaboration platform.
 
 ## Getting Started
 
@@ -283,7 +283,7 @@ SmartTicket is your self-hosted multi-tenant ticketing and knowledge collaborati
 
 - **Ticket Management**: Create, track, and manage support tickets
 - **Knowledge Base**: Build and maintain a knowledge base
-- **Multi-tenant Support**: Multiple organizations on the same platform
+- **Single-Tenant Deployment**: One instance per organization
 - **AI Integration**: Connect your preferred LLM providers
 - **Data Export**: Full data portability and backup features
 

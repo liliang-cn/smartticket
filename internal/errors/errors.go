@@ -94,7 +94,6 @@ type AppError struct {
 	Timestamp  time.Time              `json:"timestamp"`
 	RequestID  string                 `json:"request_id,omitempty"`
 	UserID     uint                   `json:"user_id,omitempty"`
-	TenantID   uint                   `json:"tenant_id,omitempty"`
 	Cause      error                  `json:"-"`
 	StackTrace string                 `json:"stack_trace,omitempty"`
 	Context    map[string]interface{} `json:"context,omitempty"`

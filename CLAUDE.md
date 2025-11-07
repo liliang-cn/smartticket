@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SmartTicket is a self-hosted multi-tenant ticketing and knowledge collaboration platform designed for enterprise deployment. The system serves enterprise customers with different support tiers and provides end-to-end issue handling, knowledge collaboration, and AI-powered assistance (custom RAG/LLM integration) while maintaining GDPR compliance.
+SmartTicket is a self-hosted single-tenant ticketing and knowledge collaboration platform designed for individual enterprise deployment. Organizations deploy their own instance to serve their customers, providing end-to-end issue handling, knowledge collaboration, and AI-powered assistance (custom RAG/LLM integration) while maintaining complete data sovereignty.
 
 ## Core Features
 
@@ -61,8 +61,8 @@ SmartTicket is a self-hosted multi-tenant ticketing and knowledge collaboration 
 │  │   API Layer      │ │  Middleware      │ │  Business Logic  │  │
 │  │                │ │                │ │                │  │
 │  │ • REST API     │ │ • JWT Auth       │ │ • Ticket Mgmt    │  │
-│  │ • Validation    │ │ • Tenant Isolation│ │ • Knowledge Base │  │
-│  │ • Error Handling│ │ • RBAC Control   │ │ • SLA Engine     │  │
+│  │ • Validation    │ │ • RBAC Control   │ │ • Knowledge Base │  │
+│  │ • Error Handling│ │ • Rate Limiting  │ │ • SLA Engine     │  │
 │  │ • Response Format│ │ • Logging        │ │ • AI Integration  │  │
 │  └─────────────────┘ └─────────────────┘ └─────────────────┘  │
 ├─────────────────────────────────────────────────────────────┤
@@ -126,22 +126,23 @@ smartticket/
 ## Core Data Models
 
 ### Key Entities
-- **Tenant**: Multi-tenant isolation with data residency settings
-- **User**: Role-based access (admin/customer/engineer/se/sales)
+- **User**: Role-based access (admin/agent/customer)
 - **Ticket**: Full lifecycle with SLA tracking and priority/severity enums
+- **Message**: Ticket conversations with AI support
 - **KnowledgeArticle**: Versioned content with visibility controls
+- **Product/Service**: Service catalog and support scope
 - **LlmProvider**: Custom LLM provider configurations
 - **ImportExportJob**: Batch data processing with progress tracking
 
 ### Important Constraints
-- All models include `tenant_id` for multi-tenant isolation
+- Single-tenant deployment model (no tenant_id needed)
 - Tickets use soft deletes (`is_deleted` flag)
 - Audit logs are immutable with hash-based integrity
 - All timestamp fields use Unix time format
 
 ## Development Phases
 
-1. **Phase 0**: Infrastructure & multi-tenant foundation (2-3 weeks)
+1. **Phase 0**: Infrastructure & authentication foundation (1-2 weeks)
 2. **Phase 1**: Core ticketing & SLA functionality (3-4 weeks)
 3. **Phase 2**: Data management & backup systems (2-3 weeks)
 4. **Phase 3**: AI service integration & custom LLM providers (4-5 weeks)
@@ -155,11 +156,11 @@ smartticket/
 - API key encryption with key rotation
 - Immutable audit logs with hash chaining
 
-### GDPR Features
-- Automated DSR (Data Subject Request) handling
-- Data residency controls (EU-first)
+### Privacy & Compliance
+- Data export and backup capabilities
 - PII detection and masking
-- Right to be forgotten implementation
+- Audit logging for compliance
+- Secure data deletion capabilities
 
 ### Import/Export Security
 - Role-based permissions for data access
@@ -431,18 +432,19 @@ sudo systemctl start smartticket
 - **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 - **Examples**:
   - `feat(api): add ticket export endpoint`
-  - `fix(db): resolve tenant isolation issue`
+  - `fix(db): resolve connection pooling issue`
   - `docs(readme): update deployment instructions`
 
 ## Current Project State
 
-The project is designed for enterprise self-deployment with a focus on data sovereignty and AI integration flexibility. The architecture emphasizes simplicity, security, and maintainability while providing enterprise-grade features for multi-tenant ticketing and knowledge management.
+The project is designed for single-tenant self-deployment with a focus on data sovereignty and AI integration flexibility. Each organization deploys their own instance to serve their customers. The architecture emphasizes simplicity, security, and maintainability while providing enterprise-grade ticketing and knowledge management features.
 
 ### Key Differentiators
 1. **Self-Hosted**: Complete control over data and infrastructure
-2. **Data Export**: Comprehensive data portability features
-3. **AI Flexibility**: Support for any LLM provider or local models
-4. **Simple Deployment**: Single binary with minimal dependencies
-5. **Enterprise Features**: Multi-tenant, RBAC, audit logs, GDPR compliance
+2. **Single-Tenant**: Simple deployment model - one instance per organization
+3. **Data Export**: Comprehensive data portability features
+4. **AI Flexibility**: Support for any LLM provider or local models
+5. **Simple Deployment**: Single binary with minimal dependencies
+6. **Enterprise Features**: RBAC, audit logs, SLA management, compliance tools
 
 The technology stack prioritizes reliability and ease of deployment while maintaining the flexibility needed for enterprise integration and customization.

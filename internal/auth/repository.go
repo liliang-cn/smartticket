@@ -29,10 +29,9 @@ func (r *Repository) CreateUser(user *models.User) error {
 }
 
 // GetUserByID retrieves a user by ID.
-func (r *Repository) GetUserByID(userID, tenantID uint) (*models.User, error) {
+func (r *Repository) GetUserByID(userID uint) (*models.User, error) {
 	var user models.User
-	if err := r.db.Where("id = ? AND tenant_id = ?", userID, tenantID).
-		Preload("Tenant").First(&user).Error; err != nil {
+	if err := r.db.Where("id = ?", userID).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user not found")
 		}
@@ -42,10 +41,9 @@ func (r *Repository) GetUserByID(userID, tenantID uint) (*models.User, error) {
 }
 
 // GetUserByEmail retrieves a user by email.
-func (r *Repository) GetUserByEmail(email string, tenantID uint) (*models.User, error) {
+func (r *Repository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
-	if err := r.db.Where("email = ? AND tenant_id = ?", email, tenantID).
-		Preload("Tenant").First(&user).Error; err != nil {
+	if err := r.db.Where("email = ?", email).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user not found")
 		}
@@ -55,10 +53,9 @@ func (r *Repository) GetUserByEmail(email string, tenantID uint) (*models.User, 
 }
 
 // GetUserByUsername retrieves a user by username.
-func (r *Repository) GetUserByUsername(username string, tenantID uint) (*models.User, error) {
+func (r *Repository) GetUserByUsername(username string) (*models.User, error) {
 	var user models.User
-	if err := r.db.Where("username = ? AND tenant_id = ?", username, tenantID).
-		Preload("Tenant").First(&user).Error; err != nil {
+	if err := r.db.Where("username = ?", username).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf("user not found")
 		}
@@ -69,6 +66,16 @@ func (r *Repository) GetUserByUsername(username string, tenantID uint) (*models.
 
 // UpdateUser updates a user.
 func (r *Repository) UpdateUser(user *models.User) error {
+	// First check if user exists
+	var existing models.User
+	if err := r.db.Where("id = ?", user.ID).First(&existing).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return fmt.Errorf("user not found")
+		}
+		return fmt.Errorf("failed to check user existence: %w", err)
+	}
+
+	// Update the user
 	if err := r.db.Save(user).Error; err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
 	}
@@ -76,24 +83,21 @@ func (r *Repository) UpdateUser(user *models.User) error {
 }
 
 // DeleteUser soft deletes a user.
-func (r *Repository) DeleteUser(userID, tenantID uint) error {
-	if err := r.db.Where("id = ? AND tenant_id = ?", userID, tenantID).
-		Delete(&models.User{}).Error; err != nil {
+func (r *Repository) DeleteUser(userID uint) error {
+	if err := r.db.Where("id = ?", userID).Delete(&models.User{}).Error; err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
 	return nil
 }
 
 // ListUsers retrieves a list of users with pagination and filtering.
-func (r *Repository) ListUsers(tenantID uint, page, pageSize int, filters map[string]interface{}) ([]models.User, int64, error) {
+func (r *Repository) ListUsers(page, pageSize int, filters map[string]interface{}) ([]models.User, int64, error) {
 	var users []models.User
 	var total int64
 
-	query := r.db.Where("tenant_id = ?", tenantID)
+	query := r.db.Model(&models.User{})
 
 	// Apply filters
-	// Note: role filtering is now handled through role associations, not direct User.Role field
-	// This filter should be removed or reimplemented using JOINs with user_roles table
 	if isActive, ok := filters["is_active"].(bool); ok {
 		query = query.Where("is_active = ?", isActive)
 	}
@@ -103,14 +107,13 @@ func (r *Repository) ListUsers(tenantID uint, page, pageSize int, filters map[st
 	}
 
 	// Count total records
-	if err := query.Model(&models.User{}).Count(&total).Error; err != nil {
+	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, fmt.Errorf("failed to count users: %w", err)
 	}
 
 	// Apply pagination
 	offset := (page - 1) * pageSize
-	if err := query.Preload("Tenant").
-		Offset(offset).
+	if err := query.Offset(offset).
 		Limit(pageSize).
 		Order("created_at DESC").
 		Find(&users).Error; err != nil {
@@ -155,16 +158,10 @@ func (r *Repository) UpdatePassword(userID uint, passwordHash string) error {
 	return nil
 }
 
-// UpdateUserRole updates the user's role - DEPRECATED.
-// Roles are now managed through UserRole associations.
-func (r *Repository) UpdateUserRole(userID, tenantID uint, role string) error {
-	return fmt.Errorf("UpdateUserRole is deprecated - use UserRole model for role management")
-}
-
 // DeactivateUser deactivates a user account.
-func (r *Repository) DeactivateUser(userID, tenantID uint) error {
+func (r *Repository) DeactivateUser(userID uint) error {
 	if err := r.db.Model(&models.User{}).
-		Where("id = ? AND tenant_id = ?", userID, tenantID).
+		Where("id = ?", userID).
 		Update("is_active", false).Error; err != nil {
 		return fmt.Errorf("failed to deactivate user: %w", err)
 	}
@@ -172,20 +169,19 @@ func (r *Repository) DeactivateUser(userID, tenantID uint) error {
 }
 
 // ActivateUser activates a user account.
-func (r *Repository) ActivateUser(userID, tenantID uint) error {
+func (r *Repository) ActivateUser(userID uint) error {
 	if err := r.db.Model(&models.User{}).
-		Where("id = ? AND tenant_id = ?", userID, tenantID).
+		Where("id = ?", userID).
 		Update("is_active", true).Error; err != nil {
 		return fmt.Errorf("failed to activate user: %w", err)
 	}
 	return nil
 }
 
-// CheckEmailExists checks if an email already exists for a tenant.
-func (r *Repository) CheckEmailExists(email string, tenantID uint, excludeUserID ...uint) (bool, error) {
+// CheckEmailExists checks if an email already exists.
+func (r *Repository) CheckEmailExists(email string, excludeUserID ...uint) (bool, error) {
 	var count int64
-	query := r.db.Model(&models.User{}).
-		Where("email = ? AND tenant_id = ?", email, tenantID)
+	query := r.db.Model(&models.User{}).Where("email = ?", email)
 
 	if len(excludeUserID) > 0 && excludeUserID[0] > 0 {
 		query = query.Where("id != ?", excludeUserID[0])
@@ -198,11 +194,10 @@ func (r *Repository) CheckEmailExists(email string, tenantID uint, excludeUserID
 	return count > 0, nil
 }
 
-// CheckUsernameExists checks if a username already exists for a tenant.
-func (r *Repository) CheckUsernameExists(username string, tenantID uint, excludeUserID ...uint) (bool, error) {
+// CheckUsernameExists checks if a username already exists.
+func (r *Repository) CheckUsernameExists(username string, excludeUserID ...uint) (bool, error) {
 	var count int64
-	query := r.db.Model(&models.User{}).
-		Where("username = ? AND tenant_id = ?", username, tenantID)
+	query := r.db.Model(&models.User{}).Where("username = ?", username)
 
 	if len(excludeUserID) > 0 && excludeUserID[0] > 0 {
 		query = query.Where("id != ?", excludeUserID[0])
@@ -215,15 +210,13 @@ func (r *Repository) CheckUsernameExists(username string, tenantID uint, exclude
 	return count > 0, nil
 }
 
-// GetUserStats returns user statistics for a tenant.
-func (r *Repository) GetUserStats(tenantID uint) (map[string]int64, error) {
+// GetUserStats returns user statistics.
+func (r *Repository) GetUserStats() (map[string]int64, error) {
 	stats := make(map[string]int64)
 
 	// Total users
 	var totalUsers int64
-	if err := r.db.Model(&models.User{}).
-		Where("tenant_id = ?", tenantID).
-		Count(&totalUsers).Error; err != nil {
+	if err := r.db.Model(&models.User{}).Count(&totalUsers).Error; err != nil {
 		return nil, fmt.Errorf("failed to count total users: %w", err)
 	}
 	stats["total_users"] = totalUsers
@@ -231,32 +224,17 @@ func (r *Repository) GetUserStats(tenantID uint) (map[string]int64, error) {
 	// Active users
 	var activeUsers int64
 	if err := r.db.Model(&models.User{}).
-		Where("tenant_id = ? AND is_active = ?", tenantID, true).
+		Where("is_active = ?", true).
 		Count(&activeUsers).Error; err != nil {
 		return nil, fmt.Errorf("failed to count active users: %w", err)
 	}
 	stats["active_users"] = activeUsers
 
-	// Users by role - Note: This needs to be reimplemented using user_roles JOIN
-	// For now, commenting out as User.Role field has been removed
-	roles := []string{"admin", "engineer", "support", "customer", "sales"}
-	for _, role := range roles {
-		var count int64
-		// TODO: Reimplement using JOIN with user_roles table
-		// Example: r.db.Table("users").Joins("JOIN user_roles ON users.id = user_roles.user_id").Joins("JOIN roles ON user_roles.role_id = roles.id").Where("roles.name = ? AND users.tenant_id = ?", role, tenantID).Count(&count)
-		if err := r.db.Model(&models.User{}).
-			Where("tenant_id = ? AND is_active = ?", tenantID, true).
-			Count(&count).Error; err != nil {
-			return nil, fmt.Errorf("failed to count users by role %s: %w", role, err)
-		}
-		stats["users_"+role] = count // This will show total active users instead of role-specific counts
-	}
-
 	// Users who logged in last 30 days
 	var recentUsers int64
 	thirtyDaysAgo := time.Now().AddDate(0, 0, -30)
 	if err := r.db.Model(&models.User{}).
-		Where("tenant_id = ? AND is_active = ? AND last_login_at >= ?", tenantID, true, thirtyDaysAgo).
+		Where("is_active = ? AND last_login_at >= ?", true, thirtyDaysAgo).
 		Count(&recentUsers).Error; err != nil {
 		return nil, fmt.Errorf("failed to count recent users: %w", err)
 	}
@@ -264,4 +242,3 @@ func (r *Repository) GetUserStats(tenantID uint) (map[string]int64, error) {
 
 	return stats, nil
 }
-

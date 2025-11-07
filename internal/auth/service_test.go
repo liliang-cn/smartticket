@@ -16,8 +16,7 @@ func TestAuthService_Login(t *testing.T) {
 	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
 		// Setup
 		service := NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
-		tenant := createTestTenant(t, db)
-		user := createTestUser(t, db, tenant.ID, "test@example.com", "password123")
+		user := createTestUser(t, db, "test@example.com", "password123")
 
 		// Test data
 		req := &LoginRequest{
@@ -43,8 +42,7 @@ func TestAuthService_Login_InvalidCredentials(t *testing.T) {
 	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
 		// Setup
 		service := NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
-		tenant := createTestTenant(t, db)
-		createTestUser(t, db, tenant.ID, "test@example.com", "password123")
+		createTestUser(t, db, "test@example.com", "password123")
 
 		// Test data
 		req := &LoginRequest{
@@ -87,8 +85,7 @@ func TestAuthService_Login_InactiveUser(t *testing.T) {
 	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
 		// Setup
 		service := NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
-		tenant := createTestTenant(t, db)
-		user := createTestUser(t, db, tenant.ID, "test@example.com", "password123")
+		user := createTestUser(t, db, "test@example.com", "password123")
 		user.IsActive = false
 		db.Save(user)
 
@@ -112,8 +109,7 @@ func TestAuthService_RefreshToken(t *testing.T) {
 	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
 		// Setup
 		service := NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
-		tenant := createTestTenant(t, db)
-		_ = createTestUser(t, db, tenant.ID, "test@example.com", "password123")
+		_ = createTestUser(t, db, "test@example.com", "password123")
 
 		// First login to get tokens
 		loginReq := &LoginRequest{
@@ -160,8 +156,7 @@ func TestAuthService_ValidateToken(t *testing.T) {
 	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
 		// Setup
 		service := NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
-		tenant := createTestTenant(t, db)
-		user := createTestUser(t, db, tenant.ID, "test@example.com", "password123")
+		user := createTestUser(t, db, "test@example.com", "password123")
 
 		// First login to get token
 		loginReq := &LoginRequest{
@@ -180,9 +175,8 @@ func TestAuthService_ValidateToken(t *testing.T) {
 		assert.Equal(t, user.ID, result.UserID)
 		assert.Equal(t, user.Email, result.Email)
 		// Role is now determined by GetUserEffectiveRole, not stored on User model
-	// We expect "customer" as default role since no role assignments are created in test
-	assert.Equal(t, "customer", result.Role)
-		assert.Equal(t, tenant.ID, result)
+		// We expect "customer" as default role since no role assignments are created in test
+		assert.Equal(t, "customer", result.Role)
 	})
 }
 
@@ -211,8 +205,7 @@ func TestAuthService_GetUserInfo(t *testing.T) {
 	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
 		// Setup
 		service := NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
-		tenant := createTestTenant(t, db)
-		user := createTestUser(t, db, tenant.ID, "test@example.com", "password123")
+		user := createTestUser(t, db, "test@example.com", "password123")
 
 		// Execute
 		result, err := service.GetUserInfo(user.ID)
@@ -222,7 +215,6 @@ func TestAuthService_GetUserInfo(t *testing.T) {
 		assert.NotNil(t, result)
 		assert.Equal(t, user.ID, result.ID)
 		assert.Equal(t, user.Email, result.Email)
-		assert.Equal(t, tenant.ID, result)
 	})
 }
 
@@ -243,22 +235,7 @@ func TestAuthService_GetUserInfo_UserNotFound(t *testing.T) {
 
 // Helper functions for creating test data
 
-func createTestTenant(t *testing.T, db *database.Database) * {
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		Domain:   "test.example.com",
-		Plan:     "basic",
-		IsActive: true,
-	}
-
-	err := db.DB.Create(tenant).Error
-	require.NoError(t, err)
-
-	return tenant
-}
-
-func createTestUser(t *testing.T, db *database.Database, tenantID uint, email, password string) *models.User {
+func createTestUser(t *testing.T, db *database.Database, email, password string) *models.User {
 	// Create a temporary service just for hashing password
 	tempService := NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 

@@ -1,12 +1,12 @@
 # SmartTicket
 
-A self-hosted multi-tenant ticketing and knowledge collaboration platform designed for enterprise deployment.
+A self-hosted single-tenant ticketing and knowledge collaboration platform designed for enterprise deployment.
 
 ## Overview
 
 SmartTicket provides enterprise-grade ticketing and knowledge management with:
 - **Self-Hosting**: Complete control over data and infrastructure
-- **Multi-Tenant**: Support for multiple organizations with data isolation
+- **Single-Tenant**: Simple deployment model - one instance per organization
 - **Single Binary**: Zero external dependencies for core functionality
 - **Custom AI Integration**: Support for any LLM provider or local models
 - **Data Sovereignty**: Complete data export and portability features

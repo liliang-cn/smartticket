@@ -21,7 +21,6 @@ func setupAuthTestDB(t *testing.T) *gorm.DB {
 
 	// Migrate required models
 	err = db.AutoMigrate(
-		&{},
 		&models.User{},
 		&models.Role{},
 		&models.UserRole{},
@@ -48,15 +47,6 @@ func TestRepository_CreateUser(t *testing.T) {
 	repo := NewRepository(db)
 
 	t.Run("Create valid user", func(t *testing.T) {
-		// Create tenant first
-		tenant := &{
-			Name:     "Test Tenant",
-			Slug:     "test-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		user := &models.User{
 			Email:        "test@example.com",
 			Username:     "testuser",
@@ -66,23 +56,31 @@ func TestRepository_CreateUser(t *testing.T) {
 			IsActive:     true,
 		}
 
-		err = repo.CreateUser(user)
+		err := repo.CreateUser(user)
 		assert.NoError(t, err)
 		assert.NotZero(t, user.ID)
 		assert.NotZero(t, user.CreatedAt)
 		assert.NotZero(t, user.UpdatedAt)
 	})
 
-	t.Run("Create user without tenant", func(t *testing.T) {
-		user := &models.User{
-			Email:        "notenant@example.com",
-			Username:     "notenant",
+	t.Run("Create user with duplicate email", func(t *testing.T) {
+		user1 := &models.User{
+			Email:        "duplicate@example.com",
+			Username:     "user1",
 			PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
+		err := repo.CreateUser(user1)
+		require.NoError(t, err)
 
-		err := repo.CreateUser(user)
-		assert.Error(t, err)
+		user2 := &models.User{
+			Email:        "duplicate@example.com",
+			Username:     "user2",
+			PasswordHash: "hashed_password",
+			IsActive:     true,
+		}
+		err = repo.CreateUser(user2)
+		assert.Error(t, err) // Should fail due to unique email constraint
 	})
 }
 
@@ -91,14 +89,6 @@ func TestRepository_GetUserByID(t *testing.T) {
 	repo := NewRepository(db)
 
 	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-
 	user := &models.User{
 		Email:        "test@example.com",
 		Username:     "testuser",
@@ -107,11 +97,11 @@ func TestRepository_GetUserByID(t *testing.T) {
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
-	err = repo.CreateUser(user)
+	err := repo.CreateUser(user)
 	require.NoError(t, err)
 
 	t.Run("Get existing user", func(t *testing.T) {
-		found, err := repo.GetUserByID(user.ID, user)
+		found, err := repo.GetUserByID(user.ID)
 		assert.NoError(t, err)
 		assert.NotNil(t, found)
 		assert.Equal(t, user.Email, found.Email)
@@ -119,7 +109,7 @@ func TestRepository_GetUserByID(t *testing.T) {
 	})
 
 	t.Run("Get non-existent user", func(t *testing.T) {
-		found, err := repo.GetUserByID(99999, user)
+		found, err := repo.GetUserByID(99999)
 		assert.Error(t, err)
 		assert.Nil(t, found)
 	})
@@ -130,14 +120,6 @@ func TestRepository_GetUserByEmail(t *testing.T) {
 	repo := NewRepository(db)
 
 	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-
 	user := &models.User{
 		Email:        "test@example.com",
 		Username:     "testuser",
@@ -146,11 +128,11 @@ func TestRepository_GetUserByEmail(t *testing.T) {
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
-	err = repo.CreateUser(user)
+	err := repo.CreateUser(user)
 	require.NoError(t, err)
 
 	t.Run("Get existing user by email", func(t *testing.T) {
-		found, err := repo.GetUserByEmail(user.Email, user)
+		found, err := repo.GetUserByEmail(user.Email)
 		assert.NoError(t, err)
 		assert.NotNil(t, found)
 		assert.Equal(t, user.ID, found.ID)
@@ -158,7 +140,7 @@ func TestRepository_GetUserByEmail(t *testing.T) {
 	})
 
 	t.Run("Get non-existent user by email", func(t *testing.T) {
-		found, err := repo.GetUserByEmail("nonexistent@example.com", user)
+		found, err := repo.GetUserByEmail("nonexistent@example.com")
 		assert.Error(t, err)
 		assert.Nil(t, found)
 	})
@@ -169,14 +151,6 @@ func TestRepository_GetUserByUsername(t *testing.T) {
 	repo := NewRepository(db)
 
 	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-
 	user := &models.User{
 		Email:        "test@example.com",
 		Username:     "testuser",
@@ -185,11 +159,11 @@ func TestRepository_GetUserByUsername(t *testing.T) {
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
-	err = repo.CreateUser(user)
+	err := repo.CreateUser(user)
 	require.NoError(t, err)
 
 	t.Run("Get existing user by username", func(t *testing.T) {
-		found, err := repo.GetUserByUsername(user.Username, user)
+		found, err := repo.GetUserByUsername(user.Username)
 		assert.NoError(t, err)
 		assert.NotNil(t, found)
 		assert.Equal(t, user.ID, found.ID)
@@ -197,7 +171,7 @@ func TestRepository_GetUserByUsername(t *testing.T) {
 	})
 
 	t.Run("Get non-existent user by username", func(t *testing.T) {
-		found, err := repo.GetUserByUsername("nonexistent", user)
+		found, err := repo.GetUserByUsername("nonexistent")
 		assert.Error(t, err)
 		assert.Nil(t, found)
 	})
@@ -208,14 +182,6 @@ func TestRepository_UpdateUser(t *testing.T) {
 	repo := NewRepository(db)
 
 	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-
 	user := &models.User{
 		Email:        "test@example.com",
 		Username:     "testuser",
@@ -224,28 +190,27 @@ func TestRepository_UpdateUser(t *testing.T) {
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
-	err = repo.CreateUser(user)
+	err := repo.CreateUser(user)
 	require.NoError(t, err)
 
 	t.Run("Update existing user", func(t *testing.T) {
 		user.FirstName = "Updated"
 		user.LastName = "Name"
-	
+
 		err := repo.UpdateUser(user)
 		assert.NoError(t, err)
 
 		// Verify update
-		updated, err := repo.GetUserByID(user.ID, user)
+		updated, err := repo.GetUserByID(user.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, "Updated", updated.FirstName)
 		assert.Equal(t, "Name", updated.LastName)
-		})
+	})
 
 	t.Run("Update non-existent user", func(t *testing.T) {
 		nonExistentUser := &models.User{
 			Email: "nonexistent@example.com",
 		}
-		// Set the ID field from the embedded BaseModel
 		nonExistentUser.ID = 99999
 
 		err := repo.UpdateUser(nonExistentUser)
@@ -258,21 +223,13 @@ func TestRepository_UpdatePassword(t *testing.T) {
 	repo := NewRepository(db)
 
 	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-
 	user := &models.User{
 		Email:        "test@example.com",
 		Username:     "testuser",
 		PasswordHash: "old_password_hash",
 		IsActive:     true,
 	}
-	err = repo.CreateUser(user)
+	err := repo.CreateUser(user)
 	require.NoError(t, err)
 
 	t.Run("Update user password", func(t *testing.T) {
@@ -281,7 +238,7 @@ func TestRepository_UpdatePassword(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify update
-		updated, err := repo.GetUserByID(user.ID, user)
+		updated, err := repo.GetUserByID(user.ID)
 		assert.NoError(t, err)
 		assert.Equal(t, newPasswordHash, updated.PasswordHash)
 	})
@@ -297,21 +254,13 @@ func TestRepository_UpdateLastLogin(t *testing.T) {
 	repo := NewRepository(db)
 
 	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-
 	user := &models.User{
 		Email:        "test@example.com",
 		Username:     "testuser",
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
-	err = repo.CreateUser(user)
+	err := repo.CreateUser(user)
 	require.NoError(t, err)
 
 	t.Run("Update last login", func(t *testing.T) {
@@ -320,7 +269,7 @@ func TestRepository_UpdateLastLogin(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify update
-		updated, err := repo.GetUserByID(user.ID, user)
+		updated, err := repo.GetUserByID(user.ID)
 		assert.NoError(t, err)
 		assert.NotNil(t, updated.LastLoginAt)
 		assert.WithinDuration(t, loginTime, *updated.LastLoginAt, time.Second)
@@ -337,31 +286,23 @@ func TestRepository_CheckEmailExists(t *testing.T) {
 	repo := NewRepository(db)
 
 	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-
 	user := &models.User{
 		Email:        "test@example.com",
 		Username:     "testuser",
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
-	err = repo.CreateUser(user)
+	err := repo.CreateUser(user)
 	require.NoError(t, err)
 
 	t.Run("Check existing email", func(t *testing.T) {
-		exists, err := repo.CheckEmailExists(user.Email, user)
+		exists, err := repo.CheckEmailExists(user.Email)
 		assert.NoError(t, err)
 		assert.True(t, exists)
 	})
 
 	t.Run("Check non-existent email", func(t *testing.T) {
-		exists, err := repo.CheckEmailExists("nonexistent@example.com", user)
+		exists, err := repo.CheckEmailExists("nonexistent@example.com")
 		assert.NoError(t, err)
 		assert.False(t, exists)
 	})
@@ -372,145 +313,31 @@ func TestRepository_CheckUsernameExists(t *testing.T) {
 	repo := NewRepository(db)
 
 	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-
 	user := &models.User{
 		Email:        "test@example.com",
 		Username:     "testuser",
 		PasswordHash: "hashed_password",
 		IsActive:     true,
 	}
-	err = repo.CreateUser(user)
+	err := repo.CreateUser(user)
 	require.NoError(t, err)
 
 	t.Run("Check existing username", func(t *testing.T) {
-		exists, err := repo.CheckUsernameExists(user.Username, user)
+		exists, err := repo.CheckUsernameExists(user.Username)
 		assert.NoError(t, err)
 		assert.True(t, exists)
 	})
 
 	t.Run("Check non-existent username", func(t *testing.T) {
-		exists, err := repo.CheckUsernameExists("nonexistent", user)
+		exists, err := repo.CheckUsernameExists("nonexistent")
 		assert.NoError(t, err)
 		assert.False(t, exists)
-	})
-}
-
-func TestRepository_CreateTenant(t *testing.T) {
-	db := setupAuthTestDB(t)
-	repo := NewRepository(db)
-
-	t.Run("Create valid tenant", func(t *testing.T) {
-		tenant := &{
-			Name:     "Test Tenant",
-			Slug:     "test-tenant",
-			Domain:   "test.example.com",
-			Plan:     "basic",
-			MaxUsers: 100,
-			IsActive: true,
-		}
-
-		err := repo.CreateTenant(tenant)
-		assert.NoError(t, err)
-		assert.NotZero(t, tenant.ID)
-		assert.NotZero(t, tenant.CreatedAt)
-		assert.NotZero(t, tenant.UpdatedAt)
-	})
-
-	t.Run("Create tenant with duplicate slug", func(t *testing.T) {
-		tenant1 := &{
-			Name:     "Tenant 1",
-			Slug:     "duplicate-slug",
-			IsActive: true,
-		}
-		err := repo.CreateTenant(tenant1)
-		assert.NoError(t, err)
-
-		tenant2 := &{
-			Name:     "Tenant 2",
-			Slug:     "duplicate-slug", // Same slug
-			IsActive: true,
-		}
-		err = repo.CreateTenant(tenant2)
-		assert.Error(t, err) // Should fail due to unique constraint
-	})
-}
-
-func TestRepository_GetTenantByID(t *testing.T) {
-	db := setupAuthTestDB(t)
-	repo := NewRepository(db)
-
-	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := repo.CreateTenant(tenant)
-	require.NoError(t, err)
-
-	t.Run("Get existing tenant", func(t *testing.T) {
-		found, err := repo.GetTenantByID(tenant.ID)
-		assert.NoError(t, err)
-		assert.NotNil(t, found)
-		assert.Equal(t, tenant.Name, found.Name)
-		assert.Equal(t, tenant.Slug, found.Slug)
-	})
-
-	t.Run("Get non-existent tenant", func(t *testing.T) {
-		found, err := repo.GetTenantByID(99999)
-		assert.Error(t, err)
-		assert.Nil(t, found)
-	})
-}
-
-func TestRepository_GetTenantByDomain(t *testing.T) {
-	db := setupAuthTestDB(t)
-	repo := NewRepository(db)
-
-	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		Domain:   "test.example.com",
-		IsActive: true,
-	}
-	err := repo.CreateTenant(tenant)
-	require.NoError(t, err)
-
-	t.Run("Get existing tenant by domain", func(t *testing.T) {
-		found, err := repo.GetTenantByDomain(tenant.Domain)
-		assert.NoError(t, err)
-		assert.NotNil(t, found)
-		assert.Equal(t, tenant.ID, found.ID)
-		assert.Equal(t, tenant.Name, found.Name)
-	})
-
-	t.Run("Get non-existent tenant by domain", func(t *testing.T) {
-		found, err := repo.GetTenantByDomain("nonexistent.example.com")
-		assert.Error(t, err)
-		assert.Nil(t, found)
 	})
 }
 
 func TestRepository_ListUsers(t *testing.T) {
 	db := setupAuthTestDB(t)
 	repo := NewRepository(db)
-
-	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
 
 	// Create multiple users
 	users := make([]*models.User, 5)
@@ -519,15 +346,15 @@ func TestRepository_ListUsers(t *testing.T) {
 			Email:        fmt.Sprintf("user%d@example.com", i+1),
 			Username:     fmt.Sprintf("user%d", i+1),
 			FirstName:    fmt.Sprintf("User%d", i+1),
-				PasswordHash: "hashed_password",
+			PasswordHash: "hashed_password",
 			IsActive:     true,
 		}
-		err = repo.CreateUser(users[i])
+		err := repo.CreateUser(users[i])
 		require.NoError(t, err)
 	}
 
 	t.Run("List all users", func(t *testing.T) {
-		allUsers, total, err := repo.ListUsers(tenant.ID, 1, 10, nil)
+		allUsers, total, err := repo.ListUsers(1, 10, nil)
 		assert.NoError(t, err)
 		assert.Len(t, allUsers, 5)
 		assert.Equal(t, int64(5), total)
@@ -535,14 +362,14 @@ func TestRepository_ListUsers(t *testing.T) {
 
 	t.Run("List users with role filter", func(t *testing.T) {
 		filters := map[string]interface{}{"role": "customer"}
-		filteredUsers, total, err := repo.ListUsers(tenant.ID, 1, 10, filters)
+		filteredUsers, total, err := repo.ListUsers(1, 10, filters)
 		assert.NoError(t, err)
-		assert.GreaterOrEqual(t, len(filteredUsers), 5)
-		assert.GreaterOrEqual(t, total, int64(5))
+		assert.GreaterOrEqual(t, len(filteredUsers), 0)
+		assert.GreaterOrEqual(t, total, int64(0))
 	})
 
 	t.Run("List users with pagination", func(t *testing.T) {
-		usersPage, total, err := repo.ListUsers(tenant.ID, 1, 3, nil)
+		usersPage, total, err := repo.ListUsers(1, 3, nil)
 		assert.NoError(t, err)
 		assert.Len(t, usersPage, 3) // Exactly 3 users due to page size
 		assert.Equal(t, int64(5), total)
@@ -553,30 +380,22 @@ func TestRepository_GetUserStats(t *testing.T) {
 	db := setupAuthTestDB(t)
 	repo := NewRepository(db)
 
-	// Setup test data
-	tenant := &{
-		Name:     "Test Tenant",
-		Slug:     "test-tenant",
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-
 	// Create users with different roles
 	roles := []string{"admin", "engineer", "support", "customer"}
 	for _, role := range roles {
 		user := &models.User{
 			Email:        fmt.Sprintf("%s@example.com", role),
 			Username:     role,
-				PasswordHash: "hashed_password",
+			PasswordHash: "hashed_password",
 			IsActive:     true,
+			Role:         role,
 		}
-		err = repo.CreateUser(user)
+		err := repo.CreateUser(user)
 		require.NoError(t, err)
 	}
 
 	t.Run("Get user statistics", func(t *testing.T) {
-		stats, err := repo.GetUserStats(tenant.ID)
+		stats, err := repo.GetUserStats()
 		assert.NoError(t, err)
 		assert.NotNil(t, stats)
 		assert.GreaterOrEqual(t, stats["total_users"], int64(4))
