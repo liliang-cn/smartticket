@@ -31,9 +31,9 @@ func NewPermissionHandler(permissionService *services.PermissionService) *Permis
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {array} models.Permission
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/admin/permissions [get]
 func (h *PermissionHandler) GetAllPermissions(c *gin.Context) {
 	permissions, err := h.permissionService.GetAllPermissions(c.Request.Context())
@@ -79,10 +79,10 @@ func (h *PermissionHandler) GetPermissionByID(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param request body models.Permission true "Permission creation data"
 // @Success 201 {object} models.Permission
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/admin/permissions [post]
 func (h *PermissionHandler) CreatePermission(c *gin.Context) {
 	var req models.Permission

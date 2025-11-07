@@ -45,26 +45,26 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Permission"
+                                "$ref": "#/definitions/github_com_company_smartticket_internal_models.Permission"
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -100,7 +100,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Permission"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_models.Permission"
                         }
                     }
                 ],
@@ -108,31 +108,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Permission"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_models.Permission"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -175,26 +175,26 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/models.Role"
+                                "$ref": "#/definitions/github_com_company_smartticket_internal_models.Role"
                             }
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -237,7 +237,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Role"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_models.Role"
                         }
                     }
                 ],
@@ -245,174 +245,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.Role"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_models.Role"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/admin/tenants": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieves a paginated list of all tenant organizations",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tenants"
-                ],
-                "summary": "List tenants",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "default": 20,
-                        "description": "Number of tenants per page",
-                        "name": "page_size",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Search tenants by name or domain",
-                        "name": "search",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/server.Response"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Creates a new tenant organization with provided details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tenants"
-                ],
-                "summary": "Create a new tenant",
-                "parameters": [
-                    {
-                        "description": "Tenant creation data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/tenant.CreateTenantRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/tenant.TenantResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -457,7 +314,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.ChangePasswordRequest"
+                            "$ref": "#/definitions/internal_auth.ChangePasswordRequest"
                         }
                     }
                 ],
@@ -465,25 +322,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -491,7 +348,7 @@ const docTemplate = `{
         },
         "/api/v1/auth/login": {
             "post": {
-                "description": "Authenticate a user with email and password",
+                "description": "Authenticate a user with email and password (tenant is auto-detected from email)",
                 "consumes": [
                     "application/json"
                 ],
@@ -509,40 +366,33 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginRequest"
+                            "$ref": "#/definitions/internal_auth.LoginRequest"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginResponse"
+                            "$ref": "#/definitions/internal_auth.LoginResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -579,13 +429,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -626,13 +476,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -673,25 +523,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.UserInfo"
+                            "$ref": "#/definitions/internal_auth.UserInfo"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -717,7 +567,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.RefreshTokenRequest"
+                            "$ref": "#/definitions/internal_auth.RefreshTokenRequest"
                         }
                     }
                 ],
@@ -725,25 +575,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.TokenPair"
+                            "$ref": "#/definitions/internal_auth.TokenPair"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -777,13 +627,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -841,31 +691,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/importexport.JobResponse"
+                            "$ref": "#/definitions/internal_importexport.JobResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -885,13 +735,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/internal_server.Response"
                         }
                     },
                     "503": {
                         "description": "Service Unavailable",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/internal_server.Response"
                         }
                     }
                 }
@@ -911,7 +761,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/internal_server.Response"
                         }
                     }
                 }
@@ -1004,25 +854,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1065,7 +915,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/knowledge.CreateKnowledgeArticleRequest"
+                            "$ref": "#/definitions/internal_knowledge.CreateKnowledgeArticleRequest"
                         }
                     }
                 ],
@@ -1073,31 +923,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/knowledge.KnowledgeArticleResponse"
+                            "$ref": "#/definitions/internal_knowledge.KnowledgeArticleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1138,25 +988,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/knowledge.KnowledgeArticleStatsResponse"
+                            "$ref": "#/definitions/internal_knowledge.KnowledgeArticleStatsResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1204,37 +1054,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/knowledge.KnowledgeArticleResponse"
+                            "$ref": "#/definitions/internal_knowledge.KnowledgeArticleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1284,7 +1134,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/knowledge.UpdateKnowledgeArticleRequest"
+                            "$ref": "#/definitions/internal_knowledge.UpdateKnowledgeArticleRequest"
                         }
                     }
                 ],
@@ -1292,37 +1142,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/knowledge.KnowledgeArticleResponse"
+                            "$ref": "#/definitions/internal_knowledge.KnowledgeArticleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1368,37 +1218,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1479,31 +1329,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1546,7 +1396,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/product.CreateProductRequest"
+                            "$ref": "#/definitions/internal_product.CreateProductRequest"
                         }
                     }
                 ],
@@ -1554,31 +1404,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/product.ProductResponse"
+                            "$ref": "#/definitions/internal_product.ProductResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1626,37 +1476,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/product.ProductResponse"
+                            "$ref": "#/definitions/internal_product.ProductResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1706,7 +1556,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/product.UpdateProductRequest"
+                            "$ref": "#/definitions/internal_product.UpdateProductRequest"
                         }
                     }
                 ],
@@ -1714,37 +1564,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/product.ProductResponse"
+                            "$ref": "#/definitions/internal_product.ProductResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1790,37 +1640,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1868,37 +1718,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -1946,37 +1796,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2069,31 +1919,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2136,7 +1986,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.CreateServiceRequest"
+                            "$ref": "#/definitions/internal_service.CreateServiceRequest"
                         }
                     }
                 ],
@@ -2144,31 +1994,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/service.ServiceResponse"
+                            "$ref": "#/definitions/internal_service.ServiceResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2216,37 +2066,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.ServiceResponse"
+                            "$ref": "#/definitions/internal_service.ServiceResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2296,7 +2146,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.UpdateServiceRequest"
+                            "$ref": "#/definitions/internal_service.UpdateServiceRequest"
                         }
                     }
                 ],
@@ -2304,37 +2154,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.ServiceResponse"
+                            "$ref": "#/definitions/internal_service.ServiceResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2380,37 +2230,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2458,37 +2308,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2536,37 +2386,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2611,7 +2461,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/sla.CreateSLARuleRequest"
+                            "$ref": "#/definitions/internal_sla.CreateSLARuleRequest"
                         }
                     }
                 ],
@@ -2619,31 +2469,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/sla.SLARuleResponse"
+                            "$ref": "#/definitions/internal_sla.SLARuleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2719,31 +2569,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2786,7 +2636,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/sla.CreateSLATemplateRequest"
+                            "$ref": "#/definitions/internal_sla.CreateSLATemplateRequest"
                         }
                     }
                 ],
@@ -2794,31 +2644,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/sla.SLATemplateResponse"
+                            "$ref": "#/definitions/internal_sla.SLATemplateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2866,37 +2716,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/sla.SLATemplateResponse"
+                            "$ref": "#/definitions/internal_sla.SLATemplateResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -2997,25 +2847,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3058,7 +2908,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ticket.CreateTicketRequest"
+                            "$ref": "#/definitions/internal_ticket.CreateTicketRequest"
                         }
                     }
                 ],
@@ -3066,31 +2916,31 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/ticket.TicketResponse"
+                            "$ref": "#/definitions/internal_ticket.TicketResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3179,25 +3029,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3238,25 +3088,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3304,37 +3154,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ticket.TicketResponse"
+                            "$ref": "#/definitions/internal_ticket.TicketResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3384,7 +3234,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/ticket.UpdateTicketRequest"
+                            "$ref": "#/definitions/internal_ticket.UpdateTicketRequest"
                         }
                     }
                 ],
@@ -3392,37 +3242,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/ticket.TicketResponse"
+                            "$ref": "#/definitions/internal_ticket.TicketResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3468,37 +3318,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3558,37 +3408,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3661,31 +3511,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/user.UserListResponse"
+                            "$ref": "#/definitions/internal_user.UserListResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3714,7 +3564,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.CreateUserRequest"
+                            "$ref": "#/definitions/internal_user.CreateUserRequest"
                         }
                     },
                     {
@@ -3736,37 +3586,37 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/auth.UserInfo"
+                            "$ref": "#/definitions/internal_auth.UserInfo"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3807,25 +3657,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3873,31 +3723,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.UserInfo"
+                            "$ref": "#/definitions/internal_auth.UserInfo"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -3933,7 +3783,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/user.UpdateUserRequest"
+                            "$ref": "#/definitions/internal_user.UpdateUserRequest"
                         }
                     },
                     {
@@ -3955,43 +3805,43 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.UserInfo"
+                            "$ref": "#/definitions/internal_auth.UserInfo"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -4034,37 +3884,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -4109,37 +3959,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -4184,37 +4034,37 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/errors.ErrorResponse"
+                            "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse"
                         }
                     }
                 }
@@ -4234,7 +4084,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/internal_server.Response"
                         }
                     }
                 }
@@ -4242,95 +4092,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auth.ChangePasswordRequest": {
-            "type": "object",
-            "required": [
-                "confirm_password",
-                "current_password",
-                "new_password"
-            ],
-            "properties": {
-                "confirm_password": {
-                    "type": "string"
-                },
-                "current_password": {
-                    "type": "string"
-                },
-                "new_password": {
-                    "type": "string",
-                    "minLength": 6
-                }
-            }
-        },
-        "auth.LoginRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "admin@example.com"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 6,
-                    "example": "password123"
-                }
-            }
-        },
-        "auth.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "expires_in": {
-                    "description": "seconds",
-                    "type": "integer"
-                },
-                "refresh_in": {
-                    "description": "seconds",
-                    "type": "integer"
-                },
-                "success": {
-                    "type": "boolean"
-                },
-                "tokens": {
-                    "$ref": "#/definitions/auth.TokenPair"
-                },
-                "user": {
-                    "$ref": "#/definitions/auth.UserInfo"
-                }
-            }
-        },
-        "auth.RefreshTokenRequest": {
-            "type": "object",
-            "required": [
-                "refresh_token"
-            ],
-            "properties": {
-                "refresh_token": {
-                    "type": "string"
-                }
-            }
-        },
-        "auth.TokenPair": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "type": "string"
-                },
-                "expires_at": {
-                    "type": "string"
-                },
-                "refresh_token": {
-                    "type": "string"
-                },
-                "token_type": {
-                    "type": "string"
-                }
-            }
-        },
-        "auth.UserInfo": {
+        "github_com_company_smartticket_internal_auth.UserInfo": {
             "type": "object",
             "properties": {
                 "email": {
@@ -4354,18 +4116,12 @@ const docTemplate = `{
                 "role": {
                     "type": "string"
                 },
-                "tenant_id": {
-                    "type": "integer"
-                },
-                "tenant_name": {
-                    "type": "string"
-                },
                 "username": {
                     "type": "string"
                 }
             }
         },
-        "errors.ErrorInfo": {
+        "github_com_company_smartticket_internal_errors.ErrorInfo": {
             "type": "object",
             "properties": {
                 "code": {
@@ -4389,18 +4145,853 @@ const docTemplate = `{
                 }
             }
         },
-        "errors.ErrorResponse": {
+        "github_com_company_smartticket_internal_errors.ErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
-                    "$ref": "#/definitions/errors.ErrorInfo"
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorInfo"
                 },
                 "success": {
                     "type": "boolean"
                 }
             }
         },
-        "importexport.JobResponse": {
+        "github_com_company_smartticket_internal_models.Attachment": {
+            "type": "object",
+            "properties": {
+                "content_type": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "file_name": {
+                    "type": "string"
+                },
+                "file_path": {
+                    "type": "string"
+                },
+                "file_size": {
+                    "type": "integer"
+                },
+                "hash": {
+                    "description": "SHA-256 hash",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "knowledge_article": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.KnowledgeArticle"
+                },
+                "knowledge_article_id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Message"
+                },
+                "message_id": {
+                    "type": "integer"
+                },
+                "original_name": {
+                    "type": "string"
+                },
+                "ticket": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Ticket"
+                },
+                "ticket_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.KnowledgeArticle": {
+            "type": "object",
+            "properties": {
+                "access_level": {
+                    "description": "all, agents, admins",
+                    "type": "string"
+                },
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Attachment"
+                    }
+                },
+                "author": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.User"
+                },
+                "author_id": {
+                    "type": "integer"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "helpful_votes": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "parent": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.KnowledgeArticle"
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "product": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Product"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "service": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Service"
+                },
+                "service_id": {
+                    "type": "integer"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "draft, published, archived",
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tags": {
+                    "description": "JSON array",
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                },
+                "views": {
+                    "type": "integer"
+                },
+                "visibility": {
+                    "description": "public, internal, private",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.Message": {
+            "type": "object",
+            "properties": {
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Attachment"
+                    }
+                },
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "description": "text, html, markdown",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_from_ai": {
+                    "type": "boolean"
+                },
+                "is_internal": {
+                    "type": "boolean"
+                },
+                "ticket": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Ticket"
+                },
+                "ticket_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.Permission": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "tickets, users, knowledge, etc.",
+                    "type": "string"
+                },
+                "code": {
+                    "description": "Format: resource:action",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_system": {
+                    "description": "System permissions cannot be deleted",
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role_assignments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.RolePermission"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "user_assignments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.UserPermission"
+                    }
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.Product": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "configuration": {
+                    "description": "JSON配置对象",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "documentation": {
+                    "description": "文档链接",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_managed": {
+                    "description": "是否为托管服务",
+                    "type": "boolean"
+                },
+                "knowledge_articles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.KnowledgeArticle"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Service"
+                    }
+                },
+                "status": {
+                    "description": "active, inactive, deprecated",
+                    "type": "string"
+                },
+                "support_level": {
+                    "description": "basic, premium, enterprise",
+                    "type": "string"
+                },
+                "tags": {
+                    "description": "JSON数组",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.Role": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "integer"
+                },
+                "creator": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.User"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_system": {
+                    "description": "System roles cannot be deleted",
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Permission"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.RolePermission": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "integer"
+                },
+                "granter": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.User"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "permission": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Permission"
+                },
+                "permission_id": {
+                    "type": "integer"
+                },
+                "role": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Role"
+                },
+                "role_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.Service": {
+            "type": "object",
+            "properties": {
+                "availability": {
+                    "description": "24x7, business_hours, custom",
+                    "type": "string"
+                },
+                "code": {
+                    "type": "string"
+                },
+                "configuration": {
+                    "description": "JSON配置对象",
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "escalation_rules": {
+                    "description": "JSON配置对象",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "knowledge_articles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.KnowledgeArticle"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "product": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Product"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "active, inactive, maintenance",
+                    "type": "string"
+                },
+                "support_channels": {
+                    "description": "JSON数组: email, phone, chat, portal",
+                    "type": "string"
+                },
+                "tags": {
+                    "description": "JSON数组",
+                    "type": "string"
+                },
+                "tickets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Ticket"
+                    }
+                },
+                "type": {
+                    "description": "infrastructure, application, support, consulting",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.Ticket": {
+            "type": "object",
+            "properties": {
+                "assigned_to": {
+                    "type": "integer"
+                },
+                "assigned_user": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.User"
+                },
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Attachment"
+                    }
+                },
+                "category": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "custom_fields": {
+                    "description": "JSON object",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "due_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_deleted": {
+                    "type": "boolean"
+                },
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Message"
+                    }
+                },
+                "priority": {
+                    "description": "low, medium, high, critical",
+                    "type": "string"
+                },
+                "product": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Product"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "requester_email": {
+                    "type": "string"
+                },
+                "requester_name": {
+                    "type": "string"
+                },
+                "resolution_time": {
+                    "type": "string"
+                },
+                "resolved_at": {
+                    "type": "string"
+                },
+                "service": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Service"
+                },
+                "service_id": {
+                    "type": "integer"
+                },
+                "severity": {
+                    "description": "trivial, minor, major, critical",
+                    "type": "string"
+                },
+                "sla_status": {
+                    "description": "within, breached, warning",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "open, in_progress, resolved, closed, cancelled",
+                    "type": "string"
+                },
+                "tags": {
+                    "description": "JSON array",
+                    "type": "string"
+                },
+                "ticket_number": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "last_login_at": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "messages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Message"
+                    }
+                },
+                "preferences": {
+                    "description": "JSON string",
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "roles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Role"
+                    }
+                },
+                "tickets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Ticket"
+                    }
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_models.UserPermission": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "description": "Optional expiration",
+                    "type": "string"
+                },
+                "granted_by": {
+                    "type": "integer"
+                },
+                "granter": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.User"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "permission": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Permission"
+                },
+                "permission_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.User"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_server.MetaInfo": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_company_smartticket_internal_server.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorInfo"
+                },
+                "meta": {
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_server.MetaInfo"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "internal_auth.ChangePasswordRequest": {
+            "type": "object",
+            "required": [
+                "confirm_password",
+                "current_password",
+                "new_password"
+            ],
+            "properties": {
+                "confirm_password": {
+                    "type": "string"
+                },
+                "current_password": {
+                    "type": "string"
+                },
+                "new_password": {
+                    "type": "string",
+                    "minLength": 6
+                }
+            }
+        },
+        "internal_auth.LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "admin@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "password123"
+                }
+            }
+        },
+        "internal_auth.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "expires_in": {
+                    "description": "seconds",
+                    "type": "integer"
+                },
+                "refresh_in": {
+                    "description": "seconds",
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "tokens": {
+                    "$ref": "#/definitions/internal_auth.TokenPair"
+                },
+                "user": {
+                    "$ref": "#/definitions/internal_auth.UserInfo"
+                }
+            }
+        },
+        "internal_auth.RefreshTokenRequest": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_auth.TokenPair": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "token_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_auth.UserInfo": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "last_login_at": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_importexport.JobResponse": {
             "type": "object",
             "properties": {
                 "completed_at": {
@@ -4437,7 +5028,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "started_by_user": {
-                    "$ref": "#/definitions/models.User"
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.User"
                 },
                 "status": {
                     "type": "string"
@@ -4453,7 +5044,7 @@ const docTemplate = `{
                 }
             }
         },
-        "knowledge.CreateKnowledgeArticleRequest": {
+        "internal_knowledge.CreateKnowledgeArticleRequest": {
             "type": "object",
             "required": [
                 "category",
@@ -4505,13 +5096,13 @@ const docTemplate = `{
                 }
             }
         },
-        "knowledge.KnowledgeArticleResponse": {
+        "internal_knowledge.KnowledgeArticleResponse": {
             "type": "object",
             "properties": {
                 "attachments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Attachment"
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_models.Attachment"
                     }
                 },
                 "category": {
@@ -4533,13 +5124,13 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "product": {
-                    "$ref": "#/definitions/models.Product"
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Product"
                 },
                 "product_id": {
                     "type": "integer"
                 },
                 "service": {
-                    "$ref": "#/definitions/models.Service"
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_models.Service"
                 },
                 "service_id": {
                     "type": "integer"
@@ -4570,7 +5161,7 @@ const docTemplate = `{
                 }
             }
         },
-        "knowledge.KnowledgeArticleStatsResponse": {
+        "internal_knowledge.KnowledgeArticleStatsResponse": {
             "type": "object",
             "properties": {
                 "archived_articles": {
@@ -4592,7 +5183,7 @@ const docTemplate = `{
                 "recent_activity": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/knowledge.RecentArticle"
+                        "$ref": "#/definitions/internal_knowledge.RecentArticle"
                     }
                 },
                 "total_articles": {
@@ -4603,7 +5194,7 @@ const docTemplate = `{
                 }
             }
         },
-        "knowledge.RecentArticle": {
+        "internal_knowledge.RecentArticle": {
             "type": "object",
             "properties": {
                 "id": {
@@ -4620,7 +5211,7 @@ const docTemplate = `{
                 }
             }
         },
-        "knowledge.UpdateKnowledgeArticleRequest": {
+        "internal_knowledge.UpdateKnowledgeArticleRequest": {
             "type": "object",
             "properties": {
                 "category": {
@@ -4666,781 +5257,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Attachment": {
-            "type": "object",
-            "properties": {
-                "content_type": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "file_name": {
-                    "type": "string"
-                },
-                "file_path": {
-                    "type": "string"
-                },
-                "file_size": {
-                    "type": "integer"
-                },
-                "hash": {
-                    "description": "SHA-256 hash",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "knowledge_article": {
-                    "$ref": "#/definitions/models.KnowledgeArticle"
-                },
-                "knowledge_article_id": {
-                    "type": "integer"
-                },
-                "message": {
-                    "$ref": "#/definitions/models.Message"
-                },
-                "message_id": {
-                    "type": "integer"
-                },
-                "original_name": {
-                    "type": "string"
-                },
-                "ticket": {
-                    "$ref": "#/definitions/models.Ticket"
-                },
-                "ticket_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.KnowledgeArticle": {
-            "type": "object",
-            "properties": {
-                "access_level": {
-                    "description": "all, agents, admins",
-                    "type": "string"
-                },
-                "attachments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Attachment"
-                    }
-                },
-                "author": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "author_id": {
-                    "type": "integer"
-                },
-                "category": {
-                    "type": "string"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "content_type": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "helpful_votes": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "parent": {
-                    "$ref": "#/definitions/models.KnowledgeArticle"
-                },
-                "parent_id": {
-                    "type": "integer"
-                },
-                "product": {
-                    "$ref": "#/definitions/models.Product"
-                },
-                "product_id": {
-                    "type": "integer"
-                },
-                "service": {
-                    "$ref": "#/definitions/models.Service"
-                },
-                "service_id": {
-                    "type": "integer"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "status": {
-                    "description": "draft, published, archived",
-                    "type": "string"
-                },
-                "summary": {
-                    "type": "string"
-                },
-                "tags": {
-                    "description": "JSON array",
-                    "type": "string"
-                },
-                "tenant": {
-                    "$ref": "#/definitions/models.Tenant"
-                },
-                "tenant_id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "integer"
-                },
-                "views": {
-                    "type": "integer"
-                },
-                "visibility": {
-                    "description": "public, internal, private",
-                    "type": "string"
-                }
-            }
-        },
-        "models.Message": {
-            "type": "object",
-            "properties": {
-                "attachments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Attachment"
-                    }
-                },
-                "content": {
-                    "type": "string"
-                },
-                "content_type": {
-                    "description": "text, html, markdown",
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_from_ai": {
-                    "type": "boolean"
-                },
-                "is_internal": {
-                    "type": "boolean"
-                },
-                "ticket": {
-                    "$ref": "#/definitions/models.Ticket"
-                },
-                "ticket_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "models.Permission": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "description": "tickets, users, knowledge, etc.",
-                    "type": "string"
-                },
-                "code": {
-                    "description": "Format: resource:action",
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_system": {
-                    "description": "System permissions cannot be deleted",
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "role_assignments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.RolePermission"
-                    }
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                },
-                "user_assignments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.UserPermission"
-                    }
-                }
-            }
-        },
-        "models.Product": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "type": "string"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "configuration": {
-                    "description": "JSON配置对象",
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "documentation": {
-                    "description": "文档链接",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_managed": {
-                    "description": "是否为托管服务",
-                    "type": "boolean"
-                },
-                "knowledge_articles": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.KnowledgeArticle"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                },
-                "services": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Service"
-                    }
-                },
-                "status": {
-                    "description": "active, inactive, deprecated",
-                    "type": "string"
-                },
-                "support_level": {
-                    "description": "basic, premium, enterprise",
-                    "type": "string"
-                },
-                "tags": {
-                    "description": "JSON数组",
-                    "type": "string"
-                },
-                "tenant": {
-                    "$ref": "#/definitions/models.Tenant"
-                },
-                "tenant_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Role": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "integer"
-                },
-                "creator": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "is_system": {
-                    "description": "System roles cannot be deleted",
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "permissions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Permission"
-                    }
-                },
-                "tenant": {
-                    "$ref": "#/definitions/models.Tenant"
-                },
-                "tenant_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.RolePermission": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "integer"
-                },
-                "granter": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "permission": {
-                    "$ref": "#/definitions/models.Permission"
-                },
-                "permission_id": {
-                    "type": "integer"
-                },
-                "role": {
-                    "$ref": "#/definitions/models.Role"
-                },
-                "role_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Service": {
-            "type": "object",
-            "properties": {
-                "availability": {
-                    "description": "24x7, business_hours, custom",
-                    "type": "string"
-                },
-                "code": {
-                    "type": "string"
-                },
-                "configuration": {
-                    "description": "JSON配置对象",
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "escalation_rules": {
-                    "description": "JSON配置对象",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "knowledge_articles": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.KnowledgeArticle"
-                    }
-                },
-                "name": {
-                    "type": "string"
-                },
-                "product": {
-                    "$ref": "#/definitions/models.Product"
-                },
-                "product_id": {
-                    "type": "integer"
-                },
-                "status": {
-                    "description": "active, inactive, maintenance",
-                    "type": "string"
-                },
-                "support_channels": {
-                    "description": "JSON数组: email, phone, chat, portal",
-                    "type": "string"
-                },
-                "tags": {
-                    "description": "JSON数组",
-                    "type": "string"
-                },
-                "tenant": {
-                    "$ref": "#/definitions/models.Tenant"
-                },
-                "tenant_id": {
-                    "type": "integer"
-                },
-                "tickets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Ticket"
-                    }
-                },
-                "type": {
-                    "description": "infrastructure, application, support, consulting",
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.Tenant": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "domain": {
-                    "type": "string"
-                },
-                "expired_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "max_users": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "plan": {
-                    "type": "string"
-                },
-                "settings": {
-                    "description": "JSON string",
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "tickets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Ticket"
-                    }
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                },
-                "users": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.User"
-                    }
-                }
-            }
-        },
-        "models.Ticket": {
-            "type": "object",
-            "properties": {
-                "assigned_to": {
-                    "type": "integer"
-                },
-                "assigned_user": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "attachments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Attachment"
-                    }
-                },
-                "category": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "custom_fields": {
-                    "description": "JSON object",
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "due_date": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_deleted": {
-                    "type": "boolean"
-                },
-                "messages": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Message"
-                    }
-                },
-                "priority": {
-                    "description": "low, medium, high, critical",
-                    "type": "string"
-                },
-                "product": {
-                    "$ref": "#/definitions/models.Product"
-                },
-                "product_id": {
-                    "type": "integer"
-                },
-                "requester_email": {
-                    "type": "string"
-                },
-                "requester_name": {
-                    "type": "string"
-                },
-                "resolution_time": {
-                    "type": "string"
-                },
-                "resolved_at": {
-                    "type": "string"
-                },
-                "service": {
-                    "$ref": "#/definitions/models.Service"
-                },
-                "service_id": {
-                    "type": "integer"
-                },
-                "severity": {
-                    "description": "trivial, minor, major, critical",
-                    "type": "string"
-                },
-                "sla_status": {
-                    "description": "within, breached, warning",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "open, in_progress, resolved, closed, cancelled",
-                    "type": "string"
-                },
-                "tags": {
-                    "description": "JSON array",
-                    "type": "string"
-                },
-                "tenant": {
-                    "$ref": "#/definitions/models.Tenant"
-                },
-                "tenant_id": {
-                    "type": "integer"
-                },
-                "ticket_number": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.User": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "last_login_at": {
-                    "type": "string"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "messages": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Message"
-                    }
-                },
-                "preferences": {
-                    "description": "JSON string",
-                    "type": "string"
-                },
-                "role": {
-                    "description": "admin, engineer, support, customer, sales",
-                    "type": "string"
-                },
-                "tenant": {
-                    "$ref": "#/definitions/models.Tenant"
-                },
-                "tenant_id": {
-                    "type": "integer"
-                },
-                "tickets": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Ticket"
-                    }
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.UserPermission": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "created_by": {
-                    "type": "string"
-                },
-                "expires_at": {
-                    "description": "Optional expiration",
-                    "type": "string"
-                },
-                "granted_by": {
-                    "type": "integer"
-                },
-                "granter": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "permission": {
-                    "$ref": "#/definitions/models.Permission"
-                },
-                "permission_id": {
-                    "type": "integer"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "updated_by": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.User"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
-        "product.CreateProductRequest": {
+        "internal_product.CreateProductRequest": {
             "type": "object",
             "required": [
                 "code",
@@ -5486,7 +5303,7 @@ const docTemplate = `{
                 }
             }
         },
-        "product.ProductResponse": {
+        "internal_product.ProductResponse": {
             "type": "object",
             "properties": {
                 "category": {
@@ -5523,7 +5340,7 @@ const docTemplate = `{
                 "services": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/product.ServiceResponse"
+                        "$ref": "#/definitions/internal_product.ServiceResponse"
                     }
                 },
                 "status": {
@@ -5549,7 +5366,7 @@ const docTemplate = `{
                 }
             }
         },
-        "product.ServiceResponse": {
+        "internal_product.ServiceResponse": {
             "type": "object",
             "properties": {
                 "availability": {
@@ -5610,7 +5427,7 @@ const docTemplate = `{
                 }
             }
         },
-        "product.UpdateProductRequest": {
+        "internal_product.UpdateProductRequest": {
             "type": "object",
             "properties": {
                 "category": {
@@ -5652,7 +5469,7 @@ const docTemplate = `{
                 }
             }
         },
-        "server.MetaInfo": {
+        "internal_server.MetaInfo": {
             "type": "object",
             "properties": {
                 "page": {
@@ -5669,22 +5486,22 @@ const docTemplate = `{
                 }
             }
         },
-        "server.Response": {
+        "internal_server.Response": {
             "type": "object",
             "properties": {
                 "data": {},
                 "error": {
-                    "$ref": "#/definitions/errors.ErrorInfo"
+                    "$ref": "#/definitions/github_com_company_smartticket_internal_errors.ErrorInfo"
                 },
                 "meta": {
-                    "$ref": "#/definitions/server.MetaInfo"
+                    "$ref": "#/definitions/internal_server.MetaInfo"
                 },
                 "success": {
                     "type": "boolean"
                 }
             }
         },
-        "service.CreateServiceRequest": {
+        "internal_service.CreateServiceRequest": {
             "type": "object",
             "required": [
                 "code",
@@ -5732,7 +5549,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.ProductResponse": {
+        "internal_service.ProductResponse": {
             "type": "object",
             "properties": {
                 "category": {
@@ -5767,7 +5584,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.ServiceResponse": {
+        "internal_service.ServiceResponse": {
             "type": "object",
             "properties": {
                 "availability": {
@@ -5800,7 +5617,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "product": {
-                    "$ref": "#/definitions/service.ProductResponse"
+                    "$ref": "#/definitions/internal_service.ProductResponse"
                 },
                 "product_id": {
                     "type": "integer"
@@ -5831,7 +5648,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.UpdateServiceRequest": {
+        "internal_service.UpdateServiceRequest": {
             "type": "object",
             "properties": {
                 "availability": {
@@ -5873,7 +5690,7 @@ const docTemplate = `{
                 }
             }
         },
-        "sla.CreateSLARuleRequest": {
+        "internal_sla.CreateSLARuleRequest": {
             "type": "object",
             "required": [
                 "priority",
@@ -5926,7 +5743,7 @@ const docTemplate = `{
                 }
             }
         },
-        "sla.CreateSLATemplateRequest": {
+        "internal_sla.CreateSLATemplateRequest": {
             "type": "object",
             "required": [
                 "name"
@@ -5969,7 +5786,7 @@ const docTemplate = `{
                 }
             }
         },
-        "sla.SLARuleResponse": {
+        "internal_sla.SLARuleResponse": {
             "type": "object",
             "properties": {
                 "business_only": {
@@ -6019,7 +5836,7 @@ const docTemplate = `{
                 }
             }
         },
-        "sla.SLATemplateResponse": {
+        "internal_sla.SLATemplateResponse": {
             "type": "object",
             "properties": {
                 "business_hours": {
@@ -6085,85 +5902,7 @@ const docTemplate = `{
                 }
             }
         },
-        "tenant.CreateTenantRequest": {
-            "type": "object",
-            "required": [
-                "name",
-                "slug"
-            ],
-            "properties": {
-                "domain": {
-                    "type": "string",
-                    "maxLength": 255
-                },
-                "max_users": {
-                    "type": "integer",
-                    "maximum": 10000,
-                    "minimum": 1
-                },
-                "name": {
-                    "type": "string",
-                    "maxLength": 255,
-                    "minLength": 2
-                },
-                "plan": {
-                    "type": "string",
-                    "enum": [
-                        "basic",
-                        "premium",
-                        "enterprise"
-                    ]
-                },
-                "settings": {
-                    "description": "JSON string",
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string",
-                    "maxLength": 100,
-                    "minLength": 2
-                }
-            }
-        },
-        "tenant.TenantResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "domain": {
-                    "type": "string"
-                },
-                "expired_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_active": {
-                    "type": "boolean"
-                },
-                "max_users": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "plan": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_count": {
-                    "type": "integer"
-                }
-            }
-        },
-        "ticket.CreateTicketRequest": {
+        "internal_ticket.CreateTicketRequest": {
             "type": "object",
             "required": [
                 "description",
@@ -6232,14 +5971,14 @@ const docTemplate = `{
                 }
             }
         },
-        "ticket.TicketResponse": {
+        "internal_ticket.TicketResponse": {
             "type": "object",
             "properties": {
                 "assigned_to": {
                     "type": "integer"
                 },
                 "assigned_user": {
-                    "$ref": "#/definitions/ticket.UserInfo"
+                    "$ref": "#/definitions/internal_ticket.UserInfo"
                 },
                 "attachment_count": {
                     "type": "integer"
@@ -6319,7 +6058,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ticket.UpdateTicketRequest": {
+        "internal_ticket.UpdateTicketRequest": {
             "type": "object",
             "properties": {
                 "assigned_to": {
@@ -6394,7 +6133,7 @@ const docTemplate = `{
                 }
             }
         },
-        "ticket.UserInfo": {
+        "internal_ticket.UserInfo": {
             "type": "object",
             "properties": {
                 "email": {
@@ -6417,7 +6156,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.CreateUserRequest": {
+        "internal_user.CreateUserRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -6476,7 +6215,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.PaginationMeta": {
+        "internal_user.PaginationMeta": {
             "type": "object",
             "properties": {
                 "page": {
@@ -6493,7 +6232,7 @@ const docTemplate = `{
                 }
             }
         },
-        "user.UpdateUserRequest": {
+        "internal_user.UpdateUserRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -6539,17 +6278,17 @@ const docTemplate = `{
                 }
             }
         },
-        "user.UserListResponse": {
+        "internal_user.UserListResponse": {
             "type": "object",
             "properties": {
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/auth.UserInfo"
+                        "$ref": "#/definitions/github_com_company_smartticket_internal_auth.UserInfo"
                     }
                 },
                 "meta": {
-                    "$ref": "#/definitions/user.PaginationMeta"
+                    "$ref": "#/definitions/internal_user.PaginationMeta"
                 },
                 "success": {
                     "type": "boolean"

@@ -135,10 +135,10 @@ func (h *Handlers) logSecurityEventWithName(c *gin.Context, event, resourceName 
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body sla.CreateSLATemplateRequest true "SLA template creation data"
 // @Success 201 {object} sla.SLATemplateResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/sla/templates [post]
 func (h *Handlers) CreateSLATemplate(c *gin.Context) {
 	var req CreateSLATemplateRequest
@@ -181,11 +181,11 @@ func (h *Handlers) CreateSLATemplate(c *gin.Context) {
 // @Param search query string false "Search templates by name or description"
 // @Param is_active query bool false "Filter by active status"
 // @Param is_default query bool false "Filter by default status"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/sla/templates [get]
 func (h *Handlers) ListSLATemplates(c *gin.Context) {
 	var req ListSLATemplatesRequest
@@ -219,11 +219,11 @@ func (h *Handlers) ListSLATemplates(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "SLA Template ID"
 // @Success 200 {object} sla.SLATemplateResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/sla/templates/{id} [get]
 func (h *Handlers) GetSLATemplate(c *gin.Context) {
 	templateID, err := h.parseTemplateID(c)
@@ -318,10 +318,10 @@ func (h *Handlers) DeleteSLATemplate(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body sla.CreateSLARuleRequest true "SLA rule creation data"
 // @Success 201 {object} sla.SLARuleResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/sla/rules [post]
 func (h *Handlers) CreateSLARule(c *gin.Context) {
 	var req CreateSLARuleRequest

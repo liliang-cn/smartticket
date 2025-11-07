@@ -47,10 +47,10 @@ func (h *Handlers) logSecurityEvent(c *gin.Context, event, target string) {
 // @Param file formData file true "Import file (max 100MB)"
 // @Param request formData string true "Import configuration"
 // @Success 201 {object} importexport.JobResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/data/import [post]
 func (h *Handlers) CreateImportJob(c *gin.Context) {
 	// Get tenant ID and user ID from context

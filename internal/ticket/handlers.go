@@ -34,10 +34,10 @@ func NewHandlers(service *Service) *Handlers {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body ticket.CreateTicketRequest true "Ticket creation data"
 // @Success 201 {object} ticket.TicketResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets [post]
 func (h *Handlers) CreateTicket(c *gin.Context) {
 	var req CreateTicketRequest
@@ -90,11 +90,11 @@ func (h *Handlers) CreateTicket(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Ticket ID"
 // @Success 200 {object} ticket.TicketResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets/{id} [get]
 func (h *Handlers) GetTicket(c *gin.Context) {
 	idStr := c.Param("id")
@@ -134,10 +134,10 @@ func (h *Handlers) GetTicket(c *gin.Context) {
 // @Param category query string false "Filter by category"
 // @Param assigned_to query int false "Filter by assigned user ID"
 // @Param search query string false "Search tickets by title, description, or requester"
-// @Success 200 {object} server.Response
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets [get]
 func (h *Handlers) ListTickets(c *gin.Context) {
 	// Parse query parameters
@@ -196,11 +196,11 @@ func (h *Handlers) ListTickets(c *gin.Context) {
 // @Param id path int true "Ticket ID"
 // @Param request body ticket.UpdateTicketRequest true "Ticket update data"
 // @Success 200 {object} ticket.TicketResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets/{id} [put]
 func (h *Handlers) UpdateTicket(c *gin.Context) {
 	idStr := c.Param("id")
@@ -260,12 +260,12 @@ func (h *Handlers) UpdateTicket(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Ticket ID"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets/{id} [delete]
 func (h *Handlers) DeleteTicket(c *gin.Context) {
 	idStr := c.Param("id")
@@ -308,12 +308,12 @@ func (h *Handlers) DeleteTicket(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Ticket ID"
 // @Param request body object{assigned_to:int} true "Assignment data"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets/{id}/assign [post]
 func (h *Handlers) AssignTicket(c *gin.Context) {
 	idStr := c.Param("id")
@@ -363,10 +363,10 @@ func (h *Handlers) AssignTicket(c *gin.Context) {
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
-// @Success 200 {object} server.Response
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets/stats [get]
 func (h *Handlers) GetTicketStats(c *gin.Context) {
 	tenantID := c.GetUint("tenant_id")
@@ -396,10 +396,10 @@ func (h *Handlers) GetTicketStats(c *gin.Context) {
 // @Param status query string false "Filter by ticket status" Enums(open,in_progress,resolved,closed,cancelled)
 // @Param priority query string false "Filter by priority" Enums(low,medium,high,critical)
 // @Param search query string false "Search tickets by title, description, or requester"
-// @Success 200 {object} server.Response
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets/my [get]
 func (h *Handlers) GetMyTickets(c *gin.Context) {
 	// Parse query parameters

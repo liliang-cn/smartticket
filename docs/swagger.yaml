@@ -1,65 +1,5 @@
 definitions:
-  auth.ChangePasswordRequest:
-    properties:
-      confirm_password:
-        type: string
-      current_password:
-        type: string
-      new_password:
-        minLength: 6
-        type: string
-    required:
-    - confirm_password
-    - current_password
-    - new_password
-    type: object
-  auth.LoginRequest:
-    properties:
-      email:
-        example: admin@example.com
-        type: string
-      password:
-        example: password123
-        minLength: 6
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  auth.LoginResponse:
-    properties:
-      expires_in:
-        description: seconds
-        type: integer
-      refresh_in:
-        description: seconds
-        type: integer
-      success:
-        type: boolean
-      tokens:
-        $ref: '#/definitions/auth.TokenPair'
-      user:
-        $ref: '#/definitions/auth.UserInfo'
-    type: object
-  auth.RefreshTokenRequest:
-    properties:
-      refresh_token:
-        type: string
-    required:
-    - refresh_token
-    type: object
-  auth.TokenPair:
-    properties:
-      access_token:
-        type: string
-      expires_at:
-        type: string
-      refresh_token:
-        type: string
-      token_type:
-        type: string
-    type: object
-  auth.UserInfo:
+  github_com_company_smartticket_internal_auth.UserInfo:
     properties:
       email:
         type: string
@@ -75,14 +15,10 @@ definitions:
         type: string
       role:
         type: string
-      tenant_id:
-        type: integer
-      tenant_name:
-        type: string
       username:
         type: string
     type: object
-  errors.ErrorInfo:
+  github_com_company_smartticket_internal_errors.ErrorInfo:
     properties:
       code:
         type: string
@@ -98,14 +34,578 @@ definitions:
       timestamp:
         type: string
     type: object
-  errors.ErrorResponse:
+  github_com_company_smartticket_internal_errors.ErrorResponse:
     properties:
       error:
-        $ref: '#/definitions/errors.ErrorInfo'
+        $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorInfo'
       success:
         type: boolean
     type: object
-  importexport.JobResponse:
+  github_com_company_smartticket_internal_models.Attachment:
+    properties:
+      content_type:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      file_name:
+        type: string
+      file_path:
+        type: string
+      file_size:
+        type: integer
+      hash:
+        description: SHA-256 hash
+        type: string
+      id:
+        type: integer
+      knowledge_article:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.KnowledgeArticle'
+      knowledge_article_id:
+        type: integer
+      message:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Message'
+      message_id:
+        type: integer
+      original_name:
+        type: string
+      ticket:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Ticket'
+      ticket_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  github_com_company_smartticket_internal_models.KnowledgeArticle:
+    properties:
+      access_level:
+        description: all, agents, admins
+        type: string
+      attachments:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Attachment'
+        type: array
+      author:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.User'
+      author_id:
+        type: integer
+      category:
+        type: string
+      content:
+        type: string
+      content_type:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      helpful_votes:
+        type: integer
+      id:
+        type: integer
+      parent:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.KnowledgeArticle'
+      parent_id:
+        type: integer
+      product:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Product'
+      product_id:
+        type: integer
+      service:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Service'
+      service_id:
+        type: integer
+      slug:
+        type: string
+      status:
+        description: draft, published, archived
+        type: string
+      summary:
+        type: string
+      tags:
+        description: JSON array
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      version:
+        type: integer
+      views:
+        type: integer
+      visibility:
+        description: public, internal, private
+        type: string
+    type: object
+  github_com_company_smartticket_internal_models.Message:
+    properties:
+      attachments:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Attachment'
+        type: array
+      content:
+        type: string
+      content_type:
+        description: text, html, markdown
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      id:
+        type: integer
+      is_from_ai:
+        type: boolean
+      is_internal:
+        type: boolean
+      ticket:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Ticket'
+      ticket_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.User'
+      user_id:
+        type: integer
+    type: object
+  github_com_company_smartticket_internal_models.Permission:
+    properties:
+      category:
+        description: tickets, users, knowledge, etc.
+        type: string
+      code:
+        description: 'Format: resource:action'
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      is_system:
+        description: System permissions cannot be deleted
+        type: boolean
+      name:
+        type: string
+      role_assignments:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.RolePermission'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user_assignments:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.UserPermission'
+        type: array
+    type: object
+  github_com_company_smartticket_internal_models.Product:
+    properties:
+      category:
+        type: string
+      code:
+        type: string
+      configuration:
+        description: JSON配置对象
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      documentation:
+        description: 文档链接
+        type: string
+      id:
+        type: integer
+      is_managed:
+        description: 是否为托管服务
+        type: boolean
+      knowledge_articles:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.KnowledgeArticle'
+        type: array
+      name:
+        type: string
+      services:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Service'
+        type: array
+      status:
+        description: active, inactive, deprecated
+        type: string
+      support_level:
+        description: basic, premium, enterprise
+        type: string
+      tags:
+        description: JSON数组
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      version:
+        type: string
+    type: object
+  github_com_company_smartticket_internal_models.Role:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      creator:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.User'
+      description:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      is_system:
+        description: System roles cannot be deleted
+        type: boolean
+      name:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Permission'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  github_com_company_smartticket_internal_models.RolePermission:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: integer
+      granter:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.User'
+      id:
+        type: integer
+      permission:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Permission'
+      permission_id:
+        type: integer
+      role:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Role'
+      role_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  github_com_company_smartticket_internal_models.Service:
+    properties:
+      availability:
+        description: 24x7, business_hours, custom
+        type: string
+      code:
+        type: string
+      configuration:
+        description: JSON配置对象
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      escalation_rules:
+        description: JSON配置对象
+        type: string
+      id:
+        type: integer
+      knowledge_articles:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.KnowledgeArticle'
+        type: array
+      name:
+        type: string
+      product:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Product'
+      product_id:
+        type: integer
+      status:
+        description: active, inactive, maintenance
+        type: string
+      support_channels:
+        description: 'JSON数组: email, phone, chat, portal'
+        type: string
+      tags:
+        description: JSON数组
+        type: string
+      tickets:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Ticket'
+        type: array
+      type:
+        description: infrastructure, application, support, consulting
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  github_com_company_smartticket_internal_models.Ticket:
+    properties:
+      assigned_to:
+        type: integer
+      assigned_user:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.User'
+      attachments:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Attachment'
+        type: array
+      category:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      custom_fields:
+        description: JSON object
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: integer
+      is_deleted:
+        type: boolean
+      messages:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Message'
+        type: array
+      priority:
+        description: low, medium, high, critical
+        type: string
+      product:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Product'
+      product_id:
+        type: integer
+      requester_email:
+        type: string
+      requester_name:
+        type: string
+      resolution_time:
+        type: string
+      resolved_at:
+        type: string
+      service:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Service'
+      service_id:
+        type: integer
+      severity:
+        description: trivial, minor, major, critical
+        type: string
+      sla_status:
+        description: within, breached, warning
+        type: string
+      status:
+        description: open, in_progress, resolved, closed, cancelled
+        type: string
+      tags:
+        description: JSON array
+        type: string
+      ticket_number:
+        type: string
+      title:
+        type: string
+      type:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  github_com_company_smartticket_internal_models.User:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      last_login_at:
+        type: string
+      last_name:
+        type: string
+      messages:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Message'
+        type: array
+      preferences:
+        description: JSON string
+        type: string
+      role:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Role'
+        type: array
+      tickets:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Ticket'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      username:
+        type: string
+    type: object
+  github_com_company_smartticket_internal_models.UserPermission:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      expires_at:
+        description: Optional expiration
+        type: string
+      granted_by:
+        type: integer
+      granter:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.User'
+      id:
+        type: integer
+      permission:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Permission'
+      permission_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.User'
+      user_id:
+        type: integer
+    type: object
+  github_com_company_smartticket_internal_server.MetaInfo:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  github_com_company_smartticket_internal_server.Response:
+    properties:
+      data: {}
+      error:
+        $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorInfo'
+      meta:
+        $ref: '#/definitions/github_com_company_smartticket_internal_server.MetaInfo'
+      success:
+        type: boolean
+    type: object
+  internal_auth.ChangePasswordRequest:
+    properties:
+      confirm_password:
+        type: string
+      current_password:
+        type: string
+      new_password:
+        minLength: 6
+        type: string
+    required:
+    - confirm_password
+    - current_password
+    - new_password
+    type: object
+  internal_auth.LoginRequest:
+    properties:
+      email:
+        example: admin@example.com
+        type: string
+      password:
+        example: password123
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_auth.LoginResponse:
+    properties:
+      expires_in:
+        description: seconds
+        type: integer
+      refresh_in:
+        description: seconds
+        type: integer
+      success:
+        type: boolean
+      tokens:
+        $ref: '#/definitions/internal_auth.TokenPair'
+      user:
+        $ref: '#/definitions/internal_auth.UserInfo'
+    type: object
+  internal_auth.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  internal_auth.TokenPair:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: string
+      refresh_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  internal_auth.UserInfo:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      last_login_at:
+        type: string
+      last_name:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+  internal_importexport.JobResponse:
     properties:
       completed_at:
         type: string
@@ -130,7 +630,7 @@ definitions:
       started_at:
         type: string
       started_by_user:
-        $ref: '#/definitions/models.User'
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.User'
       status:
         type: string
       target_format:
@@ -140,7 +640,7 @@ definitions:
       type:
         type: string
     type: object
-  knowledge.CreateKnowledgeArticleRequest:
+  internal_knowledge.CreateKnowledgeArticleRequest:
     properties:
       category:
         enum:
@@ -179,11 +679,11 @@ definitions:
     - content
     - title
     type: object
-  knowledge.KnowledgeArticleResponse:
+  internal_knowledge.KnowledgeArticleResponse:
     properties:
       attachments:
         items:
-          $ref: '#/definitions/models.Attachment'
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Attachment'
         type: array
       category:
         type: string
@@ -198,11 +698,11 @@ definitions:
       is_deleted:
         type: boolean
       product:
-        $ref: '#/definitions/models.Product'
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Product'
       product_id:
         type: integer
       service:
-        $ref: '#/definitions/models.Service'
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Service'
       service_id:
         type: integer
       status:
@@ -222,7 +722,7 @@ definitions:
       view_count:
         type: integer
     type: object
-  knowledge.KnowledgeArticleStatsResponse:
+  internal_knowledge.KnowledgeArticleStatsResponse:
     properties:
       archived_articles:
         type: integer
@@ -237,14 +737,14 @@ definitions:
         type: integer
       recent_activity:
         items:
-          $ref: '#/definitions/knowledge.RecentArticle'
+          $ref: '#/definitions/internal_knowledge.RecentArticle'
         type: array
       total_articles:
         type: integer
       total_views:
         type: integer
     type: object
-  knowledge.RecentArticle:
+  internal_knowledge.RecentArticle:
     properties:
       id:
         type: integer
@@ -255,7 +755,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  knowledge.UpdateKnowledgeArticleRequest:
+  internal_knowledge.UpdateKnowledgeArticleRequest:
     properties:
       category:
         enum:
@@ -289,530 +789,7 @@ definitions:
         minLength: 3
         type: string
     type: object
-  models.Attachment:
-    properties:
-      content_type:
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: string
-      file_name:
-        type: string
-      file_path:
-        type: string
-      file_size:
-        type: integer
-      hash:
-        description: SHA-256 hash
-        type: string
-      id:
-        type: integer
-      knowledge_article:
-        $ref: '#/definitions/models.KnowledgeArticle'
-      knowledge_article_id:
-        type: integer
-      message:
-        $ref: '#/definitions/models.Message'
-      message_id:
-        type: integer
-      original_name:
-        type: string
-      ticket:
-        $ref: '#/definitions/models.Ticket'
-      ticket_id:
-        type: integer
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-    type: object
-  models.KnowledgeArticle:
-    properties:
-      access_level:
-        description: all, agents, admins
-        type: string
-      attachments:
-        items:
-          $ref: '#/definitions/models.Attachment'
-        type: array
-      author:
-        $ref: '#/definitions/models.User'
-      author_id:
-        type: integer
-      category:
-        type: string
-      content:
-        type: string
-      content_type:
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: string
-      helpful_votes:
-        type: integer
-      id:
-        type: integer
-      parent:
-        $ref: '#/definitions/models.KnowledgeArticle'
-      parent_id:
-        type: integer
-      product:
-        $ref: '#/definitions/models.Product'
-      product_id:
-        type: integer
-      service:
-        $ref: '#/definitions/models.Service'
-      service_id:
-        type: integer
-      slug:
-        type: string
-      status:
-        description: draft, published, archived
-        type: string
-      summary:
-        type: string
-      tags:
-        description: JSON array
-        type: string
-      tenant:
-        $ref: '#/definitions/models.Tenant'
-      tenant_id:
-        type: integer
-      title:
-        type: string
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-      version:
-        type: integer
-      views:
-        type: integer
-      visibility:
-        description: public, internal, private
-        type: string
-    type: object
-  models.Message:
-    properties:
-      attachments:
-        items:
-          $ref: '#/definitions/models.Attachment'
-        type: array
-      content:
-        type: string
-      content_type:
-        description: text, html, markdown
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: string
-      id:
-        type: integer
-      is_from_ai:
-        type: boolean
-      is_internal:
-        type: boolean
-      ticket:
-        $ref: '#/definitions/models.Ticket'
-      ticket_id:
-        type: integer
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-      user:
-        $ref: '#/definitions/models.User'
-      user_id:
-        type: integer
-    type: object
-  models.Permission:
-    properties:
-      category:
-        description: tickets, users, knowledge, etc.
-        type: string
-      code:
-        description: 'Format: resource:action'
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: string
-      description:
-        type: string
-      id:
-        type: integer
-      is_system:
-        description: System permissions cannot be deleted
-        type: boolean
-      name:
-        type: string
-      role_assignments:
-        items:
-          $ref: '#/definitions/models.RolePermission'
-        type: array
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-      user_assignments:
-        items:
-          $ref: '#/definitions/models.UserPermission'
-        type: array
-    type: object
-  models.Product:
-    properties:
-      category:
-        type: string
-      code:
-        type: string
-      configuration:
-        description: JSON配置对象
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: string
-      description:
-        type: string
-      documentation:
-        description: 文档链接
-        type: string
-      id:
-        type: integer
-      is_managed:
-        description: 是否为托管服务
-        type: boolean
-      knowledge_articles:
-        items:
-          $ref: '#/definitions/models.KnowledgeArticle'
-        type: array
-      name:
-        type: string
-      services:
-        items:
-          $ref: '#/definitions/models.Service'
-        type: array
-      status:
-        description: active, inactive, deprecated
-        type: string
-      support_level:
-        description: basic, premium, enterprise
-        type: string
-      tags:
-        description: JSON数组
-        type: string
-      tenant:
-        $ref: '#/definitions/models.Tenant'
-      tenant_id:
-        type: integer
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-      version:
-        type: string
-    type: object
-  models.Role:
-    properties:
-      created_at:
-        type: string
-      created_by:
-        type: integer
-      creator:
-        $ref: '#/definitions/models.User'
-      description:
-        type: string
-      id:
-        type: integer
-      is_active:
-        type: boolean
-      is_system:
-        description: System roles cannot be deleted
-        type: boolean
-      name:
-        type: string
-      permissions:
-        items:
-          $ref: '#/definitions/models.Permission'
-        type: array
-      tenant:
-        $ref: '#/definitions/models.Tenant'
-      tenant_id:
-        type: integer
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-    type: object
-  models.RolePermission:
-    properties:
-      created_at:
-        type: string
-      created_by:
-        type: integer
-      granter:
-        $ref: '#/definitions/models.User'
-      id:
-        type: integer
-      permission:
-        $ref: '#/definitions/models.Permission'
-      permission_id:
-        type: integer
-      role:
-        $ref: '#/definitions/models.Role'
-      role_id:
-        type: integer
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-    type: object
-  models.Service:
-    properties:
-      availability:
-        description: 24x7, business_hours, custom
-        type: string
-      code:
-        type: string
-      configuration:
-        description: JSON配置对象
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: string
-      description:
-        type: string
-      escalation_rules:
-        description: JSON配置对象
-        type: string
-      id:
-        type: integer
-      knowledge_articles:
-        items:
-          $ref: '#/definitions/models.KnowledgeArticle'
-        type: array
-      name:
-        type: string
-      product:
-        $ref: '#/definitions/models.Product'
-      product_id:
-        type: integer
-      status:
-        description: active, inactive, maintenance
-        type: string
-      support_channels:
-        description: 'JSON数组: email, phone, chat, portal'
-        type: string
-      tags:
-        description: JSON数组
-        type: string
-      tenant:
-        $ref: '#/definitions/models.Tenant'
-      tenant_id:
-        type: integer
-      tickets:
-        items:
-          $ref: '#/definitions/models.Ticket'
-        type: array
-      type:
-        description: infrastructure, application, support, consulting
-        type: string
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-    type: object
-  models.Tenant:
-    properties:
-      created_at:
-        type: string
-      created_by:
-        type: string
-      domain:
-        type: string
-      expired_at:
-        type: string
-      id:
-        type: integer
-      is_active:
-        type: boolean
-      max_users:
-        type: integer
-      name:
-        type: string
-      plan:
-        type: string
-      settings:
-        description: JSON string
-        type: string
-      slug:
-        type: string
-      tickets:
-        items:
-          $ref: '#/definitions/models.Ticket'
-        type: array
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-      users:
-        items:
-          $ref: '#/definitions/models.User'
-        type: array
-    type: object
-  models.Ticket:
-    properties:
-      assigned_to:
-        type: integer
-      assigned_user:
-        $ref: '#/definitions/models.User'
-      attachments:
-        items:
-          $ref: '#/definitions/models.Attachment'
-        type: array
-      category:
-        type: string
-      created_at:
-        type: string
-      created_by:
-        type: string
-      custom_fields:
-        description: JSON object
-        type: string
-      description:
-        type: string
-      due_date:
-        type: string
-      id:
-        type: integer
-      is_deleted:
-        type: boolean
-      messages:
-        items:
-          $ref: '#/definitions/models.Message'
-        type: array
-      priority:
-        description: low, medium, high, critical
-        type: string
-      product:
-        $ref: '#/definitions/models.Product'
-      product_id:
-        type: integer
-      requester_email:
-        type: string
-      requester_name:
-        type: string
-      resolution_time:
-        type: string
-      resolved_at:
-        type: string
-      service:
-        $ref: '#/definitions/models.Service'
-      service_id:
-        type: integer
-      severity:
-        description: trivial, minor, major, critical
-        type: string
-      sla_status:
-        description: within, breached, warning
-        type: string
-      status:
-        description: open, in_progress, resolved, closed, cancelled
-        type: string
-      tags:
-        description: JSON array
-        type: string
-      tenant:
-        $ref: '#/definitions/models.Tenant'
-      tenant_id:
-        type: integer
-      ticket_number:
-        type: string
-      title:
-        type: string
-      type:
-        type: string
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-    type: object
-  models.User:
-    properties:
-      created_at:
-        type: string
-      created_by:
-        type: string
-      email:
-        type: string
-      first_name:
-        type: string
-      id:
-        type: integer
-      is_active:
-        type: boolean
-      last_login_at:
-        type: string
-      last_name:
-        type: string
-      messages:
-        items:
-          $ref: '#/definitions/models.Message'
-        type: array
-      preferences:
-        description: JSON string
-        type: string
-      role:
-        description: admin, engineer, support, customer, sales
-        type: string
-      tenant:
-        $ref: '#/definitions/models.Tenant'
-      tenant_id:
-        type: integer
-      tickets:
-        items:
-          $ref: '#/definitions/models.Ticket'
-        type: array
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-      username:
-        type: string
-    type: object
-  models.UserPermission:
-    properties:
-      created_at:
-        type: string
-      created_by:
-        type: string
-      expires_at:
-        description: Optional expiration
-        type: string
-      granted_by:
-        type: integer
-      granter:
-        $ref: '#/definitions/models.User'
-      id:
-        type: integer
-      permission:
-        $ref: '#/definitions/models.Permission'
-      permission_id:
-        type: integer
-      updated_at:
-        type: string
-      updated_by:
-        type: string
-      user:
-        $ref: '#/definitions/models.User'
-      user_id:
-        type: integer
-    type: object
-  product.CreateProductRequest:
+  internal_product.CreateProductRequest:
     properties:
       category:
         type: string
@@ -844,7 +821,7 @@ definitions:
     - code
     - name
     type: object
-  product.ProductResponse:
+  internal_product.ProductResponse:
     properties:
       category:
         type: string
@@ -869,7 +846,7 @@ definitions:
         type: string
       services:
         items:
-          $ref: '#/definitions/product.ServiceResponse'
+          $ref: '#/definitions/internal_product.ServiceResponse'
         type: array
       status:
         type: string
@@ -886,7 +863,7 @@ definitions:
       version:
         type: string
     type: object
-  product.ServiceResponse:
+  internal_product.ServiceResponse:
     properties:
       availability:
         type: string
@@ -927,7 +904,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  product.UpdateProductRequest:
+  internal_product.UpdateProductRequest:
     properties:
       category:
         type: string
@@ -956,7 +933,7 @@ definitions:
       version:
         type: string
     type: object
-  server.MetaInfo:
+  internal_server.MetaInfo:
     properties:
       page:
         type: integer
@@ -967,17 +944,17 @@ definitions:
       total_pages:
         type: integer
     type: object
-  server.Response:
+  internal_server.Response:
     properties:
       data: {}
       error:
-        $ref: '#/definitions/errors.ErrorInfo'
+        $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorInfo'
       meta:
-        $ref: '#/definitions/server.MetaInfo'
+        $ref: '#/definitions/internal_server.MetaInfo'
       success:
         type: boolean
     type: object
-  service.CreateServiceRequest:
+  internal_service.CreateServiceRequest:
     properties:
       availability:
         type: string
@@ -1011,7 +988,7 @@ definitions:
     - product_id
     - type
     type: object
-  service.ProductResponse:
+  internal_service.ProductResponse:
     properties:
       category:
         type: string
@@ -1034,7 +1011,7 @@ definitions:
       version:
         type: string
     type: object
-  service.ServiceResponse:
+  internal_service.ServiceResponse:
     properties:
       availability:
         type: string
@@ -1057,7 +1034,7 @@ definitions:
       name:
         type: string
       product:
-        $ref: '#/definitions/service.ProductResponse'
+        $ref: '#/definitions/internal_service.ProductResponse'
       product_id:
         type: integer
       status:
@@ -1077,7 +1054,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  service.UpdateServiceRequest:
+  internal_service.UpdateServiceRequest:
     properties:
       availability:
         type: string
@@ -1106,7 +1083,7 @@ definitions:
       type:
         type: string
     type: object
-  sla.CreateSLARuleRequest:
+  internal_sla.CreateSLARuleRequest:
     properties:
       business_only:
         type: boolean
@@ -1145,7 +1122,7 @@ definitions:
     - severity
     - template_id
     type: object
-  sla.CreateSLATemplateRequest:
+  internal_sla.CreateSLATemplateRequest:
     properties:
       business_hours:
         type: string
@@ -1174,7 +1151,7 @@ definitions:
     required:
     - name
     type: object
-  sla.SLARuleResponse:
+  internal_sla.SLARuleResponse:
     properties:
       business_only:
         type: boolean
@@ -1207,7 +1184,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  sla.SLATemplateResponse:
+  internal_sla.SLATemplateResponse:
     properties:
       business_hours:
         additionalProperties: true
@@ -1252,62 +1229,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  tenant.CreateTenantRequest:
-    properties:
-      domain:
-        maxLength: 255
-        type: string
-      max_users:
-        maximum: 10000
-        minimum: 1
-        type: integer
-      name:
-        maxLength: 255
-        minLength: 2
-        type: string
-      plan:
-        enum:
-        - basic
-        - premium
-        - enterprise
-        type: string
-      settings:
-        description: JSON string
-        type: string
-      slug:
-        maxLength: 100
-        minLength: 2
-        type: string
-    required:
-    - name
-    - slug
-    type: object
-  tenant.TenantResponse:
-    properties:
-      created_at:
-        type: string
-      domain:
-        type: string
-      expired_at:
-        type: string
-      id:
-        type: integer
-      is_active:
-        type: boolean
-      max_users:
-        type: integer
-      name:
-        type: string
-      plan:
-        type: string
-      slug:
-        type: string
-      updated_at:
-        type: string
-      user_count:
-        type: integer
-    type: object
-  ticket.CreateTicketRequest:
+  internal_ticket.CreateTicketRequest:
     properties:
       category:
         maxLength: 100
@@ -1359,12 +1281,12 @@ definitions:
     - requester_name
     - title
     type: object
-  ticket.TicketResponse:
+  internal_ticket.TicketResponse:
     properties:
       assigned_to:
         type: integer
       assigned_user:
-        $ref: '#/definitions/ticket.UserInfo'
+        $ref: '#/definitions/internal_ticket.UserInfo'
       attachment_count:
         type: integer
       category:
@@ -1417,7 +1339,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  ticket.UpdateTicketRequest:
+  internal_ticket.UpdateTicketRequest:
     properties:
       assigned_to:
         type: integer
@@ -1473,7 +1395,7 @@ definitions:
         maxLength: 50
         type: string
     type: object
-  ticket.UserInfo:
+  internal_ticket.UserInfo:
     properties:
       email:
         type: string
@@ -1488,7 +1410,7 @@ definitions:
       username:
         type: string
     type: object
-  user.CreateUserRequest:
+  internal_user.CreateUserRequest:
     properties:
       email:
         example: user@example.com
@@ -1535,7 +1457,7 @@ definitions:
     - role
     - username
     type: object
-  user.PaginationMeta:
+  internal_user.PaginationMeta:
     properties:
       page:
         type: integer
@@ -1546,7 +1468,7 @@ definitions:
       total_pages:
         type: integer
     type: object
-  user.UpdateUserRequest:
+  internal_user.UpdateUserRequest:
     properties:
       email:
         example: user@example.com
@@ -1582,32 +1504,19 @@ definitions:
         minLength: 3
         type: string
     type: object
-  user.UserListResponse:
+  internal_user.UserListResponse:
     properties:
       data:
         items:
-          $ref: '#/definitions/auth.UserInfo'
+          $ref: '#/definitions/github_com_company_smartticket_internal_auth.UserInfo'
         type: array
       meta:
-        $ref: '#/definitions/user.PaginationMeta'
+        $ref: '#/definitions/internal_user.PaginationMeta'
       success:
         type: boolean
     type: object
-swagger: '2.0'
 info:
-  title: SmartTicket API
-  description: Multi-tenant ticketing and knowledge collaboration platform API
-  version: 1.0.0
   contact: {}
-host: localhost:6533
-schemes:
-  - http
-securityDefinitions:
-  BearerAuth:
-    type: apiKey
-    name: Authorization
-    in: header
-    description: 'Bearer token for authentication. Format: "Bearer {token}"'
 paths:
   /api/v1/admin/permissions:
     get:
@@ -1625,20 +1534,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Permission'
+              $ref: '#/definitions/github_com_company_smartticket_internal_models.Permission'
             type: array
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all permissions
@@ -1659,30 +1568,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Permission'
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Permission'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Permission'
+            $ref: '#/definitions/github_com_company_smartticket_internal_models.Permission'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new permission
@@ -1709,20 +1618,20 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/models.Role'
+              $ref: '#/definitions/github_com_company_smartticket_internal_models.Role'
             type: array
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all roles
@@ -1748,130 +1657,35 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.Role'
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Role'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.Role'
+            $ref: '#/definitions/github_com_company_smartticket_internal_models.Role'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new role
       tags:
       - roles
-  /api/v1/admin/tenants:
-    get:
-      description: Retrieves a paginated list of all tenant organizations
-      parameters:
-      - description: Bearer token
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - default: 1
-        description: Page number
-        in: query
-        minimum: 1
-        name: page
-        type: integer
-      - default: 20
-        description: Number of tenants per page
-        in: query
-        maximum: 100
-        minimum: 1
-        name: page_size
-        type: integer
-      - description: Search tenants by name or domain
-        in: query
-        name: search
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/server.Response'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errors.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/errors.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/errors.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errors.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: List tenants
-      tags:
-      - tenants
-    post:
-      consumes:
-      - application/json
-      description: Creates a new tenant organization with provided details
-      parameters:
-      - description: Tenant creation data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/tenant.CreateTenantRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/tenant.TenantResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errors.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/errors.ErrorResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/errors.ErrorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/errors.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errors.ErrorResponse'
-      summary: Create a new tenant
-      tags:
-      - tenants
   /api/v1/auth/change-password:
     post:
       consumes:
@@ -1893,26 +1707,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.ChangePasswordRequest'
+          $ref: '#/definitions/internal_auth.ChangePasswordRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Change password
@@ -1922,38 +1736,34 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticate a user with email and password
+      description: Authenticate a user with email and password (tenant is auto-detected
+        from email)
       parameters:
       - description: Login credentials
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.LoginRequest'
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
+          $ref: '#/definitions/internal_auth.LoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.LoginResponse'
+            $ref: '#/definitions/internal_auth.LoginResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       summary: User login
       tags:
       - auth
@@ -1974,11 +1784,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: User logout
@@ -2004,11 +1814,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get current user
@@ -2034,19 +1844,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.UserInfo'
+            $ref: '#/definitions/internal_auth.UserInfo'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get current user profile
@@ -2063,26 +1873,26 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/auth.RefreshTokenRequest'
+          $ref: '#/definitions/internal_auth.RefreshTokenRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.TokenPair'
+            $ref: '#/definitions/internal_auth.TokenPair'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       summary: Refresh access token
       tags:
       - auth
@@ -2101,11 +1911,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Validate access token
@@ -2143,23 +1953,23 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/importexport.JobResponse'
+            $ref: '#/definitions/internal_importexport.JobResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new import job
@@ -2174,11 +1984,11 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/internal_server.Response'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/internal_server.Response'
       summary: Health check
       tags:
       - system
@@ -2191,7 +2001,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/internal_server.Response'
       summary: Get application information
       tags:
       - system
@@ -2253,19 +2063,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List knowledge articles
@@ -2291,30 +2101,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/knowledge.CreateKnowledgeArticleRequest'
+          $ref: '#/definitions/internal_knowledge.CreateKnowledgeArticleRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/knowledge.KnowledgeArticleResponse'
+            $ref: '#/definitions/internal_knowledge.KnowledgeArticleResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new knowledge article
@@ -2346,27 +2156,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete a knowledge article
@@ -2396,27 +2206,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/knowledge.KnowledgeArticleResponse'
+            $ref: '#/definitions/internal_knowledge.KnowledgeArticleResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get a knowledge article by ID
@@ -2447,34 +2257,34 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/knowledge.UpdateKnowledgeArticleRequest'
+          $ref: '#/definitions/internal_knowledge.UpdateKnowledgeArticleRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/knowledge.KnowledgeArticleResponse'
+            $ref: '#/definitions/internal_knowledge.KnowledgeArticleResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update a knowledge article
@@ -2501,19 +2311,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/knowledge.KnowledgeArticleStatsResponse'
+            $ref: '#/definitions/internal_knowledge.KnowledgeArticleStatsResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get knowledge article statistics
@@ -2568,23 +2378,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List products
@@ -2610,30 +2420,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/product.CreateProductRequest'
+          $ref: '#/definitions/internal_product.CreateProductRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/product.ProductResponse'
+            $ref: '#/definitions/internal_product.ProductResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new product
@@ -2664,27 +2474,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete a product
@@ -2714,27 +2524,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/product.ProductResponse'
+            $ref: '#/definitions/internal_product.ProductResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get a product by ID
@@ -2765,34 +2575,34 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/product.UpdateProductRequest'
+          $ref: '#/definitions/internal_product.UpdateProductRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/product.ProductResponse'
+            $ref: '#/definitions/internal_product.ProductResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update a product
@@ -2823,27 +2633,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Activate a product
@@ -2874,27 +2684,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Deactivate a product
@@ -2958,23 +2768,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List services
@@ -3000,30 +2810,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/service.CreateServiceRequest'
+          $ref: '#/definitions/internal_service.CreateServiceRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/service.ServiceResponse'
+            $ref: '#/definitions/internal_service.ServiceResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new service
@@ -3054,27 +2864,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete a service
@@ -3104,27 +2914,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.ServiceResponse'
+            $ref: '#/definitions/internal_service.ServiceResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get a service by ID
@@ -3155,34 +2965,34 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/service.UpdateServiceRequest'
+          $ref: '#/definitions/internal_service.UpdateServiceRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/service.ServiceResponse'
+            $ref: '#/definitions/internal_service.ServiceResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update a service
@@ -3213,27 +3023,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Activate a service
@@ -3264,27 +3074,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Deactivate a service
@@ -3311,30 +3121,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/sla.CreateSLARuleRequest'
+          $ref: '#/definitions/internal_sla.CreateSLARuleRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/sla.SLARuleResponse'
+            $ref: '#/definitions/internal_sla.SLARuleResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new SLA rule
@@ -3385,23 +3195,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List SLA templates
@@ -3427,30 +3237,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/sla.CreateSLATemplateRequest'
+          $ref: '#/definitions/internal_sla.CreateSLATemplateRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/sla.SLATemplateResponse'
+            $ref: '#/definitions/internal_sla.SLATemplateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new SLA template
@@ -3481,27 +3291,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/sla.SLATemplateResponse'
+            $ref: '#/definitions/internal_sla.SLATemplateResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get an SLA template by ID
@@ -3571,19 +3381,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List tickets
@@ -3609,30 +3419,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/ticket.CreateTicketRequest'
+          $ref: '#/definitions/internal_ticket.CreateTicketRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/ticket.TicketResponse'
+            $ref: '#/definitions/internal_ticket.TicketResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new ticket
@@ -3663,27 +3473,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete a ticket
@@ -3713,27 +3523,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ticket.TicketResponse'
+            $ref: '#/definitions/internal_ticket.TicketResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get a ticket by ID
@@ -3764,34 +3574,34 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/ticket.UpdateTicketRequest'
+          $ref: '#/definitions/internal_ticket.UpdateTicketRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/ticket.TicketResponse'
+            $ref: '#/definitions/internal_ticket.TicketResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update a ticket
@@ -3830,27 +3640,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Assign a ticket
@@ -3912,19 +3722,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get my tickets
@@ -3951,19 +3761,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get ticket statistics
@@ -4011,23 +3821,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/user.UserListResponse'
+            $ref: '#/definitions/internal_user.UserListResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: List users
@@ -4043,7 +3853,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/user.CreateUserRequest'
+          $ref: '#/definitions/internal_user.CreateUserRequest'
       - description: Tenant ID
         in: header
         name: X-Tenant-ID
@@ -4060,27 +3870,27 @@ paths:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/auth.UserInfo'
+            $ref: '#/definitions/internal_auth.UserInfo'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new user
@@ -4109,27 +3919,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete user
@@ -4159,23 +3969,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.UserInfo'
+            $ref: '#/definitions/internal_auth.UserInfo'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user by ID
@@ -4196,7 +4006,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/user.UpdateUserRequest'
+          $ref: '#/definitions/internal_user.UpdateUserRequest'
       - description: Tenant ID
         in: header
         name: X-Tenant-ID
@@ -4213,31 +4023,31 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.UserInfo'
+            $ref: '#/definitions/internal_auth.UserInfo'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update user
@@ -4266,27 +4076,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Activate user
@@ -4315,27 +4125,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Deactivate user
@@ -4361,19 +4171,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/errors.ErrorResponse'
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get user statistics
@@ -4388,9 +4198,8 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/internal_server.Response'
       summary: Get version information
       tags:
       - system
-security:
-  - BearerAuth: []
+swagger: "2.0"

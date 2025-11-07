@@ -33,12 +33,12 @@ func NewHandlers(userService *Service) *Handlers {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 201 {object} auth.UserInfo
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 409 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 201 {object} internal_auth.UserInfo
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 409 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/users [post].
 func (h *Handlers) CreateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -107,11 +107,11 @@ func (h *Handlers) CreateUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} auth.UserInfo
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} internal_auth.UserInfo
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/users/{id} [get].
 func (h *Handlers) GetUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -161,13 +161,13 @@ func (h *Handlers) GetUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} auth.UserInfo
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 409 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} internal_auth.UserInfo
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 409 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/users/{id} [put].
 func (h *Handlers) UpdateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -254,12 +254,12 @@ func (h *Handlers) UpdateUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/users/{id} [delete].
 func (h *Handlers) DeleteUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -335,10 +335,10 @@ func (h *Handlers) DeleteUser(c *gin.Context) {
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} UserListResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/users [get].
 func (h *Handlers) ListUsers(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -381,12 +381,12 @@ func (h *Handlers) ListUsers(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/users/{id}/activate [post].
 func (h *Handlers) ActivateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -433,12 +433,12 @@ func (h *Handlers) ActivateUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/users/{id}/deactivate [post].
 func (h *Handlers) DeactivateUser(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -494,10 +494,10 @@ func (h *Handlers) DeactivateUser(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} server.Response
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/users/stats [get].
 func (h *Handlers) GetUserStats(c *gin.Context) {
 	requestID, _ := c.Get("request_id")

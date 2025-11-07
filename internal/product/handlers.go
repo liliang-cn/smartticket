@@ -58,10 +58,10 @@ func (h *Handlers) logProductEvent(c *gin.Context, event, target string) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body product.CreateProductRequest true "Product creation data"
 // @Success 201 {object} product.ProductResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/products [post]
 func (h *Handlers) CreateProduct(c *gin.Context) {
 	var req CreateProductRequest
@@ -114,11 +114,11 @@ func (h *Handlers) CreateProduct(c *gin.Context) {
 // @Param search query string false "Search products by name or description"
 // @Param category query string false "Filter by category"
 // @Param status query string false "Filter by status" Enums(active,inactive,deprecated)
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/products [get]
 func (h *Handlers) ListProducts(c *gin.Context) {
 	var req ListProductsRequest
@@ -167,11 +167,11 @@ func (h *Handlers) ListProducts(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Product ID"
 // @Success 200 {object} product.ProductResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/products/{id} [get]
 func (h *Handlers) GetProduct(c *gin.Context) {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -213,11 +213,11 @@ func (h *Handlers) GetProduct(c *gin.Context) {
 // @Param id path int true "Product ID"
 // @Param request body product.UpdateProductRequest true "Product update data"
 // @Success 200 {object} product.ProductResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/products/{id} [put]
 func (h *Handlers) UpdateProduct(c *gin.Context) {
 	productID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -273,12 +273,12 @@ func (h *Handlers) UpdateProduct(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Product ID"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/products/{id} [delete]
 func (h *Handlers) DeleteProduct(c *gin.Context) {
 	productID, err := h.parseProductID(c)
@@ -319,12 +319,12 @@ func (h *Handlers) DeleteProduct(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Product ID"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/products/{id}/activate [post]
 func (h *Handlers) ActivateProduct(c *gin.Context) {
 	productID, err := h.parseProductID(c)
@@ -365,12 +365,12 @@ func (h *Handlers) ActivateProduct(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Product ID"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/products/{id}/deactivate [post]
 func (h *Handlers) DeactivateProduct(c *gin.Context) {
 	productID, err := h.parseProductID(c)

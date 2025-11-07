@@ -32,9 +32,9 @@ func NewHandlers(authService *Service) *Handlers {
 // @Produce json
 // @Param request body LoginRequest true "Login credentials"
 // @Success 200 {object} LoginResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/auth/login [post].
 func (h *Handlers) Login(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -91,9 +91,9 @@ func (h *Handlers) Login(c *gin.Context) {
 // @Produce json
 // @Param request body RefreshTokenRequest true "Refresh token"
 // @Success 200 {object} TokenPair
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/auth/refresh [post].
 func (h *Handlers) RefreshToken(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -133,8 +133,8 @@ func (h *Handlers) RefreshToken(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} server.Response
-// @Failure 401 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/auth/logout [post].
 func (h *Handlers) Logout(c *gin.Context) {
 	userID, _ := c.Get("user_id")
@@ -171,9 +171,9 @@ func (h *Handlers) Logout(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Success 200 {object} UserInfo
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/auth/profile [get].
 func (h *Handlers) GetProfile(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -218,10 +218,10 @@ func (h *Handlers) GetProfile(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body ChangePasswordRequest true "Password change data"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/auth/change-password [post].
 func (h *Handlers) ChangePassword(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -301,8 +301,8 @@ func (h *Handlers) ChangePassword(c *gin.Context) {
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
-// @Success 200 {object} server.Response
-// @Failure 401 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/auth/me [get].
 func (h *Handlers) GetMe(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
@@ -328,8 +328,8 @@ func (h *Handlers) GetMe(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Success 200 {object} server.Response
-// @Failure 401 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/auth/validate [get].
 func (h *Handlers) ValidateToken(c *gin.Context) {
 	requestID, _ := c.Get("request_id")

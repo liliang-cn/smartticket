@@ -29,10 +29,10 @@ func NewHandlers(service *Service) *Handlers {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body knowledge.CreateKnowledgeArticleRequest true "Knowledge article creation data"
 // @Success 201 {object} knowledge.KnowledgeArticleResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/articles [post]
 func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
 	// Get tenant ID from context
@@ -80,11 +80,11 @@ func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Knowledge Article ID"
 // @Success 200 {object} knowledge.KnowledgeArticleResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/articles/{id} [get]
 func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 	// Parse article ID
@@ -126,10 +126,10 @@ func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 // @Param product_id query int false "Filter by product ID"
 // @Param service_id query int false "Filter by service ID"
 // @Param search query string false "Search articles by title, content, or summary"
-// @Success 200 {object} server.Response
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/articles [get]
 func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
 	// Get tenant ID from context
@@ -199,11 +199,11 @@ func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
 // @Param id path int true "Knowledge Article ID"
 // @Param request body knowledge.UpdateKnowledgeArticleRequest true "Knowledge article update data"
 // @Success 200 {object} knowledge.KnowledgeArticleResponse
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/articles/{id} [put]
 func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 	// Parse article ID
@@ -258,12 +258,12 @@ func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Knowledge Article ID"
-// @Success 200 {object} server.Response
-// @Failure 400 {object} errors.ErrorResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 404 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/articles/{id} [delete]
 func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 	// Parse article ID
@@ -310,9 +310,9 @@ func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 // @Param Authorization header string true "Bearer token"
 // @Param X-Tenant-ID header string true "Tenant ID"
 // @Success 200 {object} knowledge.KnowledgeArticleStatsResponse
-// @Failure 401 {object} errors.ErrorResponse
-// @Failure 403 {object} errors.ErrorResponse
-// @Failure 500 {object} errors.ErrorResponse
+// @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/articles/stats [get]
 func (h *Handlers) GetKnowledgeArticleStats(c *gin.Context) {
 	// Get tenant ID from context
