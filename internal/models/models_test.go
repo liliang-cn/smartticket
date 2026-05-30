@@ -126,7 +126,7 @@ func TestUser(t *testing.T) {
 		assert.Equal(t, user.FirstName, unmarshaled.FirstName)
 		assert.Equal(t, user.LastName, unmarshaled.LastName)
 		// Role field has been removed from User model
-	// assert.Equal(t, user.Role, unmarshaled.Role)
+		// assert.Equal(t, user.Role, unmarshaled.Role)
 		assert.Equal(t, user.IsActive, unmarshaled.IsActive)
 		assert.Equal(t, user.Preferences, unmarshaled.Preferences)
 	})
@@ -1372,28 +1372,28 @@ func TestJSONSerialization(t *testing.T) {
 				}
 			case *KnowledgeArticle:
 				*v = KnowledgeArticle{
-					Title:    "Test Article",
-					Slug:     "test-article",
-					Status:   "draft",
+					Title:  "Test Article",
+					Slug:   "test-article",
+					Status: "draft",
 				}
 			case *LLMProvider:
 				*v = LLMProvider{
-					Name:     "Test Provider",
-					Model:    "test-model",
+					Name:  "Test Provider",
+					Model: "test-model",
 				}
 			case *ImportExportJob:
 				*v = ImportExportJob{
-					Type:     "import",
-					Status:   "pending",
+					Type:   "import",
+					Status: "pending",
 				}
 			case *AuditLog:
 				*v = AuditLog{
-					Action:   "test",
+					Action: "test",
 				}
 			case *APIKey:
 				*v = APIKey{
-					Name:     "Test Key",
-					KeyHash:  "test-hash",
+					Name:    "Test Key",
+					KeyHash: "test-hash",
 				}
 			case *SystemSetting:
 				*v = SystemSetting{
@@ -1403,8 +1403,8 @@ func TestJSONSerialization(t *testing.T) {
 				}
 			case *Product:
 				*v = Product{
-					Name:     "Test Product",
-					Code:     "PROD-001",
+					Name: "Test Product",
+					Code: "PROD-001",
 				}
 			case *Service:
 				*v = Service{
