@@ -79,6 +79,41 @@ definitions:
       updated_by:
         type: string
     type: object
+  github_com_company_smartticket_internal_models.Customer:
+    properties:
+      code:
+        description: |-
+          Code is an optional unique short code. It is a pointer so that multiple
+          customers without a code store NULL (distinct under the unique index)
+          rather than colliding on the empty string.
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      domain:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      tickets:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.Ticket'
+        type: array
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/github_com_company_smartticket_internal_models.User'
+        type: array
+    type: object
   github_com_company_smartticket_internal_models.KnowledgeArticle:
     properties:
       access_level:
@@ -381,6 +416,10 @@ definitions:
       custom_fields:
         description: JSON object
         type: string
+      customer:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Customer'
+      customer_id:
+        type: integer
       description:
         type: string
       due_date:
@@ -441,6 +480,13 @@ definitions:
         type: string
       created_by:
         type: string
+      customer:
+        $ref: '#/definitions/github_com_company_smartticket_internal_models.Customer'
+      customer_id:
+        description: |-
+          CustomerID links a customer-role user to the customer organization they
+          belong to. Nil for team users (admin/engineer).
+        type: integer
       email:
         type: string
       first_name:
@@ -603,6 +649,61 @@ definitions:
       role:
         type: string
       username:
+        type: string
+    type: object
+  internal_customer.CreateCustomerRequest:
+    properties:
+      code:
+        maxLength: 100
+        type: string
+      description:
+        type: string
+      domain:
+        maxLength: 255
+        type: string
+      is_active:
+        type: boolean
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  internal_customer.CustomerResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      description:
+        type: string
+      domain:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  internal_customer.UpdateCustomerRequest:
+    properties:
+      code:
+        maxLength: 100
+        type: string
+      description:
+        type: string
+      domain:
+        maxLength: 255
+        type: string
+      is_active:
+        type: boolean
+      name:
+        maxLength: 255
+        minLength: 1
         type: string
     type: object
   internal_importexport.JobResponse:
@@ -1217,6 +1318,22 @@ definitions:
       updated_at:
         type: string
     type: object
+  internal_ticket.CreateMessageRequest:
+    properties:
+      content:
+        minLength: 1
+        type: string
+      content_type:
+        enum:
+        - text
+        - html
+        - markdown
+        type: string
+      is_internal:
+        type: boolean
+    required:
+    - content
+    type: object
   internal_ticket.CreateTicketRequest:
     properties:
       category:
@@ -1225,6 +1342,9 @@ definitions:
       custom_fields:
         description: JSON object
         type: string
+      customer_id:
+        description: team may file on behalf of a customer; ignored for customer actors
+        type: integer
       description:
         minLength: 1
         type: string
@@ -1400,6 +1520,12 @@ definitions:
     type: object
   internal_user.CreateUserRequest:
     properties:
+      customer_id:
+        description: |-
+          CustomerID links the user to a customer organization. Required for the
+          "customer" role; forbidden for team roles (admin/engineer).
+        example: 1
+        type: integer
       email:
         example: user@example.com
         type: string
@@ -1883,6 +2009,306 @@ paths:
       summary: Validate access token
       tags:
       - auth
+  /api/v1/customers:
+    get:
+      description: Retrieves a paginated list of customers with optional filtering
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 20
+        description: Number of customers per page
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: Search customers by name, code, domain or description
+        in: query
+        name: search
+        type: string
+      - description: Filter by active status
+        in: query
+        name: is_active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List customers
+      tags:
+      - customers
+    post:
+      consumes:
+      - application/json
+      description: Creates a new customer organization
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Customer creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_customer.CreateCustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_customer.CustomerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new customer
+      tags:
+      - customers
+  /api/v1/customers/{id}:
+    delete:
+      description: Soft deletes a customer organization
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a customer
+      tags:
+      - customers
+    get:
+      description: Retrieves a specific customer by its unique identifier
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_customer.CustomerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a customer by ID
+      tags:
+      - customers
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing customer with new information
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Customer update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_customer.UpdateCustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_customer.CustomerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a customer
+      tags:
+      - customers
+  /api/v1/customers/{id}/users:
+    get:
+      description: Retrieves the contact users belonging to a customer
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List a customer's users
+      tags:
+      - customers
   /api/v1/data/import:
     post:
       consumes:
@@ -3470,6 +3896,75 @@ paths:
       security:
       - BearerAuth: []
       summary: Assign a ticket
+      tags:
+      - tickets
+  /api/v1/tickets/{id}/messages:
+    get:
+      description: Lists messages on a ticket. Customers see only their own customer's
+        tickets and never internal notes.
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List ticket messages
+      tags:
+      - tickets
+    post:
+      consumes:
+      - application/json
+      description: Adds a message to a ticket. Customers cannot create internal notes
+        and can only post to their own customer's tickets.
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Message content
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_ticket.CreateMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add ticket message
       tags:
       - tickets
   /api/v1/tickets/my:
