@@ -424,9 +424,9 @@ func (s *Server) GetConfig() *config.Config {
 	return s.config
 }
 
-// serveSwaggerYAML serves the complete OpenAPI specification.
+// serveSwaggerYAML serves the authoritative (swag-generated) OpenAPI spec.
 func (s *Server) serveSwaggerYAML(c *gin.Context) {
-	openAPIPath := "./docs/api/complete-openapi.yaml"
+	openAPIPath := "./docs/swagger.yaml"
 	yamlContent, err := os.ReadFile(openAPIPath)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
