@@ -1,0 +1,202 @@
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
+import {
+  useCreateCustomer,
+  useUpdateCustomer,
+  type CreateCustomerInput,
+} from "@/features/customers/api";
+import { apiError } from "@/lib/api";
+import type { Customer } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Input, Textarea } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const schema = z.object({
+  name: z.string().min(1, "Name is required").max(255),
+  code: z.string().max(100).optional(),
+  domain: z.string().max(255).optional(),
+  description: z.string().optional(),
+  is_active: z.boolean(),
+});
+type FormValues = z.infer<typeof schema>;
+
+interface CustomerFormDialogProps {
+  /** When provided, the dialog edits this customer instead of creating one. */
+  customer?: Customer;
+  /** Optional custom trigger. Defaults to a "New customer" button. */
+  trigger?: React.ReactNode;
+}
+
+const ACTIVE = "active";
+const INACTIVE = "inactive";
+
+export function CustomerFormDialog({ customer, trigger }: CustomerFormDialogProps) {
+  const [open, setOpen] = useState(false);
+  const isEdit = customer != null;
+  const create = useCreateCustomer();
+  const update = useUpdateCustomer(customer?.id ?? 0);
+  const pending = isEdit ? update.isPending : create.isPending;
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: customer?.name ?? "",
+      code: customer?.code ?? "",
+      domain: customer?.domain ?? "",
+      description: customer?.description ?? "",
+      is_active: customer?.is_active ?? true,
+    },
+  });
+
+  // Re-seed the form when the dialog opens (so edit reflects latest data).
+  useEffect(() => {
+    if (open) {
+      reset({
+        name: customer?.name ?? "",
+        code: customer?.code ?? "",
+        domain: customer?.domain ?? "",
+        description: customer?.description ?? "",
+        is_active: customer?.is_active ?? true,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  async function onSubmit(values: FormValues) {
+    const payload: CreateCustomerInput = {
+      name: values.name,
+      code: values.code || undefined,
+      domain: values.domain || undefined,
+      description: values.description || undefined,
+      is_active: values.is_active,
+    };
+    try {
+      if (isEdit) {
+        await update.mutateAsync(payload);
+        toast.success("Customer updated");
+      } else {
+        await create.mutateAsync(payload);
+        toast.success("Customer created");
+      }
+      setOpen(false);
+    } catch (err) {
+      toast.error(
+        apiError(err, isEdit ? "Could not update customer" : "Could not create customer")
+      );
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger ?? (
+          <Button>
+            <Plus /> New customer
+          </Button>
+        )}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{isEdit ? "Edit customer" : "New customer"}</DialogTitle>
+          <DialogDescription>
+            {isEdit
+              ? "Update this customer organization's details."
+              : "Register a client organization you provide support to."}
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="c-name">Name</Label>
+            <Input id="c-name" placeholder="Acme Inc." {...register("name")} />
+            {errors.name && (
+              <p className="text-xs text-destructive">{errors.name.message}</p>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="c-code">Code</Label>
+              <Input id="c-code" placeholder="ACME" {...register("code")} />
+              {errors.code && (
+                <p className="text-xs text-destructive">{errors.code.message}</p>
+              )}
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="c-domain">Domain</Label>
+              <Input id="c-domain" placeholder="acme.com" {...register("domain")} />
+              {errors.domain && (
+                <p className="text-xs text-destructive">{errors.domain.message}</p>
+              )}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="c-desc">Description</Label>
+            <Textarea
+              id="c-desc"
+              placeholder="Notes about this customer…"
+              {...register("description")}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Status</Label>
+            <Select
+              value={watch("is_active") ? ACTIVE : INACTIVE}
+              onValueChange={(v) => setValue("is_active", v === ACTIVE)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ACTIVE}>Active</SelectItem>
+                <SelectItem value={INACTIVE}>Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="ghost">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="submit" disabled={pending}>
+              {pending
+                ? isEdit
+                  ? "Saving…"
+                  : "Creating…"
+                : isEdit
+                  ? "Save changes"
+                  : "Create customer"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

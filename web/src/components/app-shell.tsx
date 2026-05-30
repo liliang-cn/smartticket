@@ -32,7 +32,7 @@ const NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/tickets", label: "Tickets", icon: Ticket },
   { to: "/knowledge", label: "Knowledge", icon: BookOpen, soon: true },
-  { to: "/customers", label: "Customers", icon: Building2, soon: true },
+  { to: "/customers", label: "Customers", icon: Building2 },
   { to: "/users", label: "Users", icon: Users, soon: true },
   { to: "/rbac", label: "Access", icon: ShieldCheck, soon: true },
 ];

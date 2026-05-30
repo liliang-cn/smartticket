@@ -83,6 +83,29 @@ export interface TicketMessage {
   created_at: string;
 }
 
+export interface Customer {
+  id: number;
+  name: string;
+  code: string;
+  domain: string;
+  is_active: boolean;
+  description: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomerUser {
+  id: number;
+  email: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface TicketStats {
   total_tickets: number;
   open_tickets: number;
