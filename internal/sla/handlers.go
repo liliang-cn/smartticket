@@ -132,7 +132,6 @@ func (h *Handlers) logSecurityEventWithName(c *gin.Context, event, resourceName 
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body sla.CreateSLATemplateRequest true "SLA template creation data"
 // @Success 201 {object} sla.SLATemplateResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -148,14 +147,13 @@ func (h *Handlers) CreateSLATemplate(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
 	h.logSecurityEventWithName(c, "sla_template_creation_attempt", req.Name)
 
-	template, err := h.service.CreateSLATemplate(user.ID, &req)
+	template, err := h.service.CreateSLATemplate(&req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -175,7 +173,6 @@ func (h *Handlers) CreateSLATemplate(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param page query int false "Page number" default(1) minimum(1)
 // @Param page_size query int false "Number of templates per page" default(20) minimum(1) maximum(100)
 // @Param search query string false "Search templates by name or description"
@@ -195,12 +192,11 @@ func (h *Handlers) ListSLATemplates(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
-	templates, total, err := h.service.ListSLATemplates(user.ID, &req)
+	templates, total, err := h.service.ListSLATemplates(&req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -216,7 +212,6 @@ func (h *Handlers) ListSLATemplates(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "SLA Template ID"
 // @Success 200 {object} sla.SLATemplateResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -231,12 +226,11 @@ func (h *Handlers) GetSLATemplate(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
-	template, err := h.service.GetSLATemplate(user.ID, templateID)
+	template, err := h.service.GetSLATemplate(templateID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -259,14 +253,13 @@ func (h *Handlers) UpdateSLATemplate(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
 	h.logSecurityEvent(c, "sla_template_update_attempt", "sla_template", templateID)
 
-	template, err := h.service.UpdateSLATemplate(user.ID, templateID, &req)
+	template, err := h.service.UpdateSLATemplate(templateID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -286,14 +279,13 @@ func (h *Handlers) DeleteSLATemplate(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
 	h.logSecurityEvent(c, "sla_template_deletion_attempt", "sla_template", templateID)
 
-	err = h.service.DeleteSLATemplate(user.ID, templateID)
+	err = h.service.DeleteSLATemplate(templateID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -315,7 +307,6 @@ func (h *Handlers) DeleteSLATemplate(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body sla.CreateSLARuleRequest true "SLA rule creation data"
 // @Success 201 {object} sla.SLARuleResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -331,14 +322,13 @@ func (h *Handlers) CreateSLARule(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
 	h.logSecurityEvent(c, "sla_rule_creation_attempt", "sla_rule", nil)
 
-	rule, err := h.service.CreateSLARule(user.ID, &req)
+	rule, err := h.service.CreateSLARule(&req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -359,12 +349,11 @@ func (h *Handlers) ListSLARules(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
-	rules, total, err := h.service.ListSLARules(user.ID, &req)
+	rules, total, err := h.service.ListSLARules(&req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -380,12 +369,11 @@ func (h *Handlers) GetSLARule(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
-	rule, err := h.service.GetSLARule(user.ID, ruleID)
+	rule, err := h.service.GetSLARule(ruleID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -408,14 +396,13 @@ func (h *Handlers) UpdateSLARule(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
 	h.logSecurityEvent(c, "sla_rule_update_attempt", "sla_rule", ruleID)
 
-	rule, err := h.service.UpdateSLARule(user.ID, ruleID, &req)
+	rule, err := h.service.UpdateSLARule(ruleID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -434,14 +421,13 @@ func (h *Handlers) DeleteSLARule(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
 	h.logSecurityEvent(c, "sla_rule_deletion_attempt", "sla_rule", ruleID)
 
-	err = h.service.DeleteSLARule(user.ID, ruleID)
+	err = h.service.DeleteSLARule(ruleID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -460,14 +446,13 @@ func (h *Handlers) ActivateSLARule(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
 	h.logSecurityEvent(c, "sla_rule_activation_attempt", "sla_rule", ruleID)
 
-	err = h.service.ActivateSLARule(user.ID, ruleID)
+	err = h.service.ActivateSLARule(ruleID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -486,14 +471,13 @@ func (h *Handlers) DeactivateSLARule(c *gin.Context) {
 		return
 	}
 
-	user, err := h.parseAndValidateUser(c)
-	if err != nil {
+	if _, err := h.parseAndValidateUser(c); err != nil {
 		return
 	}
 
 	h.logSecurityEvent(c, "sla_rule_deactivation_attempt", "sla_rule", ruleID)
 
-	err = h.service.DeactivateSLARule(user.ID, ruleID)
+	err = h.service.DeactivateSLARule(ruleID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
