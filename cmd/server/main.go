@@ -15,6 +15,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 
 	"strings"
 
@@ -77,6 +79,24 @@ Streamable HTTP when --http is provided.`,
 	mcpCmd.Flags().String("token", os.Getenv("SMARTTICKET_MCP_TOKEN"), "JWT credential for stdio transport (default from SMARTTICKET_MCP_TOKEN)")
 	mcpCmd.Flags().String("toolsets", "", "Comma-separated toolsets to enable (default: all)")
 	rootCmd.AddCommand(mcpCmd)
+
+	// Add createadmin command
+	var createAdminCmd = &cobra.Command{
+		Use:   "createadmin",
+		Short: "Create or update an administrator account",
+		Long: `Create (or update, if the email already exists) an administrator user
+and assign the admin role. Optionally set the deployment's organization name.`,
+		RunE: runCreateAdmin,
+	}
+	createAdminCmd.Flags().String("config", "", "Configuration file path")
+	createAdminCmd.Flags().String("email", "", "Administrator email (required)")
+	createAdminCmd.Flags().String("password", "", "Administrator password (required)")
+	createAdminCmd.Flags().String("username", "", "Username (defaults to the email local-part)")
+	createAdminCmd.Flags().String("name", "", "Full name (defaults to \"Administrator\")")
+	createAdminCmd.Flags().String("org", "", "Organization/team name to record for this deployment")
+	_ = createAdminCmd.MarkFlagRequired("email")
+	_ = createAdminCmd.MarkFlagRequired("password")
+	rootCmd.AddCommand(createAdminCmd)
 
 	// Add version command
 	var versionCmd = &cobra.Command{
@@ -338,6 +358,132 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 	logger.Info("Database migration completed successfully",
 		zap.Int("model_count", len(dbModels)),
 	)
+	return nil
+}
+
+func runCreateAdmin(cmd *cobra.Command, _ []string) error {
+	cfg, err := config.LoadFromFlags(cmd)
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+	if err := logger.InitializeGlobalLogger(&cfg.Logger); err != nil {
+		return fmt.Errorf("failed to initialize logger: %w", err)
+	}
+	defer func() { _ = logger.Sync() }()
+
+	email, _ := cmd.Flags().GetString("email")
+	password, _ := cmd.Flags().GetString("password")
+	username, _ := cmd.Flags().GetString("username")
+	name, _ := cmd.Flags().GetString("name")
+	org, _ := cmd.Flags().GetString("org")
+
+	email = strings.ToLower(strings.TrimSpace(email))
+	if email == "" || password == "" {
+		return fmt.Errorf("both --email and --password are required and must be non-empty")
+	}
+	if username == "" {
+		username = strings.SplitN(email, "@", 2)[0]
+	}
+	if name == "" {
+		name = "Administrator"
+	}
+
+	db, err := database.NewDatabase(&cfg.Database)
+	if err != nil {
+		return fmt.Errorf("failed to initialize database: %w", err)
+	}
+	defer func() { _ = db.Close() }()
+
+	// Ensure the tables this command touches exist (idempotent).
+	if err := db.DB.AutoMigrate(&models.SystemSetting{}, &models.User{}, &models.Role{}, &models.UserRole{}); err != nil {
+		return fmt.Errorf("failed to migrate required tables: %w", err)
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("failed to hash password: %w", err)
+	}
+
+	now := time.Now()
+	err = db.DB.Transaction(func(tx *gorm.DB) error {
+		// Ensure the admin role exists.
+		var adminRole models.Role
+		if err := tx.Where(models.Role{Name: "admin"}).
+			Attrs(models.Role{Description: "System administrator with full access", IsSystem: true}).
+			FirstOrCreate(&adminRole).Error; err != nil {
+			return fmt.Errorf("failed to ensure admin role: %w", err)
+		}
+
+		// Create or update the user.
+		var user models.User
+		err := tx.Where("email = ?", email).First(&user).Error
+		switch {
+		case errors.Is(err, gorm.ErrRecordNotFound):
+			user = models.User{
+				Email:        email,
+				Username:     username,
+				PasswordHash: string(hash),
+				FirstName:    name,
+				Role:         "admin",
+				IsActive:     true,
+				Preferences:  `{"timezone": "UTC", "language": "en"}`,
+			}
+			if err := tx.Create(&user).Error; err != nil {
+				return fmt.Errorf("failed to create user: %w", err)
+			}
+		case err != nil:
+			return fmt.Errorf("failed to look up user: %w", err)
+		default:
+			user.PasswordHash = string(hash)
+			user.Username = username
+			user.FirstName = name
+			user.Role = "admin"
+			user.IsActive = true
+			if err := tx.Save(&user).Error; err != nil {
+				return fmt.Errorf("failed to update user: %w", err)
+			}
+		}
+
+		// Ensure the admin role is assigned to the user.
+		var userRole models.UserRole
+		if err := tx.Where(models.UserRole{UserID: user.ID, RoleID: adminRole.ID}).
+			Attrs(models.UserRole{AssignedAt: now, AssignedBy: user.ID}).
+			FirstOrCreate(&userRole).Error; err != nil {
+			return fmt.Errorf("failed to assign admin role: %w", err)
+		}
+
+		// Optionally record the organization/team name.
+		if org = strings.TrimSpace(org); org != "" {
+			var setting models.SystemSetting
+			if err := tx.Where(models.SystemSetting{Key: "system.organization_name"}).
+				Assign(models.SystemSetting{
+					Value:       org,
+					Type:        "string",
+					Description: "Organization/team name for this deployment",
+					IsPublic:    true,
+				}).
+				FirstOrCreate(&setting).Error; err != nil {
+				return fmt.Errorf("failed to set organization name: %w", err)
+			}
+		}
+
+		logger.Info("Administrator account ready",
+			zap.String("email", email),
+			zap.String("username", username),
+			zap.Uint("user_id", user.ID),
+			zap.String("organization", org),
+		)
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Administrator %q is ready (role: admin)", email)
+	if org != "" {
+		fmt.Printf("; organization set to %q", org)
+	}
+	fmt.Println()
 	return nil
 }
 
