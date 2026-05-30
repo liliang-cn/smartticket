@@ -16,9 +16,13 @@ func TestValidateDirectory(t *testing.T) {
 	t.Run("Invalid directory creation path", func(t *testing.T) {
 		// Use a path that should fail to create
 		err := ValidateDirectory("/root/nonexistent", "test directory")
-		// This might fail due to permissions, but that's expected
+		// Depending on the environment this fails either because the directory
+		// cannot be created or because its parent is not accessible (a non-root
+		// user on Linux gets "permission denied" on /root). Both are valid;
+		// assert the error names the offending path rather than one OS-specific
+		// phrasing ("failed to create" vs "failed to access").
 		if err != nil {
-			assert.Contains(t, err.Error(), "failed to create")
+			assert.Contains(t, err.Error(), "/root/nonexistent")
 		}
 	})
 
