@@ -110,6 +110,26 @@ export interface CustomerUser {
   updated_at: string;
 }
 
+export type KnowledgeStatus = "draft" | "published" | "archived";
+
+export interface KnowledgeArticle {
+  id: number;
+  title: string;
+  content: string;
+  summary: string;
+  category: string;
+  /** JSON-encoded array of tag strings, e.g. `["foo","bar"]`. */
+  tags: string;
+  status: string;
+  view_count: number;
+  version: number;
+  product_id?: number | null;
+  service_id?: number | null;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+}
+
 export interface TicketStats {
   total_tickets: number;
   open_tickets: number;
