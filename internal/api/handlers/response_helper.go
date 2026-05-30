@@ -98,8 +98,3 @@ func (r *ResponseHelper) BindJSON(c *gin.Context, obj interface{}) bool {
 	}
 	return true
 }
-
-// GetTenantIDFromContext gets tenant ID from context
-func (r *ResponseHelper) GetTenantIDFromContext(c *gin.Context) string {
-	return c.GetString("tenant_id")
-}

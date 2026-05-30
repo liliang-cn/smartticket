@@ -91,8 +91,6 @@ func (h *PermissionHandler) CreatePermission(c *gin.Context) {
 		return
 	}
 
-	// Permissions are global, not tenant-specific
-
 	err := h.permissionService.CreatePermission(c.Request.Context(), &req)
 	if err != nil {
 		h.responseHelper.SendInternalError(c, "Failed to create permission")
@@ -153,9 +151,7 @@ func (h *PermissionHandler) GetUserPermissions(c *gin.Context) {
 		return
 	}
 
-	tenantID := h.responseHelper.GetTenantIDFromContext(c)
-
-	permissions, err := h.permissionService.GetUserPermissions(c.Request.Context(), userID, tenantID)
+	permissions, err := h.permissionService.GetUserPermissions(c.Request.Context(), userID)
 	if err != nil {
 		h.responseHelper.SendInternalError(c, "Failed to get user permissions")
 		return
@@ -179,9 +175,7 @@ func (h *PermissionHandler) AssignPermissionToUser(c *gin.Context) {
 		return
 	}
 
-	tenantID := h.responseHelper.GetTenantIDFromContext(c)
-
-	err := h.permissionService.AssignPermissionToUser(c.Request.Context(), userID, req.PermissionID, tenantID)
+	err := h.permissionService.AssignPermissionToUser(c.Request.Context(), userID, req.PermissionID)
 	if err != nil {
 		h.responseHelper.SendInternalError(c, "Failed to assign permission to user")
 		return
@@ -202,9 +196,7 @@ func (h *PermissionHandler) RemovePermissionFromUser(c *gin.Context) {
 		return
 	}
 
-	tenantID := h.responseHelper.GetTenantIDFromContext(c)
-
-	err := h.permissionService.RemovePermissionFromUser(c.Request.Context(), userID, permissionID, tenantID)
+	err := h.permissionService.RemovePermissionFromUser(c.Request.Context(), userID, permissionID)
 	if err != nil {
 		h.responseHelper.SendInternalError(c, "Failed to remove permission from user")
 		return

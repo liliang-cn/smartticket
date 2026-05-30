@@ -13,250 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTenantHandlers(t *testing.T) {
-	gin.SetMode(gin.TestMode)
-
-	t.Run("Create tenant", func(t *testing.T) {
-		router := gin.New()
-
-		// Mock handler function
-		router.POST("/tenants", func(c *gin.Context) {
-			var tenant 
-			if err := c.ShouldBindJSON(&tenant); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			}
-
-			// Simulate successful creation
-			tenant.ID = 1
-			c.JSON(http.StatusCreated, gin.H{
-				"success": true,
-				"data":    tenant,
-			})
-		})
-
-		// Test data
-		tenantData := map[string]interface{}{
-			"name":      "Test Corporation",
-			"slug":      "test-corporation",
-			"domain":    "test.example.com",
-			"plan":      "basic",
-			"max_users": 100,
-		}
-
-		jsonData, err := json.Marshal(tenantData)
-		require.NoError(t, err)
-
-		req, err := http.NewRequest("POST", "/tenants", bytes.NewBuffer(jsonData))
-		require.NoError(t, err)
-		req.Header.Set("Content-Type", "application/json")
-
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusCreated, w.Code)
-
-		var response map[string]interface{}
-		err = json.Unmarshal(w.Body.Bytes(), &response)
-		require.NoError(t, err)
-
-		assert.True(t, response["success"].(bool))
-		data := response["data"].(map[string]interface{})
-		assert.Equal(t, "Test Corporation", data["name"])
-		assert.Equal(t, "test-corporation", data["slug"])
-	})
-
-	t.Run("Get tenant", func(t *testing.T) {
-		router := gin.New()
-
-		// Mock handler function
-		router.GET("/tenants/:id", func(c *gin.Context) {
-			id := c.Param("id")
-
-			// Simulate finding a tenant
-			if id == "1" {
-				tenant := {
-					BaseModel: models.BaseModel{ID: 1},
-					Name:      "Test Corporation",
-					Slug:      "test-corporation",
-					Plan:      "basic",
-					IsActive:  true,
-				}
-				c.JSON(http.StatusOK, gin.H{
-					"success": true,
-					"data":    tenant,
-				})
-			} else {
-				c.JSON(http.StatusNotFound, gin.H{
-					"success": false,
-					"error":   "Tenant not found",
-				})
-			}
-		})
-
-		req, err := http.NewRequest("GET", "/tenants/1", nil)
-		require.NoError(t, err)
-
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusOK, w.Code)
-
-		var response map[string]interface{}
-		err = json.Unmarshal(w.Body.Bytes(), &response)
-		require.NoError(t, err)
-
-		assert.True(t, response["success"].(bool))
-		data := response["data"].(map[string]interface{})
-		assert.Equal(t, "Test Corporation", data["name"])
-	})
-
-	t.Run("List tenants", func(t *testing.T) {
-		router := gin.New()
-
-		// Mock handler function
-		router.GET("/tenants", func(c *gin.Context) {
-			tenants := []{
-				{
-					BaseModel: models.BaseModel{ID: 1},
-					Name:      "Test Corp 1",
-					Plan:      "basic",
-					IsActive:  true,
-				},
-				{
-					BaseModel: models.BaseModel{ID: 2},
-					Name:      "Test Corp 2",
-					Plan:      "enterprise",
-					IsActive:  true,
-				},
-			}
-
-			c.JSON(http.StatusOK, gin.H{
-				"success": true,
-				"data":    tenants,
-				"meta": map[string]interface{}{
-					"total":     len(tenants),
-					"page":      1,
-					"page_size": 20,
-				},
-			})
-		})
-
-		req, err := http.NewRequest("GET", "/tenants", nil)
-		require.NoError(t, err)
-
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusOK, w.Code)
-
-		var response map[string]interface{}
-		err = json.Unmarshal(w.Body.Bytes(), &response)
-		require.NoError(t, err)
-
-		assert.True(t, response["success"].(bool))
-		data := response["data"].([]interface{})
-		assert.Len(t, data, 2)
-
-		meta := response["meta"].(map[string]interface{})
-		assert.Equal(t, float64(2), meta["total"])
-	})
-
-	t.Run("Update tenant", func(t *testing.T) {
-		router := gin.New()
-
-		// Mock handler function
-		router.PUT("/tenants/:id", func(c *gin.Context) {
-			id := c.Param("id")
-			var tenant 
-
-			if err := c.ShouldBindJSON(&tenant); err != nil {
-				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-				return
-			}
-
-			// Simulate successful update
-			if id == "1" {
-				tenant.ID = 1
-				c.JSON(http.StatusOK, gin.H{
-					"success": true,
-					"data":    tenant,
-				})
-			} else {
-				c.JSON(http.StatusNotFound, gin.H{
-					"success": false,
-					"error":   "Tenant not found",
-				})
-			}
-		})
-
-		// Test data
-		updateData := map[string]interface{}{
-			"name":      "Updated Corporation",
-			"plan":      "enterprise",
-			"max_users": 500,
-		}
-
-		jsonData, err := json.Marshal(updateData)
-		require.NoError(t, err)
-
-		req, err := http.NewRequest("PUT", "/tenants/1", bytes.NewBuffer(jsonData))
-		require.NoError(t, err)
-		req.Header.Set("Content-Type", "application/json")
-
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusOK, w.Code)
-
-		var response map[string]interface{}
-		err = json.Unmarshal(w.Body.Bytes(), &response)
-		require.NoError(t, err)
-
-		assert.True(t, response["success"].(bool))
-		data := response["data"].(map[string]interface{})
-		assert.Equal(t, "Updated Corporation", data["name"])
-		assert.Equal(t, "enterprise", data["plan"])
-	})
-
-	t.Run("Delete tenant", func(t *testing.T) {
-		router := gin.New()
-
-		// Mock handler function
-		router.DELETE("/tenants/:id", func(c *gin.Context) {
-			id := c.Param("id")
-
-			// Simulate successful deletion
-			if id == "1" {
-				c.JSON(http.StatusOK, gin.H{
-					"success": true,
-					"message": "Tenant deleted successfully",
-				})
-			} else {
-				c.JSON(http.StatusNotFound, gin.H{
-					"success": false,
-					"error":   "Tenant not found",
-				})
-			}
-		})
-
-		req, err := http.NewRequest("DELETE", "/tenants/1", nil)
-		require.NoError(t, err)
-
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		assert.Equal(t, http.StatusOK, w.Code)
-
-		var response map[string]interface{}
-		err = json.Unmarshal(w.Body.Bytes(), &response)
-		require.NoError(t, err)
-
-		assert.True(t, response["success"].(bool))
-		assert.Equal(t, "Tenant deleted successfully", response["message"])
-	})
-}
-
 func TestUserHandlers(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -281,7 +37,6 @@ func TestUserHandlers(t *testing.T) {
 
 		// Test data
 		userData := map[string]interface{}{
-			"tenant_id":  1,
 			"email":      "test@example.com",
 			"username":   "testuser",
 			"first_name": "Test",
@@ -363,8 +118,6 @@ func TestUserHandlers(t *testing.T) {
 
 		// Mock handler function
 		router.GET("/users", func(c *gin.Context) {
-			tenantID := c.Query("tenant_id")
-
 			users := []models.User{
 				{
 					BaseModel: models.BaseModel{ID: 1},
@@ -387,12 +140,11 @@ func TestUserHandlers(t *testing.T) {
 					"total":     len(users),
 					"page":      1,
 					"page_size": 20,
-					"tenant_id": tenantID,
 				},
 			})
 		})
 
-		req, err := http.NewRequest("GET", "/users?tenant_id=1", nil)
+		req, err := http.NewRequest("GET", "/users", nil)
 		require.NoError(t, err)
 
 		w := httptest.NewRecorder()
@@ -410,7 +162,6 @@ func TestUserHandlers(t *testing.T) {
 
 		meta := response["meta"].(map[string]interface{})
 		assert.Equal(t, float64(2), meta["total"])
-		assert.Equal(t, "1", meta["tenant_id"])
 	})
 }
 
@@ -439,7 +190,6 @@ func TestTicketHandlers(t *testing.T) {
 
 		// Test data
 		ticketData := map[string]interface{}{
-			"tenant_id":       1,
 			"title":           "Test Ticket",
 			"description":     "This is a test ticket",
 			"priority":        "medium",
@@ -736,19 +486,19 @@ func TestHandlerErrorHandling(t *testing.T) {
 		router := gin.New()
 
 		// Mock handler function
-		router.GET("/tenants/:id", func(c *gin.Context) {
+		router.GET("/users/:id", func(c *gin.Context) {
 			id := c.Param("id")
 
 			// Simulate not found
 			if id == "999" {
 				c.JSON(http.StatusNotFound, gin.H{
 					"success": false,
-					"error":   "Tenant not found",
+					"error":   "User not found",
 				})
 			}
 		})
 
-		req, err := http.NewRequest("GET", "/tenants/999", nil)
+		req, err := http.NewRequest("GET", "/users/999", nil)
 		require.NoError(t, err)
 
 		w := httptest.NewRecorder()
@@ -761,7 +511,7 @@ func TestHandlerErrorHandling(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.False(t, response["success"].(bool))
-		assert.Equal(t, "Tenant not found", response["error"])
+		assert.Equal(t, "User not found", response["error"])
 	})
 }
 

@@ -22,13 +22,13 @@ type MockPermissionService struct {
 	mock.Mock
 }
 
-func (m *MockPermissionService) GetUserPermissions(ctx context.Context, userID uint, tenantID string) ([]models.Permission, error) {
-	args := m.Called(ctx, userID, tenantID)
+func (m *MockPermissionService) GetUserPermissions(ctx context.Context, userID uint) ([]models.Permission, error) {
+	args := m.Called(ctx, userID)
 	return args.Get(0).([]models.Permission), args.Error(1)
 }
 
-func (m *MockPermissionService) GetUserRoles(ctx context.Context, userID uint, tenantID string) ([]models.Role, error) {
-	args := m.Called(ctx, userID, tenantID)
+func (m *MockPermissionService) GetUserRoles(ctx context.Context, userID uint) ([]models.Role, error) {
+	args := m.Called(ctx, userID)
 	return args.Get(0).([]models.Role), args.Error(1)
 }
 
@@ -38,8 +38,8 @@ func (m *MockPermissionService) GetDatabase() *gorm.DB {
 	return args.Get(0).(*gorm.DB)
 }
 
-func (m *MockPermissionService) HasPermission(ctx context.Context, userID uint, tenantID string, permissionCode string) (bool, error) {
-	args := m.Called(ctx, userID, tenantID, permissionCode)
+func (m *MockPermissionService) HasPermission(ctx context.Context, userID uint, permissionCode string) (bool, error) {
+	args := m.Called(ctx, userID, permissionCode)
 	return args.Bool(0), args.Error(1)
 }
 
@@ -92,7 +92,6 @@ func cleanupTestData(t *testing.T, db *gorm.DB) {
 	db.Exec("DELETE FROM tickets")
 	db.Exec("DELETE FROM knowledge_articles")
 	db.Exec("DELETE FROM users")
-	db.Exec("DELETE FROM tenants")
 }
 
 func TestPermissionMiddleware_RequirePermission(t *testing.T) {
@@ -102,7 +101,6 @@ func TestPermissionMiddleware_RequirePermission(t *testing.T) {
 	tests := []struct {
 		name             string
 		setupUser        func() *models.User
-		setupTenant      func() string
 		setupPermissions func() []models.Permission
 		setupRoles       func() []models.Role
 		requiredPerm     string
@@ -113,9 +111,6 @@ func TestPermissionMiddleware_RequirePermission(t *testing.T) {
 			name: "User has required permission directly",
 			setupUser: func() *models.User {
 				return createTestUser(1, "test@example.com")
-			},
-			setupTenant: func() string {
-				return "tenant-123"
 			},
 			setupPermissions: func() []models.Permission {
 				return []models.Permission{
@@ -132,9 +127,6 @@ func TestPermissionMiddleware_RequirePermission(t *testing.T) {
 			name: "User has required permission through role",
 			setupUser: func() *models.User {
 				return createTestUser(1, "test@example.com")
-			},
-			setupTenant: func() string {
-				return "tenant-123"
 			},
 			setupPermissions: func() []models.Permission {
 				return []models.Permission{}
@@ -156,9 +148,6 @@ func TestPermissionMiddleware_RequirePermission(t *testing.T) {
 			setupUser: func() *models.User {
 				return createTestUser(1, "test@example.com")
 			},
-			setupTenant: func() string {
-				return "tenant-123"
-			},
 			setupPermissions: func() []models.Permission {
 				return []models.Permission{
 					{Code: "ticket:write", Name: "Write Tickets"},
@@ -176,7 +165,6 @@ func TestPermissionMiddleware_RequirePermission(t *testing.T) {
 			setupUser: func() *models.User {
 				return nil
 			},
-			setupTenant:      func() string { return "tenant-123" },
 			setupPermissions: func() []models.Permission { return []models.Permission{} },
 			setupRoles:       func() []models.Role { return []models.Role{} },
 			requiredPerm:     "ticket:read",
@@ -192,12 +180,11 @@ func TestPermissionMiddleware_RequirePermission(t *testing.T) {
 			// Setup user in context
 			if tt.setupUser() != nil {
 				c.Set("user", tt.setupUser())
-				c.Set("tenant_id", tt.setupTenant())
 
 				// Setup mock expectations
-				mockService.On("GetUserPermissions", mock.Anything, tt.setupUser().ID, tt.setupTenant()).
+				mockService.On("GetUserPermissions", mock.Anything, tt.setupUser().ID).
 					Return(tt.setupPermissions(), nil)
-				mockService.On("GetUserRoles", mock.Anything, tt.setupUser().ID, tt.setupTenant()).
+				mockService.On("GetUserRoles", mock.Anything, tt.setupUser().ID).
 					Return(tt.setupRoles(), nil)
 			}
 
@@ -238,7 +225,6 @@ func TestPermissionMiddleware_RequireAnyPermission(t *testing.T) {
 	tests := []struct {
 		name             string
 		setupUser        func() *models.User
-		setupTenant      func() string
 		setupPermissions func() []models.Permission
 		setupRoles       func() []models.Role
 		requiredPerms    []string
@@ -249,9 +235,6 @@ func TestPermissionMiddleware_RequireAnyPermission(t *testing.T) {
 			name: "User has one of required permissions directly",
 			setupUser: func() *models.User {
 				return createTestUser(1, "test@example.com")
-			},
-			setupTenant: func() string {
-				return "tenant-123"
 			},
 			setupPermissions: func() []models.Permission {
 				return []models.Permission{
@@ -268,9 +251,6 @@ func TestPermissionMiddleware_RequireAnyPermission(t *testing.T) {
 			name: "User has one of required permissions through role",
 			setupUser: func() *models.User {
 				return createTestUser(1, "test@example.com")
-			},
-			setupTenant: func() string {
-				return "tenant-123"
 			},
 			setupPermissions: func() []models.Permission {
 				return []models.Permission{}
@@ -291,9 +271,6 @@ func TestPermissionMiddleware_RequireAnyPermission(t *testing.T) {
 			name: "User has none of required permissions",
 			setupUser: func() *models.User {
 				return createTestUser(1, "test@example.com")
-			},
-			setupTenant: func() string {
-				return "tenant-123"
 			},
 			setupPermissions: func() []models.Permission {
 				return []models.Permission{
@@ -316,12 +293,11 @@ func TestPermissionMiddleware_RequireAnyPermission(t *testing.T) {
 			// Setup user in context
 			if tt.setupUser() != nil {
 				c.Set("user", tt.setupUser())
-				c.Set("tenant_id", tt.setupTenant())
 
 				// Setup mock expectations
-				mockService.On("GetUserPermissions", mock.Anything, tt.setupUser().ID, tt.setupTenant()).
+				mockService.On("GetUserPermissions", mock.Anything, tt.setupUser().ID).
 					Return(tt.setupPermissions(), nil)
-				mockService.On("GetUserRoles", mock.Anything, tt.setupUser().ID, tt.setupTenant()).
+				mockService.On("GetUserRoles", mock.Anything, tt.setupUser().ID).
 					Return(tt.setupRoles(), nil)
 			}
 
@@ -366,8 +342,7 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 	tests := []struct {
 		name           string
 		setupUser      func() *models.User
-		setupTenant    func() string
-		setupData      func(t *testing.T, db *gorm.DB, user *models.User, tenantID string)
+		setupData      func(t *testing.T, db *gorm.DB, user *models.User)
 		resourceType   string
 		resourceID     string
 		expectedStatus int
@@ -378,10 +353,7 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 			setupUser: func() *models.User {
 				return createTestUser(1, "test@example.com")
 			},
-			setupTenant: func() string {
-				return "1" // Use numeric string to match DB tenant_id type
-			},
-			setupData: func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {
+			setupData: func(t *testing.T, db *gorm.DB, user *models.User) {
 				// Clean up any existing tickets first to avoid UNIQUE constraint
 				db.Exec("DELETE FROM tickets WHERE ticket_number = ?", "TICKET-001")
 
@@ -403,10 +375,7 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 			setupUser: func() *models.User {
 				return createTestUser(2, "other@example.com")
 			},
-			setupTenant: func() string {
-				return "1" // Use numeric string to match DB tenant_id type
-			},
-			setupData: func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {
+			setupData: func(t *testing.T, db *gorm.DB, user *models.User) {
 				// Clean up any existing tickets first to avoid UNIQUE constraint
 				db.Exec("DELETE FROM tickets WHERE ticket_number = ?", "TICKET-002")
 
@@ -429,10 +398,7 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 			setupUser: func() *models.User {
 				return createTestUser(2, "admin@example.com")
 			},
-			setupTenant: func() string {
-				return "1" // Use numeric string to match DB tenant_id type
-			},
-			setupData: func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {
+			setupData: func(t *testing.T, db *gorm.DB, user *models.User) {
 				// Clean up any existing tickets first to avoid UNIQUE constraint
 				db.Exec("DELETE FROM tickets WHERE ticket_number = ?", "TICKET-003")
 
@@ -454,8 +420,7 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 			setupUser: func() *models.User {
 				return nil
 			},
-			setupTenant:    func() string { return "1" }, // Use numeric string to match DB tenant_id type
-			setupData:      func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {},
+			setupData:      func(t *testing.T, db *gorm.DB, user *models.User) {},
 			resourceType:   "ticket",
 			resourceID:     "1",
 			expectedStatus: http.StatusUnauthorized,
@@ -466,8 +431,7 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 			setupUser: func() *models.User {
 				return createTestUser(1, "test@example.com")
 			},
-			setupTenant:    func() string { return "1" }, // Use numeric string to match DB tenant_id type
-			setupData:      func(t *testing.T, db *gorm.DB, user *models.User, tenantID string) {},
+			setupData:      func(t *testing.T, db *gorm.DB, user *models.User) {},
 			resourceType:   "ticket",
 			resourceID:     "", // Missing ID
 			expectedStatus: http.StatusBadRequest,
@@ -493,16 +457,15 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 			if tt.setupUser() != nil {
 				user := tt.setupUser()
 				c.Set("user", user)
-				c.Set("tenant_id", tt.setupTenant())
 
 				// Setup admin permissions if this is the admin test case
 				if tt.name == "User has admin permission" {
-					mockService.On("GetUserPermissions", mock.Anything, user.ID, tt.setupTenant()).
+					mockService.On("GetUserPermissions", mock.Anything, user.ID).
 						Return([]models.Permission{
 							{Code: "admin:system", Name: "System Admin"},
 						}, nil)
 				} else {
-					mockService.On("GetUserPermissions", mock.Anything, user.ID, tt.setupTenant()).
+					mockService.On("GetUserPermissions", mock.Anything, user.ID).
 						Return([]models.Permission{}, nil)
 				}
 
@@ -510,7 +473,7 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 				mockService.On("GetDatabase").Return(db)
 
 				// Setup test data
-				tt.setupData(t, db, user, tt.setupTenant())
+				tt.setupData(t, db, user)
 			}
 
 			// Create middleware handler
@@ -534,81 +497,6 @@ func TestPermissionMiddleware_RequireOwnership(t *testing.T) {
 
 			// Reset mock for next test
 			mockService.ExpectedCalls = nil
-		})
-	}
-}
-
-func TestTenantMiddleware(t *testing.T) {
-	tests := []struct {
-		name            string
-		headers         map[string]string
-		expectedStatus  int
-		expectedError   string
-		shouldSetTenant bool
-		expectedTenant  string
-	}{
-		{
-			name: "Valid tenant ID",
-			headers: map[string]string{
-				"X-Tenant-ID": "tenant-123",
-			},
-			expectedStatus:  http.StatusOK,
-			shouldSetTenant: true,
-			expectedTenant:  "tenant-123",
-		},
-		{
-			name:           "Missing tenant ID",
-			headers:        map[string]string{},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  "Tenant ID is required",
-		},
-		{
-			name: "Empty tenant ID",
-			headers: map[string]string{
-				"X-Tenant-ID": "",
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedError:  "Tenant ID is required",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			gin.SetMode(gin.TestMode)
-			w := httptest.NewRecorder()
-			c, _ := gin.CreateTestContext(w)
-
-			// Create request with headers
-			req := httptest.NewRequest("GET", "/test", nil)
-			for key, value := range tt.headers {
-				req.Header.Set(key, value)
-			}
-			c.Request = req
-
-			// Create middleware handler
-			handler := TenantMiddleware()
-
-			// Execute middleware
-			handler(c)
-
-			// Check response
-			assert.Equal(t, tt.expectedStatus, w.Code)
-
-			if tt.expectedError != "" {
-				var response map[string]interface{}
-				err := json.Unmarshal(w.Body.Bytes(), &response)
-				require.NoError(t, err)
-
-				errorData, ok := response["error"].(map[string]interface{})
-				require.True(t, ok)
-				assert.Equal(t, tt.expectedError, errorData["message"])
-			}
-
-			if tt.shouldSetTenant {
-				tenantID, exists := c.Get("tenant_id")
-				assert.True(t, exists)
-				assert.Equal(t, tt.expectedTenant, tenantID)
-			}
 		})
 	}
 }
@@ -682,11 +570,13 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 			name:         "User profile ownership (different user)",
 			resourceType: "user",
 			setupResource: func(t *testing.T, db *gorm.DB, user *models.User) uint {
-				// Create another user
+				// Create another user with an explicit ID distinct from the
+				// user under test so the profile clearly belongs to someone else.
 				otherUser := &models.User{
-					Email:    "other@example.com",
-					Username: "otheruser",
-					IsActive: true,
+					BaseModel: models.BaseModel{ID: 999},
+					Email:     "other@example.com",
+					Username:  "otheruser",
+					IsActive:  true,
 				}
 				require.NoError(t, db.Create(otherUser).Error)
 				return otherUser.ID
@@ -708,13 +598,12 @@ func TestPermissionMiddleware_ResourceOwnershipTypes(t *testing.T) {
 
 			// Setup context
 			c.Set("user", user)
-			c.Set("tenant_id", "1")
 			c.Params = gin.Params{
 				{Key: "id", Value: strconv.FormatUint(uint64(resourceID), 10)},
 			}
 
 			// Setup mock for admin permissions check (should return no admin perms)
-			mockService.On("GetUserPermissions", mock.Anything, user.ID, "1").
+			mockService.On("GetUserPermissions", mock.Anything, user.ID).
 				Return([]models.Permission{}, nil)
 
 			// Setup mock for database access
@@ -745,13 +634,11 @@ func TestPermissionMiddleware_ErrorHandling(t *testing.T) {
 
 		user := createTestUser(1, "test@example.com")
 		c.Set("user", user)
-		c.Set("tenant_id", "tenant-123")
 
-		// Setup mock to return error
-		mockService.On("GetUserPermissions", mock.Anything, user.ID, "tenant-123").
+		// Setup mock to return error. GetUserRoles is never reached because
+		// RequirePermission aborts as soon as GetUserPermissions fails.
+		mockService.On("GetUserPermissions", mock.Anything, user.ID).
 			Return([]models.Permission{}, assert.AnError)
-		mockService.On("GetUserRoles", mock.Anything, user.ID, "tenant-123").
-			Return([]models.Role{}, nil)
 
 		// Create and execute middleware
 		handler := middleware.RequirePermission("ticket:read")
@@ -777,7 +664,6 @@ func TestPermissionMiddleware_ErrorHandling(t *testing.T) {
 
 		// Set invalid user type in context
 		c.Set("user", "invalid_user_type")
-		c.Set("tenant_id", "tenant-123")
 
 		// Create and execute middleware
 		handler := middleware.RequirePermission("ticket:read")

@@ -20,7 +20,6 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 	// Migrate all models
 	err = db.AutoMigrate(
-		&{},
 		&models.User{},
 		&models.Ticket{},
 		&models.Message{},
@@ -50,39 +49,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 func TestBasicServiceOperations(t *testing.T) {
 	db := setupTestDB(t)
 
-	t.Run("Create and retrieve tenant", func(t *testing.T) {
-		// Create a tenant directly using GORM (simulating service layer)
-		tenant := &{
-			Name:     "Test Corporation",
-			Slug:     "test-corporation",
-			Domain:   "test.example.com",
-			Plan:     "basic",
-			MaxUsers: 100,
-			IsActive: true,
-		}
-
-		err := db.Create(tenant).Error
-		assert.NoError(t, err)
-		assert.NotZero(t, tenant.ID)
-
-		// Retrieve the tenant
-		var found 
-		err = db.First(&found, tenant.ID).Error
-		assert.NoError(t, err)
-		assert.Equal(t, tenant.Name, found.Name)
-		assert.Equal(t, tenant.Slug, found.Slug)
-	})
-
 	t.Run("Create and retrieve user", func(t *testing.T) {
-		// Create a tenant first
-		tenant := &{
-			Name:     "User Test Tenant",
-			Slug:     "user-test-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		// Create a user
 		user := &models.User{
 			Email:        "test@example.com",
@@ -93,36 +60,26 @@ func TestBasicServiceOperations(t *testing.T) {
 			IsActive:     true,
 		}
 
-		err = db.Create(user).Error
+		err := db.Create(user).Error
 		assert.NoError(t, err)
 		assert.NotZero(t, user.ID)
 
 		// Retrieve the user
 		var found models.User
-		err = db.Preload("Tenant").First(&found, user.ID).Error
+		err = db.First(&found, user.ID).Error
 		assert.NoError(t, err)
 		assert.Equal(t, user.Email, found.Email)
 		assert.Equal(t, user.Username, found.Username)
-		assert.Equal(t, tenant.ID, found)
 	})
 
 	t.Run("Create and retrieve ticket", func(t *testing.T) {
-		// Create a tenant first
-		tenant := &{
-			Name:     "Ticket Test Tenant",
-			Slug:     "ticket-test-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		// Create a user
 		user := &models.User{
 			Email:    "ticket@example.com",
 			Username: "ticketuser",
 			IsActive: true,
 		}
-		err = db.Create(user).Error
+		err := db.Create(user).Error
 		require.NoError(t, err)
 
 		// Create a ticket
@@ -143,11 +100,10 @@ func TestBasicServiceOperations(t *testing.T) {
 
 		// Retrieve the ticket
 		var found models.Ticket
-		err = db.Preload("Tenant").Preload("AssignedUser").First(&found, ticket.ID).Error
+		err = db.Preload("AssignedUser").First(&found, ticket.ID).Error
 		assert.NoError(t, err)
 		assert.Equal(t, ticket.TicketNumber, found.TicketNumber)
 		assert.Equal(t, ticket.Title, found.Title)
-		assert.Equal(t, tenant.ID, found)
 	})
 }
 
@@ -210,42 +166,24 @@ func TestServiceErrorHandling(t *testing.T) {
 	db := setupTestDB(t)
 
 	t.Run("Database constraint violations", func(t *testing.T) {
-		// Create a tenant
-		tenant := &{
-			Name:     "Test Corp",
-			Slug:     "test-corp",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
-		// Try to create another tenant with the same slug
-		duplicateTenant := &{
-			Name:     "Duplicate Corp",
-			Slug:     "test-corp", // Same slug
-			IsActive: true,
-		}
-		err = db.Create(duplicateTenant).Error
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "UNIQUE")
-	})
-
-	t.Run("Foreign key constraints", func(t *testing.T) {
-		// Try to create a user with non-existent tenant ID
+		// Create a user
 		user := &models.User{
-			Email:    "test@example.com",
-			Username: "testuser",
+			Email:    "dup@example.com",
+			Username: "dupuser",
+			IsActive: true,
 		}
 		err := db.Create(user).Error
-		// SQLite may not enforce foreign key constraints by default,
-		// so we check if the user was actually created
-		if err == nil {
-			// If no error, verify the user was created with the invalid tenant ID
-			assert.NotZero(t, user.ID)
-		} else {
-			// If error occurred, verify it's related to foreign key constraint
-			assert.Error(t, err)
+		require.NoError(t, err)
+
+		// Try to create another user with the same email
+		duplicateUser := &models.User{
+			Email:    "dup@example.com", // Same email
+			Username: "dupuser2",
+			IsActive: true,
 		}
+		err = db.Create(duplicateUser).Error
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "UNIQUE")
 	})
 
 	t.Run("Context cancellation", func(t *testing.T) {
@@ -253,12 +191,12 @@ func TestServiceErrorHandling(t *testing.T) {
 		cancel() // Cancel immediately
 
 		// Try to perform database operations with cancelled context
-		tenant := &{
-			Name:     "Cancelled Test",
-			Slug:     "cancelled-test",
+		user := &models.User{
+			Email:    "cancelled@example.com",
+			Username: "cancelleduser",
 			IsActive: true,
 		}
-		err := db.WithContext(ctx).Create(tenant).Error
+		err := db.WithContext(ctx).Create(user).Error
 		assert.Error(t, err)
 	})
 }
@@ -270,16 +208,9 @@ func TestPermissionService(t *testing.T) {
 	ctx := context.Background()
 
 	// Setup test data for each sub-test
-	setupTestData := func(t *testing.T) (*, *models.User) {
+	setupTestData := func(t *testing.T) *models.User {
 		// Use unique identifiers for each test
 		testID := fmt.Sprintf("test-%d", time.Now().UnixNano())
-
-		tenant := &{
-			Name:     fmt.Sprintf("Test Tenant %s", testID),
-			Slug:     fmt.Sprintf("test-tenant-%s", testID),
-			IsActive: true,
-		}
-		require.NoError(t, db.Create(tenant).Error)
 
 		user := &models.User{
 			Email:    fmt.Sprintf("test-%s@example.com", testID),
@@ -287,11 +218,11 @@ func TestPermissionService(t *testing.T) {
 			IsActive: true,
 		}
 		require.NoError(t, db.Create(user).Error)
-		return tenant, user
+		return user
 	}
 
 	t.Run("Create and retrieve permission", func(t *testing.T) {
-		_, _ = setupTestData(t)
+		_ = setupTestData(t)
 
 		permission := &models.Permission{
 			Code:        "test:read",
@@ -313,7 +244,7 @@ func TestPermissionService(t *testing.T) {
 	})
 
 	t.Run("Create and retrieve role", func(t *testing.T) {
-		tenant, _ := setupTestData(t)
+		_ = setupTestData(t)
 
 		role := &models.Role{
 			Name:        "Test Role",
@@ -334,7 +265,7 @@ func TestPermissionService(t *testing.T) {
 	})
 
 	t.Run("Assign permission to role", func(t *testing.T) {
-		tenant, _ := setupTestData(t)
+		_ = setupTestData(t)
 
 		// Create permission
 		permission := &models.Permission{
@@ -363,7 +294,7 @@ func TestPermissionService(t *testing.T) {
 	})
 
 	t.Run("Assign role to user", func(t *testing.T) {
-		tenant, user := setupTestData(t)
+		user := setupTestData(t)
 
 		// Create role
 		role := &models.Role{
@@ -373,18 +304,18 @@ func TestPermissionService(t *testing.T) {
 		require.NoError(t, ps.CreateRole(ctx, role))
 
 		// Assign role to user
-		err := ps.AssignRoleToUser(ctx, user.ID, role.ID, fmt.Sprintf("%d", tenant.ID))
+		err := ps.AssignRoleToUser(ctx, user.ID, role.ID)
 		assert.NoError(t, err)
 
 		// Check user has role
-		roles, err := ps.GetUserRoles(ctx, user.ID, fmt.Sprintf("%d", tenant.ID))
+		roles, err := ps.GetUserRoles(ctx, user.ID)
 		assert.NoError(t, err)
 		assert.Len(t, roles, 1)
 		assert.Equal(t, role.Name, roles[0].Name)
 	})
 
 	t.Run("Delete permission (non-system)", func(t *testing.T) {
-		_, _ = setupTestData(t)
+		_ = setupTestData(t)
 
 		// Create non-system permission
 		permission := &models.Permission{
@@ -406,7 +337,7 @@ func TestPermissionService(t *testing.T) {
 	})
 
 	t.Run("Cannot delete system permission", func(t *testing.T) {
-		_, _ = setupTestData(t)
+		_ = setupTestData(t)
 
 		// Create system permission
 		permission := &models.Permission{
@@ -438,13 +369,6 @@ func TestPermissionServiceComplex(t *testing.T) {
 	t.Run("Basic CRUD operations", func(t *testing.T) {
 		// Setup fresh data
 		testID := fmt.Sprintf("crud-%d", time.Now().UnixNano())
-		tenant := &{
-			Name:     fmt.Sprintf("CRUD Tenant %s", testID),
-			Slug:     fmt.Sprintf("crud-tenant-%s", testID),
-			IsActive: true,
-		}
-		require.NoError(t, db.Create(tenant).Error)
-
 		user := &models.User{
 			Email:    fmt.Sprintf("crud-%s@example.com", testID),
 			Username: fmt.Sprintf("cruduser-%s", testID),
@@ -482,13 +406,6 @@ func TestPermissionServiceComplex(t *testing.T) {
 	t.Run("Role and permission assignment", func(t *testing.T) {
 		// Setup fresh data
 		testID := fmt.Sprintf("assignment-%d", time.Now().UnixNano())
-		tenant := &{
-			Name:     fmt.Sprintf("Assignment Tenant %s", testID),
-			Slug:     fmt.Sprintf("assignment-tenant-%s", testID),
-			IsActive: true,
-		}
-		require.NoError(t, db.Create(tenant).Error)
-
 		user := &models.User{
 			Email:    fmt.Sprintf("assignment-%s@example.com", testID),
 			Username: fmt.Sprintf("assignmentuser-%s", testID),
@@ -514,11 +431,11 @@ func TestPermissionServiceComplex(t *testing.T) {
 		err := ps.AssignPermissionToRole(ctx, role.ID, permission.ID)
 		assert.NoError(t, err)
 
-		err = ps.AssignRoleToUser(ctx, user.ID, role.ID, fmt.Sprintf("%d", tenant.ID))
+		err = ps.AssignRoleToUser(ctx, user.ID, role.ID)
 		assert.NoError(t, err)
 
 		// Test permission checking
-		hasPermission, err := ps.HasPermission(ctx, user.ID, fmt.Sprintf("%d", tenant.ID), permission.Code)
+		hasPermission, err := ps.HasPermission(ctx, user.ID, permission.Code)
 		assert.NoError(t, err)
 		assert.True(t, hasPermission)
 
@@ -532,7 +449,7 @@ func TestPermissionServiceComplex(t *testing.T) {
 		assert.Len(t, rolePermissions, 0)
 
 		// Check user no longer has permission through role
-		hasPermission, err = ps.HasPermission(ctx, user.ID, fmt.Sprintf("%d", tenant.ID), permission.Code)
+		hasPermission, err = ps.HasPermission(ctx, user.ID, permission.Code)
 		assert.NoError(t, err)
 		assert.False(t, hasPermission)
 	})
