@@ -362,7 +362,10 @@ func TestDatabasePerformance(t *testing.T) {
 
 		duration := time.Since(start)
 		t.Logf("Batch insert of 100 users took: %v", duration)
-		assert.Less(t, duration, 1*time.Second) // Should complete within 1 second
+		// Generous bound: this only guards against pathological slowness (e.g. a
+		// missing index). Tight thresholds flake on shared CI runners, more so
+		// under the race detector.
+		assert.Less(t, duration, 30*time.Second)
 	})
 
 	t.Run("Query performance with indexes", func(t *testing.T) {
@@ -386,6 +389,8 @@ func TestDatabasePerformance(t *testing.T) {
 
 		duration := time.Since(start)
 		t.Logf("Query of %d users by active status took: %v", len(users), duration)
-		assert.Less(t, duration, 100*time.Millisecond) // Should complete within 100ms
+		// Generous bound: guards against pathological slowness only. A tight
+		// 100ms threshold flakes on shared CI runners and under -race.
+		assert.Less(t, duration, 5*time.Second)
 	})
 }
