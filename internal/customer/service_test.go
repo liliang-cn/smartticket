@@ -35,7 +35,7 @@ func TestCustomerService_CreateCustomer(t *testing.T) {
 		assert.NotNil(t, result)
 		assert.NotZero(t, result.ID)
 		assert.Equal(t, "Acme Corp", result.Name)
-		assert.Equal(t, "ACME", result.Code)     // normalized to upper
+		assert.Equal(t, "ACME", result.Code)       // normalized to upper
 		assert.Equal(t, "acme.com", result.Domain) // normalized to lower
 		assert.True(t, result.IsActive)            // defaults to active
 	})

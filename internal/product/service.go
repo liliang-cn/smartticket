@@ -149,7 +149,7 @@ func (s *Service) CreateProduct(req *CreateProductRequest) (*ProductResponse, er
 			CreatedBy: nil, // TODO: Set to current user
 			UpdatedBy: nil, // TODO: Set to current user
 		},
-		
+
 		Name:          req.Name,
 		Code:          req.Code,
 		Description:   req.Description,
@@ -436,11 +436,11 @@ func (s *Service) productToResponse(product *models.Product) *ProductResponse {
 		IsManaged:     product.IsManaged,
 		SupportLevel:  product.SupportLevel,
 		Documentation: product.Documentation,
-		
-		IsDeleted:     product.DeletedAt.Valid,
-		CreatedAt:     product.CreatedAt,
-		UpdatedAt:     product.UpdatedAt,
-		Tags:          []string{},
+
+		IsDeleted: product.DeletedAt.Valid,
+		CreatedAt: product.CreatedAt,
+		UpdatedAt: product.UpdatedAt,
+		Tags:      []string{},
 	}
 
 	// Parse configuration JSON
@@ -477,11 +477,11 @@ func (s *Service) serviceToResponse(service *models.Service) *ServiceResponse {
 		Type:         service.Type,
 		Status:       service.Status,
 		Availability: service.Availability,
-		
-		IsDeleted:    service.DeletedAt.Valid,
-		CreatedAt:    service.CreatedAt,
-		UpdatedAt:    service.UpdatedAt,
-		Tags:         []string{},
+
+		IsDeleted: service.DeletedAt.Valid,
+		CreatedAt: service.CreatedAt,
+		UpdatedAt: service.UpdatedAt,
+		Tags:      []string{},
 	}
 
 	// Parse support channels JSON

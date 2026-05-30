@@ -125,7 +125,7 @@ func (s *Service) CreateKnowledgeArticle(userID uint, req *CreateKnowledgeArticl
 
 	// Create knowledge article
 	article := &models.KnowledgeArticle{
-		
+
 		Title:     req.Title,
 		Slug:      slug,
 		Content:   req.Content,

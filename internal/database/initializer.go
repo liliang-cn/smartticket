@@ -110,7 +110,7 @@ func (i *Initializer) seedEssentialData() error {
 		}
 		logger.Info("Assigned admin role to admin user", zap.Uint("user_id", adminID), zap.Uint("role_id", adminRole.ID))
 
-	// Create essential system settings
+		// Create essential system settings
 		systemSettings := []models.SystemSetting{
 			{
 				BaseModel: models.BaseModel{
@@ -220,9 +220,9 @@ func (i *Initializer) seedEssentialData() error {
 				CreatedAt: now,
 				UpdatedAt: now,
 			},
-			
-			Title:    "Welcome to SmartTicket",
-			Slug:     "welcome-to-smartticket",
+
+			Title: "Welcome to SmartTicket",
+			Slug:  "welcome-to-smartticket",
 			Content: `# Welcome to SmartTicket
 
 SmartTicket is your self-hosted ticketing and knowledge collaboration platform.

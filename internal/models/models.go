@@ -16,13 +16,12 @@ type BaseModel struct {
 	UpdatedBy *string        `gorm:"size:255" json:"updated_by,omitempty"`
 }
 
-
 // User represents a user account.
 // Customer represents a customer organization (a company the operator serves).
 // Customer-role users belong to one Customer; their tickets are scoped to it.
 type Customer struct {
 	BaseModel
-	Name        string   `gorm:"size:255;not null;index" json:"name"`
+	Name string `gorm:"size:255;not null;index" json:"name"`
 	// Code is an optional unique short code. It is a pointer so that multiple
 	// customers without a code store NULL (distinct under the unique index)
 	// rather than colliding on the empty string.
@@ -36,8 +35,8 @@ type Customer struct {
 
 type User struct {
 	BaseModel
-	Email        string `gorm:"size:255;not null;uniqueIndex" json:"email"`
-	Username     string `gorm:"size:100;not null;uniqueIndex" json:"username"`
+	Email        string     `gorm:"size:255;not null;uniqueIndex" json:"email"`
+	Username     string     `gorm:"size:100;not null;uniqueIndex" json:"username"`
 	PasswordHash string     `gorm:"size:255;not null" json:"-"`
 	FirstName    string     `gorm:"size:100" json:"first_name"`
 	LastName     string     `gorm:"size:100" json:"last_name"`
@@ -47,17 +46,17 @@ type User struct {
 	Preferences  string     `gorm:"type:text" json:"preferences"` // JSON string
 	// CustomerID links a customer-role user to the customer organization they
 	// belong to. Nil for team users (admin/engineer).
-	CustomerID   *uint      `gorm:"index" json:"customer_id,omitempty"`
-	Customer     *Customer  `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
-	Tickets      []Ticket   `gorm:"foreignKey:CreatedBy;references:ID" json:"tickets,omitempty"`
-	Messages     []Message  `gorm:"foreignKey:UserID;references:ID" json:"messages,omitempty"`
-	Roles        []Role     `gorm:"many2many:user_roles;" json:"roles,omitempty"`
+	CustomerID *uint     `gorm:"index" json:"customer_id,omitempty"`
+	Customer   *Customer `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
+	Tickets    []Ticket  `gorm:"foreignKey:CreatedBy;references:ID" json:"tickets,omitempty"`
+	Messages   []Message `gorm:"foreignKey:UserID;references:ID" json:"messages,omitempty"`
+	Roles      []Role    `gorm:"many2many:user_roles;" json:"roles,omitempty"`
 }
 
 // Ticket represents a support ticket.
 type Ticket struct {
 	BaseModel
-	TicketNumber   string `gorm:"size:50;not null;uniqueIndex" json:"ticket_number"`
+	TicketNumber   string       `gorm:"size:50;not null;uniqueIndex" json:"ticket_number"`
 	Title          string       `gorm:"size:255;not null" json:"title"`
 	Description    string       `gorm:"type:text" json:"description"`
 	Status         string       `gorm:"size:50;not null;default:'open'" json:"status"`     // open, in_progress, resolved, closed, cancelled
@@ -120,7 +119,7 @@ type Attachment struct {
 // KnowledgeArticle represents a knowledge base article.
 type KnowledgeArticle struct {
 	BaseModel
-	Title        string `gorm:"size:255;not null" json:"title"`
+	Title        string            `gorm:"size:255;not null" json:"title"`
 	Slug         string            `gorm:"size:255;not null;index" json:"slug"`
 	Content      string            `gorm:"type:text" json:"content"`
 	ContentType  string            `gorm:"size:50;default:'markdown'" json:"content_type"`
@@ -147,7 +146,7 @@ type KnowledgeArticle struct {
 // LLMProvider represents a configured LLM provider.
 type LLMProvider struct {
 	BaseModel
-	Name          string `gorm:"size:255;not null" json:"name"`
+	Name          string  `gorm:"size:255;not null" json:"name"`
 	ProviderType  string  `gorm:"size:50;not null" json:"provider_type"` // openai, azure, anthropic, deepseek, ollama, local
 	APIEndpoint   string  `gorm:"size:500" json:"api_endpoint"`
 	APIKey        string  `gorm:"size:500" json:"api_key"` // encrypted
@@ -165,7 +164,7 @@ type LLMProvider struct {
 // ImportExportJob represents a data import/export job.
 type ImportExportJob struct {
 	BaseModel
-	Type             string `gorm:"size:20;not null" json:"type"` // import, export
+	Type             string     `gorm:"size:20;not null" json:"type"`                     // import, export
 	Status           string     `gorm:"size:50;not null;default:'pending'" json:"status"` // pending, running, completed, failed
 	Progress         int        `gorm:"default:0" json:"progress"`
 	TotalRecords     int        `gorm:"default:0" json:"total_records"`
@@ -185,7 +184,7 @@ type ImportExportJob struct {
 // AuditLog represents an audit log entry.
 type AuditLog struct {
 	BaseModel
-	UserID       uint `gorm:"index" json:"user_id"`
+	UserID       uint   `gorm:"index" json:"user_id"`
 	User         *User  `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Action       string `gorm:"size:100;not null;index" json:"action"`
 	ResourceType string `gorm:"size:100;not null;index" json:"resource_type"`
@@ -203,7 +202,7 @@ type AuditLog struct {
 // APIKey represents an API key for external access.
 type APIKey struct {
 	BaseModel
-	Name        string `gorm:"size:255;not null" json:"name"`
+	Name        string     `gorm:"size:255;not null" json:"name"`
 	KeyHash     string     `gorm:"size:255;not null;uniqueIndex" json:"key_hash"`
 	KeyPrefix   string     `gorm:"size:20;not null" json:"key_prefix"`
 	Permissions string     `gorm:"type:text" json:"permissions"` // JSON array
@@ -228,7 +227,7 @@ type SystemSetting struct {
 // Product represents a product or service offering.
 type Product struct {
 	BaseModel
-	Name              string `gorm:"size:255;not null" json:"name"`
+	Name              string             `gorm:"size:255;not null" json:"name"`
 	Code              string             `gorm:"size:100;not null" json:"code"`
 	Description       string             `gorm:"type:text" json:"description"`
 	Category          string             `gorm:"size:100" json:"category"`
@@ -246,7 +245,7 @@ type Product struct {
 // Service represents a specific service within a product.
 type Service struct {
 	BaseModel
-	ProductID         uint `gorm:"index" json:"product_id"`
+	ProductID         uint               `gorm:"index" json:"product_id"`
 	Product           Product            `gorm:"foreignKey:ProductID" json:"product,omitempty"`
 	Name              string             `gorm:"size:255;not null" json:"name"`
 	Code              string             `gorm:"size:100;not null" json:"code"`
@@ -265,7 +264,7 @@ type Service struct {
 // SLATemplate represents SLA模板.
 type SLATemplate struct {
 	BaseModel
-	Name            string `gorm:"size:255;not null" json:"name"`
+	Name            string    `gorm:"size:255;not null" json:"name"`
 	Description     string    `gorm:"type:text" json:"description"`
 	IsDefault       bool      `gorm:"default:false" json:"is_default"`
 	IsActive        bool      `gorm:"default:true" json:"is_active"`
@@ -282,7 +281,7 @@ type SLATemplate struct {
 // SLARule represents具体的SLA规则.
 type SLARule struct {
 	BaseModel
-	SLATemplateID  uint `gorm:"index" json:"sla_template_id"`
+	SLATemplateID  uint        `gorm:"index" json:"sla_template_id"`
 	SLATemplate    SLATemplate `gorm:"foreignKey:SLATemplateID" json:"sla_template,omitempty"`
 	ProductID      *uint       `gorm:"index" json:"product_id"`
 	Product        *Product    `gorm:"foreignKey:ProductID" json:"product,omitempty"`
@@ -312,7 +311,7 @@ type Permission struct {
 // Role represents role definitions with associated permission sets.
 type Role struct {
 	BaseModel
-	Name        string `gorm:"size:100;not null" json:"name"`
+	Name        string       `gorm:"size:100;not null" json:"name"`
 	Description string       `gorm:"type:text" json:"description"`
 	IsSystem    bool         `gorm:"default:false" json:"is_system"` // System roles cannot be deleted
 	IsActive    bool         `gorm:"default:true" json:"is_active"`

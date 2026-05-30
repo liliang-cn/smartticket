@@ -311,7 +311,6 @@ func (s *Service) verifyPassword(password, hash string) error {
 	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
-
 // createUserInfo creates safe user info for responses.
 func (s *Service) createUserInfo(user *models.User) *UserInfo {
 	info := &UserInfo{

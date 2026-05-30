@@ -121,7 +121,7 @@ func (s *Service) CreateImportJob(userID uint, file *multipart.FileHeader, req *
 
 	// Create import job
 	job := &models.ImportExportJob{
-		
+
 		Type:             string(req.Type),
 		Status:           string(JobStatusPending),
 		Progress:         0,
@@ -151,7 +151,7 @@ func (s *Service) CreateImportJob(userID uint, file *multipart.FileHeader, req *
 func (s *Service) CreateExportJob(userID uint, req *ExportRequest) (*JobResponse, error) {
 	// Create export job
 	job := &models.ImportExportJob{
-		
+
 		Type:             string(req.Type),
 		Status:           string(JobStatusPending),
 		Progress:         0,

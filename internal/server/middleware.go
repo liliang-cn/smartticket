@@ -156,7 +156,6 @@ func (s *Server) requestIDMiddleware() gin.HandlerFunc {
 	}
 }
 
-
 // authMiddleware validates JWT tokens.
 func (s *Server) authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -267,7 +266,6 @@ func (s *Server) adminMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
-
 
 // checkUserPermission validates specific permission for the current user.
 func (s *Server) checkUserPermission(requiredRole string) gin.HandlerFunc {

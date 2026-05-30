@@ -139,7 +139,6 @@ func (e *AppError) WithUserID(userID uint) *AppError {
 	return e
 }
 
-
 // WithStackTrace adds stack trace to the error.
 func (e *AppError) WithStackTrace() *AppError {
 	e.StackTrace = getStackTrace()
@@ -199,7 +198,7 @@ func (e *AppError) Log() {
 	if e.UserID != 0 {
 		fields = append(fields, zap.Uint("user_id", e.UserID))
 	}
-		if e.Cause != nil {
+	if e.Cause != nil {
 		fields = append(fields, zap.Error(e.Cause))
 	}
 	if e.StackTrace != "" {
