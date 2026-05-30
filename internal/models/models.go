@@ -23,7 +23,10 @@ type BaseModel struct {
 type Customer struct {
 	BaseModel
 	Name        string   `gorm:"size:255;not null;index" json:"name"`
-	Code        string   `gorm:"size:100;uniqueIndex" json:"code"`
+	// Code is an optional unique short code. It is a pointer so that multiple
+	// customers without a code store NULL (distinct under the unique index)
+	// rather than colliding on the empty string.
+	Code        *string  `gorm:"size:100;uniqueIndex" json:"code,omitempty"`
 	Domain      string   `gorm:"size:255;index" json:"domain"`
 	IsActive    bool     `gorm:"default:true" json:"is_active"`
 	Description string   `gorm:"type:text" json:"description"`
