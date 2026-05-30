@@ -291,27 +291,47 @@ func (h *Handlers) ChangePassword(c *gin.Context) {
 	})
 }
 
-// GetMe handles getting current user information (simplified version)
+// GetMe handles getting current user information
 // @Summary Get current user
-// @Description Get basic information about the currently authenticated user
+// @Description Get full information about the currently authenticated user
 // @Tags auth
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/auth/me [get].
 func (h *Handlers) GetMe(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
-	userRole, _ := c.Get("user_role")
+
+	// Safely convert requestID to string
+	requestIDStr, ok := requestID.(string)
+	if !ok {
+		requestIDStr = ""
+	}
+
+	// Safely convert userID to uint
+	uid, ok := userID.(uint)
+	if !ok {
+		appErr := errors.NewUnauthorizedError("Invalid user context").
+			WithRequestID(requestIDStr)
+		errors.ErrorHandler(c, appErr)
+		return
+	}
+
+	userInfo, err := h.authService.GetUserInfo(uid)
+	if err != nil {
+		appErr := errors.NewNotFoundError("User").
+			WithRequestID(requestIDStr)
+		errors.ErrorHandler(c, appErr)
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"data": gin.H{
-			"user_id": userID,
-			"role":    userRole,
-		},
+		"success":    true,
+		"data":       userInfo,
 		"request_id": requestID,
 	})
 }
