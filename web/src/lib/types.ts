@@ -130,6 +130,22 @@ export interface KnowledgeArticle {
   created_by: string;
 }
 
+export interface RbacPermission {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  category: string;
+}
+
+export interface RbacRole {
+  id: number;
+  name: string;
+  description: string;
+  is_system: boolean;
+  permissions?: RbacPermission[];
+}
+
 export interface TicketStats {
   total_tickets: number;
   open_tickets: number;

@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Power, Trash2 } from "lucide-react";
+import { ArrowLeft, Power, Trash2, ShieldCheck, X, Plus, Lock } from "lucide-react";
 import { toast } from "sonner";
 import {
   useUser,
   useDeleteUser,
   useSetUserActive,
 } from "@/features/users/api";
+import {
+  useRoles,
+  useUserRoles,
+  useAssignRole,
+  useRemoveRole,
+} from "@/features/rbac/api";
 import { apiError } from "@/lib/api";
 import { relativeTime } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
@@ -14,6 +20,13 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton, Separator } from "@/components/ui/misc";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -33,6 +46,106 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
       </span>
       <span className="text-right">{value}</span>
     </div>
+  );
+}
+
+function RolesCard({ userId }: { userId: number }) {
+  const { data: assigned, isLoading } = useUserRoles(userId);
+  const { data: allRoles } = useRoles();
+  const assign = useAssignRole(userId);
+  const remove = useRemoveRole(userId);
+  const [selected, setSelected] = useState<string>("");
+
+  const assignedIds = new Set((assigned ?? []).map((r) => r.id));
+  const available = (allRoles ?? []).filter((r) => !assignedIds.has(r.id));
+
+  async function onAssign() {
+    if (!selected) return;
+    try {
+      await assign.mutateAsync(Number(selected));
+      toast.success("Role assigned");
+      setSelected("");
+    } catch (err) {
+      toast.error(apiError(err, "Could not assign role"));
+    }
+  }
+
+  async function onRemove(roleId: number, name: string) {
+    try {
+      await remove.mutateAsync(roleId);
+      toast.success(`Removed ${name}`);
+    } catch (err) {
+      toast.error(apiError(err, "Could not remove role"));
+    }
+  }
+
+  return (
+    <Card data-reveal className="p-5">
+      <div className="flex items-center gap-2">
+        <ShieldCheck className="size-4 text-primary" />
+        <Label>Roles</Label>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {isLoading ? (
+          <>
+            <Skeleton className="h-7 w-24 rounded-full" />
+            <Skeleton className="h-7 w-20 rounded-full" />
+          </>
+        ) : assigned && assigned.length > 0 ? (
+          assigned.map((r) => (
+            <span
+              key={r.id}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium font-mono tracking-tight"
+            >
+              {r.is_system && <Lock className="size-3 text-primary" />}
+              <span className="capitalize">{r.name}</span>
+              <button
+                type="button"
+                onClick={() => onRemove(r.id, r.name)}
+                disabled={remove.isPending}
+                className="text-muted-foreground transition-colors hover:text-red-300 disabled:opacity-50"
+                aria-label={`Remove ${r.name}`}
+              >
+                <X className="size-3" />
+              </button>
+            </span>
+          ))
+        ) : (
+          <span className="text-sm text-muted-foreground">
+            No roles assigned.
+          </span>
+        )}
+      </div>
+
+      <div className="mt-4 flex items-center gap-2">
+        <Select value={selected} onValueChange={setSelected}>
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder="Select a role to assign…" />
+          </SelectTrigger>
+          <SelectContent>
+            {available.length > 0 ? (
+              available.map((r) => (
+                <SelectItem key={r.id} value={String(r.id)} className="capitalize">
+                  {r.name}
+                </SelectItem>
+              ))
+            ) : (
+              <div className="px-2 py-2 text-xs text-muted-foreground">
+                No more roles to assign.
+              </div>
+            )}
+          </SelectContent>
+        </Select>
+        <Button
+          size="sm"
+          onClick={onAssign}
+          disabled={!selected || assign.isPending}
+        >
+          <Plus /> Assign
+        </Button>
+      </div>
+    </Card>
   );
 }
 
@@ -157,6 +270,8 @@ export function UserDetailPage() {
               />
             </div>
           </Card>
+
+          <RolesCard userId={user.id} />
         </div>
 
         {/* Meta sidebar */}

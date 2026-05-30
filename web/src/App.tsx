@@ -12,6 +12,7 @@ import { UsersListPage } from "@/pages/users-list";
 import { UserDetailPage } from "@/pages/user-detail";
 import { KnowledgeListPage } from "@/pages/knowledge-list";
 import { KnowledgeDetailPage } from "@/pages/knowledge-detail";
+import { AccessPage } from "@/pages/access";
 import type { JSX } from "react";
 
 function FullScreenLoader() {
@@ -63,6 +64,7 @@ export default function App() {
         <Route path="/customers/:id" element={<CustomerDetailPage />} />
         <Route path="/users" element={<UsersListPage />} />
         <Route path="/users/:id" element={<UserDetailPage />} />
+        <Route path="/rbac" element={<AccessPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
