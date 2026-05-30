@@ -101,7 +101,6 @@ func TestServerSetupRoutes(t *testing.T) {
 	// Test that health endpoint exists
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/health", nil)
-	req.Header.Set("X-Tenant-ID", "1")
 	srv.router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -109,7 +108,6 @@ func TestServerSetupRoutes(t *testing.T) {
 	// Test alternative health endpoint
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/api/v1/health", nil)
-	req.Header.Set("X-Tenant-ID", "1")
 	srv.router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -195,7 +193,6 @@ func TestServerErrorHandling(t *testing.T) {
 	// Test 404 handler
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/non-existent", nil)
-	req.Header.Set("X-Tenant-ID", "1")
 	srv.router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusNotFound, w.Code)
@@ -292,7 +289,6 @@ func TestServerHealthCheck(t *testing.T) {
 	// Test health check endpoint
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/health", nil)
-	req.Header.Set("X-Tenant-ID", "1")
 	srv.router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
@@ -313,7 +309,6 @@ func TestServerVersionInfo(t *testing.T) {
 	// Test version info endpoint
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/version", nil)
-	req.Header.Set("X-Tenant-ID", "1")
 	srv.router.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)

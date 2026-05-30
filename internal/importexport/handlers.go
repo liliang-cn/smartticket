@@ -43,7 +43,6 @@ func (h *Handlers) logSecurityEvent(c *gin.Context, event, target string) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param file formData file true "Import file (max 100MB)"
 // @Param request formData string true "Import configuration"
 // @Success 201 {object} importexport.JobResponse
@@ -53,8 +52,7 @@ func (h *Handlers) logSecurityEvent(c *gin.Context, event, target string) {
 // @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/data/import [post]
 func (h *Handlers) CreateImportJob(c *gin.Context) {
-	// Get tenant ID and user ID from context
-	tenantID := c.GetUint("tenant_id")
+	// Get user ID from context
 	userID := c.GetUint("user_id")
 
 	// Parse multipart form (max 100MB)
@@ -94,7 +92,7 @@ func (h *Handlers) CreateImportJob(c *gin.Context) {
 	c.Set("target_resource", header.Filename)
 
 	// Create import job
-	job, err := h.service.CreateImportJob(tenantID, userID, header, &req)
+	job, err := h.service.CreateImportJob(userID, header, &req)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -112,8 +110,7 @@ func (h *Handlers) CreateImportJob(c *gin.Context) {
 
 // CreateExportJob creates a new export job.
 func (h *Handlers) CreateExportJob(c *gin.Context) {
-	// Get tenant ID and user ID from context
-	tenantID := c.GetUint("tenant_id")
+	// Get user ID from context
 	userID := c.GetUint("user_id")
 
 	// Parse request
@@ -129,7 +126,7 @@ func (h *Handlers) CreateExportJob(c *gin.Context) {
 	c.Set("target_resource", req.Type)
 
 	// Create export job
-	job, err := h.service.CreateExportJob(tenantID, userID, &req)
+	job, err := h.service.CreateExportJob(userID, &req)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -155,11 +152,8 @@ func (h *Handlers) GetImportExportJob(c *gin.Context) {
 		return
 	}
 
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Get job
-	job, err := h.service.GetJob(tenantID, uint(jobID))
+	job, err := h.service.GetJob(uint(jobID))
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -173,9 +167,6 @@ func (h *Handlers) GetImportExportJob(c *gin.Context) {
 
 // ListImportExportJobs retrieves import/export jobs with pagination and filtering.
 func (h *Handlers) ListImportExportJobs(c *gin.Context) {
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Parse pagination parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
@@ -197,7 +188,7 @@ func (h *Handlers) ListImportExportJobs(c *gin.Context) {
 	}
 
 	// Get jobs
-	result, err := h.service.ListJobs(tenantID, page, pageSize, filters)
+	result, err := h.service.ListJobs(page, pageSize, filters)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -223,15 +214,14 @@ func (h *Handlers) CancelImportExportJob(c *gin.Context) {
 		return
 	}
 
-	// Get tenant ID and user ID from context
-	tenantID := c.GetUint("tenant_id")
+	// Get user ID from context
 	userID := c.GetUint("user_id")
 
 	// Log job cancellation attempt
 	h.logSecurityEvent(c, "import_export_job_cancellation_attempt", strconv.FormatUint(uint64(jobID), 10))
 
 	// Cancel job
-	err = h.service.CancelJob(tenantID, jobID, userID)
+	err = h.service.CancelJob(jobID, userID)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -254,15 +244,14 @@ func (h *Handlers) DeleteImportExportJob(c *gin.Context) {
 		return
 	}
 
-	// Get tenant ID and user ID from context
-	tenantID := c.GetUint("tenant_id")
+	// Get user ID from context
 	userID := c.GetUint("user_id")
 
 	// Log job deletion attempt
 	h.logSecurityEvent(c, "import_export_job_deletion_attempt", strconv.FormatUint(uint64(jobID), 10))
 
 	// Delete job
-	err = h.service.DeleteJob(tenantID, jobID, userID)
+	err = h.service.DeleteJob(jobID, userID)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -279,11 +268,8 @@ func (h *Handlers) DeleteImportExportJob(c *gin.Context) {
 
 // GetImportExportStats retrieves import/export job statistics.
 func (h *Handlers) GetImportExportStats(c *gin.Context) {
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Get statistics
-	stats, err := h.service.GetJobStats(tenantID)
+	stats, err := h.service.GetJobStats()
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -305,11 +291,8 @@ func (h *Handlers) DownloadExportFile(c *gin.Context) {
 		return
 	}
 
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Get job
-	job, err := h.service.GetJob(tenantID, uint(jobID))
+	job, err := h.service.GetJob(uint(jobID))
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return

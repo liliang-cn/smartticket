@@ -19,7 +19,6 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 	// Migrate all models
 	err = db.AutoMigrate(
-		&{},
 		&models.User{},
 		&models.Ticket{},
 		&models.Message{},
@@ -49,57 +48,7 @@ func setupTestDB(t *testing.T) *gorm.DB {
 func TestBasicDatabaseOperations(t *testing.T) {
 	db := setupTestDB(t)
 
-	t.Run("Tenant CRUD operations", func(t *testing.T) {
-		// Create
-		tenant := &{
-			Name:     "Test Corporation",
-			Slug:     "test-corporation",
-			Domain:   "test.example.com",
-			Plan:     "basic",
-			MaxUsers:  100,
-			IsActive: true,
-			Settings: `{"timezone": "UTC"}`,
-		}
-
-		err := db.Create(tenant).Error
-		assert.NoError(t, err)
-		assert.NotZero(t, tenant.ID)
-
-		// Read
-		var found 
-		err = db.First(&found, tenant.ID).Error
-		assert.NoError(t, err)
-		assert.Equal(t, tenant.Name, found.Name)
-		assert.Equal(t, tenant.Slug, found.Slug)
-
-		// Update
-		tenant.Name = "Updated Corporation"
-		err = db.Save(tenant).Error
-		assert.NoError(t, err)
-
-		err = db.First(&found, tenant.ID).Error
-		assert.NoError(t, err)
-		assert.Equal(t, "Updated Corporation", found.Name)
-
-		// Delete
-		err = db.Delete(tenant).Error
-		assert.NoError(t, err)
-
-		err = db.First(&found, tenant.ID).Error
-		assert.Error(t, err)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
-	})
-
 	t.Run("User CRUD operations", func(t *testing.T) {
-		// Create tenant first
-		tenant := &{
-			Name:     "User Test Tenant",
-			Slug:     "user-test-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		// Create user
 		user := &models.User{
 			Email:        "test@example.com",
@@ -110,7 +59,7 @@ func TestBasicDatabaseOperations(t *testing.T) {
 			IsActive:     true,
 		}
 
-		err = db.Create(user).Error
+		err := db.Create(user).Error
 		assert.NoError(t, err)
 		assert.NotZero(t, user.ID)
 
@@ -119,7 +68,6 @@ func TestBasicDatabaseOperations(t *testing.T) {
 		err = db.First(&found, user.ID).Error
 		assert.NoError(t, err)
 		assert.Equal(t, user.Email, found.Email)
-		assert.Equal(t, tenant.ID, found)
 
 		// Update
 		user.FirstName = "Updated"
@@ -139,21 +87,12 @@ func TestBasicDatabaseOperations(t *testing.T) {
 	})
 
 	t.Run("Ticket CRUD operations", func(t *testing.T) {
-		// Create tenant and user first
-		tenant := &{
-			Name:     "Ticket Test Tenant",
-			Slug:     "ticket-test-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		user := &models.User{
 			Email:    "ticket@example.com",
 			Username: "ticketuser",
 			IsActive: true,
 		}
-		err = db.Create(user).Error
+		err := db.Create(user).Error
 		require.NoError(t, err)
 
 		// Create ticket
@@ -177,7 +116,6 @@ func TestBasicDatabaseOperations(t *testing.T) {
 		err = db.First(&found, ticket.ID).Error
 		assert.NoError(t, err)
 		assert.Equal(t, ticket.TicketNumber, found.TicketNumber)
-		assert.Equal(t, tenant.ID, found)
 
 		// Update status
 		ticket.Status = "in_progress"
@@ -202,15 +140,6 @@ func TestDatabaseQueries(t *testing.T) {
 	db := setupTestDB(t)
 
 	t.Run("Query with filters", func(t *testing.T) {
-		// Create test data
-		tenant := &{
-			Name:     "Query Test Tenant",
-			Slug:     "query-test-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		// Create users with different permissions
 		// Note: Role field removed from User model - roles are now handled through UserRole associations
 		for i := 0; i < 4; i++ {
@@ -219,20 +148,20 @@ func TestDatabaseQueries(t *testing.T) {
 				Username: fmt.Sprintf("user%d", i+1),
 				IsActive: true,
 			}
-			err = db.Create(user).Error
+			err := db.Create(user).Error
 			require.NoError(t, err)
 		}
 
 		// Query active users since User.Role field no longer exists
 		var activeUsers []models.User
-		err = db.Where("is_active = ? AND tenant_id = ?", true, tenant.ID).Find(&activeUsers).Error
+		err := db.Where("is_active = ?", true).Find(&activeUsers).Error
 		assert.NoError(t, err)
 		// Verify we have the expected number of active users
 		assert.Len(t, activeUsers, 4)
 
 		// Query with LIKE
 		var adminUsers []models.User
-		err = db.Where("email LIKE ? AND tenant_id = ?", "%admin%", tenant.ID).Find(&adminUsers).Error
+		err = db.Where("email LIKE ?", "%admin%").Find(&adminUsers).Error
 		assert.NoError(t, err)
 		if len(adminUsers) > 0 {
 			assert.Contains(t, adminUsers[0].Email, "admin")
@@ -240,15 +169,6 @@ func TestDatabaseQueries(t *testing.T) {
 	})
 
 	t.Run("Pagination", func(t *testing.T) {
-		// Create test data
-		tenant := &{
-			Name:     "Pagination Test Tenant",
-			Slug:     "pagination-test-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		// Create multiple users
 		for i := 0; i < 25; i++ {
 			user := &models.User{
@@ -256,13 +176,13 @@ func TestDatabaseQueries(t *testing.T) {
 				Username: fmt.Sprintf("pageuser%d", i+1),
 				IsActive: true,
 			}
-			err = db.Create(user).Error
+			err := db.Create(user).Error
 			require.NoError(t, err)
 		}
 
 		// Test pagination
 		var page1 []models.User
-		err = db.Where("tenant_id = ?", tenant.ID).
+		err := db.Where("email LIKE ?", "pageuser%").
 			Offset(0).
 			Limit(10).
 			Find(&page1).Error
@@ -270,7 +190,7 @@ func TestDatabaseQueries(t *testing.T) {
 		assert.Len(t, page1, 10)
 
 		var page2 []models.User
-		err = db.Where("tenant_id = ?", tenant.ID).
+		err = db.Where("email LIKE ?", "pageuser%").
 			Offset(10).
 			Limit(10).
 			Find(&page2).Error
@@ -288,15 +208,6 @@ func TestDatabaseQueries(t *testing.T) {
 	})
 
 	t.Run("Count queries", func(t *testing.T) {
-		// Create test data
-		tenant := &{
-			Name:     "Count Test Tenant",
-			Slug:     "count-test-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		// Create users for counting
 		userCount := 10
 		for i := 0; i < userCount; i++ {
@@ -305,20 +216,20 @@ func TestDatabaseQueries(t *testing.T) {
 				Username: fmt.Sprintf("countuser%d", i+1),
 				IsActive: true,
 			}
-			err = db.Create(user).Error
+			err := db.Create(user).Error
 			require.NoError(t, err)
 		}
 
-		// Count total users
+		// Count total countuser records
 		var totalUsers int64
-		err = db.Model(&models.User{}).Where("tenant_id = ?", tenant.ID).Count(&totalUsers).Error
+		err := db.Model(&models.User{}).Where("email LIKE ?", "countuser%").Count(&totalUsers).Error
 		assert.NoError(t, err)
 		assert.Equal(t, int64(userCount), totalUsers)
 
-		// Count active users
+		// Count active countuser records
 		var activeCount int64
 		err = db.Model(&models.User{}).
-			Where("tenant_id = ? AND is_active = ?", tenant.ID, true).
+			Where("email LIKE ? AND is_active = ?", "countuser%", true).
 			Count(&activeCount).Error
 		assert.NoError(t, err)
 		assert.Equal(t, int64(userCount), activeCount)
@@ -334,22 +245,13 @@ func TestDatabaseTransactions(t *testing.T) {
 		tx := db.Begin()
 		assert.False(t, tx.Error != nil)
 
-		// Create tenant in transaction
-		tenant := &{
-			Name:     "Transaction Tenant",
-			Slug:     "transaction-tenant",
-			IsActive: true,
-		}
-		err := tx.Create(tenant).Error
-		assert.NoError(t, err)
-
 		// Create user in transaction
 		user := &models.User{
 			Email:    "tx@example.com",
 			Username: "txuser",
 			IsActive: true,
 		}
-		err = tx.Create(user).Error
+		err := tx.Create(user).Error
 		assert.NoError(t, err)
 
 		// Commit transaction
@@ -357,11 +259,6 @@ func TestDatabaseTransactions(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify records exist after commit
-		var foundTenant 
-		err = db.First(&foundTenant, tenant.ID).Error
-		assert.NoError(t, err)
-		assert.Equal(t, tenant.Name, foundTenant.Name)
-
 		var foundUser models.User
 		err = db.First(&foundUser, user.ID).Error
 		assert.NoError(t, err)
@@ -373,22 +270,13 @@ func TestDatabaseTransactions(t *testing.T) {
 		tx := db.Begin()
 		assert.False(t, tx.Error != nil)
 
-		// Create tenant in transaction
-		tenant := &{
-			Name:     "Rollback Tenant",
-			Slug:     "rollback-tenant",
-			IsActive: true,
-		}
-		err := tx.Create(tenant).Error
-		assert.NoError(t, err)
-
 		// Create user in transaction
 		user := &models.User{
 			Email:    "rollback@example.com",
 			Username: "rollbackuser",
 			IsActive: true,
 		}
-		err = tx.Create(user).Error
+		err := tx.Create(user).Error
 		assert.NoError(t, err)
 
 		// Rollback transaction
@@ -396,11 +284,6 @@ func TestDatabaseTransactions(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify records don't exist after rollback
-		var foundTenant 
-		err = db.First(&foundTenant, tenant.ID).Error
-		assert.Error(t, err)
-		assert.Equal(t, gorm.ErrRecordNotFound, err)
-
 		var foundUser models.User
 		err = db.First(&foundUser, user.ID).Error
 		assert.Error(t, err)
@@ -413,39 +296,28 @@ func TestDatabaseConstraints(t *testing.T) {
 	db := setupTestDB(t)
 
 	t.Run("Unique constraint violation", func(t *testing.T) {
-		// Create first tenant
-		tenant1 := &{
-			Name:     "Unique Test 1",
-			Slug:     "unique-test",
+		// Create first user
+		user1 := &models.User{
+			Email:    "unique@example.com",
+			Username: "uniqueuser",
 			IsActive: true,
 		}
-		err := db.Create(tenant1).Error
+		err := db.Create(user1).Error
 		assert.NoError(t, err)
 
-		// Try to create second tenant with same slug
-		tenant2 := &{
-			Name:     "Unique Test 2",
-			Slug:     "unique-test", // Same slug
+		// Try to create second user with same email
+		user2 := &models.User{
+			Email:    "unique@example.com", // Same email
+			Username: "uniqueuser2",
 			IsActive: true,
 		}
-		err = db.Create(tenant2).Error
+		err = db.Create(user2).Error
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "UNIQUE")
 	})
 
-	t.Run("Not null constraint", func(_ *testing.T) {
-		// Try to create tenant with required field empty
-		tenant := &{
-			Name: "", // Empty name should violate not null constraint
-			Slug: "not-null-test",
-		}
-		_ = db.Create(tenant).Error
-		// Note: SQLite may not enforce NOT NULL constraints strictly in all cases
-		// The actual behavior depends on SQLite configuration
-	})
-
 	t.Run("Foreign key relationships", func(t *testing.T) {
-		// Try to create ticket without tenant
+		// Try to create ticket
 		ticket := &models.Ticket{
 			TicketNumber: "TICKET-FK-001",
 			Title:        "Foreign Key Test",
@@ -469,15 +341,6 @@ func TestDatabasePerformance(t *testing.T) {
 	db := setupTestDB(t)
 
 	t.Run("Batch insert performance", func(t *testing.T) {
-		// Create tenant
-		tenant := &{
-			Name:     "Performance Test Tenant",
-			Slug:     "performance-test-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		// Measure batch insert time
 		start := time.Now()
 
@@ -503,15 +366,6 @@ func TestDatabasePerformance(t *testing.T) {
 	})
 
 	t.Run("Query performance with indexes", func(t *testing.T) {
-		// Create tenant
-		tenant := &{
-			Name:     "Query Performance Tenant",
-			Slug:     "query-perf-tenant",
-			IsActive: true,
-		}
-		err := db.Create(tenant).Error
-		require.NoError(t, err)
-
 		// Create many users
 		for i := 0; i < 1000; i++ {
 			user := &models.User{
@@ -527,11 +381,11 @@ func TestDatabasePerformance(t *testing.T) {
 		start := time.Now()
 
 		var users []models.User
-		err = db.Where("tenant_id = ? AND is_active = ?", tenant.ID, true).Find(&users).Error
+		err := db.Where("email LIKE ? AND is_active = ?", "queryuser%", true).Find(&users).Error
 		assert.NoError(t, err)
 
 		duration := time.Since(start)
-		t.Logf("Query of %d users by tenant and active status took: %v", len(users), duration)
+		t.Logf("Query of %d users by active status took: %v", len(users), duration)
 		assert.Less(t, duration, 100*time.Millisecond) // Should complete within 100ms
 	})
 }

@@ -13,10 +13,10 @@ import (
 
 // PermissionServiceInterface defines the interface for permission services.
 type PermissionServiceInterface interface {
-	GetUserPermissions(ctx context.Context, userID uint, tenantID string) ([]models.Permission, error)
-	GetUserRoles(ctx context.Context, userID uint, tenantID string) ([]models.Role, error)
+	GetUserPermissions(ctx context.Context, userID uint) ([]models.Permission, error)
+	GetUserRoles(ctx context.Context, userID uint) ([]models.Role, error)
 	GetDatabase() *gorm.DB
-	HasPermission(ctx context.Context, userID uint, tenantID string, permissionCode string) (bool, error)
+	HasPermission(ctx context.Context, userID uint, permissionCode string) (bool, error)
 }
 
 // PermissionMiddleware provides permission checking functionality.
@@ -50,10 +50,9 @@ func (pm *PermissionMiddleware) RequirePermission(permissionCode string) gin.Han
 
 		// Check if user has the required permission
 		permission := user.(*models.User)
-		tenantID := c.GetString("tenant_id")
 
 		// Get user's permissions
-		userPermissions, err := pm.permissionService.GetUserPermissions(c.Request.Context(), permission.ID, tenantID)
+		userPermissions, err := pm.permissionService.GetUserPermissions(c.Request.Context(), permission.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
@@ -76,7 +75,7 @@ func (pm *PermissionMiddleware) RequirePermission(permissionCode string) gin.Han
 		}
 
 		// Also check user's role permissions
-		roles, err := pm.permissionService.GetUserRoles(c.Request.Context(), permission.ID, tenantID)
+		roles, err := pm.permissionService.GetUserRoles(c.Request.Context(), permission.ID)
 		if err == nil {
 			for _, role := range roles {
 				for _, perm := range role.Permissions {
@@ -144,10 +143,9 @@ func (pm *PermissionMiddleware) RequireAnyPermission(permissionCodes ...string) 
 
 		// Check if user has any of the required permissions
 		permission := user.(*models.User)
-		tenantID := c.GetString("tenant_id")
 
 		// Get user's permissions
-		userPermissions, err := pm.permissionService.GetUserPermissions(c.Request.Context(), permission.ID, tenantID)
+		userPermissions, err := pm.permissionService.GetUserPermissions(c.Request.Context(), permission.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
@@ -167,7 +165,7 @@ func (pm *PermissionMiddleware) RequireAnyPermission(permissionCodes ...string) 
 		}
 
 		// Also check role permissions
-		roles, err := pm.permissionService.GetUserRoles(c.Request.Context(), permission.ID, tenantID)
+		roles, err := pm.permissionService.GetUserRoles(c.Request.Context(), permission.ID)
 		if err == nil {
 			for _, role := range roles {
 				for _, perm := range role.Permissions {
@@ -242,38 +240,26 @@ func (pm *PermissionMiddleware) RequireOwnership(resourceType string) gin.Handle
 
 		// Check ownership based on resource type
 		permission := user.(*models.User)
-		tenantID := c.GetString("tenant_id")
 		ownsResource := false
 
 		switch strings.ToLower(resourceType) {
 		case "ticket":
 			var ticket models.Ticket
 			userIDStr := strconv.FormatUint(uint64(permission.ID), 10)
-			if err := pm.permissionService.GetDatabase().Where("id = ? AND tenant_id = ? AND created_by = ?",
-				resourceID, tenantID, userIDStr).First(&ticket).Error; err == nil {
+			if err := pm.permissionService.GetDatabase().Where("id = ? AND created_by = ?",
+				resourceID, userIDStr).First(&ticket).Error; err == nil {
 				ownsResource = true
 			}
 		case "message":
 			var message models.Message
-			// Messages don't have tenant_id directly, they belong to tickets which belong to tenants
 			if err := pm.permissionService.GetDatabase().Where("id = ? AND user_id = ?",
 				resourceID, permission.ID).First(&message).Error; err == nil {
-				// Also verify the associated ticket belongs to the tenant
-				var ticket models.Ticket
-				// Convert tenantID string to int for comparison
-				tenantIDInt := 0
-				if id, err := strconv.Atoi(tenantID); err == nil {
-					tenantIDInt = id
-				}
-				if err := pm.permissionService.GetDatabase().Where("id = ? AND tenant_id = ?",
-					message.TicketID, tenantIDInt).First(&ticket).Error; err == nil {
-					ownsResource = true
-				}
+				ownsResource = true
 			}
 		case "knowledge":
 			var article models.KnowledgeArticle
-			if err := pm.permissionService.GetDatabase().Where("id = ? AND tenant_id = ? AND author_id = ?",
-				resourceID, tenantID, permission.ID).First(&article).Error; err == nil {
+			if err := pm.permissionService.GetDatabase().Where("id = ? AND author_id = ?",
+				resourceID, permission.ID).First(&article).Error; err == nil {
 				ownsResource = true
 			}
 		case "user":
@@ -285,7 +271,7 @@ func (pm *PermissionMiddleware) RequireOwnership(resourceType string) gin.Handle
 
 		// Also check if user has admin permissions
 		hasAdminPermission := false
-		userPermissions, err := pm.permissionService.GetUserPermissions(c.Request.Context(), permission.ID, tenantID)
+		userPermissions, err := pm.permissionService.GetUserPermissions(c.Request.Context(), permission.ID)
 		if err == nil {
 			for _, p := range userPermissions {
 				if p.Code == "admin:system" {
@@ -308,30 +294,6 @@ func (pm *PermissionMiddleware) RequireOwnership(resourceType string) gin.Handle
 			return
 		}
 
-		c.Next()
-	}
-}
-
-// TenantMiddleware ensures the request has a valid tenant ID.
-func TenantMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		tenantID := c.GetHeader("X-Tenant-ID")
-		if tenantID == "" {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"error": gin.H{
-					"code":    "VALIDATION_ERROR",
-					"message": "Tenant ID is required",
-				},
-			})
-			c.Abort()
-			return
-		}
-
-		// Validate tenant exists and is active
-		// This would be implemented with a tenant service
-		// For now, we'll just set the tenant ID in context
-		c.Set("tenant_id", tenantID)
 		c.Next()
 	}
 }

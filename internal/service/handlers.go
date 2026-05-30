@@ -56,7 +56,6 @@ func (h *Handlers) logServiceEvent(c *gin.Context, event, target string) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body service.CreateServiceRequest true "Service creation data"
 // @Success 201 {object} service.ServiceResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -72,21 +71,18 @@ func (h *Handlers) CreateService(c *gin.Context) {
 		return
 	}
 
-	// Get user info from context
-	userInfo, exists := c.Get("user")
-	if !exists {
+	// Ensure the user is authenticated
+	if _, exists := c.Get("user"); !exists {
 		appErr := apperrors.NewUnauthorizedError("User not authenticated")
 		apperrors.ErrorHandler(c, appErr)
 		return
 	}
 
-	user := userInfo.(*auth.UserInfo)
-
 	// Log service creation attempt
 	c.Set("security_event", "service_creation_attempt")
 	c.Set("target_resource", req.Name)
 
-	service, err := h.service.CreateService(user.ID, &req)
+	service, err := h.service.CreateService(&req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -111,7 +107,6 @@ func (h *Handlers) CreateService(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param page query int false "Page number" default(1) minimum(1)
 // @Param page_size query int false "Number of services per page" default(20) minimum(1) maximum(100)
 // @Param search query string false "Search services by name or description"
@@ -132,17 +127,14 @@ func (h *Handlers) ListServices(c *gin.Context) {
 		return
 	}
 
-	// Get user info from context
-	userInfo, exists := c.Get("user")
-	if !exists {
+	// Ensure the user is authenticated
+	if _, exists := c.Get("user"); !exists {
 		appErr := apperrors.NewUnauthorizedError("User not authenticated")
 		apperrors.ErrorHandler(c, appErr)
 		return
 	}
 
-	user := userInfo.(*auth.UserInfo)
-
-	services, total, err := h.service.ListServices(user.ID, &req)
+	services, total, err := h.service.ListServices(&req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -170,7 +162,6 @@ func (h *Handlers) ListServices(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Service ID"
 // @Success 200 {object} service.ServiceResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -185,12 +176,11 @@ func (h *Handlers) GetService(c *gin.Context) {
 		return
 	}
 
-	user, err := h.getUserInfo(c)
-	if err != nil {
+	if _, err := h.getUserInfo(c); err != nil {
 		return
 	}
 
-	service, err := h.service.GetService(user.ID, serviceID)
+	service, err := h.service.GetService(serviceID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -210,7 +200,6 @@ func (h *Handlers) GetService(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Service ID"
 // @Param request body service.UpdateServiceRequest true "Service update data"
 // @Success 200 {object} service.ServiceResponse
@@ -233,15 +222,14 @@ func (h *Handlers) UpdateService(c *gin.Context) {
 		return
 	}
 
-	user, err := h.getUserInfo(c)
-	if err != nil {
+	if _, err := h.getUserInfo(c); err != nil {
 		return
 	}
 
 	// Log service update attempt
 	h.logServiceEvent(c, "service_update_attempt", strconv.FormatUint(uint64(serviceID), 10))
 
-	service, err := h.service.UpdateService(user.ID, serviceID, &req)
+	service, err := h.service.UpdateService(serviceID, &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -266,7 +254,6 @@ func (h *Handlers) UpdateService(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Service ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -281,15 +268,14 @@ func (h *Handlers) DeleteService(c *gin.Context) {
 		return
 	}
 
-	user, err := h.getUserInfo(c)
-	if err != nil {
+	if _, err := h.getUserInfo(c); err != nil {
 		return
 	}
 
 	// Log service deletion attempt
 	h.logServiceEvent(c, "service_deletion_attempt", strconv.FormatUint(uint64(serviceID), 10))
 
-	err = h.service.DeleteService(user.ID, serviceID)
+	err = h.service.DeleteService(serviceID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -312,7 +298,6 @@ func (h *Handlers) DeleteService(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Service ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -327,15 +312,14 @@ func (h *Handlers) ActivateService(c *gin.Context) {
 		return
 	}
 
-	user, err := h.getUserInfo(c)
-	if err != nil {
+	if _, err := h.getUserInfo(c); err != nil {
 		return
 	}
 
 	// Log service activation attempt
 	h.logServiceEvent(c, "service_activation_attempt", strconv.FormatUint(uint64(serviceID), 10))
 
-	err = h.service.ActivateService(user.ID, serviceID)
+	err = h.service.ActivateService(serviceID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -358,7 +342,6 @@ func (h *Handlers) ActivateService(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Service ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -373,15 +356,14 @@ func (h *Handlers) DeactivateService(c *gin.Context) {
 		return
 	}
 
-	user, err := h.getUserInfo(c)
-	if err != nil {
+	if _, err := h.getUserInfo(c); err != nil {
 		return
 	}
 
 	// Log service deactivation attempt
 	h.logServiceEvent(c, "service_deactivation_attempt", strconv.FormatUint(uint64(serviceID), 10))
 
-	err = h.service.DeactivateService(user.ID, serviceID)
+	err = h.service.DeactivateService(serviceID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return

@@ -175,14 +175,14 @@ func (s *Server) setupRoutes() {
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
 
-	// Health check endpoints (no tenant validation required)
+	// Health check endpoints (no authentication required)
 	health := s.router.Group("/")
 	{
 		health.GET("/health", s.healthCheck)
 		health.GET("/healthz", s.healthCheck) // Alternative health endpoint
 		health.GET("/api/v1/health", s.healthCheck)
 
-		// API version info (no tenant validation required)
+		// API version info (no authentication required)
 		health.GET("/version", s.versionInfo)
 		health.GET("/api/v1/version", s.versionInfo)
 
@@ -191,7 +191,7 @@ func (s *Server) setupRoutes() {
 		health.GET("/swagger.yaml", s.serveSwaggerYAML)
 	}
 
-	// API routes group - authentication endpoints without tenant isolation
+	// API routes group - public authentication endpoints
 	authPublic := s.router.Group("/api/v1/auth")
 	{
 		authPublic.POST("/login", authHandlers.Login)

@@ -26,21 +26,18 @@ func NewRoleHandler(permissionService *services.PermissionService) *RoleHandler 
 
 // GetAllRoles returns all roles.
 // @Summary Get all roles
-// @Description Retrieves a list of all roles for the current tenant
+// @Description Retrieves a list of all roles
 // @Tags roles
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Success 200 {array} models.Role
 // @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/admin/roles [get]
 func (h *RoleHandler) GetAllRoles(c *gin.Context) {
-	tenantID := h.responseHelper.GetTenantIDFromContext(c)
-
-	roles, err := h.permissionService.GetAllRoles(c.Request.Context(), tenantID)
+	roles, err := h.permissionService.GetAllRoles(c.Request.Context())
 	if err != nil {
 		h.responseHelper.SendInternalError(c, "Failed to get roles")
 		return
@@ -72,7 +69,6 @@ func (h *RoleHandler) GetRoleByID(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body models.Role true "Role creation data"
 // @Success 201 {object} models.Role
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -87,7 +83,6 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 		return
 	}
 
-	
 	err := h.permissionService.CreateRole(c.Request.Context(), &req)
 	if err != nil {
 		h.responseHelper.SendInternalError(c, "Failed to create role")
@@ -281,9 +276,7 @@ func (h *RoleHandler) AssignRoleToUser(c *gin.Context) {
 		return
 	}
 
-	tenantID := c.GetString("tenant_id")
-
-	err = h.permissionService.AssignRoleToUser(c.Request.Context(), uint(userID), req.RoleID, tenantID)
+	err = h.permissionService.AssignRoleToUser(c.Request.Context(), uint(userID), req.RoleID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -329,9 +322,7 @@ func (h *RoleHandler) RemoveRoleFromUser(c *gin.Context) {
 		return
 	}
 
-	tenantID := c.GetString("tenant_id")
-
-	err = h.permissionService.RemoveRoleFromUser(c.Request.Context(), uint(userID), uint(roleID), tenantID)
+	err = h.permissionService.RemoveRoleFromUser(c.Request.Context(), uint(userID), uint(roleID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -364,9 +355,7 @@ func (h *RoleHandler) GetUserRoles(c *gin.Context) {
 		return
 	}
 
-	tenantID := c.GetString("tenant_id")
-
-	roles, err := h.permissionService.GetUserRoles(c.Request.Context(), uint(userID), tenantID)
+	roles, err := h.permissionService.GetUserRoles(c.Request.Context(), uint(userID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,

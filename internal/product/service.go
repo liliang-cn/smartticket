@@ -64,7 +64,6 @@ type ProductResponse struct {
 	Documentation string                 `json:"documentation"`
 	Configuration map[string]interface{} `json:"configuration"`
 	Tags          []string               `json:"tags"`
-	TenantID      uint                   `json:"tenant_id"`
 	IsDeleted     bool                   `json:"is_deleted"`
 	CreatedAt     time.Time              `json:"created_at"`
 	UpdatedAt     time.Time              `json:"updated_at"`
@@ -84,7 +83,6 @@ type ServiceResponse struct {
 	EscalationRules map[string]interface{} `json:"escalation_rules"`
 	Configuration   map[string]interface{} `json:"configuration"`
 	Tags            []string               `json:"tags"`
-	TenantID        uint                   `json:"tenant_id"`
 	IsDeleted       bool                   `json:"is_deleted"`
 	CreatedAt       time.Time              `json:"created_at"`
 	UpdatedAt       time.Time              `json:"updated_at"`
@@ -102,7 +100,7 @@ type ListProductsRequest struct {
 }
 
 // CreateProduct creates a new product.
-func (s *Service) CreateProduct(tenantID uint, req *CreateProductRequest) (*ProductResponse, error) {
+func (s *Service) CreateProduct(req *CreateProductRequest) (*ProductResponse, error) {
 	// Normalize input
 	req.Name = strings.TrimSpace(req.Name)
 	req.Code = strings.ToUpper(strings.TrimSpace(req.Code))
@@ -115,9 +113,9 @@ func (s *Service) CreateProduct(tenantID uint, req *CreateProductRequest) (*Prod
 		return nil, apperrors.NewInvalidInputError("code", "产品代码不能为空")
 	}
 
-	// Check if product code already exists for this tenant
+	// Check if product code already exists
 	var existingProduct models.Product
-	err := s.db.Where("tenant_id = ? AND code = ?", tenantID, req.Code).First(&existingProduct).Error
+	err := s.db.Where("code = ?", req.Code).First(&existingProduct).Error
 	if err == nil {
 		return nil, apperrors.NewConflictError("产品代码已存在")
 	}
@@ -177,9 +175,9 @@ func (s *Service) CreateProduct(tenantID uint, req *CreateProductRequest) (*Prod
 }
 
 // GetProduct gets a product by ID.
-func (s *Service) GetProduct(tenantID uint, productID uint) (*ProductResponse, error) {
+func (s *Service) GetProduct(productID uint) (*ProductResponse, error) {
 	var product models.Product
-	if err := s.db.Where("id = ? AND tenant_id = ?", productID, tenantID).
+	if err := s.db.Where("id = ?", productID).
 		Preload("Services").
 		First(&product).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -192,9 +190,9 @@ func (s *Service) GetProduct(tenantID uint, productID uint) (*ProductResponse, e
 }
 
 // ListProducts lists products with pagination and filtering.
-func (s *Service) ListProducts(tenantID uint, req *ListProductsRequest) ([]ProductResponse, int64, error) {
+func (s *Service) ListProducts(req *ListProductsRequest) ([]ProductResponse, int64, error) {
 	// Build query
-	query := s.db.Where("tenant_id = ?", tenantID)
+	query := s.db.Model(&models.Product{})
 
 	// Apply filters
 	if req.Search != "" {
@@ -267,9 +265,9 @@ func (s *Service) ListProducts(tenantID uint, req *ListProductsRequest) ([]Produ
 }
 
 // UpdateProduct updates an existing product.
-func (s *Service) UpdateProduct(tenantID uint, productID uint, req *UpdateProductRequest) (*ProductResponse, error) {
+func (s *Service) UpdateProduct(productID uint, req *UpdateProductRequest) (*ProductResponse, error) {
 	var product models.Product
-	if err := s.db.Where("id = ? AND tenant_id = ?", productID, tenantID).First(&product).Error; err != nil {
+	if err := s.db.Where("id = ?", productID).First(&product).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperrors.NewNotFoundError("产品")
 		}
@@ -285,7 +283,7 @@ func (s *Service) UpdateProduct(tenantID uint, productID uint, req *UpdateProduc
 		req.Code = strings.ToUpper(strings.TrimSpace(req.Code))
 		// Check if code conflicts with another product
 		var existingProduct models.Product
-		err := s.db.Where("tenant_id = ? AND code = ? AND id != ?", tenantID, req.Code, productID).First(&existingProduct).Error
+		err := s.db.Where("code = ? AND id != ?", req.Code, productID).First(&existingProduct).Error
 		if err == nil {
 			return nil, apperrors.NewConflictError("产品代码已存在")
 		}
@@ -358,9 +356,9 @@ func (s *Service) UpdateProduct(tenantID uint, productID uint, req *UpdateProduc
 }
 
 // DeleteProduct soft deletes a product.
-func (s *Service) DeleteProduct(tenantID uint, productID uint) error {
+func (s *Service) DeleteProduct(productID uint) error {
 	var product models.Product
-	if err := s.db.Where("id = ? AND tenant_id = ?", productID, tenantID).First(&product).Error; err != nil {
+	if err := s.db.Where("id = ?", productID).First(&product).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperrors.NewNotFoundError("产品")
 		}
@@ -396,19 +394,19 @@ func (s *Service) DeleteProduct(tenantID uint, productID uint) error {
 }
 
 // ActivateProduct activates a product.
-func (s *Service) ActivateProduct(tenantID uint, productID uint) error {
-	return s.updateProductStatus(tenantID, productID, "active")
+func (s *Service) ActivateProduct(productID uint) error {
+	return s.updateProductStatus(productID, "active")
 }
 
 // DeactivateProduct deactivates a product.
-func (s *Service) DeactivateProduct(tenantID uint, productID uint) error {
-	return s.updateProductStatus(tenantID, productID, "inactive")
+func (s *Service) DeactivateProduct(productID uint) error {
+	return s.updateProductStatus(productID, "inactive")
 }
 
 // Helper functions.
-func (s *Service) updateProductStatus(tenantID uint, productID uint, status string) error {
+func (s *Service) updateProductStatus(productID uint, status string) error {
 	var product models.Product
-	if err := s.db.Where("id = ? AND tenant_id = ?", productID, tenantID).First(&product).Error; err != nil {
+	if err := s.db.Where("id = ?", productID).First(&product).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperrors.NewNotFoundError("产品")
 		}

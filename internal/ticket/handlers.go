@@ -31,7 +31,6 @@ func NewHandlers(service *Service) *Handlers {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body ticket.CreateTicketRequest true "Ticket creation data"
 // @Success 201 {object} ticket.TicketResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -56,14 +55,13 @@ func (h *Handlers) CreateTicket(c *gin.Context) {
 
 	// Get user info from context
 	userID := c.GetUint("user_id")
-	tenantID := c.GetUint("tenant_id")
 
 	// Log ticket creation attempt
 	c.Set("security_event", "ticket_creation_attempt")
 	c.Set("target_resource", req.Title)
 
 	// Create ticket
-	ticket, err := h.service.CreateTicket(tenantID, userID, &req)
+	ticket, err := h.service.CreateTicket(userID, &req)
 	if err != nil {
 		c.Set("security_event", "ticket_creation_failed")
 		errors.ErrorHandler(c, err)
@@ -87,7 +85,6 @@ func (h *Handlers) CreateTicket(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Ticket ID"
 // @Success 200 {object} ticket.TicketResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -105,9 +102,7 @@ func (h *Handlers) GetTicket(c *gin.Context) {
 		return
 	}
 
-	tenantID := c.GetUint("tenant_id")
-
-	ticket, err := h.service.GetTicket(tenantID, uint(id))
+	ticket, err := h.service.GetTicket(uint(id))
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -126,7 +121,6 @@ func (h *Handlers) GetTicket(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param page query int false "Page number" default(1) minimum(1)
 // @Param page_size query int false "Number of tickets per page" default(20) minimum(1) maximum(100)
 // @Param status query string false "Filter by ticket status" Enums(open,in_progress,resolved,closed,cancelled)
@@ -164,9 +158,7 @@ func (h *Handlers) ListTickets(c *gin.Context) {
 		filters["search"] = search
 	}
 
-	tenantID := c.GetUint("tenant_id")
-
-	tickets, err := h.service.ListTickets(tenantID, page, pageSize, filters)
+	tickets, err := h.service.ListTickets(page, pageSize, filters)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -192,7 +184,6 @@ func (h *Handlers) ListTickets(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Ticket ID"
 // @Param request body ticket.UpdateTicketRequest true "Ticket update data"
 // @Success 200 {object} ticket.TicketResponse
@@ -227,14 +218,13 @@ func (h *Handlers) UpdateTicket(c *gin.Context) {
 
 	// Get user info from context
 	userID := c.GetUint("user_id")
-	tenantID := c.GetUint("tenant_id")
 
 	// Log ticket update attempt
 	c.Set("security_event", "ticket_update_attempt")
 	c.Set("target_resource_id", uint(id))
 
 	// Update ticket
-	ticket, err := h.service.UpdateTicket(tenantID, uint(id), userID, &req)
+	ticket, err := h.service.UpdateTicket(uint(id), userID, &req)
 	if err != nil {
 		c.Set("security_event", "ticket_update_failed")
 		errors.ErrorHandler(c, err)
@@ -258,7 +248,6 @@ func (h *Handlers) UpdateTicket(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Ticket ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -276,13 +265,11 @@ func (h *Handlers) DeleteTicket(c *gin.Context) {
 		return
 	}
 
-	tenantID := c.GetUint("tenant_id")
-
 	// Log ticket deletion attempt
 	c.Set("security_event", "ticket_deletion_attempt")
 	c.Set("target_resource_id", uint(id))
 
-	if err := h.service.DeleteTicket(tenantID, uint(id)); err != nil {
+	if err := h.service.DeleteTicket(uint(id)); err != nil {
 		c.Set("security_event", "ticket_deletion_failed")
 		errors.ErrorHandler(c, err)
 		return
@@ -305,7 +292,6 @@ func (h *Handlers) DeleteTicket(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Ticket ID"
 // @Param request body object{assigned_to:int} true "Assignment data"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
@@ -334,13 +320,11 @@ func (h *Handlers) AssignTicket(c *gin.Context) {
 		return
 	}
 
-	tenantID := c.GetUint("tenant_id")
-
 	// Log ticket assignment attempt
 	c.Set("security_event", "ticket_assignment_attempt")
 	c.Set("target_resource_id", uint(id))
 
-	if err := h.service.AssignTicket(tenantID, uint(id), req.AssignedTo); err != nil {
+	if err := h.service.AssignTicket(uint(id), req.AssignedTo); err != nil {
 		c.Set("security_event", "ticket_assignment_failed")
 		errors.ErrorHandler(c, err)
 		return
@@ -357,21 +341,18 @@ func (h *Handlers) AssignTicket(c *gin.Context) {
 
 // GetTicketStats gets ticket statistics.
 // @Summary Get ticket statistics
-// @Description Retrieves statistical information about tickets for the current tenant
+// @Description Retrieves statistical information about tickets
 // @Tags tickets
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets/stats [get]
 func (h *Handlers) GetTicketStats(c *gin.Context) {
-	tenantID := c.GetUint("tenant_id")
-
-	stats, err := h.service.GetTicketStats(tenantID)
+	stats, err := h.service.GetTicketStats()
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -390,7 +371,6 @@ func (h *Handlers) GetTicketStats(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param page query int false "Page number" default(1) minimum(1)
 // @Param page_size query int false "Number of tickets per page" default(20) minimum(1) maximum(100)
 // @Param status query string false "Filter by ticket status" Enums(open,in_progress,resolved,closed,cancelled)
@@ -422,9 +402,7 @@ func (h *Handlers) GetMyTickets(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	filters["assigned_to"] = userID
 
-	tenantID := c.GetUint("tenant_id")
-
-	tickets, err := h.service.ListTickets(tenantID, page, pageSize, filters)
+	tickets, err := h.service.ListTickets(page, pageSize, filters)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return

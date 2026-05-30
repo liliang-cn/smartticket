@@ -30,7 +30,7 @@ func (ps *PermissionService) GetDatabase() *gorm.DB {
 }
 
 // GetUserPermissions returns all permissions assigned to a user directly.
-func (ps *PermissionService) GetUserPermissions(ctx context.Context, userID uint, _ string) ([]models.Permission, error) {
+func (ps *PermissionService) GetUserPermissions(ctx context.Context, userID uint) ([]models.Permission, error) {
 	var permissions []models.Permission
 
 	err := ps.db.WithContext(ctx).
@@ -47,13 +47,13 @@ func (ps *PermissionService) GetUserPermissions(ctx context.Context, userID uint
 }
 
 // GetUserRoles returns all roles assigned to a user.
-func (ps *PermissionService) GetUserRoles(ctx context.Context, userID uint, tenantID string) ([]models.Role, error) {
+func (ps *PermissionService) GetUserRoles(ctx context.Context, userID uint) ([]models.Role, error) {
 	var roles []models.Role
 
 	err := ps.db.WithContext(ctx).
 		Preload("Permissions").
 		Joins("JOIN user_roles ON roles.id = user_roles.role_id").
-		Where("user_roles.user_id = ? AND roles.tenant_id = ?", userID, tenantID).
+		Where("user_roles.user_id = ?", userID).
 		Find(&roles).Error
 
 	if err != nil {
@@ -93,15 +93,10 @@ func (ps *PermissionService) GetAllPermissions(ctx context.Context) ([]models.Pe
 }
 
 // GetAllRoles returns all roles in the system.
-func (ps *PermissionService) GetAllRoles(ctx context.Context, tenantID string) ([]models.Role, error) {
+func (ps *PermissionService) GetAllRoles(ctx context.Context) ([]models.Role, error) {
 	var roles []models.Role
 
-	query := ps.db.WithContext(ctx)
-	if tenantID != "" {
-		query = query.Where("tenant_id = ?", tenantID)
-	}
-
-	err := query.Preload("Permissions").Order("name").Find(&roles).Error
+	err := ps.db.WithContext(ctx).Preload("Permissions").Order("name").Find(&roles).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all roles: %w", err)
 	}
@@ -159,7 +154,7 @@ func (ps *PermissionService) RemovePermissionFromRole(ctx context.Context, roleI
 }
 
 // AssignRoleToUser assigns a role to a user.
-func (ps *PermissionService) AssignRoleToUser(ctx context.Context, userID uint, roleID uint, _ string) error {
+func (ps *PermissionService) AssignRoleToUser(ctx context.Context, userID uint, roleID uint) error {
 	userRole := &models.UserRole{
 		UserID:     userID,
 		RoleID:     roleID,
@@ -176,7 +171,7 @@ func (ps *PermissionService) AssignRoleToUser(ctx context.Context, userID uint, 
 }
 
 // RemoveRoleFromUser removes a role from a user.
-func (ps *PermissionService) RemoveRoleFromUser(ctx context.Context, userID, roleID uint, _ string) error {
+func (ps *PermissionService) RemoveRoleFromUser(ctx context.Context, userID, roleID uint) error {
 	err := ps.db.WithContext(ctx).
 		Where("user_id = ? AND role_id = ?", userID, roleID).
 		Delete(&models.UserRole{}).Error
@@ -189,7 +184,7 @@ func (ps *PermissionService) RemoveRoleFromUser(ctx context.Context, userID, rol
 }
 
 // AssignPermissionToUser assigns a permission directly to a user.
-func (ps *PermissionService) AssignPermissionToUser(ctx context.Context, userID, permissionID uint, _ string) error {
+func (ps *PermissionService) AssignPermissionToUser(ctx context.Context, userID, permissionID uint) error {
 	userPermission := &models.UserPermission{
 		UserID:       userID,
 		PermissionID: permissionID,
@@ -205,7 +200,7 @@ func (ps *PermissionService) AssignPermissionToUser(ctx context.Context, userID,
 }
 
 // RemovePermissionFromUser removes a permission directly from a user.
-func (ps *PermissionService) RemovePermissionFromUser(ctx context.Context, userID, permissionID uint, tenantID string) error {
+func (ps *PermissionService) RemovePermissionFromUser(ctx context.Context, userID, permissionID uint) error {
 	err := ps.db.WithContext(ctx).
 		Where("user_id = ? AND permission_id = ?", userID, permissionID).
 		Delete(&models.UserPermission{}).Error
@@ -218,7 +213,7 @@ func (ps *PermissionService) RemovePermissionFromUser(ctx context.Context, userI
 }
 
 // HasPermission checks if a user has a specific permission (either directly or through roles).
-func (ps *PermissionService) HasPermission(ctx context.Context, userID uint, tenantID string, permissionCode string) (bool, error) {
+func (ps *PermissionService) HasPermission(ctx context.Context, userID uint, permissionCode string) (bool, error) {
 	// Check direct user permissions
 	var count int64
 	err := ps.db.WithContext(ctx).
@@ -242,8 +237,8 @@ func (ps *PermissionService) HasPermission(ctx context.Context, userID uint, ten
 		Joins("JOIN role_permissions ON permissions.id = role_permissions.permission_id").
 		Joins("JOIN roles ON role_permissions.role_id = roles.id").
 		Joins("JOIN user_roles ON roles.id = user_roles.role_id").
-		Where("user_roles.user_id = ? AND roles.tenant_id = ? AND permissions.code = ?",
-			userID, tenantID, permissionCode).
+		Where("user_roles.user_id = ? AND permissions.code = ?",
+			userID, permissionCode).
 		Count(&count).Error
 
 	if err != nil {

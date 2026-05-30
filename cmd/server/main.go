@@ -31,8 +31,8 @@ var (
 func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "smartticket",
-		Short: "SmartTicket is a self-hosted multi-tenant ticketing platform",
-		Long: `SmartTicket is a self-hosted multi-tenant ticketing and knowledge
+		Short: "SmartTicket is a self-hosted single-tenant ticketing platform",
+		Long: `SmartTicket is a self-hosted single-tenant ticketing and knowledge
 collaboration platform designed for enterprise deployment.`,
 		Version: fmt.Sprintf("%s (built %s)", version, buildTime),
 	}

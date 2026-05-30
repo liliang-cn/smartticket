@@ -25,12 +25,11 @@ func NewHandlers(userService *Service) *Handlers {
 
 // CreateUser handles user creation
 // @Summary Create a new user
-// @Description Create a new user in the current tenant
+// @Description Create a new user
 // @Tags users
 // @Accept json
 // @Produce json
 // @Param request body CreateUserRequest true "User creation data"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 201 {object} internal_auth.UserInfo
@@ -103,7 +102,6 @@ func (h *Handlers) CreateUser(c *gin.Context) {
 // @Tags users
 // @Produce json
 // @Param id path string true "User ID"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} internal_auth.UserInfo
@@ -156,7 +154,6 @@ func (h *Handlers) GetUser(c *gin.Context) {
 // @Produce json
 // @Param id path string true "User ID"
 // @Param request body UpdateUserRequest true "User update data"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} internal_auth.UserInfo
@@ -248,7 +245,6 @@ func (h *Handlers) UpdateUser(c *gin.Context) {
 // @Description Soft delete a user account
 // @Tags users
 // @Param id path string true "User ID"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
@@ -327,7 +323,6 @@ func (h *Handlers) DeleteUser(c *gin.Context) {
 // @Param search query string false "Search term"
 // @Param role query string false "Filter by role"
 // @Param is_active query bool false "Filter by active status"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} UserListResponse
@@ -373,7 +368,6 @@ func (h *Handlers) ListUsers(c *gin.Context) {
 // @Description Activate a user account
 // @Tags users
 // @Param id path string true "User ID"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
@@ -424,7 +418,6 @@ func (h *Handlers) ActivateUser(c *gin.Context) {
 // @Description Deactivate a user account
 // @Tags users
 // @Param id path string true "User ID"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
@@ -481,10 +474,9 @@ func (h *Handlers) DeactivateUser(c *gin.Context) {
 
 // GetUserStats handles getting user statistics
 // @Summary Get user statistics
-// @Description Get user statistics for the current tenant
+// @Description Get user statistics
 // @Tags users
 // @Produce json
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response

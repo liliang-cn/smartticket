@@ -134,7 +134,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieves a list of all roles for the current tenant",
+                "description": "Retrieves a list of all roles",
                 "produces": [
                     "application/json"
                 ],
@@ -147,13 +147,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     }
@@ -210,13 +203,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -291,13 +277,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Password change data",
                         "name": "request",
                         "in": "body",
@@ -337,7 +316,7 @@
         },
         "/api/v1/auth/login": {
             "post": {
-                "description": "Authenticate a user with email and password (tenant is auto-detected from email)",
+                "description": "Authenticate a user with email and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -452,13 +431,6 @@
                         "name": "Authorization",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -497,13 +469,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     }
@@ -655,13 +620,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "file",
                         "description": "Import file (max 100MB)",
                         "name": "file",
@@ -780,13 +738,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "minimum": 1,
                         "type": "integer",
                         "default": 1,
@@ -892,13 +843,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Knowledge article creation data",
                         "name": "request",
                         "in": "body",
@@ -949,7 +893,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieves statistical information about knowledge base articles for the current tenant",
+                "description": "Retrieves statistical information about knowledge base articles",
                 "produces": [
                     "application/json"
                 ],
@@ -962,13 +906,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     }
@@ -1021,13 +958,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1100,13 +1030,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1189,13 +1112,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Knowledge Article ID",
                         "name": "id",
@@ -1263,13 +1179,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1373,13 +1282,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Product creation data",
                         "name": "request",
                         "in": "body",
@@ -1443,13 +1345,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1522,13 +1417,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1611,13 +1499,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Product ID",
                         "name": "id",
@@ -1685,13 +1566,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1767,13 +1641,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Product ID",
                         "name": "id",
@@ -1841,13 +1708,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1963,13 +1823,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Service creation data",
                         "name": "request",
                         "in": "body",
@@ -2033,13 +1886,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2112,13 +1958,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2201,13 +2040,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Service ID",
                         "name": "id",
@@ -2279,13 +2111,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Service ID",
                         "name": "id",
@@ -2353,13 +2178,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2438,13 +2256,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "SLA rule creation data",
                         "name": "request",
                         "in": "body",
@@ -2508,13 +2319,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2613,13 +2417,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "SLA template creation data",
                         "name": "request",
                         "in": "body",
@@ -2683,13 +2480,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2761,13 +2551,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2885,13 +2668,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Ticket creation data",
                         "name": "request",
                         "in": "body",
@@ -2955,13 +2731,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -3049,7 +2818,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieves statistical information about tickets for the current tenant",
+                "description": "Retrieves statistical information about tickets",
                 "produces": [
                     "application/json"
                 ],
@@ -3062,13 +2831,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     }
@@ -3121,13 +2883,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -3200,13 +2955,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -3289,13 +3037,6 @@
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Ticket ID",
                         "name": "id",
@@ -3366,13 +3107,6 @@
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -3483,13 +3217,6 @@
                     },
                     {
                         "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
                         "in": "header",
@@ -3535,7 +3262,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new user in the current tenant",
+                "description": "Create a new user",
                 "consumes": [
                     "application/json"
                 ],
@@ -3555,13 +3282,6 @@
                         "schema": {
                             "$ref": "#/definitions/internal_user.CreateUserRequest"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
                     },
                     {
                         "type": "string",
@@ -3618,7 +3338,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get user statistics for the current tenant",
+                "description": "Get user statistics",
                 "produces": [
                     "application/json"
                 ],
@@ -3627,13 +3347,6 @@
                 ],
                 "summary": "Get user statistics",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "Bearer token",
@@ -3691,13 +3404,6 @@
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
                         "required": true
                     },
                     {
@@ -3777,13 +3483,6 @@
                     },
                     {
                         "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
                         "in": "header",
@@ -3856,13 +3555,6 @@
                     },
                     {
                         "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
                         "in": "header",
@@ -3931,13 +3623,6 @@
                     },
                     {
                         "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
                         "in": "header",
@@ -4002,13 +3687,6 @@
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
                         "required": true
                     },
                     {
@@ -5344,9 +5022,6 @@
                         "type": "string"
                     }
                 },
-                "tenant_id": {
-                    "type": "integer"
-                },
                 "updated_at": {
                     "type": "string"
                 },
@@ -5404,9 +5079,6 @@
                     "items": {
                         "type": "string"
                     }
-                },
-                "tenant_id": {
-                    "type": "integer"
                 },
                 "type": {
                     "type": "string"
@@ -5565,9 +5237,6 @@
                 "support_level": {
                     "type": "string"
                 },
-                "tenant_id": {
-                    "type": "integer"
-                },
                 "version": {
                     "type": "string"
                 }
@@ -5625,9 +5294,6 @@
                     "items": {
                         "type": "string"
                     }
-                },
-                "tenant_id": {
-                    "type": "integer"
                 },
                 "type": {
                     "type": "string"
@@ -5817,9 +5483,6 @@
                 "template_id": {
                     "type": "integer"
                 },
-                "tenant_id": {
-                    "type": "integer"
-                },
                 "updated_at": {
                     "type": "string"
                 }
@@ -5882,9 +5545,6 @@
                     "items": {
                         "type": "string"
                     }
-                },
-                "tenant_id": {
-                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"

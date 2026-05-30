@@ -26,7 +26,6 @@ func NewHandlers(service *Service) *Handlers {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body knowledge.CreateKnowledgeArticleRequest true "Knowledge article creation data"
 // @Success 201 {object} knowledge.KnowledgeArticleResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -35,9 +34,6 @@ func NewHandlers(service *Service) *Handlers {
 // @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/articles [post]
 func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Parse request
 	var req CreateKnowledgeArticleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -54,7 +50,7 @@ func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
 	c.Set("target_resource", req.Title)
 
 	// Create knowledge article
-	article, err := h.service.CreateKnowledgeArticle(tenantID, userID, &req)
+	article, err := h.service.CreateKnowledgeArticle(userID, &req)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -77,7 +73,6 @@ func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Knowledge Article ID"
 // @Success 200 {object} knowledge.KnowledgeArticleResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -95,11 +90,8 @@ func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 		return
 	}
 
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Get knowledge article
-	article, err := h.service.GetKnowledgeArticle(tenantID, uint(articleID))
+	article, err := h.service.GetKnowledgeArticle(uint(articleID))
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -118,7 +110,6 @@ func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param page query int false "Page number" default(1) minimum(1)
 // @Param page_size query int false "Number of articles per page" default(20) minimum(1) maximum(100)
 // @Param status query string false "Filter by article status" Enums(draft,published,archived)
@@ -132,9 +123,6 @@ func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 // @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/articles [get]
 func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Parse pagination parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "20"))
@@ -169,7 +157,7 @@ func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
 	}
 
 	// Get knowledge articles
-	result, err := h.service.ListKnowledgeArticles(tenantID, page, pageSize, filters)
+	result, err := h.service.ListKnowledgeArticles(page, pageSize, filters)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -195,7 +183,6 @@ func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Knowledge Article ID"
 // @Param request body knowledge.UpdateKnowledgeArticleRequest true "Knowledge article update data"
 // @Success 200 {object} knowledge.KnowledgeArticleResponse
@@ -214,9 +201,6 @@ func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 		return
 	}
 
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Get user info from context
 	userID := c.GetUint("user_id")
 
@@ -233,7 +217,7 @@ func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 	c.Set("target_resource", strconv.FormatUint(articleID, 10))
 
 	// Update knowledge article
-	article, err := h.service.UpdateKnowledgeArticle(tenantID, uint(articleID), userID, &req)
+	article, err := h.service.UpdateKnowledgeArticle(uint(articleID), userID, &req)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -256,7 +240,6 @@ func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Knowledge Article ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -274,9 +257,6 @@ func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 		return
 	}
 
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Get user info from context
 	userID := c.GetUint("user_id")
 
@@ -285,7 +265,7 @@ func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 	c.Set("target_resource", strconv.FormatUint(articleID, 10))
 
 	// Delete knowledge article
-	err = h.service.DeleteKnowledgeArticle(tenantID, uint(articleID), userID)
+	err = h.service.DeleteKnowledgeArticle(uint(articleID), userID)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -303,23 +283,19 @@ func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 
 // GetKnowledgeArticleStats retrieves knowledge article statistics.
 // @Summary Get knowledge article statistics
-// @Description Retrieves statistical information about knowledge base articles for the current tenant
+// @Description Retrieves statistical information about knowledge base articles
 // @Tags knowledge
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Success 200 {object} knowledge.KnowledgeArticleStatsResponse
 // @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Failure 403 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/articles/stats [get]
 func (h *Handlers) GetKnowledgeArticleStats(c *gin.Context) {
-	// Get tenant ID from context
-	tenantID := c.GetUint("tenant_id")
-
 	// Get knowledge article statistics
-	stats, err := h.service.GetKnowledgeArticleStats(tenantID)
+	stats, err := h.service.GetKnowledgeArticleStats()
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return

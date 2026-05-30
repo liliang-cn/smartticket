@@ -20,7 +20,8 @@ func TestUserService_CreateUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		// tenant := createTestTenant removed
+		// Seed the role required for assignment
+		createTestRole(t, db, "customer")
 
 		// Test data
 		req := &CreateUserRequest{
@@ -29,10 +30,12 @@ func TestUserService_CreateUser(t *testing.T) {
 			FirstName: "New",
 			LastName:  "User",
 			Password:  "Password123!",
+			Role:      "customer",
+			IsActive:  true,
 		}
 
 		// Execute
-		result, err := service.CreateUser(tenant.ID, req)
+		result, err := service.CreateUser(req)
 
 		// Assert
 		require.NoError(t, err)
@@ -41,7 +44,6 @@ func TestUserService_CreateUser(t *testing.T) {
 		assert.Equal(t, req.FirstName, result.FirstName)
 		assert.Equal(t, req.LastName, result.LastName)
 		// Role is now handled through UserRole associations, not direct User field
-		assert.Equal(t, tenant.ID, result)
 		assert.True(t, result.IsActive)
 		assert.NotZero(t, result.ID)
 
@@ -61,18 +63,16 @@ func TestUserService_GetUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
+		user := createTestUser(t, db)
 
 		// Execute
-		result, err := service.GetUser(tenant.ID, user.ID)
+		result, err := service.GetUser(user.ID)
 
 		// Assert
 		require.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, user.ID, result.ID)
 		assert.Equal(t, user.Email, result.Email)
-		assert.Equal(t, tenant.ID, result)
 	})
 }
 
@@ -83,19 +83,17 @@ func TestUserService_ListUsers(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		// tenant := createTestTenant removed
-
 		// Create multiple users
-		createTestUser(t, db, tenant.ID)
-		createTestUser(t, db, tenant.ID)
-		createTestUser(t, db, tenant.ID)
+		createTestUser(t, db)
+		createTestUser(t, db)
+		createTestUser(t, db)
 
 		// Execute
 		req := &UserListRequest{
 			Page:     1,
 			PageSize: 10,
 		}
-		result, err := service.ListUsers(tenant.ID, req)
+		result, err := service.ListUsers(req)
 
 		// Assert
 		require.NoError(t, err)
@@ -110,8 +108,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
+		user := createTestUser(t, db)
 
 		// Test data
 		req := &UpdateUserRequest{
@@ -120,7 +117,7 @@ func TestUserService_UpdateUser(t *testing.T) {
 		}
 
 		// Execute
-		result, err := service.UpdateUser(tenant.ID, user.ID, req)
+		result, err := service.UpdateUser(user.ID, req)
 
 		// Assert
 		require.NoError(t, err)
@@ -138,11 +135,10 @@ func TestUserService_DeleteUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
+		user := createTestUser(t, db)
 
 		// Execute
-		err := service.DeleteUser(tenant.ID, user.ID)
+		err := service.DeleteUser(user.ID)
 
 		// Assert
 		require.NoError(t, err)
@@ -162,13 +158,12 @@ func TestUserService_ActivateUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
+		user := createTestUser(t, db)
 		user.IsActive = false
 		db.Save(user)
 
 		// Execute
-		err := service.ActivateUser(tenant.ID, user.ID)
+		err := service.ActivateUser(user.ID)
 
 		// Assert
 		require.NoError(t, err)
@@ -188,11 +183,10 @@ func TestUserService_DeactivateUser(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
+		user := createTestUser(t, db)
 
 		// Execute
-		err := service.DeactivateUser(tenant.ID, user.ID)
+		err := service.DeactivateUser(user.ID)
 
 		// Assert
 		require.NoError(t, err)
@@ -212,32 +206,34 @@ func TestUserService_GetUserStats(t *testing.T) {
 		authService := auth.NewService(db.DB, "test-secret", time.Hour, time.Hour*24, "test-issuer")
 		service := NewService(db.DB, authRepo, authService)
 
-		// tenant := createTestTenant removed
-
-		// Create users with different roles and statuses
-		createTestUserWithRole(t, db, tenant.ID, "admin", true)
-		createTestUserWithRole(t, db, tenant.ID, "engineer", true)
-		createTestUserWithRole(t, db, tenant.ID, "support", true)
-		createTestUserWithRole(t, db, tenant.ID, "customer", false) // inactive
+		// Create users with different statuses
+		createTestUserWithRole(t, db, "admin", true)
+		createTestUserWithRole(t, db, "engineer", true)
+		createTestUserWithRole(t, db, "support", true)
+		createTestUserWithRole(t, db, "customer", false) // inactive
 
 		// Execute
-		stats, err := service.GetUserStats(tenant.ID)
+		stats, err := service.GetUserStats()
 
 		// Assert
 		require.NoError(t, err)
 		assert.NotNil(t, stats)
 		assert.Equal(t, int64(4), stats["total_users"])
 		assert.Equal(t, int64(3), stats["active_users"])
-		assert.Equal(t, int64(1), stats["users_admin"])
-		assert.Equal(t, int64(1), stats["users_engineer"])
-		assert.Equal(t, int64(1), stats["users_support"])
-		assert.Equal(t, int64(0), stats["users_customer"]) // Customer is inactive, so not counted in active users by role
 	})
 }
 
 // Helper functions for creating test data
 
-// createTestTenant function removed - no longer needed in single-tenant architecture
+func createTestRole(t *testing.T, db *database.Database, name string) *models.Role {
+	role := &models.Role{
+		Name:     name,
+		IsActive: true,
+	}
+	err := db.DB.Create(role).Error
+	require.NoError(t, err)
+	return role
+}
 
 func createTestUser(t *testing.T, db *database.Database) *models.User {
 	// Generate unique email and username using timestamp
@@ -257,7 +253,7 @@ func createTestUser(t *testing.T, db *database.Database) *models.User {
 	return user
 }
 
-func createTestUserWithRole(t *testing.T, db *database.Database, tenantID uint, role string, isActive bool) *models.User {
+func createTestUserWithRole(t *testing.T, db *database.Database, role string, isActive bool) *models.User {
 	// Generate unique email and username using timestamp
 	timestamp := time.Now().UnixNano()
 	user := &models.User{

@@ -21,7 +21,6 @@ func setupTestDB(t *testing.T) *gorm.DB {
 
 	// Migrate all models needed for import/export testing
 	err = db.AutoMigrate(
-		&{},
 		&models.User{},
 		&models.Role{},
 		&models.UserRole{},
@@ -42,23 +41,8 @@ func setupTestDB(t *testing.T) *gorm.DB {
 	return db
 }
 
-// createTestTenant creates a test tenant.
-func createTestTenant(t *testing.T, db *gorm.DB) * {
-	tenant := &{
-		Name:     "Test Corporation",
-		Slug:     fmt.Sprintf("test-corp-%d", time.Now().UnixNano()),
-		Domain:   "test.example.com",
-		Plan:     "basic",
-		MaxUsers: 100,
-		IsActive: true,
-	}
-	err := db.Create(tenant).Error
-	require.NoError(t, err)
-	return tenant
-}
-
 // createTestUser creates a test user.
-func createTestUser(t *testing.T, db *gorm.DB, tenantID uint) *models.User {
+func createTestUser(t *testing.T, db *gorm.DB) *models.User {
 	user := &models.User{
 		Email:        fmt.Sprintf("test-%d@example.com", time.Now().UnixNano()),
 		Username:     fmt.Sprintf("testuser-%d", time.Now().UnixNano()),
@@ -93,8 +77,7 @@ func TestService_CreateImportJob(t *testing.T) {
 	service := NewService(db)
 
 	// Setup test data
-	tenant := createTestTenant(t, db)
-	user := createTestUser(t, db, tenant.ID)
+	user := createTestUser(t, db)
 
 	tests := []struct {
 		name          string
@@ -150,7 +133,7 @@ func TestService_CreateImportJob(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			job, err := service.CreateImportJob(tenant.ID, user.ID, tt.file, tt.request)
+			job, err := service.CreateImportJob(user.ID, tt.file, tt.request)
 
 			if tt.expectSuccess {
 				assert.NoError(t, err)
@@ -194,8 +177,7 @@ func TestService_CreateExportJob(t *testing.T) {
 	service := NewService(db)
 
 	// Setup test data
-	tenant := createTestTenant(t, db)
-	user := createTestUser(t, db, tenant.ID)
+	user := createTestUser(t, db)
 
 	tests := []struct {
 		name          string
@@ -252,7 +234,7 @@ func TestService_CreateExportJob(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			job, err := service.CreateExportJob(tenant.ID, user.ID, tt.request)
+			job, err := service.CreateExportJob(user.ID, tt.request)
 
 			if tt.expectSuccess {
 				assert.NoError(t, err)
@@ -294,8 +276,7 @@ func TestService_GetJob(t *testing.T) {
 	service := NewService(db)
 
 	// Setup test data
-	tenant := createTestTenant(t, db)
-	user := createTestUser(t, db, tenant.ID)
+	user := createTestUser(t, db)
 
 	// Create a test job
 	job := &models.ImportExportJob{
@@ -315,34 +296,25 @@ func TestService_GetJob(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		tenantID      uint
 		jobID         uint
 		expectedError string
 		expectSuccess bool
 	}{
 		{
 			name:          "Valid job retrieval",
-			tenantID:      tenant.ID,
 			jobID:         job.ID,
 			expectSuccess: true,
 		},
 		{
 			name:          "Job not found",
-			tenantID:      tenant.ID,
 			jobID:         99999,
-			expectedError: "NOT_FOUND",
-		},
-		{
-			name:          "Wrong tenant",
-			tenantID:      99999,
-			jobID:         job.ID,
 			expectedError: "NOT_FOUND",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			response, err := service.GetJob(tt.tenantID, tt.jobID)
+			response, err := service.GetJob(tt.jobID)
 
 			if tt.expectSuccess {
 				assert.NoError(t, err)
@@ -367,31 +339,28 @@ func TestService_ListJobs(t *testing.T) {
 	service := NewService(db)
 
 	// Setup test data
-	tenant1 := createTestTenant(t, db)
-	tenant2 := createTestTenant(t, db)
-	user1 := createTestUser(t, db, tenant1.ID)
-	user2 := createTestUser(t, db, tenant2.ID)
+	user := createTestUser(t, db)
 
-	// Create test jobs for tenant 1
+	// Create completed ticket import/export jobs
 	for i := 0; i < 5; i++ {
 		job := &models.ImportExportJob{
 			Type:         string(ExportTypeTickets),
 			Status:       string(JobStatusCompleted),
 			Progress:     100,
-			StartedBy:    user1.ID,
+			StartedBy:    user.ID,
 			SourceFormat: "csv",
 		}
 		err := db.Create(job).Error
 		require.NoError(t, err)
 	}
 
-	// Create test jobs for tenant 2
+	// Create pending user jobs
 	for i := 0; i < 3; i++ {
 		job := &models.ImportExportJob{
 			Type:         string(ExportTypeUsers),
 			Status:       string(JobStatusPending),
 			Progress:     0,
-			StartedBy:    user2.ID,
+			StartedBy:    user.ID,
 			SourceFormat: "json",
 		}
 		err := db.Create(job).Error
@@ -400,7 +369,6 @@ func TestService_ListJobs(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		tenantID      uint
 		page          int
 		pageSize      int
 		filters       map[string]interface{}
@@ -408,35 +376,23 @@ func TestService_ListJobs(t *testing.T) {
 		expectedTotal int64
 	}{
 		{
-			name:          "List all jobs for tenant 1",
-			tenantID:      tenant1.ID,
+			name:          "List all jobs",
 			page:          1,
 			pageSize:      10,
 			filters:       map[string]interface{}{},
-			expectedCount: 5,
-			expectedTotal: 5,
-		},
-		{
-			name:          "List all jobs for tenant 2",
-			tenantID:      tenant2.ID,
-			page:          1,
-			pageSize:      10,
-			filters:       map[string]interface{}{},
-			expectedCount: 3,
-			expectedTotal: 3,
+			expectedCount: 8,
+			expectedTotal: 8,
 		},
 		{
 			name:          "Paginated list",
-			tenantID:      tenant1.ID,
 			page:          1,
 			pageSize:      2,
 			filters:       map[string]interface{}{},
 			expectedCount: 2,
-			expectedTotal: 5,
+			expectedTotal: 8,
 		},
 		{
 			name:     "Filter by type",
-			tenantID: tenant1.ID,
 			page:     1,
 			pageSize: 10,
 			filters: map[string]interface{}{
@@ -447,7 +403,6 @@ func TestService_ListJobs(t *testing.T) {
 		},
 		{
 			name:     "Filter by status",
-			tenantID: tenant1.ID,
 			page:     1,
 			pageSize: 10,
 			filters: map[string]interface{}{
@@ -460,7 +415,7 @@ func TestService_ListJobs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			response, err := service.ListJobs(tt.tenantID, tt.page, tt.pageSize, tt.filters)
+			response, err := service.ListJobs(tt.page, tt.pageSize, tt.filters)
 
 			assert.NoError(t, err)
 			assert.NotNil(t, response)
@@ -477,8 +432,7 @@ func TestService_CancelJob(t *testing.T) {
 	service := NewService(db)
 
 	// Setup test data
-	tenant := createTestTenant(t, db)
-	user := createTestUser(t, db, tenant.ID)
+	user := createTestUser(t, db)
 
 	// Create test jobs with different statuses
 	pendingJob := &models.ImportExportJob{
@@ -541,7 +495,7 @@ func TestService_CancelJob(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := service.CancelJob(tenant.ID, tt.jobID, user.ID)
+			err := service.CancelJob(tt.jobID, user.ID)
 
 			if tt.expectSuccess {
 				assert.NoError(t, err)
@@ -566,8 +520,7 @@ func TestService_DeleteJob(t *testing.T) {
 	service := NewService(db)
 
 	// Setup test data
-	tenant := createTestTenant(t, db)
-	user := createTestUser(t, db, tenant.ID)
+	user := createTestUser(t, db)
 
 	// Create a test job
 	job := &models.ImportExportJob{
@@ -581,7 +534,6 @@ func TestService_DeleteJob(t *testing.T) {
 
 	tests := []struct {
 		name          string
-		tenantID      uint
 		jobID         uint
 		userID        uint
 		expectedError string
@@ -589,30 +541,27 @@ func TestService_DeleteJob(t *testing.T) {
 	}{
 		{
 			name:          "Valid job deletion",
-			tenantID:      tenant.ID,
 			jobID:         job.ID,
 			userID:        user.ID,
 			expectSuccess: true,
 		},
 		{
 			name:          "Job not found",
-			tenantID:      tenant.ID,
 			jobID:         99999,
 			userID:        user.ID,
 			expectedError: "NOT_FOUND",
 		},
 		{
-			name:          "Wrong tenant",
-			tenantID:      99999,
+			name:          "User not found",
 			jobID:         job.ID,
-			userID:        user.ID,
-			expectedError: "INTERNAL_ERROR", // User not found in wrong tenant returns internal error
+			userID:        99999,
+			expectedError: "INTERNAL_ERROR", // Missing user returns internal error
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := service.DeleteJob(tt.tenantID, tt.jobID, tt.userID)
+			err := service.DeleteJob(tt.jobID, tt.userID)
 
 			if tt.expectSuccess {
 				assert.NoError(t, err)
@@ -745,8 +694,7 @@ func TestService_GetJobStats(t *testing.T) {
 	service := NewService(db)
 
 	// Setup test data
-	tenant := createTestTenant(t, db)
-	user := createTestUser(t, db, tenant.ID)
+	user := createTestUser(t, db)
 
 	// Create test jobs with different statuses
 	jobStatuses := []string{
@@ -780,7 +728,7 @@ func TestService_GetJobStats(t *testing.T) {
 		}
 	}
 
-	stats, err := service.GetJobStats(tenant.ID)
+	stats, err := service.GetJobStats()
 	require.NoError(t, err)
 	assert.NotNil(t, stats)
 
@@ -892,8 +840,7 @@ func TestService_ErrorHandling(t *testing.T) {
 	db := setupTestDB(t)
 	service := NewService(db)
 
-	tenant := createTestTenant(t, db)
-	user := createTestUser(t, db, tenant.ID)
+	user := createTestUser(t, db)
 
 	t.Run("Database errors", func(t *testing.T) {
 		// Close database to simulate errors
@@ -910,23 +857,23 @@ func TestService_ErrorHandling(t *testing.T) {
 		}
 
 		// This should fail due to closed database
-		_, err = service.CreateImportJob(tenant.ID, user.ID, file, req)
+		_, err = service.CreateImportJob(user.ID, file, req)
 		assert.Error(t, err)
 
 		// Test other operations
-		_, err = service.GetJob(tenant.ID, 1)
+		_, err = service.GetJob(1)
 		assert.Error(t, err)
 
-		_, err = service.ListJobs(tenant.ID, 1, 10, map[string]interface{}{})
+		_, err = service.ListJobs(1, 10, map[string]interface{}{})
 		assert.Error(t, err)
 
-		err = service.CancelJob(tenant.ID, 1, user.ID)
+		err = service.CancelJob(1, user.ID)
 		assert.Error(t, err)
 
-		err = service.DeleteJob(tenant.ID, 1, user.ID)
+		err = service.DeleteJob(1, user.ID)
 		assert.Error(t, err)
 
-		_, err = service.GetJobStats(tenant.ID)
+		_, err = service.GetJobStats()
 		assert.Error(t, err)
 	})
 }
@@ -936,8 +883,7 @@ func TestService_SequentialOperations(t *testing.T) {
 	db := setupTestDB(t)
 	service := NewService(db)
 
-	tenant := createTestTenant(t, db)
-	user := createTestUser(t, db, tenant.ID)
+	user := createTestUser(t, db)
 
 	// Test multiple job creation sequentially
 	t.Run("Sequential import job creation", func(t *testing.T) {
@@ -954,7 +900,7 @@ func TestService_SequentialOperations(t *testing.T) {
 				SourceFormat: FileTypeCSV,
 			}
 
-			job, err := service.CreateImportJob(tenant.ID, user.ID, file, req)
+			job, err := service.CreateImportJob(user.ID, file, req)
 			jobs[i] = job
 			errs[i] = err
 		}
@@ -984,8 +930,7 @@ func BenchmarkService_CreateImportJob(b *testing.B) {
 	db := setupTestDB(&testing.T{})
 	service := NewService(db)
 
-	tenant := createTestTenant(&testing.T{}, db)
-	user := createTestUser(&testing.T{}, db, tenant.ID)
+	user := createTestUser(&testing.T{}, db)
 
 	file := createMockFileHeader("benchmark.csv", 1024)
 	req := &ImportRequest{
@@ -996,7 +941,7 @@ func BenchmarkService_CreateImportJob(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := service.CreateImportJob(tenant.ID, user.ID, file, req)
+		_, err := service.CreateImportJob(user.ID, file, req)
 		if err != nil {
 			b.Fatalf("Failed to create import job: %v", err)
 		}
@@ -1007,8 +952,7 @@ func BenchmarkService_ListJobs(b *testing.B) {
 	db := setupTestDB(&testing.T{})
 	service := NewService(db)
 
-	tenant := createTestTenant(&testing.T{}, db)
-	user := createTestUser(&testing.T{}, db, tenant.ID)
+	user := createTestUser(&testing.T{}, db)
 
 	// Create some test data
 	for i := 0; i < 100; i++ {
@@ -1026,7 +970,7 @@ func BenchmarkService_ListJobs(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, err := service.ListJobs(tenant.ID, 1, 10, map[string]interface{}{})
+		_, err := service.ListJobs(1, 10, map[string]interface{}{})
 		if err != nil {
 			b.Fatalf("Failed to list jobs: %v", err)
 		}

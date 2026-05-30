@@ -26,7 +26,7 @@ func NewHandlers(authService *Service) *Handlers {
 
 // Login handles user login
 // @Summary User login
-// @Description Authenticate a user with email and password (tenant is auto-detected from email)
+// @Description Authenticate a user with email and password
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -169,7 +169,6 @@ func (h *Handlers) Logout(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Success 200 {object} UserInfo
 // @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -216,7 +215,6 @@ func (h *Handlers) GetProfile(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body ChangePasswordRequest true "Password change data"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -300,7 +298,6 @@ func (h *Handlers) ChangePassword(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 401 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/auth/me [get].
@@ -308,14 +305,12 @@ func (h *Handlers) GetMe(c *gin.Context) {
 	requestID, _ := c.Get("request_id")
 	userID, _ := c.Get("user_id")
 	userRole, _ := c.Get("user_role")
-	tenantID, _ := c.Get("tenant_id")
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data": gin.H{
-			"user_id":   userID,
-			"role":      userRole,
-			"tenant_id": tenantID,
+			"user_id": userID,
+			"role":    userRole,
 		},
 		"request_id": requestID,
 	})
