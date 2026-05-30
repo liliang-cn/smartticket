@@ -2,6 +2,7 @@ package ticket
 
 import (
 	"fmt"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -284,8 +285,11 @@ func createTestTicketWithStatus(t *testing.T, db *database.Database, userID uint
 	return ticket
 }
 
+// testTicketSeq guarantees unique ticket numbers across rapid successive
+// createTestTicket* calls. A timestamp-based scheme collided when several
+// tickets were created within the same sub-millisecond window.
+var testTicketSeq int64
+
 func generateTicketNumber() string {
-	// Generate unique ticket number using timestamp
-	timestamp := time.Now().UnixNano()
-	return fmt.Sprintf("TK-%d", timestamp%100000)
+	return fmt.Sprintf("TK-%d", atomic.AddInt64(&testTicketSeq, 1))
 }
