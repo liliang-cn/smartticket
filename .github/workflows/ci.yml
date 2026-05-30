@@ -17,6 +17,9 @@ jobs:
   quality:
     name: Code Quality
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # allow uploading the gosec SARIF to code scanning
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -66,6 +69,7 @@ jobs:
       - name: Upload gosec SARIF
         uses: github/codeql-action/upload-sarif@v3
         if: always()
+        continue-on-error: true # never block the pipeline on code-scanning upload (e.g. fork PRs)
         with:
           sarif_file: gosec.sarif
 
