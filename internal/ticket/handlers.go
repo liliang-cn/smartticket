@@ -435,3 +435,65 @@ func (h *Handlers) GetMyTickets(c *gin.Context) {
 		},
 	})
 }
+
+// GetTicketMessages lists a ticket's messages.
+// @Summary List ticket messages
+// @Description Lists messages on a ticket. Customers see only their own customer's tickets and never internal notes.
+// @Tags tickets
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Ticket ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Router /api/v1/tickets/{id}/messages [get]
+func (h *Handlers) GetTicketMessages(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+
+	messages, err := h.service.ListMessages(actorFromContext(c), uint(id))
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": messages})
+}
+
+// CreateTicketMessage adds a message to a ticket.
+// @Summary Add ticket message
+// @Description Adds a message to a ticket. Customers cannot create internal notes and can only post to their own customer's tickets.
+// @Tags tickets
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Ticket ID"
+// @Param request body ticket.CreateMessageRequest true "Message content"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 404 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Router /api/v1/tickets/{id}/messages [post]
+func (h *Handlers) CreateTicketMessage(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+
+	var req CreateMessageRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("request_body", err.Error()))
+		return
+	}
+
+	message, err := h.service.CreateMessage(actorFromContext(c), uint(id), c.GetUint("user_id"), &req)
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"success": true, "data": message})
+}

@@ -283,9 +283,8 @@ func (s *Server) setupRoutes() {
 				tickets.PUT("/:id", ticketHandlers.UpdateTicket)
 				tickets.DELETE("/:id", ticketHandlers.DeleteTicket)
 				tickets.POST("/:id/assign", ticketHandlers.AssignTicket)
-				// TODO: Implement message routes in next phase
-				// tickets.GET("/:id/messages", s.getTicketMessages)
-				// tickets.POST("/:id/messages", s.createTicketMessage)
+				tickets.GET("/:id/messages", ticketHandlers.GetTicketMessages)
+				tickets.POST("/:id/messages", ticketHandlers.CreateTicketMessage)
 			}
 
 			// Customer organization management routes (team-only).

@@ -427,6 +427,106 @@ func (s *Service) AssignTicket(actor authz.Actor, ticketID uint, assignedTo uint
 	return nil
 }
 
+// MessageResponse is a flat, schema-safe view of a ticket message.
+type MessageResponse struct {
+	ID          uint      `json:"id"`
+	TicketID    uint      `json:"ticket_id"`
+	UserID      uint      `json:"user_id"`
+	Content     string    `json:"content"`
+	ContentType string    `json:"content_type"`
+	IsInternal  bool      `json:"is_internal"`
+	IsFromAI    bool      `json:"is_from_ai"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+// CreateMessageRequest is the payload for adding a message to a ticket.
+type CreateMessageRequest struct {
+	Content     string `json:"content" binding:"required,min=1"`
+	ContentType string `json:"content_type" binding:"omitempty,oneof=text html markdown"`
+	IsInternal  bool   `json:"is_internal"`
+}
+
+// findTicketForActor loads a ticket scoped to the actor's customer, returning a
+// NotFound error (no existence disclosure) when it is outside the actor's scope.
+func (s *Service) findTicketForActor(actor authz.Actor, ticketID uint) (*models.Ticket, error) {
+	var ticket models.Ticket
+	if err := scopeToActor(s.db.Where("id = ?", ticketID), actor).First(&ticket).Error; err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NewNotFoundError("ticket")
+		}
+		return nil, fmt.Errorf("failed to get ticket: %w", err)
+	}
+	return &ticket, nil
+}
+
+// ListMessages returns a ticket's messages, scoped to the actor's customer.
+// Customer actors never see internal notes (IsInternal).
+func (s *Service) ListMessages(actor authz.Actor, ticketID uint) ([]MessageResponse, error) {
+	if _, err := s.findTicketForActor(actor, ticketID); err != nil {
+		return nil, err
+	}
+
+	query := s.db.Where("ticket_id = ?", ticketID)
+	if actor.IsCustomer() {
+		query = query.Where("is_internal = ?", false)
+	}
+
+	var messages []models.Message
+	if err := query.Order("created_at ASC").Find(&messages).Error; err != nil {
+		return nil, fmt.Errorf("failed to list messages: %w", err)
+	}
+
+	out := make([]MessageResponse, len(messages))
+	for i := range messages {
+		out[i] = messageToResponse(&messages[i])
+	}
+	return out, nil
+}
+
+// CreateMessage adds a message to a ticket, scoped to the actor's customer.
+// Customer actors cannot create internal notes (IsInternal is forced false).
+func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *CreateMessageRequest) (*MessageResponse, error) {
+	if _, err := s.findTicketForActor(actor, ticketID); err != nil {
+		return nil, err
+	}
+
+	contentType := req.ContentType
+	if contentType == "" {
+		contentType = "text"
+	}
+	isInternal := req.IsInternal
+	if actor.IsCustomer() {
+		isInternal = false
+	}
+
+	message := &models.Message{
+		TicketID:    ticketID,
+		UserID:      userID,
+		Content:     strings.TrimSpace(req.Content),
+		ContentType: contentType,
+		IsInternal:  isInternal,
+	}
+	if err := s.db.Create(message).Error; err != nil {
+		return nil, fmt.Errorf("failed to create message: %w", err)
+	}
+
+	resp := messageToResponse(message)
+	return &resp, nil
+}
+
+func messageToResponse(m *models.Message) MessageResponse {
+	return MessageResponse{
+		ID:          m.ID,
+		TicketID:    m.TicketID,
+		UserID:      m.UserID,
+		Content:     m.Content,
+		ContentType: m.ContentType,
+		IsInternal:  m.IsInternal,
+		IsFromAI:    m.IsFromAI,
+		CreatedAt:   m.CreatedAt,
+	}
+}
+
 // GetTicketStats gets ticket statistics, scoped to the actor's customer.
 func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, error) {
 	var stats struct {
