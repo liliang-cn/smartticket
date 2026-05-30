@@ -113,7 +113,7 @@ type JobListResponse struct {
 }
 
 // CreateImportJob creates a new import job.
-func (s *Service) CreateImportJob(tenantID uint, userID uint, file *multipart.FileHeader, req *ImportRequest) (*JobResponse, error) {
+func (s *Service) CreateImportJob(userID uint, file *multipart.FileHeader, req *ImportRequest) (*JobResponse, error) {
 	// Validate file size (max 100MB)
 	if file.Size > 100*1024*1024 {
 		return nil, apperrors.NewValidationError("file size exceeds 100MB limit")
@@ -148,7 +148,7 @@ func (s *Service) CreateImportJob(tenantID uint, userID uint, file *multipart.Fi
 }
 
 // CreateExportJob creates a new export job.
-func (s *Service) CreateExportJob(tenantID uint, userID uint, req *ExportRequest) (*JobResponse, error) {
+func (s *Service) CreateExportJob(userID uint, req *ExportRequest) (*JobResponse, error) {
 	// Create export job
 	job := &models.ImportExportJob{
 		
@@ -179,9 +179,9 @@ func (s *Service) CreateExportJob(tenantID uint, userID uint, req *ExportRequest
 }
 
 // GetJob retrieves a job by ID.
-func (s *Service) GetJob(tenantID uint, jobID uint) (*JobResponse, error) {
+func (s *Service) GetJob(jobID uint) (*JobResponse, error) {
 	var job models.ImportExportJob
-	if err := s.db.Where("id = ? AND tenant_id = ?", jobID, tenantID).
+	if err := s.db.Where("id = ?", jobID).
 		Preload("StartedByUser").
 		First(&job).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -194,12 +194,11 @@ func (s *Service) GetJob(tenantID uint, jobID uint) (*JobResponse, error) {
 }
 
 // ListJobs retrieves import/export jobs with pagination.
-func (s *Service) ListJobs(tenantID uint, page, pageSize int, filters map[string]interface{}) (*JobListResponse, error) {
+func (s *Service) ListJobs(page, pageSize int, filters map[string]interface{}) (*JobListResponse, error) {
 	offset := (page - 1) * pageSize
 
 	// Build query
 	query := s.db.Model(&models.ImportExportJob{}).
-		Where("tenant_id = ?", tenantID).
 		Preload("StartedByUser")
 
 	// Apply filters
@@ -247,9 +246,9 @@ func (s *Service) ListJobs(tenantID uint, page, pageSize int, filters map[string
 }
 
 // CancelJob cancels a running job.
-func (s *Service) CancelJob(tenantID uint, jobID uint, userID uint) error {
+func (s *Service) CancelJob(jobID uint, userID uint) error {
 	var job models.ImportExportJob
-	if err := s.db.Where("id = ? AND tenant_id = ?", jobID, tenantID).
+	if err := s.db.Where("id = ?", jobID).
 		First(&job).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperrors.NewNotFoundError("import/export job not found")
@@ -275,15 +274,15 @@ func (s *Service) CancelJob(tenantID uint, jobID uint, userID uint) error {
 }
 
 // DeleteJob soft deletes a job.
-func (s *Service) DeleteJob(tenantID uint, jobID uint, userID uint) error {
+func (s *Service) DeleteJob(jobID uint, userID uint) error {
 	// Get user email for audit
 	var user models.User
-	if err := s.db.Where("id = ? AND tenant_id = ? AND is_active = ?", userID, tenantID, true).First(&user).Error; err != nil {
+	if err := s.db.Where("id = ? AND is_active = ?", userID, true).First(&user).Error; err != nil {
 		return apperrors.NewInternalError("failed to find user: %w", err)
 	}
 
 	result := s.db.Model(&models.ImportExportJob{}).
-		Where("id = ? AND tenant_id = ?", jobID, tenantID).
+		Where("id = ?", jobID).
 		Updates(map[string]interface{}{
 			"deleted_at": gorm.Expr("CURRENT_TIMESTAMP"),
 			"updated_by": user.Email,
@@ -393,7 +392,7 @@ func (s *Service) ValidateFileFormat(filename string, expectedType FileType) err
 }
 
 // GetJobStats returns import/export job statistics.
-func (s *Service) GetJobStats(tenantID uint) (map[string]interface{}, error) {
+func (s *Service) GetJobStats() (map[string]interface{}, error) {
 	stats := make(map[string]interface{})
 
 	// Get job counts by status
@@ -403,7 +402,6 @@ func (s *Service) GetJobStats(tenantID uint) (map[string]interface{}, error) {
 	}
 	if err := s.db.Model(&models.ImportExportJob{}).
 		Select("status, count(*) as count").
-		Where("tenant_id = ?", tenantID).
 		Group("status").
 		Scan(&statusCounts).Error; err != nil {
 		return nil, apperrors.NewInternalError("failed to get status breakdown: %w", err)
@@ -422,7 +420,6 @@ func (s *Service) GetJobStats(tenantID uint) (map[string]interface{}, error) {
 	}
 	if err := s.db.Model(&models.ImportExportJob{}).
 		Select("type, count(*) as count").
-		Where("tenant_id = ?", tenantID).
 		Group("type").
 		Scan(&typeCounts).Error; err != nil {
 		return nil, apperrors.NewInternalError("failed to get type breakdown: %w", err)
@@ -437,7 +434,6 @@ func (s *Service) GetJobStats(tenantID uint) (map[string]interface{}, error) {
 	// Get total counts
 	var totalJobs int64
 	if err := s.db.Model(&models.ImportExportJob{}).
-		Where("tenant_id = ?", tenantID).
 		Count(&totalJobs).Error; err != nil {
 		return nil, apperrors.NewInternalError("failed to count total jobs: %w", err)
 	}
@@ -445,7 +441,7 @@ func (s *Service) GetJobStats(tenantID uint) (map[string]interface{}, error) {
 
 	// Get recent activity (last 10 jobs)
 	var recentJobs []models.ImportExportJob
-	if err := s.db.Where("tenant_id = ?", tenantID).
+	if err := s.db.Model(&models.ImportExportJob{}).
 		Order("created_at DESC").
 		Limit(10).
 		Select("id, type, status, created_at, completed_at").
