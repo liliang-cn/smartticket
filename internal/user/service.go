@@ -115,17 +115,17 @@ func (s *Service) CreateUser(req *CreateUserRequest) (*auth.UserInfo, error) {
 
 	// Validate email format
 	if !s.isValidEmail(req.Email) {
-		return nil, errors.New("invalid email format")
+		return nil, apperrors.NewValidationError("invalid email format")
 	}
 
 	// Validate username format
 	if !s.isValidUsername(req.Username) {
-		return nil, errors.New("username can only contain letters, numbers, underscores, and hyphens")
+		return nil, apperrors.NewValidationError("username can only contain letters, numbers, underscores, and hyphens")
 	}
 
 	// Validate password complexity
 	if err := s.validatePassword(req.Password); err != nil {
-		return nil, fmt.Errorf("password validation failed: %w", err)
+		return nil, apperrors.NewValidationError(err.Error())
 	}
 
 	// Validate customer_id against role: the customer role must belong to a
@@ -151,7 +151,7 @@ func (s *Service) CreateUser(req *CreateUserRequest) (*auth.UserInfo, error) {
 		return nil, fmt.Errorf("failed to check email existence: %w", err)
 	}
 	if exists {
-		return nil, errors.New("email already exists")
+		return nil, apperrors.NewConflictError("email already exists")
 	}
 
 	// Check if username already exists
@@ -160,7 +160,7 @@ func (s *Service) CreateUser(req *CreateUserRequest) (*auth.UserInfo, error) {
 		return nil, fmt.Errorf("failed to check username existence: %w", err)
 	}
 	if exists {
-		return nil, errors.New("username already exists")
+		return nil, apperrors.NewConflictError("username already exists")
 	}
 
 	// Hash password
@@ -241,7 +241,7 @@ func (s *Service) UpdateUser(userID uint, req *UpdateUserRequest) (*auth.UserInf
 		req.Email = strings.ToLower(strings.TrimSpace(req.Email))
 		if !s.isValidEmail(req.Email) {
 			tx.Rollback()
-			return nil, errors.New("invalid email format")
+			return nil, apperrors.NewValidationError("invalid email format")
 		}
 
 		// Check if email already exists (excluding current user)
@@ -252,7 +252,7 @@ func (s *Service) UpdateUser(userID uint, req *UpdateUserRequest) (*auth.UserInf
 		}
 		if exists {
 			tx.Rollback()
-			return nil, errors.New("email already exists")
+			return nil, apperrors.NewConflictError("email already exists")
 		}
 		user.Email = req.Email
 	}
@@ -261,7 +261,7 @@ func (s *Service) UpdateUser(userID uint, req *UpdateUserRequest) (*auth.UserInf
 		req.Username = strings.TrimSpace(req.Username)
 		if !s.isValidUsername(req.Username) {
 			tx.Rollback()
-			return nil, errors.New("username can only contain letters, numbers, underscores, and hyphens")
+			return nil, apperrors.NewValidationError("username can only contain letters, numbers, underscores, and hyphens")
 		}
 
 		// Check if username already exists (excluding current user)
@@ -272,7 +272,7 @@ func (s *Service) UpdateUser(userID uint, req *UpdateUserRequest) (*auth.UserInf
 		}
 		if exists {
 			tx.Rollback()
-			return nil, errors.New("username already exists")
+			return nil, apperrors.NewConflictError("username already exists")
 		}
 		user.Username = req.Username
 	}
