@@ -16,11 +16,16 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
+	"strings"
+
+	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/database"
 	"github.com/company/smartticket/internal/logger"
+	mcpserver "github.com/company/smartticket/internal/mcp"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/server"
+	"github.com/company/smartticket/internal/services"
 )
 
 var (
@@ -56,6 +61,22 @@ collaboration platform designed for enterprise deployment.`,
 	}
 	migrateCmd.Flags().String("config", "", "Configuration file path")
 	rootCmd.AddCommand(migrateCmd)
+
+	// Add mcp command
+	var mcpCmd = &cobra.Command{
+		Use:   "mcp",
+		Short: "Start the SmartTicket MCP server",
+		Long: `Start the SmartTicket Model Context Protocol (MCP) server, exposing
+ticketing and knowledge operations as MCP tools. Serves stdio by default, or
+Streamable HTTP when --http is provided.`,
+		RunE: runMCP,
+	}
+	mcpCmd.Flags().String("config", "", "Configuration file path")
+	mcpCmd.Flags().String("http", "", "Serve Streamable HTTP on this address (default :43517 when flag is set without a value); if unset, serve stdio")
+	mcpCmd.Flags().Lookup("http").NoOptDefVal = ":43517"
+	mcpCmd.Flags().String("token", os.Getenv("SMARTTICKET_MCP_TOKEN"), "JWT credential for stdio transport (default from SMARTTICKET_MCP_TOKEN)")
+	mcpCmd.Flags().String("toolsets", "", "Comma-separated toolsets to enable (default: all)")
+	rootCmd.AddCommand(mcpCmd)
 
 	// Add version command
 	var versionCmd = &cobra.Command{
@@ -318,4 +339,72 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		zap.Int("model_count", len(dbModels)),
 	)
 	return nil
+}
+
+func runMCP(cmd *cobra.Command, _ []string) error {
+	// Load configuration
+	cfg, err := config.LoadFromFlags(cmd)
+	if err != nil {
+		return fmt.Errorf("failed to load configuration: %w", err)
+	}
+
+	// Initialize logger
+	if err := logger.InitializeGlobalLogger(&cfg.Logger); err != nil {
+		return fmt.Errorf("failed to initialize logger: %w", err)
+	}
+	defer func() {
+		_ = logger.Sync()
+	}()
+
+	// Initialize database connection
+	db, err := database.NewDatabase(&cfg.Database)
+	if err != nil {
+		return fmt.Errorf("failed to initialize database: %w", err)
+	}
+	defer func() {
+		_ = db.Close()
+	}()
+
+	if !db.IsHealthy() {
+		return fmt.Errorf("database connection is not healthy")
+	}
+
+	// Construct shared services and the MCP backend.
+	authService := auth.NewService(
+		db.DB,
+		cfg.JWT.Secret,
+		cfg.JWT.AccessTokenDuration,
+		cfg.JWT.RefreshTokenDuration,
+		cfg.JWT.Issuer,
+	)
+	permissionService := services.NewPermissionService(db.DB)
+
+	backend := mcpserver.NewDirectBackend(db.DB, authService, permissionService)
+	authn := mcpserver.NewAuthenticator(authService, permissionService)
+
+	// Parse toolsets flag.
+	toolsetsFlag, _ := cmd.Flags().GetString("toolsets")
+	var toolsets []string
+	if strings.TrimSpace(toolsetsFlag) != "" {
+		for _, t := range strings.Split(toolsetsFlag, ",") {
+			if trimmed := strings.TrimSpace(t); trimmed != "" {
+				toolsets = append(toolsets, trimmed)
+			}
+		}
+	}
+
+	mcpSrv := mcpserver.NewMCPServer(backend, toolsets)
+
+	httpAddr, _ := cmd.Flags().GetString("http")
+	token, _ := cmd.Flags().GetString("token")
+
+	ctx := context.Background()
+
+	if httpAddr != "" {
+		logger.Info("Starting MCP server (Streamable HTTP)", zap.String("address", httpAddr))
+		return mcpserver.RunHTTP(ctx, mcpSrv, authn, httpAddr)
+	}
+
+	logger.Info("Starting MCP server (stdio)")
+	return mcpserver.RunStdio(ctx, mcpSrv, authn, token)
 }
