@@ -1,0 +1,160 @@
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Ticket,
+  BookOpen,
+  Building2,
+  Users,
+  ShieldCheck,
+  LogOut,
+} from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { useReveal } from "@/lib/use-reveal";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/misc";
+
+interface NavItem {
+  to: string;
+  label: string;
+  icon: typeof Ticket;
+  soon?: boolean;
+}
+
+const NAV: NavItem[] = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/tickets", label: "Tickets", icon: Ticket },
+  { to: "/knowledge", label: "Knowledge", icon: BookOpen, soon: true },
+  { to: "/customers", label: "Customers", icon: Building2, soon: true },
+  { to: "/users", label: "Users", icon: Users, soon: true },
+  { to: "/rbac", label: "Access", icon: ShieldCheck, soon: true },
+];
+
+export function AppShell() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const navRef = useReveal<HTMLElement>();
+
+  const initials = (
+    (user?.first_name?.[0] ?? user?.username?.[0] ?? user?.email?.[0] ?? "?") +
+    (user?.last_name?.[0] ?? "")
+  ).toUpperCase();
+
+  return (
+    <div className="grid min-h-screen grid-cols-[15.5rem_1fr]">
+      {/* Left rail */}
+      <aside className="sticky top-0 flex h-screen flex-col border-r border-border bg-card/40 backdrop-blur">
+        <div className="flex h-16 items-center gap-2.5 px-5">
+          <div className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground shadow-[0_0_20px_-4px_rgba(255,176,31,0.8)]">
+            <Ticket className="size-4.5" strokeWidth={2.5} />
+          </div>
+          <div className="leading-none">
+            <div className="font-display text-[15px] font-bold tracking-tight">
+              SmartTicket
+            </div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              console
+            </div>
+          </div>
+        </div>
+
+        <nav ref={navRef} className="flex flex-1 flex-col gap-0.5 px-3 py-2">
+          {NAV.map((item) =>
+            item.soon ? (
+              <span
+                key={item.to}
+                data-reveal
+                className="flex cursor-not-allowed items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground/45"
+                title="Coming soon"
+              >
+                <item.icon className="size-4" />
+                {item.label}
+                <span className="ml-auto font-mono text-[9px] uppercase tracking-wider text-muted-foreground/40">
+                  soon
+                </span>
+              </span>
+            ) : (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                data-reveal
+                className={({ isActive }) =>
+                  cn(
+                    "group relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-primary/10 text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  )
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <span
+                      className={cn(
+                        "absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary transition-opacity",
+                        isActive ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <item.icon className="size-4" />
+                    {item.label}
+                  </>
+                )}
+              </NavLink>
+            )
+          )}
+        </nav>
+
+        <div className="px-3 pb-4 font-mono text-[10px] text-muted-foreground/50">
+          v0.1 · single-tenant
+        </div>
+      </aside>
+
+      {/* Main column */}
+      <div className="flex min-h-screen flex-col">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/70 px-7 backdrop-blur">
+          <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
+            superleo workspace
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-full border border-border bg-card/60 py-1 pl-1 pr-3 outline-none transition-colors hover:bg-accent">
+              <Avatar className="size-7">
+                <AvatarFallback>{initials}</AvatarFallback>
+              </Avatar>
+              <div className="text-left leading-tight">
+                <div className="text-xs font-medium">
+                  {user?.first_name || user?.username}
+                </div>
+                <div className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {user?.role}
+                </div>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={() => {
+                  logout();
+                  navigate("/login");
+                }}
+              >
+                <LogOut /> Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+
+        <main className="flex-1 px-7 py-7">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}
