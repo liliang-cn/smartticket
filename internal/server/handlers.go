@@ -124,10 +124,10 @@ func (s *Server) appInfo(c *gin.Context) {
 		Success: true,
 		Data: map[string]interface{}{
 			"name":        "SmartTicket",
-			"description": "Self-hosted multi-tenant ticketing platform",
+			"description": "Self-hosted single-tenant ticketing platform",
 			"version":     "1.0.0",
 			"features": []string{
-				"Multi-tenant support",
+				"Single-tenant support",
 				"Ticket management",
 				"Knowledge base",
 				"AI integration",

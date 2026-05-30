@@ -6,11 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTenant_TableName(t *testing.T) {
-	tenant := Tenant{}
-	assert.Equal(t, "tenants", tenant.TableName())
-}
-
 func TestUser_TableName(t *testing.T) {
 	user := User{}
 	assert.Equal(t, "users", user.TableName())
@@ -113,7 +108,6 @@ func TestTableNameConsistency(t *testing.T) {
 		expected  string
 		modelName string
 	}{
-		{Tenant{}, "tenants", "Tenant"},
 		{User{}, "users", "User"},
 		{Ticket{}, "tickets", "Ticket"},
 		{Message{}, "messages", "Message"},
@@ -149,7 +143,6 @@ func TestTableNameLowercase(t *testing.T) {
 		model     interface{ TableName() string }
 		modelName string
 	}{
-		{Tenant{}, "Tenant"},
 		{User{}, "User"},
 		{Ticket{}, "Ticket"},
 		{Message{}, "Message"},

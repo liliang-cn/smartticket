@@ -94,16 +94,6 @@ func (i *Initializer) seedEssentialData() error {
 				Name:        "admin",
 				Description: "System administrator with full access",
 				IsSystem:   true,
-				// System role (tenant_id = 0)
-			},
-			{
-				BaseModel: models.BaseModel{
-					CreatedAt: now,
-					UpdatedAt: now,
-				},
-				Name:        "tenant_admin",
-				Description: "Tenant administrator with tenant-wide access",
-				IsSystem:   false,
 			},
 			{
 				BaseModel: models.BaseModel{

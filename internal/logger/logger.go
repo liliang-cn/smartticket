@@ -132,11 +132,6 @@ func (l *Logger) WithRequestID(requestID string) *zap.Logger {
 	return l.With(zap.String("request_id", requestID))
 }
 
-// WithTenantID adds tenant ID to logger context.
-func (l *Logger) WithTenantID(tenantID uint) *zap.Logger {
-	return l.With(zap.Uint("tenant_id", tenantID))
-}
-
 // WithUserID adds user ID to logger context.
 func (l *Logger) WithUserID(userID uint) *zap.Logger {
 	return l.With(zap.Uint("user_id", userID))
@@ -223,10 +218,9 @@ func (l *Logger) LogSecurityEvent(event, userID, ipAddress, userAgent string, su
 }
 
 // LogBusinessEvent logs business-related events.
-func (l *Logger) LogBusinessEvent(event string, tenantID, userID uint, details map[string]interface{}) {
+func (l *Logger) LogBusinessEvent(event string, userID uint, details map[string]interface{}) {
 	fields := []zap.Field{
 		zap.String("event", event),
-		zap.Uint("tenant_id", tenantID),
 		zap.Uint("user_id", userID),
 	}
 
@@ -349,10 +343,6 @@ func WithRequestID(requestID string) *zap.Logger {
 	return GetGlobalLogger().WithRequestID(requestID)
 }
 
-func WithTenantID(tenantID uint) *zap.Logger {
-	return GetGlobalLogger().WithTenantID(tenantID)
-}
-
 func WithUserID(userID uint) *zap.Logger {
 	return GetGlobalLogger().WithUserID(userID)
 }
@@ -377,8 +367,8 @@ func LogSecurityEvent(event, userID, ipAddress, userAgent string, success bool) 
 	GetGlobalLogger().LogSecurityEvent(event, userID, ipAddress, userAgent, success)
 }
 
-func LogBusinessEvent(event string, tenantID, userID uint, details map[string]interface{}) {
-	GetGlobalLogger().LogBusinessEvent(event, tenantID, userID, details)
+func LogBusinessEvent(event string, userID uint, details map[string]interface{}) {
+	GetGlobalLogger().LogBusinessEvent(event, userID, details)
 }
 
 func LogPerformanceMetric(metric string, value float64, unit string, tags map[string]string) {
