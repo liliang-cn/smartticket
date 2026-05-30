@@ -106,8 +106,16 @@ type LLMRateLimitConfig struct {
 	TokensPerMinute   int `mapstructure:"tokens_per_minute" validate:"min=1000,max=100000"`
 }
 
-// Load loads configuration from file and environment variables.
+// Load loads configuration from the default search paths and environment
+// variables.
 func Load() (*Config, error) {
+	return loadFrom("")
+}
+
+// loadFrom loads configuration. When configFile is non-empty it is read
+// directly; otherwise the default search paths are used. Environment variables
+// always override file values.
+func loadFrom(configFile string) (*Config, error) {
 	v := viper.New()
 
 	// Set environment variable prefix
@@ -115,12 +123,17 @@ func Load() (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 
-	// Set config file search paths
-	v.SetConfigName("config")
-	v.SetConfigType("yaml")
-	v.AddConfigPath("./configs")
-	v.AddConfigPath("$HOME/.smartticket")
-	v.AddConfigPath("/etc/smartticket")
+	if configFile != "" {
+		// Use the explicitly provided config file.
+		v.SetConfigFile(configFile)
+	} else {
+		// Set config file search paths
+		v.SetConfigName("config")
+		v.SetConfigType("yaml")
+		v.AddConfigPath("./configs")
+		v.AddConfigPath("$HOME/.smartticket")
+		v.AddConfigPath("/etc/smartticket")
+	}
 
 	// Try to read config file
 	if err := v.ReadInConfig(); err != nil {
@@ -155,12 +168,7 @@ func Load() (*Config, error) {
 // LoadFromFlags loads configuration with command line flag overrides.
 func LoadFromFlags(cmd *cobra.Command) (*Config, error) {
 	configPath, _ := cmd.Flags().GetString("config")
-
-	if configPath != "" {
-		viper.SetConfigFile(configPath)
-	}
-
-	return Load()
+	return loadFrom(configPath)
 }
 
 // setDefaults sets default configuration values.
