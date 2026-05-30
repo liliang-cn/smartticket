@@ -229,7 +229,7 @@ type ieJobListInput struct {
 // ieJobListOutput is the MCP-specific output of importexport_job_list. It mirrors
 // importexport.JobListResponse but carries the cycle-safe ieJob view.
 type ieJobListOutput struct {
-	Data       []ieJob `json:"data" jsonschema:"the page of import/export jobs"`
+	Data       []ieJob `json:"data,omitempty" jsonschema:"the page of import/export jobs"`
 	Total      int64   `json:"total" jsonschema:"total number of matching jobs"`
 	Page       int     `json:"page" jsonschema:"the 1-based page number returned"`
 	PageSize   int     `json:"page_size" jsonschema:"the page size used"`
@@ -332,7 +332,7 @@ type ieJobStatsInput struct{}
 // ieJobStatsOutput is the structured output of importexport_job_stats.
 // Statistics are returned as a free-form map mirroring the service layer's shape.
 type ieJobStatsOutput struct {
-	Stats map[string]interface{} `json:"stats" jsonschema:"aggregate import/export job statistics keyed by metric name"`
+	Stats map[string]interface{} `json:"stats,omitempty" jsonschema:"aggregate import/export job statistics keyed by metric name"`
 }
 
 // ieJobStats returns aggregate import/export job statistics.

@@ -77,7 +77,7 @@ func knowledgeArticleFrom(r *knowledge.KnowledgeArticleResponse) knowledgeArticl
 // knowledgeArticleList is the cycle-safe MCP output of knowledge_list. It mirrors
 // knowledge.KnowledgeArticleListResponse but carries the flat knowledgeArticle view.
 type knowledgeArticleList struct {
-	Data       []knowledgeArticle `json:"data" jsonschema:"the page of knowledge articles"`
+	Data       []knowledgeArticle `json:"data,omitempty" jsonschema:"the page of knowledge articles"`
 	Total      int64              `json:"total" jsonschema:"total number of matching articles"`
 	Page       int                `json:"page" jsonschema:"the 1-based page number returned"`
 	PageSize   int                `json:"page_size" jsonschema:"the page size used"`
@@ -134,6 +134,59 @@ type knowledgeDeleteInput struct {
 // knowledgeStatsInput is the MCP input schema for knowledge_stats. It takes no
 // arguments.
 type knowledgeStatsInput struct{}
+
+// knowledgeRecentArticle is the schema-safe MCP view of a recently-updated
+// article in the stats payload.
+type knowledgeRecentArticle struct {
+	ID        uint      `json:"id" jsonschema:"the article's numeric ID"`
+	Title     string    `json:"title" jsonschema:"the article title"`
+	Status    string    `json:"status" jsonschema:"the article status"`
+	UpdatedAt time.Time `json:"updated_at" jsonschema:"when the article was last updated"`
+}
+
+// knowledgeStatsOutput is the schema-safe MCP view of knowledge article
+// statistics. The service-layer knowledge.KnowledgeArticleStatsResponse cannot be
+// reused directly: its CategoryBreakdown (map) and RecentActivity ([]RecentArticle)
+// fields lack `omitempty`, so a nil value marshals to JSON null and the go-sdk
+// rejects it against the inferred object/array output schema. Here both carry
+// `omitempty`.
+type knowledgeStatsOutput struct {
+	TotalArticles     int64                    `json:"total_articles" jsonschema:"total number of articles"`
+	PublishedArticles int64                    `json:"published_articles" jsonschema:"number of published articles"`
+	DraftArticles     int64                    `json:"draft_articles" jsonschema:"number of draft articles"`
+	ArchivedArticles  int64                    `json:"archived_articles" jsonschema:"number of archived articles"`
+	CategoryBreakdown map[string]int64         `json:"category_breakdown,omitempty" jsonschema:"article counts keyed by category"`
+	TotalViews        int64                    `json:"total_views" jsonschema:"total article views"`
+	RecentActivity    []knowledgeRecentArticle `json:"recent_activity,omitempty" jsonschema:"recently updated articles"`
+}
+
+// knowledgeStatsOutputFrom converts the service-layer stats response into the
+// schema-safe MCP view.
+func knowledgeStatsOutputFrom(r *knowledge.KnowledgeArticleStatsResponse) knowledgeStatsOutput {
+	if r == nil {
+		return knowledgeStatsOutput{}
+	}
+	out := knowledgeStatsOutput{
+		TotalArticles:     r.TotalArticles,
+		PublishedArticles: r.PublishedArticles,
+		DraftArticles:     r.DraftArticles,
+		ArchivedArticles:  r.ArchivedArticles,
+		CategoryBreakdown: r.CategoryBreakdown,
+		TotalViews:        r.TotalViews,
+	}
+	if len(r.RecentActivity) > 0 {
+		out.RecentActivity = make([]knowledgeRecentArticle, len(r.RecentActivity))
+		for i := range r.RecentActivity {
+			out.RecentActivity[i] = knowledgeRecentArticle{
+				ID:        r.RecentActivity[i].ID,
+				Title:     r.RecentActivity[i].Title,
+				Status:    r.RecentActivity[i].Status,
+				UpdatedAt: r.RecentActivity[i].UpdatedAt,
+			}
+		}
+	}
+	return out
+}
 
 // knowledgeDeleteOutput is the structured output of knowledge_delete.
 type knowledgeDeleteOutput struct {
@@ -193,7 +246,7 @@ func registerKnowledgeTools(s *mcp.Server, b Backend) {
 		"knowledge_stats",
 		"Return aggregate statistics about knowledge base articles.",
 		"knowledge:read",
-		func(ctx context.Context, in knowledgeStatsInput) (*knowledge.KnowledgeArticleStatsResponse, string, error) {
+		func(ctx context.Context, in knowledgeStatsInput) (knowledgeStatsOutput, string, error) {
 			return knowledgeStats(ctx, b, in)
 		},
 	)
@@ -330,13 +383,13 @@ func knowledgeDelete(ctx context.Context, b Backend, in knowledgeDeleteInput) (k
 }
 
 // knowledgeStats handles knowledge_stats.
-func knowledgeStats(_ context.Context, b Backend, _ knowledgeStatsInput) (*knowledge.KnowledgeArticleStatsResponse, string, error) {
+func knowledgeStats(_ context.Context, b Backend, _ knowledgeStatsInput) (knowledgeStatsOutput, string, error) {
 	resp, err := b.GetKnowledgeArticleStats()
 	if err != nil {
-		return nil, "", err
+		return knowledgeStatsOutput{}, "", err
 	}
 
 	summary := fmt.Sprintf("Knowledge base: %d article(s) total (%d published, %d draft, %d archived), %d total view(s).",
 		resp.TotalArticles, resp.PublishedArticles, resp.DraftArticles, resp.ArchivedArticles, resp.TotalViews)
-	return resp, summary, nil
+	return knowledgeStatsOutputFrom(resp), summary, nil
 }

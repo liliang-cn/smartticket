@@ -40,29 +40,9 @@ func RunHTTP(ctx context.Context, s *mcp.Server, authn *Authenticator, addr stri
 		return s
 	}, nil)
 
-	// authMiddleware extracts and validates the bearer token, injecting the
-	// resulting Session into the request context before delegating to the MCP
-	// handler. The MCP handler derives its handler context from r.Context(),
-	// so the Session reaches tool handlers' ctx.
-	authMiddleware := func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			token := bearerToken(r)
-			if token == "" {
-				http.Error(w, "missing or malformed Authorization header", http.StatusUnauthorized)
-				return
-			}
-			session, err := authn.Authenticate(r.Context(), token)
-			if err != nil {
-				http.Error(w, "invalid credentials", http.StatusUnauthorized)
-				return
-			}
-			next.ServeHTTP(w, r.WithContext(WithSession(r.Context(), session)))
-		})
-	}
-
 	httpServer := &http.Server{
 		Addr:              addr,
-		Handler:           authMiddleware(mcpHandler),
+		Handler:           authHTTPMiddleware(authn, mcpHandler),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
@@ -87,6 +67,27 @@ func RunHTTP(ctx context.Context, s *mcp.Server, authn *Authenticator, addr stri
 		defer cancel()
 		return httpServer.Shutdown(shutCtx)
 	}
+}
+
+// authHTTPMiddleware extracts and validates the bearer token, injecting the
+// resulting Session into the request context before delegating to next. The MCP
+// handler derives its handler context from r.Context(), so the Session reaches
+// tool handlers' ctx. Requests without a valid bearer credential receive 401 and
+// never reach next.
+func authHTTPMiddleware(authn *Authenticator, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := bearerToken(r)
+		if token == "" {
+			http.Error(w, "missing or malformed Authorization header", http.StatusUnauthorized)
+			return
+		}
+		session, err := authn.Authenticate(r.Context(), token)
+		if err != nil {
+			http.Error(w, "invalid credentials", http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r.WithContext(WithSession(r.Context(), session)))
+	})
 }
 
 // bearerToken extracts the token from an "Authorization: Bearer <token>" header,

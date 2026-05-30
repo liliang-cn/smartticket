@@ -232,13 +232,13 @@ type rbacRemovePermissionFromRoleInput struct {
 
 // rbacRolesOutput is the structured output for tools returning a list of roles.
 type rbacRolesOutput struct {
-	Roles []rbacRoleView `json:"roles" jsonschema:"the matching roles"`
+	Roles []rbacRoleView `json:"roles,omitempty" jsonschema:"the matching roles"`
 	Total int            `json:"total" jsonschema:"the number of roles returned"`
 }
 
 // rbacPermissionsOutput is the structured output for tools returning a list of permissions.
 type rbacPermissionsOutput struct {
-	Permissions []rbacPermissionView `json:"permissions" jsonschema:"the matching permissions"`
+	Permissions []rbacPermissionView `json:"permissions,omitempty" jsonschema:"the matching permissions"`
 	Total       int                  `json:"total" jsonschema:"the number of permissions returned"`
 }
 

@@ -3,11 +3,138 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/company/smartticket/internal/sla"
 )
+
+// ----------------------------------------------------------------------------
+// Local output views
+// ----------------------------------------------------------------------------
+//
+// sla.SLATemplateResponse cannot be reused as an MCP Output: its PriorityLevels,
+// SeverityLevels, Holidays ([]string) and ResponseTimes, ResolutionTimes,
+// BusinessHours, Configuration (map) fields lack `omitempty`, so a nil value
+// marshals to JSON null and the go-sdk rejects it against the inferred
+// array/object output schema (breaking the success path on nil data and every
+// error path, which returns a zero Out). slaTemplateResponse is the schema-safe
+// MCP view: every slice/map field carries `omitempty`.
+//
+// sla.SLARuleResponse has no slice/map fields, but slaRuleResponse mirrors it as
+// an MCP-local view so the whole package uniformly returns MCP-local Output
+// structs; list slices carry `omitempty` so a nil page is omitted, not null.
+type slaTemplateResponse struct {
+	ID              uint                   `json:"id" jsonschema:"the template's numeric ID"`
+	Name            string                 `json:"name" jsonschema:"the SLA template name"`
+	Description     string                 `json:"description,omitempty" jsonschema:"the template description"`
+	IsDefault       bool                   `json:"is_default" jsonschema:"whether this template is the default"`
+	IsActive        bool                   `json:"is_active" jsonschema:"whether the template is active"`
+	PriorityLevels  []string               `json:"priority_levels,omitempty" jsonschema:"the priority levels"`
+	SeverityLevels  []string               `json:"severity_levels,omitempty" jsonschema:"the severity levels"`
+	ResponseTimes   map[string]interface{} `json:"response_times,omitempty" jsonschema:"response time targets keyed by level"`
+	ResolutionTimes map[string]interface{} `json:"resolution_times,omitempty" jsonschema:"resolution time targets keyed by level"`
+	BusinessHours   map[string]interface{} `json:"business_hours,omitempty" jsonschema:"business hours configuration"`
+	Holidays        []string               `json:"holidays,omitempty" jsonschema:"holiday dates"`
+	Configuration   map[string]interface{} `json:"configuration,omitempty" jsonschema:"additional configuration"`
+	IsDeleted       bool                   `json:"is_deleted" jsonschema:"whether the template is soft-deleted"`
+	CreatedAt       time.Time              `json:"created_at" jsonschema:"when the template was created"`
+	UpdatedAt       time.Time              `json:"updated_at" jsonschema:"when the template was last updated"`
+}
+
+// slaTemplateResponseFrom converts a service-layer sla.SLATemplateResponse into
+// the schema-safe MCP view.
+func slaTemplateResponseFrom(r *sla.SLATemplateResponse) slaTemplateResponse {
+	if r == nil {
+		return slaTemplateResponse{}
+	}
+	return slaTemplateResponse{
+		ID:              r.ID,
+		Name:            r.Name,
+		Description:     r.Description,
+		IsDefault:       r.IsDefault,
+		IsActive:        r.IsActive,
+		PriorityLevels:  r.PriorityLevels,
+		SeverityLevels:  r.SeverityLevels,
+		ResponseTimes:   r.ResponseTimes,
+		ResolutionTimes: r.ResolutionTimes,
+		BusinessHours:   r.BusinessHours,
+		Holidays:        r.Holidays,
+		Configuration:   r.Configuration,
+		IsDeleted:       r.IsDeleted,
+		CreatedAt:       r.CreatedAt,
+		UpdatedAt:       r.UpdatedAt,
+	}
+}
+
+// slaTemplateResponsesFrom converts a slice of service-layer responses into views.
+func slaTemplateResponsesFrom(rs []sla.SLATemplateResponse) []slaTemplateResponse {
+	if len(rs) == 0 {
+		return nil
+	}
+	views := make([]slaTemplateResponse, len(rs))
+	for i := range rs {
+		views[i] = slaTemplateResponseFrom(&rs[i])
+	}
+	return views
+}
+
+// slaRuleResponse is the MCP-local view of an SLA rule. sla.SLARuleResponse has
+// no slice/map fields, so this is a 1:1 flat copy; it exists so the package
+// follows the uniform rule that every tool Output is an MCP-local struct rather
+// than a service-layer DTO. Its pointer fields carry omitempty for tidiness.
+type slaRuleResponse struct {
+	ID             uint      `json:"id" jsonschema:"the rule's numeric ID"`
+	TemplateID     uint      `json:"template_id" jsonschema:"the owning SLA template ID"`
+	Priority       string    `json:"priority" jsonschema:"the ticket priority this rule matches"`
+	Severity       string    `json:"severity" jsonschema:"the ticket severity this rule matches"`
+	ResponseTime   int       `json:"response_time" jsonschema:"target response time in minutes"`
+	ResolutionTime int       `json:"resolution_time" jsonschema:"target resolution time in minutes"`
+	BusinessOnly   bool      `json:"business_only" jsonschema:"whether timing counts only business hours"`
+	ProductID      *uint     `json:"product_id,omitempty" jsonschema:"optional product scope"`
+	ServiceID      *uint     `json:"service_id,omitempty" jsonschema:"optional service scope"`
+	Conditions     string    `json:"conditions,omitempty" jsonschema:"additional matching conditions as a JSON string"`
+	IsActive       bool      `json:"is_active" jsonschema:"whether the rule is active"`
+	IsDeleted      bool      `json:"is_deleted" jsonschema:"whether the rule is soft-deleted"`
+	CreatedAt      time.Time `json:"created_at" jsonschema:"when the rule was created"`
+	UpdatedAt      time.Time `json:"updated_at" jsonschema:"when the rule was last updated"`
+}
+
+// slaRuleResponseFrom converts a service-layer sla.SLARuleResponse into the view.
+func slaRuleResponseFrom(r *sla.SLARuleResponse) slaRuleResponse {
+	if r == nil {
+		return slaRuleResponse{}
+	}
+	return slaRuleResponse{
+		ID:             r.ID,
+		TemplateID:     r.TemplateID,
+		Priority:       r.Priority,
+		Severity:       r.Severity,
+		ResponseTime:   r.ResponseTime,
+		ResolutionTime: r.ResolutionTime,
+		BusinessOnly:   r.BusinessOnly,
+		ProductID:      r.ProductID,
+		ServiceID:      r.ServiceID,
+		Conditions:     r.Conditions,
+		IsActive:       r.IsActive,
+		IsDeleted:      r.IsDeleted,
+		CreatedAt:      r.CreatedAt,
+		UpdatedAt:      r.UpdatedAt,
+	}
+}
+
+// slaRuleResponsesFrom converts a slice of service-layer responses into views.
+func slaRuleResponsesFrom(rs []sla.SLARuleResponse) []slaRuleResponse {
+	if len(rs) == 0 {
+		return nil
+	}
+	views := make([]slaRuleResponse, len(rs))
+	for i := range rs {
+		views[i] = slaRuleResponseFrom(&rs[i])
+	}
+	return views
+}
 
 // registerSLATools registers the SLA-domain MCP tools: 8 template tools and 7
 // rule tools. See server.go for the tool implementation conventions and the
@@ -21,7 +148,7 @@ func registerSLATools(s *mcp.Server, b Backend) {
 		"sla_create_template",
 		"Create a new SLA template defining priority/severity levels and response/resolution targets.",
 		"sla:write",
-		func(ctx context.Context, in slaCreateTemplateInput) (*sla.SLATemplateResponse, string, error) {
+		func(ctx context.Context, in slaCreateTemplateInput) (slaTemplateResponse, string, error) {
 			return slaCreateTemplate(ctx, b, in)
 		},
 	)
@@ -30,7 +157,7 @@ func registerSLATools(s *mcp.Server, b Backend) {
 		"sla_get_template",
 		"Retrieve a single SLA template by its numeric ID.",
 		"sla:read",
-		func(ctx context.Context, in slaGetTemplateInput) (*sla.SLATemplateResponse, string, error) {
+		func(ctx context.Context, in slaGetTemplateInput) (slaTemplateResponse, string, error) {
 			return slaGetTemplate(ctx, b, in)
 		},
 	)
@@ -48,7 +175,7 @@ func registerSLATools(s *mcp.Server, b Backend) {
 		"sla_update_template",
 		"Update fields of an existing SLA template. Only provided fields are changed.",
 		"sla:write",
-		func(ctx context.Context, in slaUpdateTemplateInput) (*sla.SLATemplateResponse, string, error) {
+		func(ctx context.Context, in slaUpdateTemplateInput) (slaTemplateResponse, string, error) {
 			return slaUpdateTemplate(ctx, b, in)
 		},
 	)
@@ -95,7 +222,7 @@ func registerSLATools(s *mcp.Server, b Backend) {
 		"sla_create_rule",
 		"Create a new SLA rule binding a priority/severity (and optional product/service) to response/resolution times.",
 		"sla:write",
-		func(ctx context.Context, in slaCreateRuleInput) (*sla.SLARuleResponse, string, error) {
+		func(ctx context.Context, in slaCreateRuleInput) (slaRuleResponse, string, error) {
 			return slaCreateRule(ctx, b, in)
 		},
 	)
@@ -104,7 +231,7 @@ func registerSLATools(s *mcp.Server, b Backend) {
 		"sla_get_rule",
 		"Retrieve a single SLA rule by its numeric ID.",
 		"sla:read",
-		func(ctx context.Context, in slaGetRuleInput) (*sla.SLARuleResponse, string, error) {
+		func(ctx context.Context, in slaGetRuleInput) (slaRuleResponse, string, error) {
 			return slaGetRule(ctx, b, in)
 		},
 	)
@@ -122,7 +249,7 @@ func registerSLATools(s *mcp.Server, b Backend) {
 		"sla_update_rule",
 		"Update fields of an existing SLA rule. Only provided fields are changed.",
 		"sla:write",
-		func(ctx context.Context, in slaUpdateRuleInput) (*sla.SLARuleResponse, string, error) {
+		func(ctx context.Context, in slaUpdateRuleInput) (slaRuleResponse, string, error) {
 			return slaUpdateRule(ctx, b, in)
 		},
 	)
@@ -169,18 +296,18 @@ type slaActionOutput struct {
 
 // slaTemplateListOutput is the structured output for sla_list_templates.
 type slaTemplateListOutput struct {
-	Templates []sla.SLATemplateResponse `json:"templates" jsonschema:"the page of SLA templates"`
-	Total     int64                     `json:"total" jsonschema:"total number of matching SLA templates"`
-	Page      int                       `json:"page" jsonschema:"the current page number"`
-	PageSize  int                       `json:"page_size" jsonschema:"the page size used"`
+	Templates []slaTemplateResponse `json:"templates,omitempty" jsonschema:"the page of SLA templates"`
+	Total     int64                 `json:"total" jsonschema:"total number of matching SLA templates"`
+	Page      int                   `json:"page" jsonschema:"the current page number"`
+	PageSize  int                   `json:"page_size" jsonschema:"the page size used"`
 }
 
 // slaRuleListOutput is the structured output for sla_list_rules.
 type slaRuleListOutput struct {
-	Rules    []sla.SLARuleResponse `json:"rules" jsonschema:"the page of SLA rules"`
-	Total    int64                 `json:"total" jsonschema:"total number of matching SLA rules"`
-	Page     int                   `json:"page" jsonschema:"the current page number"`
-	PageSize int                   `json:"page_size" jsonschema:"the page size used"`
+	Rules    []slaRuleResponse `json:"rules,omitempty" jsonschema:"the page of SLA rules"`
+	Total    int64             `json:"total" jsonschema:"total number of matching SLA rules"`
+	Page     int               `json:"page" jsonschema:"the current page number"`
+	PageSize int               `json:"page_size" jsonschema:"the page size used"`
 }
 
 // ----------------------------------------------------------------------------
@@ -204,7 +331,7 @@ type slaCreateTemplateInput struct {
 	Configuration   string `json:"configuration,omitempty" jsonschema:"JSON object of additional configuration"`
 }
 
-func slaCreateTemplate(_ context.Context, b Backend, in slaCreateTemplateInput) (*sla.SLATemplateResponse, string, error) {
+func slaCreateTemplate(_ context.Context, b Backend, in slaCreateTemplateInput) (slaTemplateResponse, string, error) {
 	req := &sla.CreateSLATemplateRequest{
 		Name:            in.Name,
 		Description:     in.Description,
@@ -220,9 +347,9 @@ func slaCreateTemplate(_ context.Context, b Backend, in slaCreateTemplateInput) 
 	}
 	resp, err := b.CreateSLATemplate(req)
 	if err != nil {
-		return nil, "", err
+		return slaTemplateResponse{}, "", err
 	}
-	return resp, fmt.Sprintf("Created SLA template #%d (%s).", resp.ID, resp.Name), nil
+	return slaTemplateResponseFrom(resp), fmt.Sprintf("Created SLA template #%d (%s).", resp.ID, resp.Name), nil
 }
 
 // slaGetTemplateInput is the input schema for sla_get_template.
@@ -230,12 +357,12 @@ type slaGetTemplateInput struct {
 	TemplateID uint `json:"template_id" jsonschema:"the numeric ID of the SLA template to retrieve"`
 }
 
-func slaGetTemplate(_ context.Context, b Backend, in slaGetTemplateInput) (*sla.SLATemplateResponse, string, error) {
+func slaGetTemplate(_ context.Context, b Backend, in slaGetTemplateInput) (slaTemplateResponse, string, error) {
 	resp, err := b.GetSLATemplate(in.TemplateID)
 	if err != nil {
-		return nil, "", err
+		return slaTemplateResponse{}, "", err
 	}
-	return resp, fmt.Sprintf("Retrieved SLA template #%d (%s).", resp.ID, resp.Name), nil
+	return slaTemplateResponseFrom(resp), fmt.Sprintf("Retrieved SLA template #%d (%s).", resp.ID, resp.Name), nil
 }
 
 // slaListTemplatesInput is the input schema for sla_list_templates.
@@ -262,7 +389,7 @@ func slaListTemplates(_ context.Context, b Backend, in slaListTemplatesInput) (s
 		return slaTemplateListOutput{}, "", err
 	}
 	out := slaTemplateListOutput{
-		Templates: list,
+		Templates: slaTemplateResponsesFrom(list),
 		Total:     total,
 		Page:      req.Page,
 		PageSize:  req.PageSize,
@@ -287,7 +414,7 @@ type slaUpdateTemplateInput struct {
 	Configuration   *string `json:"configuration,omitempty" jsonschema:"JSON object of additional configuration"`
 }
 
-func slaUpdateTemplate(_ context.Context, b Backend, in slaUpdateTemplateInput) (*sla.SLATemplateResponse, string, error) {
+func slaUpdateTemplate(_ context.Context, b Backend, in slaUpdateTemplateInput) (slaTemplateResponse, string, error) {
 	req := &sla.UpdateSLATemplateRequest{
 		Name:            in.Name,
 		Description:     in.Description,
@@ -303,9 +430,9 @@ func slaUpdateTemplate(_ context.Context, b Backend, in slaUpdateTemplateInput) 
 	}
 	resp, err := b.UpdateSLATemplate(in.TemplateID, req)
 	if err != nil {
-		return nil, "", err
+		return slaTemplateResponse{}, "", err
 	}
-	return resp, fmt.Sprintf("Updated SLA template #%d (%s).", resp.ID, resp.Name), nil
+	return slaTemplateResponseFrom(resp), fmt.Sprintf("Updated SLA template #%d (%s).", resp.ID, resp.Name), nil
 }
 
 // slaTemplateIDInput is the input schema for template tools that act on an ID.
@@ -362,7 +489,7 @@ type slaCreateRuleInput struct {
 	Conditions     string `json:"conditions,omitempty" jsonschema:"JSON object of additional matching conditions"`
 }
 
-func slaCreateRule(_ context.Context, b Backend, in slaCreateRuleInput) (*sla.SLARuleResponse, string, error) {
+func slaCreateRule(_ context.Context, b Backend, in slaCreateRuleInput) (slaRuleResponse, string, error) {
 	req := &sla.CreateSLARuleRequest{
 		TemplateID:     in.TemplateID,
 		Priority:       in.Priority,
@@ -376,9 +503,9 @@ func slaCreateRule(_ context.Context, b Backend, in slaCreateRuleInput) (*sla.SL
 	}
 	resp, err := b.CreateSLARule(req)
 	if err != nil {
-		return nil, "", err
+		return slaRuleResponse{}, "", err
 	}
-	return resp, fmt.Sprintf("Created SLA rule #%d (%s/%s).", resp.ID, resp.Priority, resp.Severity), nil
+	return slaRuleResponseFrom(resp), fmt.Sprintf("Created SLA rule #%d (%s/%s).", resp.ID, resp.Priority, resp.Severity), nil
 }
 
 // slaGetRuleInput is the input schema for sla_get_rule.
@@ -386,12 +513,12 @@ type slaGetRuleInput struct {
 	RuleID uint `json:"rule_id" jsonschema:"the numeric ID of the SLA rule to retrieve"`
 }
 
-func slaGetRule(_ context.Context, b Backend, in slaGetRuleInput) (*sla.SLARuleResponse, string, error) {
+func slaGetRule(_ context.Context, b Backend, in slaGetRuleInput) (slaRuleResponse, string, error) {
 	resp, err := b.GetSLARule(in.RuleID)
 	if err != nil {
-		return nil, "", err
+		return slaRuleResponse{}, "", err
 	}
-	return resp, fmt.Sprintf("Retrieved SLA rule #%d (%s/%s).", resp.ID, resp.Priority, resp.Severity), nil
+	return slaRuleResponseFrom(resp), fmt.Sprintf("Retrieved SLA rule #%d (%s/%s).", resp.ID, resp.Priority, resp.Severity), nil
 }
 
 // slaListRulesInput is the input schema for sla_list_rules.
@@ -426,7 +553,7 @@ func slaListRules(_ context.Context, b Backend, in slaListRulesInput) (slaRuleLi
 		return slaRuleListOutput{}, "", err
 	}
 	out := slaRuleListOutput{
-		Rules:    list,
+		Rules:    slaRuleResponsesFrom(list),
 		Total:    total,
 		Page:     req.Page,
 		PageSize: req.PageSize,
@@ -449,7 +576,7 @@ type slaUpdateRuleInput struct {
 	Conditions     *string `json:"conditions,omitempty" jsonschema:"JSON object of additional matching conditions"`
 }
 
-func slaUpdateRule(_ context.Context, b Backend, in slaUpdateRuleInput) (*sla.SLARuleResponse, string, error) {
+func slaUpdateRule(_ context.Context, b Backend, in slaUpdateRuleInput) (slaRuleResponse, string, error) {
 	req := &sla.UpdateSLARuleRequest{
 		TemplateID:     in.TemplateID,
 		Priority:       in.Priority,
@@ -463,9 +590,9 @@ func slaUpdateRule(_ context.Context, b Backend, in slaUpdateRuleInput) (*sla.SL
 	}
 	resp, err := b.UpdateSLARule(in.RuleID, req)
 	if err != nil {
-		return nil, "", err
+		return slaRuleResponse{}, "", err
 	}
-	return resp, fmt.Sprintf("Updated SLA rule #%d (%s/%s).", resp.ID, resp.Priority, resp.Severity), nil
+	return slaRuleResponseFrom(resp), fmt.Sprintf("Updated SLA rule #%d (%s/%s).", resp.ID, resp.Priority, resp.Severity), nil
 }
 
 // slaRuleIDInput is the input schema for rule tools that act on an ID.

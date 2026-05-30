@@ -34,7 +34,7 @@ func TestSvcCreate(t *testing.T) {
 
 	out, summary, err := svcCreate(ctx, mb, in)
 	require.NoError(t, err)
-	assert.Equal(t, resp, out)
+	assert.Equal(t, svcResponseFrom(resp), out)
 	assert.Equal(t, "Created service #42 (Email Support).", summary)
 	mb.AssertExpectations(t)
 }
@@ -52,7 +52,7 @@ func TestSvcCreateError(t *testing.T) {
 	out, summary, err := svcCreate(ctx, mb, in)
 	require.Error(t, err)
 	assert.Equal(t, wantErr, err)
-	assert.Nil(t, out)
+	assert.Zero(t, out)
 	assert.Empty(t, summary)
 	mb.AssertExpectations(t)
 }
@@ -66,7 +66,7 @@ func TestSvcGet(t *testing.T) {
 
 	out, summary, err := svcGet(ctx, mb, svcGetInput{ID: 9})
 	require.NoError(t, err)
-	assert.Equal(t, resp, out)
+	assert.Equal(t, svcResponseFrom(resp), out)
 	assert.Equal(t, "Service #9 (DB Hosting).", summary)
 	mb.AssertExpectations(t)
 }
@@ -81,7 +81,7 @@ func TestSvcGetNotFound(t *testing.T) {
 	out, summary, err := svcGet(ctx, mb, svcGetInput{ID: 404})
 	require.Error(t, err)
 	assert.Equal(t, wantErr, err)
-	assert.Nil(t, out)
+	assert.Zero(t, out)
 	assert.Empty(t, summary)
 	mb.AssertExpectations(t)
 }
@@ -102,7 +102,7 @@ func TestSvcList(t *testing.T) {
 
 	out, summary, err := svcList(ctx, mb, in)
 	require.NoError(t, err)
-	assert.Equal(t, services, out.Services)
+	assert.Equal(t, svcResponsesFrom(services), out.Services)
 	assert.Equal(t, int64(5), out.Total)
 	assert.Equal(t, "Listed 2 of 5 service(s).", summary)
 	mb.AssertExpectations(t)
@@ -136,7 +136,7 @@ func TestSvcUpdate(t *testing.T) {
 
 	out, summary, err := svcUpdate(ctx, mb, in)
 	require.NoError(t, err)
-	assert.Equal(t, resp, out)
+	assert.Equal(t, svcResponseFrom(resp), out)
 	assert.Equal(t, "Updated service #5 (Renamed).", summary)
 	mb.AssertExpectations(t)
 }
@@ -151,7 +151,7 @@ func TestSvcUpdateError(t *testing.T) {
 	out, summary, err := svcUpdate(ctx, mb, svcUpdateInput{ID: 5, Type: "bogus"})
 	require.Error(t, err)
 	assert.Equal(t, wantErr, err)
-	assert.Nil(t, out)
+	assert.Zero(t, out)
 	assert.Empty(t, summary)
 	mb.AssertExpectations(t)
 }

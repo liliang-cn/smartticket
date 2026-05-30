@@ -56,7 +56,7 @@ func TestProductCreate(t *testing.T) {
 
 		out, _, err := productCreate(ctx, b, productCreateInput{Name: "X", Code: "X"})
 		require.Error(t, err)
-		assert.Nil(t, out)
+		assert.Zero(t, out)
 		b.AssertExpectations(t)
 	})
 }
@@ -86,7 +86,7 @@ func TestProductGet(t *testing.T) {
 
 		out, _, err := productGet(ctx, b, productGetInput{ID: 99})
 		require.Error(t, err)
-		assert.Nil(t, out)
+		assert.Zero(t, out)
 		b.AssertExpectations(t)
 	})
 }
@@ -182,7 +182,7 @@ func TestProductUpdate(t *testing.T) {
 
 		out, _, err := productUpdate(ctx, b, productUpdateInput{ID: 404, Name: "x"})
 		require.Error(t, err)
-		assert.Nil(t, out)
+		assert.Zero(t, out)
 		b.AssertExpectations(t)
 	})
 }

@@ -3,25 +3,92 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/company/smartticket/internal/product"
 )
 
+// ----------------------------------------------------------------------------
+// Local output view
+// ----------------------------------------------------------------------------
+//
+// product.ProductResponse cannot be reused as an MCP Output: its Configuration
+// (map) and Tags ([]string) fields lack `omitempty`, so a nil value marshals to
+// JSON null and the go-sdk rejects it against the inferred object/array output
+// schema (breaking the success path on nil data and every error path, which
+// returns a zero Out). productResponse is the schema-safe MCP view: every
+// slice/map/pointer field carries `omitempty`.
+type productResponse struct {
+	ID            uint                   `json:"id" jsonschema:"the product's numeric ID"`
+	Name          string                 `json:"name" jsonschema:"product display name"`
+	Code          string                 `json:"code" jsonschema:"unique product code"`
+	Description   string                 `json:"description,omitempty" jsonschema:"product description"`
+	Category      string                 `json:"category,omitempty" jsonschema:"product category"`
+	Version       string                 `json:"version,omitempty" jsonschema:"product version string"`
+	Status        string                 `json:"status" jsonschema:"product status"`
+	IsManaged     bool                   `json:"is_managed" jsonschema:"whether the product is actively managed"`
+	SupportLevel  string                 `json:"support_level,omitempty" jsonschema:"product support level"`
+	Documentation string                 `json:"documentation,omitempty" jsonschema:"documentation link or text"`
+	Configuration map[string]interface{} `json:"configuration,omitempty" jsonschema:"product configuration"`
+	Tags          []string               `json:"tags,omitempty" jsonschema:"product tags"`
+	IsDeleted     bool                   `json:"is_deleted" jsonschema:"whether the product is soft-deleted"`
+	CreatedAt     time.Time              `json:"created_at" jsonschema:"when the product was created"`
+	UpdatedAt     time.Time              `json:"updated_at" jsonschema:"when the product was last updated"`
+}
+
+// productResponseFrom converts a service-layer product.ProductResponse into the
+// schema-safe MCP view. The embedded Services association is dropped to keep the
+// view flat.
+func productResponseFrom(r *product.ProductResponse) productResponse {
+	if r == nil {
+		return productResponse{}
+	}
+	return productResponse{
+		ID:            r.ID,
+		Name:          r.Name,
+		Code:          r.Code,
+		Description:   r.Description,
+		Category:      r.Category,
+		Version:       r.Version,
+		Status:        r.Status,
+		IsManaged:     r.IsManaged,
+		SupportLevel:  r.SupportLevel,
+		Documentation: r.Documentation,
+		Configuration: r.Configuration,
+		Tags:          r.Tags,
+		IsDeleted:     r.IsDeleted,
+		CreatedAt:     r.CreatedAt,
+		UpdatedAt:     r.UpdatedAt,
+	}
+}
+
+// productResponsesFrom converts a slice of service-layer responses into views.
+func productResponsesFrom(rs []product.ProductResponse) []productResponse {
+	if len(rs) == 0 {
+		return nil
+	}
+	views := make([]productResponse, len(rs))
+	for i := range rs {
+		views[i] = productResponseFrom(&rs[i])
+	}
+	return views
+}
+
 // registerProductTools registers the product-domain MCP tools.
 // See server.go for the tool implementation conventions and auth_whoami template.
 //
 // All identifiers in this file are prefixed with "product" to avoid collisions
-// with sibling domain files in the same package. The structured outputs reuse the
-// product package's response types directly; only the inputs are MCP-specific
-// structs translated into the service-layer DTOs.
+// with sibling domain files in the same package. The structured outputs use the
+// MCP-local productResponse view (see above); the inputs are likewise
+// MCP-specific structs translated into the service-layer DTOs.
 func registerProductTools(s *mcp.Server, b Backend) {
 	registerTool(s,
 		"product_create",
 		"Create a new product in the service catalog.",
 		"product:write",
-		func(ctx context.Context, in productCreateInput) (*product.ProductResponse, string, error) {
+		func(ctx context.Context, in productCreateInput) (productResponse, string, error) {
 			return productCreate(ctx, b, in)
 		},
 	)
@@ -30,7 +97,7 @@ func registerProductTools(s *mcp.Server, b Backend) {
 		"product_get",
 		"Fetch a single product by its numeric ID, including associated services.",
 		"product:read",
-		func(ctx context.Context, in productGetInput) (*product.ProductResponse, string, error) {
+		func(ctx context.Context, in productGetInput) (productResponse, string, error) {
 			return productGet(ctx, b, in)
 		},
 	)
@@ -48,7 +115,7 @@ func registerProductTools(s *mcp.Server, b Backend) {
 		"product_update",
 		"Update an existing product's fields by its numeric ID. Only provided fields are changed.",
 		"product:write",
-		func(ctx context.Context, in productUpdateInput) (*product.ProductResponse, string, error) {
+		func(ctx context.Context, in productUpdateInput) (productResponse, string, error) {
 			return productUpdate(ctx, b, in)
 		},
 	)
@@ -121,10 +188,10 @@ type productListInput struct {
 
 // productListOutput is the structured output of product_list.
 type productListOutput struct {
-	Products []product.ProductResponse `json:"products" jsonschema:"the page of products"`
-	Total    int64                     `json:"total" jsonschema:"total number of products matching the filters"`
-	Page     int                       `json:"page" jsonschema:"the page number returned"`
-	PageSize int                       `json:"page_size" jsonschema:"the page size used"`
+	Products []productResponse `json:"products,omitempty" jsonschema:"the page of products"`
+	Total    int64             `json:"total" jsonschema:"total number of products matching the filters"`
+	Page     int               `json:"page" jsonschema:"the page number returned"`
+	PageSize int               `json:"page_size" jsonschema:"the page size used"`
 }
 
 // productUpdateInput is the MCP input schema for product_update. All fields except
@@ -178,7 +245,7 @@ type productStatusOutput struct {
 
 // productCreate translates the MCP input into a service request and creates the
 // product via the Backend.
-func productCreate(_ context.Context, b Backend, in productCreateInput) (*product.ProductResponse, string, error) {
+func productCreate(_ context.Context, b Backend, in productCreateInput) (productResponse, string, error) {
 	req := &product.CreateProductRequest{
 		Name:          in.Name,
 		Code:          in.Code,
@@ -195,20 +262,20 @@ func productCreate(_ context.Context, b Backend, in productCreateInput) (*produc
 
 	resp, err := b.CreateProduct(req)
 	if err != nil {
-		return nil, "", err
+		return productResponse{}, "", err
 	}
 	summary := fmt.Sprintf("Created product %q (#%d, code %s).", resp.Name, resp.ID, resp.Code)
-	return resp, summary, nil
+	return productResponseFrom(resp), summary, nil
 }
 
 // productGet fetches a single product by ID.
-func productGet(_ context.Context, b Backend, in productGetInput) (*product.ProductResponse, string, error) {
+func productGet(_ context.Context, b Backend, in productGetInput) (productResponse, string, error) {
 	resp, err := b.GetProduct(in.ID)
 	if err != nil {
-		return nil, "", err
+		return productResponse{}, "", err
 	}
 	summary := fmt.Sprintf("Product %q (#%d, status %s).", resp.Name, resp.ID, resp.Status)
-	return resp, summary, nil
+	return productResponseFrom(resp), summary, nil
 }
 
 // productList lists products with pagination and filtering.
@@ -230,7 +297,7 @@ func productList(_ context.Context, b Backend, in productListInput) (productList
 	}
 
 	out := productListOutput{
-		Products: products,
+		Products: productResponsesFrom(products),
 		Total:    total,
 		Page:     req.Page,
 		PageSize: req.PageSize,
@@ -240,7 +307,7 @@ func productList(_ context.Context, b Backend, in productListInput) (productList
 }
 
 // productUpdate applies the provided fields to an existing product.
-func productUpdate(_ context.Context, b Backend, in productUpdateInput) (*product.ProductResponse, string, error) {
+func productUpdate(_ context.Context, b Backend, in productUpdateInput) (productResponse, string, error) {
 	req := &product.UpdateProductRequest{
 		Name:          in.Name,
 		Code:          in.Code,
@@ -257,10 +324,10 @@ func productUpdate(_ context.Context, b Backend, in productUpdateInput) (*produc
 
 	resp, err := b.UpdateProduct(in.ID, req)
 	if err != nil {
-		return nil, "", err
+		return productResponse{}, "", err
 	}
 	summary := fmt.Sprintf("Updated product %q (#%d).", resp.Name, resp.ID)
-	return resp, summary, nil
+	return productResponseFrom(resp), summary, nil
 }
 
 // productDelete soft-deletes a product.

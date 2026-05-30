@@ -3,6 +3,7 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
@@ -10,20 +11,69 @@ import (
 	"github.com/company/smartticket/internal/user"
 )
 
+// ----------------------------------------------------------------------------
+// Local output view
+// ----------------------------------------------------------------------------
+//
+// auth.UserInfo has no slice/map fields (only scalars and a nullable *time.Time),
+// so it is safe over the wire on its own; userView mirrors it as an MCP-local
+// struct so the whole package uniformly returns MCP-local Output types rather
+// than service-layer DTOs. The LastLoginAt pointer carries omitempty.
+type userView struct {
+	ID          uint       `json:"id" jsonschema:"the user's numeric ID"`
+	Email       string     `json:"email" jsonschema:"the user's email address"`
+	Username    string     `json:"username" jsonschema:"the user's username"`
+	FirstName   string     `json:"first_name" jsonschema:"the user's given name"`
+	LastName    string     `json:"last_name" jsonschema:"the user's family name"`
+	Role        string     `json:"role" jsonschema:"the user's role"`
+	IsActive    bool       `json:"is_active" jsonschema:"whether the account is active"`
+	LastLoginAt *time.Time `json:"last_login_at,omitempty" jsonschema:"when the user last logged in, if ever"`
+}
+
+// userViewFrom converts an auth.UserInfo into the MCP-local view. Sensitive
+// fields are never present on auth.UserInfo, so none are carried here either.
+func userViewFrom(u *auth.UserInfo) userView {
+	if u == nil {
+		return userView{}
+	}
+	return userView{
+		ID:          u.ID,
+		Email:       u.Email,
+		Username:    u.Username,
+		FirstName:   u.FirstName,
+		LastName:    u.LastName,
+		Role:        u.Role,
+		IsActive:    u.IsActive,
+		LastLoginAt: u.LastLoginAt,
+	}
+}
+
+// userViewsFrom converts a slice of auth.UserInfo into views.
+func userViewsFrom(us []auth.UserInfo) []userView {
+	if len(us) == 0 {
+		return nil
+	}
+	views := make([]userView, len(us))
+	for i := range us {
+		views[i] = userViewFrom(&us[i])
+	}
+	return views
+}
+
 // registerUserTools registers the user-domain MCP tools.
 // See server.go for the tool implementation conventions and auth_whoami template.
 //
 // All identifiers in this file are prefixed with "user" to avoid collisions with
-// sibling domain files in the same package. The structured outputs reuse the auth
-// package's UserInfo response type (which already omits sensitive fields such as
-// password and password hash); only the inputs are MCP-specific structs translated
-// into the service-layer DTOs.
+// sibling domain files in the same package. The structured outputs use the
+// MCP-local userView (translated from auth.UserInfo, which already omits
+// sensitive fields such as password and password hash); the inputs are likewise
+// MCP-specific structs translated into the service-layer DTOs.
 func registerUserTools(s *mcp.Server, b Backend) {
 	registerTool(s,
 		"user_create",
 		"Create a new user account with the given profile, role, and initial password.",
 		"user:write",
-		func(ctx context.Context, in userCreateInput) (*auth.UserInfo, string, error) {
+		func(ctx context.Context, in userCreateInput) (userView, string, error) {
 			return userCreate(ctx, b, in)
 		},
 	)
@@ -32,7 +82,7 @@ func registerUserTools(s *mcp.Server, b Backend) {
 		"user_get",
 		"Fetch a single user by their numeric ID. Sensitive fields are never returned.",
 		"user:read",
-		func(ctx context.Context, in userGetInput) (*auth.UserInfo, string, error) {
+		func(ctx context.Context, in userGetInput) (userView, string, error) {
 			return userGet(ctx, b, in)
 		},
 	)
@@ -41,7 +91,7 @@ func registerUserTools(s *mcp.Server, b Backend) {
 		"user_update",
 		"Update an existing user's profile fields by numeric ID. Only provided fields are changed.",
 		"user:write",
-		func(ctx context.Context, in userUpdateInput) (*auth.UserInfo, string, error) {
+		func(ctx context.Context, in userUpdateInput) (userView, string, error) {
 			return userUpdate(ctx, b, in)
 		},
 	)
@@ -161,10 +211,10 @@ type userListInput struct {
 // userListOutput is the structured output of user_list. Users are returned as
 // auth.UserInfo values, which omit sensitive fields.
 type userListOutput struct {
-	Users    []auth.UserInfo `json:"users" jsonschema:"the page of users"`
-	Total    int64           `json:"total" jsonschema:"total number of users matching the filters"`
-	Page     int             `json:"page" jsonschema:"the page number returned"`
-	PageSize int             `json:"page_size" jsonschema:"the page size used"`
+	Users    []userView `json:"users,omitempty" jsonschema:"the page of users"`
+	Total    int64      `json:"total" jsonschema:"total number of users matching the filters"`
+	Page     int        `json:"page" jsonschema:"the page number returned"`
+	PageSize int        `json:"page_size" jsonschema:"the page size used"`
 }
 
 // userActivateInput is the MCP input schema for user_activate.
@@ -203,7 +253,7 @@ type userStatsInput struct{}
 // userStatsOutput is the structured output of user_stats. Statistics are returned
 // as a free-form map keyed by metric name.
 type userStatsOutput struct {
-	Stats map[string]interface{} `json:"stats" jsonschema:"aggregate user statistics keyed by metric name"`
+	Stats map[string]interface{} `json:"stats,omitempty" jsonschema:"aggregate user statistics keyed by metric name"`
 }
 
 // ----------------------------------------------------------------------------
@@ -211,8 +261,8 @@ type userStatsOutput struct {
 // ----------------------------------------------------------------------------
 
 // userCreate translates the MCP input into a service request and creates the user
-// via the Backend. The returned auth.UserInfo omits sensitive fields.
-func userCreate(_ context.Context, b Backend, in userCreateInput) (*auth.UserInfo, string, error) {
+// via the Backend. The returned userView omits sensitive fields.
+func userCreate(_ context.Context, b Backend, in userCreateInput) (userView, string, error) {
 	req := &user.CreateUserRequest{
 		Email:       in.Email,
 		Username:    in.Username,
@@ -226,25 +276,25 @@ func userCreate(_ context.Context, b Backend, in userCreateInput) (*auth.UserInf
 
 	resp, err := b.CreateUser(req)
 	if err != nil {
-		return nil, "", err
+		return userView{}, "", err
 	}
 	summary := fmt.Sprintf("Created user %q (#%d, role %s).", resp.Username, resp.ID, resp.Role)
-	return resp, summary, nil
+	return userViewFrom(resp), summary, nil
 }
 
-// userGet fetches a single user by ID. The returned auth.UserInfo omits sensitive
+// userGet fetches a single user by ID. The returned userView omits sensitive
 // fields.
-func userGet(_ context.Context, b Backend, in userGetInput) (*auth.UserInfo, string, error) {
+func userGet(_ context.Context, b Backend, in userGetInput) (userView, string, error) {
 	resp, err := b.GetUser(in.ID)
 	if err != nil {
-		return nil, "", err
+		return userView{}, "", err
 	}
 	summary := fmt.Sprintf("User %q (#%d, role %s).", resp.Username, resp.ID, resp.Role)
-	return resp, summary, nil
+	return userViewFrom(resp), summary, nil
 }
 
 // userUpdate applies the provided fields to an existing user.
-func userUpdate(_ context.Context, b Backend, in userUpdateInput) (*auth.UserInfo, string, error) {
+func userUpdate(_ context.Context, b Backend, in userUpdateInput) (userView, string, error) {
 	req := &user.UpdateUserRequest{
 		Email:       in.Email,
 		Username:    in.Username,
@@ -257,10 +307,10 @@ func userUpdate(_ context.Context, b Backend, in userUpdateInput) (*auth.UserInf
 
 	resp, err := b.UpdateUser(in.ID, req)
 	if err != nil {
-		return nil, "", err
+		return userView{}, "", err
 	}
 	summary := fmt.Sprintf("Updated user %q (#%d).", resp.Username, resp.ID)
-	return resp, summary, nil
+	return userViewFrom(resp), summary, nil
 }
 
 // userDelete soft-deletes a user.
@@ -289,7 +339,7 @@ func userList(_ context.Context, b Backend, in userListInput) (userListOutput, s
 	}
 
 	out := userListOutput{
-		Users:    resp.Data,
+		Users:    userViewsFrom(resp.Data),
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	}

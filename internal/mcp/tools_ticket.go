@@ -3,11 +3,121 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	"github.com/company/smartticket/internal/ticket"
 )
+
+// ----------------------------------------------------------------------------
+// Local output views
+// ----------------------------------------------------------------------------
+//
+// The MCP tools must not reuse ticket.TicketResponse directly as their Output:
+// its Tags ([]string) and CustomFields (map[string]interface{}) fields lack
+// `omitempty`, so when they are nil they marshal to JSON null, which the go-sdk
+// rejects against the inferred array/object output schema (failing both the
+// success path on real nil data and every error path, which returns a zero Out).
+// ticketResponse is a flat, MCP-local view whose slice/map/pointer fields all
+// carry `omitempty`, so a nil value is omitted rather than emitted as null.
+
+// ticketResponse is the cycle-safe, schema-safe MCP view of a ticket.
+type ticketResponse struct {
+	ID              uint                   `json:"id" jsonschema:"the ticket's numeric ID"`
+	TicketNumber    string                 `json:"ticket_number" jsonschema:"the human-readable ticket number"`
+	Title           string                 `json:"title" jsonschema:"the ticket title"`
+	Description     string                 `json:"description" jsonschema:"the ticket description"`
+	Status          string                 `json:"status" jsonschema:"the ticket status"`
+	Priority        string                 `json:"priority" jsonschema:"the ticket priority"`
+	Severity        string                 `json:"severity" jsonschema:"the ticket severity"`
+	Category        string                 `json:"category,omitempty" jsonschema:"the ticket category"`
+	Type            string                 `json:"type,omitempty" jsonschema:"the ticket type"`
+	ProductID       *uint                  `json:"product_id,omitempty" jsonschema:"associated product ID, if any"`
+	ServiceID       *uint                  `json:"service_id,omitempty" jsonschema:"associated service ID, if any"`
+	AssignedTo      *uint                  `json:"assigned_to,omitempty" jsonschema:"the user ID the ticket is assigned to, if any"`
+	RequesterName   string                 `json:"requester_name" jsonschema:"the requester's name"`
+	RequesterEmail  string                 `json:"requester_email" jsonschema:"the requester's email address"`
+	Tags            []string               `json:"tags,omitempty" jsonschema:"the ticket tags"`
+	CustomFields    map[string]interface{} `json:"custom_fields,omitempty" jsonschema:"the ticket custom fields"`
+	IsDeleted       bool                   `json:"is_deleted" jsonschema:"whether the ticket is soft-deleted"`
+	CreatedAt       time.Time              `json:"created_at" jsonschema:"when the ticket was created"`
+	UpdatedAt       time.Time              `json:"updated_at" jsonschema:"when the ticket was last updated"`
+	ResolutionTime  *time.Time             `json:"resolution_time,omitempty" jsonschema:"when the ticket resolution time was recorded, if any"`
+	ResolvedAt      *time.Time             `json:"resolved_at,omitempty" jsonschema:"when the ticket was resolved, if any"`
+	DueDate         *time.Time             `json:"due_date,omitempty" jsonschema:"the ticket's SLA due date, if any"`
+	SLAStatus       string                 `json:"sla_status,omitempty" jsonschema:"the ticket's SLA status"`
+	MessageCount    int64                  `json:"message_count" jsonschema:"number of messages on the ticket"`
+	AttachmentCount int64                  `json:"attachment_count" jsonschema:"number of attachments on the ticket"`
+}
+
+// ticketResponseFrom converts a service-layer ticket.TicketResponse into the
+// schema-safe MCP view. The embedded *UserInfo association is dropped (its ID is
+// already carried by AssignedTo).
+func ticketResponseFrom(r *ticket.TicketResponse) ticketResponse {
+	if r == nil {
+		return ticketResponse{}
+	}
+	return ticketResponse{
+		ID:              r.ID,
+		TicketNumber:    r.TicketNumber,
+		Title:           r.Title,
+		Description:     r.Description,
+		Status:          r.Status,
+		Priority:        r.Priority,
+		Severity:        r.Severity,
+		Category:        r.Category,
+		Type:            r.Type,
+		ProductID:       r.ProductID,
+		ServiceID:       r.ServiceID,
+		AssignedTo:      r.AssignedTo,
+		RequesterName:   r.RequesterName,
+		RequesterEmail:  r.RequesterEmail,
+		Tags:            r.Tags,
+		CustomFields:    r.CustomFields,
+		IsDeleted:       r.IsDeleted,
+		CreatedAt:       r.CreatedAt,
+		UpdatedAt:       r.UpdatedAt,
+		ResolutionTime:  r.ResolutionTime,
+		ResolvedAt:      r.ResolvedAt,
+		DueDate:         r.DueDate,
+		SLAStatus:       r.SLAStatus,
+		MessageCount:    r.MessageCount,
+		AttachmentCount: r.AttachmentCount,
+	}
+}
+
+// ticketListResponse is the schema-safe MCP view of a paginated ticket list. The
+// Data slice carries omitempty so a nil page marshals to an omitted field rather
+// than JSON null.
+type ticketListResponse struct {
+	Data       []ticketResponse `json:"data,omitempty" jsonschema:"the page of tickets"`
+	Total      int64            `json:"total" jsonschema:"total number of matching tickets"`
+	Page       int              `json:"page" jsonschema:"the 1-based page number returned"`
+	PageSize   int              `json:"page_size" jsonschema:"the page size used"`
+	TotalPages int              `json:"total_pages" jsonschema:"total number of pages available"`
+}
+
+// ticketListResponseFrom converts a service-layer ticket.TicketListResponse into
+// the schema-safe MCP view.
+func ticketListResponseFrom(r *ticket.TicketListResponse) ticketListResponse {
+	if r == nil {
+		return ticketListResponse{}
+	}
+	out := ticketListResponse{
+		Total:      r.Total,
+		Page:       r.Page,
+		PageSize:   r.PageSize,
+		TotalPages: r.TotalPages,
+	}
+	if len(r.Data) > 0 {
+		out.Data = make([]ticketResponse, len(r.Data))
+		for i := range r.Data {
+			out.Data[i] = ticketResponseFrom(&r.Data[i])
+		}
+	}
+	return out
+}
 
 // registerTicketTools registers the ticket-domain MCP tools.
 // See server.go for the tool implementation conventions and auth_whoami template.
@@ -16,7 +126,7 @@ func registerTicketTools(s *mcp.Server, b Backend) {
 		"ticket_create",
 		"Create a new support ticket.",
 		"ticket:write",
-		func(ctx context.Context, in ticketCreateInput) (ticket.TicketResponse, string, error) {
+		func(ctx context.Context, in ticketCreateInput) (ticketResponse, string, error) {
 			return ticketCreate(ctx, b, in)
 		},
 	)
@@ -25,7 +135,7 @@ func registerTicketTools(s *mcp.Server, b Backend) {
 		"ticket_get",
 		"Fetch a single ticket by its numeric ID.",
 		"ticket:read",
-		func(ctx context.Context, in ticketGetInput) (ticket.TicketResponse, string, error) {
+		func(ctx context.Context, in ticketGetInput) (ticketResponse, string, error) {
 			return ticketGet(ctx, b, in)
 		},
 	)
@@ -34,7 +144,7 @@ func registerTicketTools(s *mcp.Server, b Backend) {
 		"ticket_list",
 		"List tickets with optional filtering and pagination.",
 		"ticket:read",
-		func(ctx context.Context, in ticketListInput) (ticket.TicketListResponse, string, error) {
+		func(ctx context.Context, in ticketListInput) (ticketListResponse, string, error) {
 			return ticketList(ctx, b, in)
 		},
 	)
@@ -43,7 +153,7 @@ func registerTicketTools(s *mcp.Server, b Backend) {
 		"ticket_update",
 		"Update an existing ticket's fields.",
 		"ticket:write",
-		func(ctx context.Context, in ticketUpdateInput) (ticket.TicketResponse, string, error) {
+		func(ctx context.Context, in ticketUpdateInput) (ticketResponse, string, error) {
 			return ticketUpdate(ctx, b, in)
 		},
 	)
@@ -97,10 +207,10 @@ type ticketCreateInput struct {
 }
 
 // ticketCreate creates a ticket on behalf of the acting session user.
-func ticketCreate(ctx context.Context, b Backend, in ticketCreateInput) (ticket.TicketResponse, string, error) {
+func ticketCreate(ctx context.Context, b Backend, in ticketCreateInput) (ticketResponse, string, error) {
 	session, ok := SessionFromContext(ctx)
 	if !ok || session == nil {
-		return ticket.TicketResponse{}, "", ErrUnauthenticated
+		return ticketResponse{}, "", ErrUnauthenticated
 	}
 
 	req := &ticket.CreateTicketRequest{
@@ -120,9 +230,9 @@ func ticketCreate(ctx context.Context, b Backend, in ticketCreateInput) (ticket.
 
 	resp, err := b.CreateTicket(session.UserID, req)
 	if err != nil {
-		return ticket.TicketResponse{}, "", err
+		return ticketResponse{}, "", err
 	}
-	return *resp, fmt.Sprintf("created ticket #%d (%s)", resp.ID, resp.TicketNumber), nil
+	return ticketResponseFrom(resp), fmt.Sprintf("created ticket #%d (%s)", resp.ID, resp.TicketNumber), nil
 }
 
 // ----------------------------------------------------------------------------
@@ -135,12 +245,12 @@ type ticketGetInput struct {
 }
 
 // ticketGet fetches a single ticket by ID.
-func ticketGet(_ context.Context, b Backend, in ticketGetInput) (ticket.TicketResponse, string, error) {
+func ticketGet(_ context.Context, b Backend, in ticketGetInput) (ticketResponse, string, error) {
 	resp, err := b.GetTicket(in.ID)
 	if err != nil {
-		return ticket.TicketResponse{}, "", err
+		return ticketResponse{}, "", err
 	}
-	return *resp, fmt.Sprintf("fetched ticket #%d (%s)", resp.ID, resp.TicketNumber), nil
+	return ticketResponseFrom(resp), fmt.Sprintf("fetched ticket #%d (%s)", resp.ID, resp.TicketNumber), nil
 }
 
 // ----------------------------------------------------------------------------
@@ -159,7 +269,7 @@ type ticketListInput struct {
 }
 
 // ticketList lists tickets with optional filters and pagination.
-func ticketList(_ context.Context, b Backend, in ticketListInput) (ticket.TicketListResponse, string, error) {
+func ticketList(_ context.Context, b Backend, in ticketListInput) (ticketListResponse, string, error) {
 	filters := map[string]interface{}{}
 	if in.Status != "" {
 		filters["status"] = in.Status
@@ -179,9 +289,9 @@ func ticketList(_ context.Context, b Backend, in ticketListInput) (ticket.Ticket
 
 	resp, err := b.ListTickets(in.Page, in.PageSize, filters)
 	if err != nil {
-		return ticket.TicketListResponse{}, "", err
+		return ticketListResponse{}, "", err
 	}
-	return *resp, fmt.Sprintf("listed %d of %d ticket(s) (page %d)", len(resp.Data), resp.Total, resp.Page), nil
+	return ticketListResponseFrom(resp), fmt.Sprintf("listed %d of %d ticket(s) (page %d)", len(resp.Data), resp.Total, resp.Page), nil
 }
 
 // ----------------------------------------------------------------------------
@@ -208,10 +318,10 @@ type ticketUpdateInput struct {
 }
 
 // ticketUpdate updates a ticket on behalf of the acting session user.
-func ticketUpdate(ctx context.Context, b Backend, in ticketUpdateInput) (ticket.TicketResponse, string, error) {
+func ticketUpdate(ctx context.Context, b Backend, in ticketUpdateInput) (ticketResponse, string, error) {
 	session, ok := SessionFromContext(ctx)
 	if !ok || session == nil {
-		return ticket.TicketResponse{}, "", ErrUnauthenticated
+		return ticketResponse{}, "", ErrUnauthenticated
 	}
 
 	req := &ticket.UpdateTicketRequest{
@@ -233,9 +343,9 @@ func ticketUpdate(ctx context.Context, b Backend, in ticketUpdateInput) (ticket.
 
 	resp, err := b.UpdateTicket(in.ID, session.UserID, req)
 	if err != nil {
-		return ticket.TicketResponse{}, "", err
+		return ticketResponse{}, "", err
 	}
-	return *resp, fmt.Sprintf("updated ticket #%d (%s)", resp.ID, resp.TicketNumber), nil
+	return ticketResponseFrom(resp), fmt.Sprintf("updated ticket #%d (%s)", resp.ID, resp.TicketNumber), nil
 }
 
 // ----------------------------------------------------------------------------
@@ -296,7 +406,7 @@ type ticketStatsInput struct{}
 // ticketStatsOutput is the structured output of ticket_stats. Statistics are
 // returned as a free-form map mirroring the service layer's stats shape.
 type ticketStatsOutput struct {
-	Stats map[string]interface{} `json:"stats" jsonschema:"aggregate ticket statistics keyed by metric name"`
+	Stats map[string]interface{} `json:"stats,omitempty" jsonschema:"aggregate ticket statistics keyed by metric name"`
 }
 
 // ticketStats returns aggregate ticket statistics.

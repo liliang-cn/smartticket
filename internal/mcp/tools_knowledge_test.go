@@ -220,7 +220,7 @@ func TestKnowledgeStats(t *testing.T) {
 	out, summary, err := knowledgeStats(ctx, mb, knowledgeStatsInput{})
 
 	assert.NoError(t, err)
-	assert.Equal(t, want, out)
+	assert.Equal(t, knowledgeStatsOutputFrom(want), out)
 	assert.Contains(t, summary, "10 article(s) total")
 	mb.AssertExpectations(t)
 }

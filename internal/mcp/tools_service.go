@@ -3,11 +3,78 @@ package mcp
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 
 	servicemgmt "github.com/company/smartticket/internal/service"
 )
+
+// ----------------------------------------------------------------------------
+// Local output view
+// ----------------------------------------------------------------------------
+//
+// servicemgmt.ServiceResponse cannot be reused as an MCP Output: its
+// SupportChannels/Tags ([]string) and EscalationRules/Configuration (map)
+// fields lack `omitempty`, so a nil value marshals to JSON null and the go-sdk
+// rejects it against the inferred array/object output schema (breaking the
+// success path on nil data and every error path, which returns a zero Out).
+// svcResponse is the schema-safe MCP view: every slice/map/pointer field carries
+// `omitempty`.
+type svcResponse struct {
+	ID              uint                   `json:"id" jsonschema:"the service's numeric ID"`
+	ProductID       uint                   `json:"product_id" jsonschema:"the owning product's numeric ID"`
+	Name            string                 `json:"name" jsonschema:"service name"`
+	Code            string                 `json:"code" jsonschema:"unique service code"`
+	Description     string                 `json:"description,omitempty" jsonschema:"service description"`
+	Type            string                 `json:"type" jsonschema:"service type"`
+	Status          string                 `json:"status" jsonschema:"service status"`
+	Availability    string                 `json:"availability,omitempty" jsonschema:"service availability"`
+	SupportChannels []string               `json:"support_channels,omitempty" jsonschema:"the service's support channels"`
+	EscalationRules map[string]interface{} `json:"escalation_rules,omitempty" jsonschema:"escalation rules"`
+	Configuration   map[string]interface{} `json:"configuration,omitempty" jsonschema:"service configuration"`
+	Tags            []string               `json:"tags,omitempty" jsonschema:"service tags"`
+	IsDeleted       bool                   `json:"is_deleted" jsonschema:"whether the service is soft-deleted"`
+	CreatedAt       time.Time              `json:"created_at" jsonschema:"when the service was created"`
+	UpdatedAt       time.Time              `json:"updated_at" jsonschema:"when the service was last updated"`
+}
+
+// svcResponseFrom converts a service-layer ServiceResponse into the schema-safe
+// MCP view. The embedded Product association is dropped to keep the view flat.
+func svcResponseFrom(r *servicemgmt.ServiceResponse) svcResponse {
+	if r == nil {
+		return svcResponse{}
+	}
+	return svcResponse{
+		ID:              r.ID,
+		ProductID:       r.ProductID,
+		Name:            r.Name,
+		Code:            r.Code,
+		Description:     r.Description,
+		Type:            r.Type,
+		Status:          r.Status,
+		Availability:    r.Availability,
+		SupportChannels: r.SupportChannels,
+		EscalationRules: r.EscalationRules,
+		Configuration:   r.Configuration,
+		Tags:            r.Tags,
+		IsDeleted:       r.IsDeleted,
+		CreatedAt:       r.CreatedAt,
+		UpdatedAt:       r.UpdatedAt,
+	}
+}
+
+// svcResponsesFrom converts a slice of service-layer responses into views.
+func svcResponsesFrom(rs []servicemgmt.ServiceResponse) []svcResponse {
+	if len(rs) == 0 {
+		return nil
+	}
+	views := make([]svcResponse, len(rs))
+	for i := range rs {
+		views[i] = svcResponseFrom(&rs[i])
+	}
+	return views
+}
 
 // registerServiceTools registers the service-domain MCP tools. Each tool is a
 // thin MCP-facing wrapper around a named svc* business function so the logic is
@@ -20,7 +87,7 @@ func registerServiceTools(s *mcp.Server, b Backend) {
 		"service_create",
 		"Create a new service in the service catalog under a product.",
 		"service:write",
-		func(ctx context.Context, in svcCreateInput) (*servicemgmt.ServiceResponse, string, error) {
+		func(ctx context.Context, in svcCreateInput) (svcResponse, string, error) {
 			return svcCreate(ctx, b, in)
 		},
 	)
@@ -29,7 +96,7 @@ func registerServiceTools(s *mcp.Server, b Backend) {
 		"service_get",
 		"Fetch a single service by its numeric ID.",
 		"service:read",
-		func(ctx context.Context, in svcGetInput) (*servicemgmt.ServiceResponse, string, error) {
+		func(ctx context.Context, in svcGetInput) (svcResponse, string, error) {
 			return svcGet(ctx, b, in)
 		},
 	)
@@ -47,7 +114,7 @@ func registerServiceTools(s *mcp.Server, b Backend) {
 		"service_update",
 		"Update fields of an existing service.",
 		"service:write",
-		func(ctx context.Context, in svcUpdateInput) (*servicemgmt.ServiceResponse, string, error) {
+		func(ctx context.Context, in svcUpdateInput) (svcResponse, string, error) {
 			return svcUpdate(ctx, b, in)
 		},
 	)
@@ -118,8 +185,8 @@ type svcListInput struct {
 
 // svcListOutput is the structured output of service_list.
 type svcListOutput struct {
-	Services []servicemgmt.ServiceResponse `json:"services" jsonschema:"the page of services matching the query"`
-	Total    int64                         `json:"total" jsonschema:"total number of services matching the filters"`
+	Services []svcResponse `json:"services,omitempty" jsonschema:"the page of services matching the query"`
+	Total    int64         `json:"total" jsonschema:"total number of services matching the filters"`
 }
 
 // svcUpdateInput is the MCP input schema for service_update. The ID identifies
@@ -166,7 +233,7 @@ type svcActionOutput struct {
 
 // svcCreate translates the MCP input into a service-layer request and creates a
 // service via the Backend.
-func svcCreate(_ context.Context, b Backend, in svcCreateInput) (*servicemgmt.ServiceResponse, string, error) {
+func svcCreate(_ context.Context, b Backend, in svcCreateInput) (svcResponse, string, error) {
 	req := &servicemgmt.CreateServiceRequest{
 		ProductID:       in.ProductID,
 		Name:            in.Name,
@@ -182,18 +249,18 @@ func svcCreate(_ context.Context, b Backend, in svcCreateInput) (*servicemgmt.Se
 	}
 	resp, err := b.CreateService(req)
 	if err != nil {
-		return nil, "", err
+		return svcResponse{}, "", err
 	}
-	return resp, fmt.Sprintf("Created service #%d (%s).", resp.ID, resp.Name), nil
+	return svcResponseFrom(resp), fmt.Sprintf("Created service #%d (%s).", resp.ID, resp.Name), nil
 }
 
 // svcGet fetches a single service by ID.
-func svcGet(_ context.Context, b Backend, in svcGetInput) (*servicemgmt.ServiceResponse, string, error) {
+func svcGet(_ context.Context, b Backend, in svcGetInput) (svcResponse, string, error) {
 	resp, err := b.GetService(in.ID)
 	if err != nil {
-		return nil, "", err
+		return svcResponse{}, "", err
 	}
-	return resp, fmt.Sprintf("Service #%d (%s).", resp.ID, resp.Name), nil
+	return svcResponseFrom(resp), fmt.Sprintf("Service #%d (%s).", resp.ID, resp.Name), nil
 }
 
 // svcList lists services with pagination and filtering.
@@ -212,12 +279,12 @@ func svcList(_ context.Context, b Backend, in svcListInput) (svcListOutput, stri
 	if err != nil {
 		return svcListOutput{}, "", err
 	}
-	out := svcListOutput{Services: services, Total: total}
+	out := svcListOutput{Services: svcResponsesFrom(services), Total: total}
 	return out, fmt.Sprintf("Listed %d of %d service(s).", len(services), total), nil
 }
 
 // svcUpdate applies a partial update to an existing service.
-func svcUpdate(_ context.Context, b Backend, in svcUpdateInput) (*servicemgmt.ServiceResponse, string, error) {
+func svcUpdate(_ context.Context, b Backend, in svcUpdateInput) (svcResponse, string, error) {
 	req := &servicemgmt.UpdateServiceRequest{
 		ProductID:       in.ProductID,
 		Name:            in.Name,
@@ -233,9 +300,9 @@ func svcUpdate(_ context.Context, b Backend, in svcUpdateInput) (*servicemgmt.Se
 	}
 	resp, err := b.UpdateService(in.ID, req)
 	if err != nil {
-		return nil, "", err
+		return svcResponse{}, "", err
 	}
-	return resp, fmt.Sprintf("Updated service #%d (%s).", resp.ID, resp.Name), nil
+	return svcResponseFrom(resp), fmt.Sprintf("Updated service #%d (%s).", resp.ID, resp.Name), nil
 }
 
 // svcDelete soft-deletes a service by ID.
