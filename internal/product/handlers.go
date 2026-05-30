@@ -1,7 +1,6 @@
 package product
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
@@ -30,17 +29,6 @@ func (h *Handlers) parseProductID(c *gin.Context) (uint, error) {
 	return uint(productID), nil
 }
 
-// getTenantID extracts tenant ID from context with error handling.
-func (h *Handlers) getTenantID(c *gin.Context) (uint, error) {
-	tenantID, exists := c.Get("tenant_id")
-	if !exists {
-		appErr := apperrors.NewUnauthorizedError("租户信息缺失")
-		apperrors.ErrorHandler(c, appErr)
-		return 0, errors.New("tenant info missing")
-	}
-	return tenantID.(uint), nil
-}
-
 // logProductEvent logs product-related security events.
 func (h *Handlers) logProductEvent(c *gin.Context, event, target string) {
 	c.Set("security_event", event)
@@ -55,7 +43,6 @@ func (h *Handlers) logProductEvent(c *gin.Context, event, target string) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param request body product.CreateProductRequest true "Product creation data"
 // @Success 201 {object} product.ProductResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -71,19 +58,11 @@ func (h *Handlers) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	// Get user info from context
-	tenantID, exists := c.Get("tenant_id")
-	if !exists {
-		appErr := apperrors.NewUnauthorizedError("租户信息缺失")
-		apperrors.ErrorHandler(c, appErr)
-		return
-	}
-
 	// Log product creation attempt
 	c.Set("security_event", "product_creation_attempt")
 	c.Set("target_resource", req.Name)
 
-	product, err := h.service.CreateProduct(tenantID.(uint), &req)
+	product, err := h.service.CreateProduct(&req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -108,7 +87,6 @@ func (h *Handlers) CreateProduct(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param page query int false "Page number" default(1) minimum(1)
 // @Param page_size query int false "Number of products per page" default(20) minimum(1) maximum(100)
 // @Param search query string false "Search products by name or description"
@@ -128,15 +106,7 @@ func (h *Handlers) ListProducts(c *gin.Context) {
 		return
 	}
 
-	// Get user info from context
-	tenantID, exists := c.Get("tenant_id")
-	if !exists {
-		appErr := apperrors.NewUnauthorizedError("租户信息缺失")
-		apperrors.ErrorHandler(c, appErr)
-		return
-	}
-
-	products, total, err := h.service.ListProducts(tenantID.(uint), &req)
+	products, total, err := h.service.ListProducts(&req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -164,7 +134,6 @@ func (h *Handlers) ListProducts(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Product ID"
 // @Success 200 {object} product.ProductResponse
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -181,15 +150,7 @@ func (h *Handlers) GetProduct(c *gin.Context) {
 		return
 	}
 
-	// Get user info from context
-	tenantID, exists := c.Get("tenant_id")
-	if !exists {
-		appErr := apperrors.NewUnauthorizedError("租户信息缺失")
-		apperrors.ErrorHandler(c, appErr)
-		return
-	}
-
-	product, err := h.service.GetProduct(tenantID.(uint), uint(productID))
+	product, err := h.service.GetProduct(uint(productID))
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -209,7 +170,6 @@ func (h *Handlers) GetProduct(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Product ID"
 // @Param request body product.UpdateProductRequest true "Product update data"
 // @Success 200 {object} product.ProductResponse
@@ -234,19 +194,11 @@ func (h *Handlers) UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	// Get user info from context
-	tenantID, exists := c.Get("tenant_id")
-	if !exists {
-		appErr := apperrors.NewUnauthorizedError("租户信息缺失")
-		apperrors.ErrorHandler(c, appErr)
-		return
-	}
-
 	// Log product update attempt
 	c.Set("security_event", "product_update_attempt")
 	c.Set("target_resource", strconv.FormatUint(productID, 10))
 
-	product, err := h.service.UpdateProduct(tenantID.(uint), uint(productID), &req)
+	product, err := h.service.UpdateProduct(uint(productID), &req)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -271,7 +223,6 @@ func (h *Handlers) UpdateProduct(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Product ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -286,15 +237,10 @@ func (h *Handlers) DeleteProduct(c *gin.Context) {
 		return
 	}
 
-	tenantID, err := h.getTenantID(c)
-	if err != nil {
-		return
-	}
-
 	// Log product deletion attempt
 	h.logProductEvent(c, "product_deletion_attempt", strconv.FormatUint(uint64(productID), 10))
 
-	err = h.service.DeleteProduct(tenantID, productID)
+	err = h.service.DeleteProduct(productID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -317,7 +263,6 @@ func (h *Handlers) DeleteProduct(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Product ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -332,15 +277,10 @@ func (h *Handlers) ActivateProduct(c *gin.Context) {
 		return
 	}
 
-	tenantID, err := h.getTenantID(c)
-	if err != nil {
-		return
-	}
-
 	// Log product activation attempt
 	h.logProductEvent(c, "product_activation_attempt", strconv.FormatUint(uint64(productID), 10))
 
-	err = h.service.ActivateProduct(tenantID, productID)
+	err = h.service.ActivateProduct(productID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
@@ -363,7 +303,6 @@ func (h *Handlers) ActivateProduct(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param Authorization header string true "Bearer token"
-// @Param X-Tenant-ID header string true "Tenant ID"
 // @Param id path int true "Product ID"
 // @Success 200 {object} github_com_company_smartticket_internal_server.Response
 // @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
@@ -378,15 +317,10 @@ func (h *Handlers) DeactivateProduct(c *gin.Context) {
 		return
 	}
 
-	tenantID, err := h.getTenantID(c)
-	if err != nil {
-		return
-	}
-
 	// Log product deactivation attempt
 	h.logProductEvent(c, "product_deactivation_attempt", strconv.FormatUint(uint64(productID), 10))
 
-	err = h.service.DeactivateProduct(tenantID, productID)
+	err = h.service.DeactivateProduct(productID)
 	if err != nil {
 		apperrors.ErrorHandler(c, err)
 		return
