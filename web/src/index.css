@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+/*
+  SmartTicket console — "mission control" aesthetic.
+  Dark-first graphite canvas, a single signal-amber accent for priority/SLA
+  cues, engineered type (Bricolage display, IBM Plex body/mono).
+*/
+
+@theme {
+  /* Surfaces */
+  --color-background: #0a0c0f;
+  --color-foreground: #e6e8ea;
+  --color-card: #101317;
+  --color-card-foreground: #e6e8ea;
+  --color-popover: #14181d;
+  --color-popover-foreground: #e6e8ea;
+
+  /* Muted / secondary surfaces */
+  --color-muted: #161a1f;
+  --color-muted-foreground: #868d96;
+  --color-secondary: #181c22;
+  --color-secondary-foreground: #d7dadd;
+  --color-accent: #1c2128;
+  --color-accent-foreground: #f2f4f5;
+
+  /* Signal amber — the one memorable accent */
+  --color-primary: #ffb01f;
+  --color-primary-foreground: #19130a;
+
+  /* Status hues */
+  --color-destructive: #f0494f;
+  --color-destructive-foreground: #fff5f5;
+  --color-success: #34d399;
+  --color-info: #4cc4ff;
+
+  /* Lines & focus */
+  --color-border: #23282f;
+  --color-input: #262c34;
+  --color-ring: #ffb01f;
+
+  /* Type */
+  --font-display: "Bricolage Grotesque Variable", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Atmospheric backdrop: a faint amber bloom + cool counter-glow, not a flat fill. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(60rem 40rem at 85% -10%, rgba(255, 176, 31, 0.07), transparent 70%),
+      radial-gradient(50rem 40rem at -10% 110%, rgba(76, 196, 255, 0.05), transparent 70%),
+      linear-gradient(to bottom, #0a0c0f, #080a0d);
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: rgba(255, 176, 31, 0.28);
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 999px;
+    border: 2px solid var(--color-background);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: #313842; }
+}
+
+/* Faint engineered grid texture for panels. */
+.grid-texture {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
