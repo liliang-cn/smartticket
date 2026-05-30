@@ -110,7 +110,7 @@ type UserInfo struct {
 }
 
 // CreateTicket creates a new ticket.
-func (s *Service) CreateTicket(tenantID uint, userID uint, req *CreateTicketRequest) (*TicketResponse, error) {
+func (s *Service) CreateTicket(userID uint, req *CreateTicketRequest) (*TicketResponse, error) {
 	// Normalize and validate input
 	req.Title = strings.TrimSpace(req.Title)
 	req.Description = strings.TrimSpace(req.Description)
@@ -126,7 +126,7 @@ func (s *Service) CreateTicket(tenantID uint, userID uint, req *CreateTicketRequ
 	}
 
 	// Generate ticket number
-	ticketNumber, err := s.generateTicketNumber(tenantID)
+	ticketNumber, err := s.generateTicketNumber()
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate ticket number: %w", err)
 	}
@@ -172,9 +172,9 @@ func (s *Service) CreateTicket(tenantID uint, userID uint, req *CreateTicketRequ
 }
 
 // GetTicket gets a ticket by ID.
-func (s *Service) GetTicket(tenantID uint, ticketID uint) (*TicketResponse, error) {
+func (s *Service) GetTicket(ticketID uint) (*TicketResponse, error) {
 	var ticket models.Ticket
-	if err := s.db.Where("id = ? AND tenant_id = ?", ticketID, tenantID).
+	if err := s.db.Where("id = ?", ticketID).
 		Preload("AssignedUser").
 		First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
@@ -187,7 +187,7 @@ func (s *Service) GetTicket(tenantID uint, ticketID uint) (*TicketResponse, erro
 }
 
 // ListTickets lists tickets with pagination and filtering.
-func (s *Service) ListTickets(tenantID uint, page, pageSize int, filters map[string]interface{}) (*TicketListResponse, error) {
+func (s *Service) ListTickets(page, pageSize int, filters map[string]interface{}) (*TicketListResponse, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -203,8 +203,7 @@ func (s *Service) ListTickets(tenantID uint, page, pageSize int, filters map[str
 	var tickets []models.Ticket
 	var total int64
 
-	query := s.db.Model(&models.Ticket{}).
-		Where("tenant_id = ?", tenantID)
+	query := s.db.Model(&models.Ticket{})
 
 	// Apply filters
 	if status, ok := filters["status"].(string); ok && status != "" {
@@ -257,9 +256,9 @@ func (s *Service) ListTickets(tenantID uint, page, pageSize int, filters map[str
 }
 
 // UpdateTicket updates a ticket.
-func (s *Service) UpdateTicket(tenantID uint, ticketID uint, userID uint, req *UpdateTicketRequest) (*TicketResponse, error) {
+func (s *Service) UpdateTicket(ticketID uint, userID uint, req *UpdateTicketRequest) (*TicketResponse, error) {
 	var ticket models.Ticket
-	if err := s.db.Where("id = ? AND tenant_id = ?", ticketID, tenantID).
+	if err := s.db.Where("id = ?", ticketID).
 		First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("ticket")
@@ -372,9 +371,9 @@ func (s *Service) UpdateTicket(tenantID uint, ticketID uint, userID uint, req *U
 }
 
 // DeleteTicket soft deletes a ticket.
-func (s *Service) DeleteTicket(tenantID uint, ticketID uint) error {
+func (s *Service) DeleteTicket(ticketID uint) error {
 	result := s.db.Model(&models.Ticket{}).
-		Where("id = ? AND tenant_id = ?", ticketID, tenantID).
+		Where("id = ?", ticketID).
 		Update("is_deleted", true)
 
 	if result.Error != nil {
@@ -389,9 +388,9 @@ func (s *Service) DeleteTicket(tenantID uint, ticketID uint) error {
 }
 
 // AssignTicket assigns a ticket to a user.
-func (s *Service) AssignTicket(tenantID uint, ticketID uint, assignedTo uint) error {
+func (s *Service) AssignTicket(ticketID uint, assignedTo uint) error {
 	result := s.db.Model(&models.Ticket{}).
-		Where("id = ? AND tenant_id = ?", ticketID, tenantID).
+		Where("id = ?", ticketID).
 		Update("assigned_to", &assignedTo)
 
 	if result.Error != nil {
@@ -406,7 +405,7 @@ func (s *Service) AssignTicket(tenantID uint, ticketID uint, assignedTo uint) er
 }
 
 // GetTicketStats gets ticket statistics.
-func (s *Service) GetTicketStats(tenantID uint) (map[string]interface{}, error) {
+func (s *Service) GetTicketStats() (map[string]interface{}, error) {
 	var stats struct {
 		Total         int64 `json:"total"`
 		Open          int64 `json:"open"`
@@ -422,14 +421,12 @@ func (s *Service) GetTicketStats(tenantID uint) (map[string]interface{}, error) 
 
 	// Get basic status counts
 	if err := s.db.Model(&models.Ticket{}).
-		Where("tenant_id = ?", tenantID).
 		Count(&stats.Total).Error; err != nil {
 		return nil, fmt.Errorf("failed to count total tickets: %w", err)
 	}
 
 	// Get status breakdown
 	rows, err := s.db.Model(&models.Ticket{}).
-		Where("tenant_id = ?", tenantID).
 		Select("status, COUNT(*) as count").
 		Group("status").
 		Rows()
@@ -458,7 +455,7 @@ func (s *Service) GetTicketStats(tenantID uint) (map[string]interface{}, error) 
 
 	// Get priority breakdown
 	priorityRows, err := s.db.Model(&models.Ticket{}).
-		Where("tenant_id = ? AND status IN ?", tenantID, []string{"open", "in_progress"}).
+		Where("status IN ?", []string{"open", "in_progress"}).
 		Select("priority, COUNT(*) as count").
 		Group("priority").
 		Rows()
@@ -488,8 +485,8 @@ func (s *Service) GetTicketStats(tenantID uint) (map[string]interface{}, error) 
 	// Get overdue count
 	now := time.Now()
 	if err := s.db.Model(&models.Ticket{}).
-		Where("tenant_id = ? AND status IN ? AND due_date < ?",
-			tenantID, []string{"open", "in_progress"}, now).
+		Where("status IN ? AND due_date < ?",
+			[]string{"open", "in_progress"}, now).
 		Count(&stats.OverdueCount).Error; err != nil {
 		return nil, fmt.Errorf("failed to count overdue tickets: %w", err)
 	}
@@ -520,16 +517,15 @@ func (s *Service) GetTicketStats(tenantID uint) (map[string]interface{}, error) 
 
 // Helper methods
 
-func (s *Service) generateTicketNumber(tenantID uint) (string, error) {
+func (s *Service) generateTicketNumber() (string, error) {
 	var count int64
 	if err := s.db.Model(&models.Ticket{}).
-		Where("tenant_id = ?", tenantID).
 		Count(&count).Error; err != nil {
 		return "", err
 	}
 
-	// Format: TK-{tenant_id}-{sequence_number}
-	return fmt.Sprintf("TK-%d-%d", tenantID, count+1), nil
+	// Format: TK-{sequence_number}
+	return fmt.Sprintf("TK-%d", count+1), nil
 }
 
 func (s *Service) calculateDueDate(priority string) *time.Time {

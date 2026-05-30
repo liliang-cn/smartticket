@@ -19,9 +19,8 @@ func TestTicketService_CreateTicket(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		// Create test tenant and user
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
+		// Create test user
+		user := createTestUser(t, db)
 
 		// Test data
 		req := &CreateTicketRequest{
@@ -35,7 +34,7 @@ func TestTicketService_CreateTicket(t *testing.T) {
 		}
 
 		// Execute
-		result, err := service.CreateTicket(tenant.ID, user.ID, req)
+		result, err := service.CreateTicket(user.ID, req)
 
 		// Assert
 		require.NoError(t, err)
@@ -55,21 +54,19 @@ func TestTicketService_GetTicket(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
+		user := createTestUser(t, db)
 
 		// Create a test ticket
-		ticket := createTestTicket(t, db, tenant.ID, user.ID)
+		ticket := createTestTicket(t, db, user.ID)
 
 		// Execute
-		result, err := service.GetTicket(tenant.ID, ticket.ID)
+		result, err := service.GetTicket(ticket.ID)
 
 		// Assert
 		require.NoError(t, err)
 		assert.NotNil(t, result)
 		assert.Equal(t, ticket.ID, result.ID)
 		assert.Equal(t, ticket.Title, result.Title)
-		// Note: TicketResponse doesn't include TenantID directly, but we can verify the ticket was created for the right tenant
 	})
 }
 
@@ -79,10 +76,8 @@ func TestTicketService_GetTicket_NotFound(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		// tenant := createTestTenant removed
-
 		// Execute
-		result, err := service.GetTicket(tenant.ID, 999999)
+		result, err := service.GetTicket(999999)
 
 		// Assert
 		assert.Error(t, err)
@@ -97,17 +92,16 @@ func TestTicketService_ListTickets(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
+		user := createTestUser(t, db)
 
 		// Create multiple test tickets
-		_ = createTestTicket(t, db, tenant.ID, user.ID)
-		_ = createTestTicket(t, db, tenant.ID, user.ID)
-		_ = createTestTicket(t, db, tenant.ID, user.ID) // Third ticket
+		_ = createTestTicket(t, db, user.ID)
+		_ = createTestTicket(t, db, user.ID)
+		_ = createTestTicket(t, db, user.ID) // Third ticket
 
 		// Execute with filters map
 		filters := map[string]interface{}{}
-		result, err := service.ListTickets(tenant.ID, 1, 20, filters)
+		result, err := service.ListTickets(1, 20, filters)
 
 		// Assert
 		require.NoError(t, err)
@@ -125,9 +119,8 @@ func TestTicketService_UpdateTicket(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
-		ticket := createTestTicket(t, db, tenant.ID, user.ID)
+		user := createTestUser(t, db)
+		ticket := createTestTicket(t, db, user.ID)
 
 		// Test data
 		req := &UpdateTicketRequest{
@@ -137,7 +130,7 @@ func TestTicketService_UpdateTicket(t *testing.T) {
 		}
 
 		// Execute
-		result, err := service.UpdateTicket(tenant.ID, ticket.ID, user.ID, req)
+		result, err := service.UpdateTicket(ticket.ID, user.ID, req)
 
 		// Assert
 		require.NoError(t, err)
@@ -155,19 +148,18 @@ func TestTicketService_AssignTicket(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		// tenant := createTestTenant removed
-		user1 := createTestUser(t, db, tenant.ID)
-		user2 := createTestUser(t, db, tenant.ID)
-		ticket := createTestTicket(t, db, tenant.ID, user1.ID)
+		user1 := createTestUser(t, db)
+		user2 := createTestUser(t, db)
+		ticket := createTestTicket(t, db, user1.ID)
 
 		// Execute
-		err := service.AssignTicket(tenant.ID, ticket.ID, user2.ID)
+		err := service.AssignTicket(ticket.ID, user2.ID)
 
 		// Assert
 		require.NoError(t, err)
 
 		// Verify the assignment by getting the ticket
-		updatedTicket, err := service.GetTicket(tenant.ID, ticket.ID)
+		updatedTicket, err := service.GetTicket(ticket.ID)
 		require.NoError(t, err)
 		assert.NotNil(t, updatedTicket)
 		require.NotNil(t, updatedTicket.AssignedTo)
@@ -181,12 +173,11 @@ func TestTicketService_DeleteTicket(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
-		ticket := createTestTicket(t, db, tenant.ID, user.ID)
+		user := createTestUser(t, db)
+		ticket := createTestTicket(t, db, user.ID)
 
 		// Execute
-		err := service.DeleteTicket(tenant.ID, ticket.ID)
+		err := service.DeleteTicket(ticket.ID)
 
 		// Assert
 		require.NoError(t, err)
@@ -205,17 +196,16 @@ func TestTicketService_GetTicketStats(t *testing.T) {
 		slaCalc := sla.NewCalculator(db.DB)
 		service := NewService(db.DB, slaCalc)
 
-		// tenant := createTestTenant removed
-		user := createTestUser(t, db, tenant.ID)
+		user := createTestUser(t, db)
 
 		// Create tickets with different statuses
-		createTestTicketWithStatus(t, db, tenant.ID, user.ID, "open")
-		createTestTicketWithStatus(t, db, tenant.ID, user.ID, "in_progress")
-		createTestTicketWithStatus(t, db, tenant.ID, user.ID, "resolved")
-		createTestTicketWithStatus(t, db, tenant.ID, user.ID, "closed")
+		createTestTicketWithStatus(t, db, user.ID, "open")
+		createTestTicketWithStatus(t, db, user.ID, "in_progress")
+		createTestTicketWithStatus(t, db, user.ID, "resolved")
+		createTestTicketWithStatus(t, db, user.ID, "closed")
 
 		// Execute
-		stats, err := service.GetTicketStats(tenant.ID)
+		stats, err := service.GetTicketStats()
 
 		// Assert
 		require.NoError(t, err)
@@ -230,8 +220,6 @@ func TestTicketService_GetTicketStats(t *testing.T) {
 }
 
 // Helper functions for creating test data
-
-// createTestTenant function removed - no longer needed in single-tenant architecture
 
 func createTestUser(t *testing.T, db *database.Database) *models.User {
 	// Generate unique email using timestamp
@@ -250,9 +238,9 @@ func createTestUser(t *testing.T, db *database.Database) *models.User {
 	return user
 }
 
-func createTestTicket(t *testing.T, db *database.Database, tenantID, userID uint) *models.Ticket {
+func createTestTicket(t *testing.T, db *database.Database, userID uint) *models.Ticket {
 	ticket := &models.Ticket{
-		TicketNumber:   generateTicketNumber(tenantID),
+		TicketNumber:   generateTicketNumber(),
 		Title:          "Test Ticket",
 		Description:    "This is a test ticket",
 		Status:         "open",
@@ -270,9 +258,9 @@ func createTestTicket(t *testing.T, db *database.Database, tenantID, userID uint
 	return ticket
 }
 
-func createTestTicketWithStatus(t *testing.T, db *database.Database, tenantID, userID uint, status string) *models.Ticket {
+func createTestTicketWithStatus(t *testing.T, db *database.Database, userID uint, status string) *models.Ticket {
 	ticket := &models.Ticket{
-		TicketNumber:   generateTicketNumber(tenantID),
+		TicketNumber:   generateTicketNumber(),
 		Title:          "Test Ticket",
 		Description:    "This is a test ticket",
 		Status:         status,
@@ -296,8 +284,8 @@ func createTestTicketWithStatus(t *testing.T, db *database.Database, tenantID, u
 	return ticket
 }
 
-func generateTicketNumber(tenantID uint) string {
+func generateTicketNumber() string {
 	// Generate unique ticket number using timestamp
 	timestamp := time.Now().UnixNano()
-	return fmt.Sprintf("TK-%d-%d", tenantID, timestamp%100000)
+	return fmt.Sprintf("TK-%d", timestamp%100000)
 }
