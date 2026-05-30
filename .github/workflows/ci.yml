@@ -190,7 +190,11 @@ jobs:
       - name: Run integration tests
         run: |
           mkdir -p data
-          go test -v -race -tags=integration tests/integration/...
+          # Integration-style tests live alongside their packages (named
+          # Test*Integration*, e.g. the in-memory MCP transport tests and the
+          # DB-backed service tests). There is no separate tests/integration
+          # package, so select by name across the module.
+          go test -race -run Integration -count=1 ./...
 
       - name: Upload integration test results
         uses: actions/upload-artifact@v4
@@ -244,8 +248,9 @@ jobs:
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true # advisory: requires a gh-pages branch to publish the trend
         with:
-          tool: 'go test -bench=. -benchmem'
+          tool: 'go'
           output-file-path: reports/benchmarks/benchmark.txt
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
@@ -481,9 +486,12 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
 
       - name: Run performance profiling
+        continue-on-error: true # advisory profiling; not a gate
         run: |
           mkdir -p reports/profiles
-          go test -cpuprofile=reports/profiles/cpu.prof -memprofile=reports/profiles/mem.prof -bench=. ./...
+          # -cpuprofile/-memprofile cannot span multiple packages, so profile a
+          # single representative package.
+          go test -cpuprofile=reports/profiles/cpu.prof -memprofile=reports/profiles/mem.prof -bench=. ./internal/utils
 
       - name: Upload profiling data
         uses: actions/upload-artifact@v4
