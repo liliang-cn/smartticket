@@ -228,7 +228,7 @@ func ticketCreate(ctx context.Context, b Backend, in ticketCreateInput) (ticketR
 		CustomFields:   in.CustomFields,
 	}
 
-	resp, err := b.CreateTicket(session.UserID, req)
+	resp, err := b.CreateTicket(session.Actor(), session.UserID, req)
 	if err != nil {
 		return ticketResponse{}, "", err
 	}
@@ -245,8 +245,8 @@ type ticketGetInput struct {
 }
 
 // ticketGet fetches a single ticket by ID.
-func ticketGet(_ context.Context, b Backend, in ticketGetInput) (ticketResponse, string, error) {
-	resp, err := b.GetTicket(in.ID)
+func ticketGet(ctx context.Context, b Backend, in ticketGetInput) (ticketResponse, string, error) {
+	resp, err := b.GetTicket(sessionActor(ctx), in.ID)
 	if err != nil {
 		return ticketResponse{}, "", err
 	}
@@ -269,7 +269,7 @@ type ticketListInput struct {
 }
 
 // ticketList lists tickets with optional filters and pagination.
-func ticketList(_ context.Context, b Backend, in ticketListInput) (ticketListResponse, string, error) {
+func ticketList(ctx context.Context, b Backend, in ticketListInput) (ticketListResponse, string, error) {
 	filters := map[string]interface{}{}
 	if in.Status != "" {
 		filters["status"] = in.Status
@@ -287,7 +287,7 @@ func ticketList(_ context.Context, b Backend, in ticketListInput) (ticketListRes
 		filters["search"] = in.Search
 	}
 
-	resp, err := b.ListTickets(in.Page, in.PageSize, filters)
+	resp, err := b.ListTickets(sessionActor(ctx), in.Page, in.PageSize, filters)
 	if err != nil {
 		return ticketListResponse{}, "", err
 	}
@@ -341,7 +341,7 @@ func ticketUpdate(ctx context.Context, b Backend, in ticketUpdateInput) (ticketR
 		CustomFields:   in.CustomFields,
 	}
 
-	resp, err := b.UpdateTicket(in.ID, session.UserID, req)
+	resp, err := b.UpdateTicket(session.Actor(), in.ID, session.UserID, req)
 	if err != nil {
 		return ticketResponse{}, "", err
 	}
@@ -364,8 +364,8 @@ type ticketDeleteOutput struct {
 }
 
 // ticketDelete soft-deletes a ticket by ID.
-func ticketDelete(_ context.Context, b Backend, in ticketDeleteInput) (ticketDeleteOutput, string, error) {
-	if err := b.DeleteTicket(in.ID); err != nil {
+func ticketDelete(ctx context.Context, b Backend, in ticketDeleteInput) (ticketDeleteOutput, string, error) {
+	if err := b.DeleteTicket(sessionActor(ctx), in.ID); err != nil {
 		return ticketDeleteOutput{}, "", err
 	}
 	return ticketDeleteOutput{ID: in.ID, Deleted: true}, fmt.Sprintf("deleted ticket #%d", in.ID), nil
@@ -388,8 +388,8 @@ type ticketAssignOutput struct {
 }
 
 // ticketAssign assigns a ticket to a user.
-func ticketAssign(_ context.Context, b Backend, in ticketAssignInput) (ticketAssignOutput, string, error) {
-	if err := b.AssignTicket(in.ID, in.AssignedTo); err != nil {
+func ticketAssign(ctx context.Context, b Backend, in ticketAssignInput) (ticketAssignOutput, string, error) {
+	if err := b.AssignTicket(sessionActor(ctx), in.ID, in.AssignedTo); err != nil {
 		return ticketAssignOutput{}, "", err
 	}
 	return ticketAssignOutput{ID: in.ID, AssignedTo: in.AssignedTo},
@@ -410,8 +410,8 @@ type ticketStatsOutput struct {
 }
 
 // ticketStats returns aggregate ticket statistics.
-func ticketStats(_ context.Context, b Backend, _ ticketStatsInput) (ticketStatsOutput, string, error) {
-	stats, err := b.GetTicketStats()
+func ticketStats(ctx context.Context, b Backend, _ ticketStatsInput) (ticketStatsOutput, string, error) {
+	stats, err := b.GetTicketStats(sessionActor(ctx))
 	if err != nil {
 		return ticketStatsOutput{}, "", err
 	}

@@ -61,6 +61,8 @@ func (a *Authenticator) Authenticate(ctx context.Context, token string) (*Sessio
 
 	return &Session{
 		UserID:      claims.UserID,
+		Role:        claims.Role,
+		CustomerID:  claims.CustomerID,
 		Permissions: permMap,
 	}, nil
 }

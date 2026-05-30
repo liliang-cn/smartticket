@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/company/smartticket/internal/auth"
+	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/models"
@@ -53,32 +54,32 @@ func NewDirectBackend(db *gorm.DB, authService *auth.Service, permissionService 
 
 // --- Ticket domain ---
 
-func (b *DirectBackend) CreateTicket(userID uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error) {
-	return b.ticket.CreateTicket(userID, req)
+func (b *DirectBackend) CreateTicket(actor authz.Actor, userID uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error) {
+	return b.ticket.CreateTicket(actor, userID, req)
 }
 
-func (b *DirectBackend) GetTicket(ticketID uint) (*ticket.TicketResponse, error) {
-	return b.ticket.GetTicket(ticketID)
+func (b *DirectBackend) GetTicket(actor authz.Actor, ticketID uint) (*ticket.TicketResponse, error) {
+	return b.ticket.GetTicket(actor, ticketID)
 }
 
-func (b *DirectBackend) ListTickets(page, pageSize int, filters map[string]interface{}) (*ticket.TicketListResponse, error) {
-	return b.ticket.ListTickets(page, pageSize, filters)
+func (b *DirectBackend) ListTickets(actor authz.Actor, page, pageSize int, filters map[string]interface{}) (*ticket.TicketListResponse, error) {
+	return b.ticket.ListTickets(actor, page, pageSize, filters)
 }
 
-func (b *DirectBackend) UpdateTicket(ticketID, userID uint, req *ticket.UpdateTicketRequest) (*ticket.TicketResponse, error) {
-	return b.ticket.UpdateTicket(ticketID, userID, req)
+func (b *DirectBackend) UpdateTicket(actor authz.Actor, ticketID, userID uint, req *ticket.UpdateTicketRequest) (*ticket.TicketResponse, error) {
+	return b.ticket.UpdateTicket(actor, ticketID, userID, req)
 }
 
-func (b *DirectBackend) DeleteTicket(ticketID uint) error {
-	return b.ticket.DeleteTicket(ticketID)
+func (b *DirectBackend) DeleteTicket(actor authz.Actor, ticketID uint) error {
+	return b.ticket.DeleteTicket(actor, ticketID)
 }
 
-func (b *DirectBackend) AssignTicket(ticketID, assignedTo uint) error {
-	return b.ticket.AssignTicket(ticketID, assignedTo)
+func (b *DirectBackend) AssignTicket(actor authz.Actor, ticketID, assignedTo uint) error {
+	return b.ticket.AssignTicket(actor, ticketID, assignedTo)
 }
 
-func (b *DirectBackend) GetTicketStats() (map[string]interface{}, error) {
-	return b.ticket.GetTicketStats()
+func (b *DirectBackend) GetTicketStats(actor authz.Actor) (map[string]interface{}, error) {
+	return b.ticket.GetTicketStats(actor)
 }
 
 // --- Knowledge domain ---

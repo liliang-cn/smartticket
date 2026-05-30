@@ -4,10 +4,26 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/errors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
+
+// actorFromContext builds the authorization Actor from the values the auth
+// middleware places in the gin context.
+func actorFromContext(c *gin.Context) authz.Actor {
+	a := authz.Actor{
+		UserID: c.GetUint("user_id"),
+		Role:   c.GetString("user_role"),
+	}
+	if v, ok := c.Get("user_customer_id"); ok {
+		if cid, ok := v.(uint); ok {
+			a.CustomerID = &cid
+		}
+	}
+	return a
+}
 
 // Handlers provides ticket HTTP handlers.
 type Handlers struct {
@@ -61,7 +77,7 @@ func (h *Handlers) CreateTicket(c *gin.Context) {
 	c.Set("target_resource", req.Title)
 
 	// Create ticket
-	ticket, err := h.service.CreateTicket(userID, &req)
+	ticket, err := h.service.CreateTicket(actorFromContext(c), userID, &req)
 	if err != nil {
 		c.Set("security_event", "ticket_creation_failed")
 		errors.ErrorHandler(c, err)
@@ -102,7 +118,7 @@ func (h *Handlers) GetTicket(c *gin.Context) {
 		return
 	}
 
-	ticket, err := h.service.GetTicket(uint(id))
+	ticket, err := h.service.GetTicket(actorFromContext(c), uint(id))
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -158,7 +174,7 @@ func (h *Handlers) ListTickets(c *gin.Context) {
 		filters["search"] = search
 	}
 
-	tickets, err := h.service.ListTickets(page, pageSize, filters)
+	tickets, err := h.service.ListTickets(actorFromContext(c), page, pageSize, filters)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -224,7 +240,7 @@ func (h *Handlers) UpdateTicket(c *gin.Context) {
 	c.Set("target_resource_id", uint(id))
 
 	// Update ticket
-	ticket, err := h.service.UpdateTicket(uint(id), userID, &req)
+	ticket, err := h.service.UpdateTicket(actorFromContext(c), uint(id), userID, &req)
 	if err != nil {
 		c.Set("security_event", "ticket_update_failed")
 		errors.ErrorHandler(c, err)
@@ -269,7 +285,7 @@ func (h *Handlers) DeleteTicket(c *gin.Context) {
 	c.Set("security_event", "ticket_deletion_attempt")
 	c.Set("target_resource_id", uint(id))
 
-	if err := h.service.DeleteTicket(uint(id)); err != nil {
+	if err := h.service.DeleteTicket(actorFromContext(c), uint(id)); err != nil {
 		c.Set("security_event", "ticket_deletion_failed")
 		errors.ErrorHandler(c, err)
 		return
@@ -324,7 +340,7 @@ func (h *Handlers) AssignTicket(c *gin.Context) {
 	c.Set("security_event", "ticket_assignment_attempt")
 	c.Set("target_resource_id", uint(id))
 
-	if err := h.service.AssignTicket(uint(id), req.AssignedTo); err != nil {
+	if err := h.service.AssignTicket(actorFromContext(c), uint(id), req.AssignedTo); err != nil {
 		c.Set("security_event", "ticket_assignment_failed")
 		errors.ErrorHandler(c, err)
 		return
@@ -352,7 +368,7 @@ func (h *Handlers) AssignTicket(c *gin.Context) {
 // @Failure 500 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/tickets/stats [get]
 func (h *Handlers) GetTicketStats(c *gin.Context) {
-	stats, err := h.service.GetTicketStats()
+	stats, err := h.service.GetTicketStats(actorFromContext(c))
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -402,7 +418,7 @@ func (h *Handlers) GetMyTickets(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	filters["assigned_to"] = userID
 
-	tickets, err := h.service.ListTickets(page, pageSize, filters)
+	tickets, err := h.service.ListTickets(actorFromContext(c), page, pageSize, filters)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
