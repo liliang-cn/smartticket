@@ -856,8 +856,6 @@ definitions:
         items:
           type: string
         type: array
-      tenant_id:
-        type: integer
       updated_at:
         type: string
       version:
@@ -897,8 +895,6 @@ definitions:
         items:
           type: string
         type: array
-      tenant_id:
-        type: integer
       type:
         type: string
       updated_at:
@@ -1006,8 +1002,6 @@ definitions:
         type: string
       support_level:
         type: string
-      tenant_id:
-        type: integer
       version:
         type: string
     type: object
@@ -1047,8 +1041,6 @@ definitions:
         items:
           type: string
         type: array
-      tenant_id:
-        type: integer
       type:
         type: string
       updated_at:
@@ -1179,8 +1171,6 @@ definitions:
         type: string
       template_id:
         type: integer
-      tenant_id:
-        type: integer
       updated_at:
         type: string
     type: object
@@ -1224,8 +1214,6 @@ definitions:
         items:
           type: string
         type: array
-      tenant_id:
-        type: integer
       updated_at:
         type: string
     type: object
@@ -1599,16 +1587,11 @@ paths:
       - permissions
   /api/v1/admin/roles:
     get:
-      description: Retrieves a list of all roles for the current tenant
+      description: Retrieves a list of all roles
       parameters:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       produces:
@@ -1645,11 +1628,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Role creation data
@@ -1697,11 +1675,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Password change data
         in: body
         name: request
@@ -1736,8 +1709,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Authenticate a user with email and password (tenant is auto-detected
-        from email)
+      description: Authenticate a user with email and password
       parameters:
       - description: Login credentials
         in: body
@@ -1803,11 +1775,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -1831,11 +1798,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       produces:
@@ -1932,11 +1894,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Import file (max 100MB)
         in: formData
         name: file
@@ -2015,11 +1972,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - default: 1
         description: Page number
         in: query
@@ -2091,11 +2043,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Knowledge article creation data
         in: body
         name: request
@@ -2138,11 +2085,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Knowledge Article ID
@@ -2188,11 +2130,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Knowledge Article ID
@@ -2242,11 +2179,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Knowledge Article ID
         in: path
         name: id
@@ -2293,16 +2225,10 @@ paths:
   /api/v1/knowledge/articles/stats:
     get:
       description: Retrieves statistical information about knowledge base articles
-        for the current tenant
       parameters:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       produces:
@@ -2336,11 +2262,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - default: 1
@@ -2410,11 +2331,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Product creation data
         in: body
         name: request
@@ -2456,11 +2372,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Product ID
@@ -2508,11 +2419,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Product ID
         in: path
         name: id
@@ -2558,11 +2464,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Product ID
@@ -2617,11 +2518,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Product ID
         in: path
         name: id
@@ -2668,11 +2564,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Product ID
         in: path
         name: id
@@ -2717,11 +2608,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - default: 1
@@ -2800,11 +2686,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Service creation data
         in: body
         name: request
@@ -2846,11 +2727,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Service ID
@@ -2898,11 +2774,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Service ID
         in: path
         name: id
@@ -2948,11 +2819,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Service ID
@@ -3007,11 +2873,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Service ID
         in: path
         name: id
@@ -3056,11 +2917,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Service ID
@@ -3111,11 +2967,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: SLA rule creation data
         in: body
         name: request
@@ -3157,11 +3008,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - default: 1
@@ -3227,11 +3073,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: SLA template creation data
         in: body
         name: request
@@ -3273,11 +3114,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: SLA Template ID
@@ -3324,11 +3160,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - default: 1
@@ -3409,11 +3240,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Ticket creation data
         in: body
         name: request
@@ -3455,11 +3281,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Ticket ID
@@ -3507,11 +3328,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Ticket ID
         in: path
         name: id
@@ -3557,11 +3373,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Ticket ID
@@ -3618,11 +3429,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Ticket ID
         in: path
         name: id
@@ -3673,11 +3479,6 @@ paths:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - default: 1
@@ -3742,17 +3543,11 @@ paths:
       - tickets
   /api/v1/tickets/stats:
     get:
-      description: Retrieves statistical information about tickets for the current
-        tenant
+      description: Retrieves statistical information about tickets
       parameters:
       - description: Bearer token
         in: header
         name: Authorization
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       produces:
@@ -3805,11 +3600,6 @@ paths:
         in: query
         name: is_active
         type: boolean
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Bearer token
         in: header
         name: Authorization
@@ -3846,7 +3636,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new user in the current tenant
+      description: Create a new user
       parameters:
       - description: User creation data
         in: body
@@ -3854,11 +3644,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/internal_user.CreateUserRequest'
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Bearer token
         in: header
         name: Authorization
@@ -3905,11 +3690,6 @@ paths:
         name: id
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Bearer token
         in: header
         name: Authorization
@@ -3951,11 +3731,6 @@ paths:
       - description: User ID
         in: path
         name: id
-        required: true
-        type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
         required: true
         type: string
       - description: Bearer token
@@ -4007,11 +3782,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/internal_user.UpdateUserRequest'
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Bearer token
         in: header
         name: Authorization
@@ -4062,11 +3832,6 @@ paths:
         name: id
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Bearer token
         in: header
         name: Authorization
@@ -4111,11 +3876,6 @@ paths:
         name: id
         required: true
         type: string
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Bearer token
         in: header
         name: Authorization
@@ -4153,13 +3913,8 @@ paths:
       - users
   /api/v1/users/stats:
     get:
-      description: Get user statistics for the current tenant
+      description: Get user statistics
       parameters:
-      - description: Tenant ID
-        in: header
-        name: X-Tenant-ID
-        required: true
-        type: string
       - description: Bearer token
         in: header
         name: Authorization

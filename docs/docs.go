@@ -145,7 +145,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieves a list of all roles for the current tenant",
+                "description": "Retrieves a list of all roles",
                 "produces": [
                     "application/json"
                 ],
@@ -158,13 +158,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     }
@@ -221,13 +214,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -302,13 +288,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Password change data",
                         "name": "request",
                         "in": "body",
@@ -348,7 +327,7 @@ const docTemplate = `{
         },
         "/api/v1/auth/login": {
             "post": {
-                "description": "Authenticate a user with email and password (tenant is auto-detected from email)",
+                "description": "Authenticate a user with email and password",
                 "consumes": [
                     "application/json"
                 ],
@@ -463,13 +442,6 @@ const docTemplate = `{
                         "name": "Authorization",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -508,13 +480,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     }
@@ -666,13 +631,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "file",
                         "description": "Import file (max 100MB)",
                         "name": "file",
@@ -791,13 +749,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "minimum": 1,
                         "type": "integer",
                         "default": 1,
@@ -903,13 +854,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Knowledge article creation data",
                         "name": "request",
                         "in": "body",
@@ -960,7 +904,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieves statistical information about knowledge base articles for the current tenant",
+                "description": "Retrieves statistical information about knowledge base articles",
                 "produces": [
                     "application/json"
                 ],
@@ -973,13 +917,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     }
@@ -1032,13 +969,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1111,13 +1041,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1200,13 +1123,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Knowledge Article ID",
                         "name": "id",
@@ -1274,13 +1190,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1384,13 +1293,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Product creation data",
                         "name": "request",
                         "in": "body",
@@ -1454,13 +1356,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1533,13 +1428,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1622,13 +1510,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Product ID",
                         "name": "id",
@@ -1696,13 +1577,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1778,13 +1652,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Product ID",
                         "name": "id",
@@ -1852,13 +1719,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -1974,13 +1834,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Service creation data",
                         "name": "request",
                         "in": "body",
@@ -2044,13 +1897,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2123,13 +1969,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2212,13 +2051,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Service ID",
                         "name": "id",
@@ -2290,13 +2122,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Service ID",
                         "name": "id",
@@ -2364,13 +2189,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2449,13 +2267,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "SLA rule creation data",
                         "name": "request",
                         "in": "body",
@@ -2519,13 +2330,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2624,13 +2428,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "SLA template creation data",
                         "name": "request",
                         "in": "body",
@@ -2694,13 +2491,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2772,13 +2562,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -2896,13 +2679,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Ticket creation data",
                         "name": "request",
                         "in": "body",
@@ -2966,13 +2742,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -3060,7 +2829,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Retrieves statistical information about tickets for the current tenant",
+                "description": "Retrieves statistical information about tickets",
                 "produces": [
                     "application/json"
                 ],
@@ -3073,13 +2842,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     }
@@ -3132,13 +2894,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -3211,13 +2966,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -3300,13 +3048,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Ticket ID",
                         "name": "id",
@@ -3377,13 +3118,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
                         "in": "header",
                         "required": true
                     },
@@ -3494,13 +3228,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
                         "in": "header",
@@ -3546,7 +3273,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new user in the current tenant",
+                "description": "Create a new user",
                 "consumes": [
                     "application/json"
                 ],
@@ -3566,13 +3293,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/internal_user.CreateUserRequest"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
                     },
                     {
                         "type": "string",
@@ -3629,7 +3349,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get user statistics for the current tenant",
+                "description": "Get user statistics",
                 "produces": [
                     "application/json"
                 ],
@@ -3638,13 +3358,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get user statistics",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "Bearer token",
@@ -3702,13 +3415,6 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
                         "required": true
                     },
                     {
@@ -3788,13 +3494,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
                         "in": "header",
@@ -3867,13 +3566,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
                         "in": "header",
@@ -3942,13 +3634,6 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Bearer token",
                         "name": "Authorization",
                         "in": "header",
@@ -4013,13 +3698,6 @@ const docTemplate = `{
                         "description": "User ID",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Tenant ID",
-                        "name": "X-Tenant-ID",
-                        "in": "header",
                         "required": true
                     },
                     {
@@ -5355,9 +5033,6 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "tenant_id": {
-                    "type": "integer"
-                },
                 "updated_at": {
                     "type": "string"
                 },
@@ -5415,9 +5090,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                },
-                "tenant_id": {
-                    "type": "integer"
                 },
                 "type": {
                     "type": "string"
@@ -5576,9 +5248,6 @@ const docTemplate = `{
                 "support_level": {
                     "type": "string"
                 },
-                "tenant_id": {
-                    "type": "integer"
-                },
                 "version": {
                     "type": "string"
                 }
@@ -5636,9 +5305,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                },
-                "tenant_id": {
-                    "type": "integer"
                 },
                 "type": {
                     "type": "string"
@@ -5828,9 +5494,6 @@ const docTemplate = `{
                 "template_id": {
                     "type": "integer"
                 },
-                "tenant_id": {
-                    "type": "integer"
-                },
                 "updated_at": {
                     "type": "string"
                 }
@@ -5893,9 +5556,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                },
-                "tenant_id": {
-                    "type": "integer"
                 },
                 "updated_at": {
                     "type": "string"
