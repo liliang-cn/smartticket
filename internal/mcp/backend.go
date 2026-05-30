@@ -12,6 +12,7 @@ import (
 	"mime/multipart"
 
 	"github.com/company/smartticket/internal/auth"
+	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/models"
@@ -32,14 +33,14 @@ import (
 //
 // Methods are grouped by domain.
 type Backend interface {
-	// --- Ticket domain ---
-	CreateTicket(userID uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error)
-	GetTicket(ticketID uint) (*ticket.TicketResponse, error)
-	ListTickets(page, pageSize int, filters map[string]interface{}) (*ticket.TicketListResponse, error)
-	UpdateTicket(ticketID, userID uint, req *ticket.UpdateTicketRequest) (*ticket.TicketResponse, error)
-	DeleteTicket(ticketID uint) error
-	AssignTicket(ticketID, assignedTo uint) error
-	GetTicketStats() (map[string]interface{}, error)
+	// --- Ticket domain --- (actor scopes customer isolation)
+	CreateTicket(actor authz.Actor, userID uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error)
+	GetTicket(actor authz.Actor, ticketID uint) (*ticket.TicketResponse, error)
+	ListTickets(actor authz.Actor, page, pageSize int, filters map[string]interface{}) (*ticket.TicketListResponse, error)
+	UpdateTicket(actor authz.Actor, ticketID, userID uint, req *ticket.UpdateTicketRequest) (*ticket.TicketResponse, error)
+	DeleteTicket(actor authz.Actor, ticketID uint) error
+	AssignTicket(actor authz.Actor, ticketID, assignedTo uint) error
+	GetTicketStats(actor authz.Actor) (map[string]interface{}, error)
 
 	// --- Knowledge domain ---
 	CreateKnowledgeArticle(userID uint, req *knowledge.CreateKnowledgeArticleRequest) (*knowledge.KnowledgeArticleResponse, error)
@@ -132,6 +133,8 @@ type Backend interface {
 // into the request context so that each tool handler can enforce RBAC.
 type Session struct {
 	UserID      uint
+	Role        string
+	CustomerID  *uint
 	Permissions map[string]bool
 }
 
@@ -141,6 +144,23 @@ func (s *Session) Can(code string) bool {
 		return false
 	}
 	return s.Permissions[code]
+}
+
+// Actor builds the authorization Actor for this session, used to scope
+// customer-isolated queries at the service layer.
+func (s *Session) Actor() authz.Actor {
+	if s == nil {
+		return authz.Actor{}
+	}
+	return authz.Actor{UserID: s.UserID, Role: s.Role, CustomerID: s.CustomerID}
+}
+
+// sessionActor returns the authorization Actor for the session in ctx, or a
+// zero Actor when none is present. registerTool runs RequirePermission first,
+// so an authenticated session is normally present by the time tools call this.
+func sessionActor(ctx context.Context) authz.Actor {
+	s, _ := SessionFromContext(ctx)
+	return s.Actor()
 }
 
 // sessionKey is the unexported context key under which a *Session is stored.

@@ -23,15 +23,21 @@ func TestUserService_CreateUser(t *testing.T) {
 		// Seed the role required for assignment
 		createTestRole(t, db, "customer")
 
+		// A customer-role user must belong to a customer organization.
+		cust := &models.Customer{Name: "Acme", IsActive: true}
+		require.NoError(t, db.DB.Create(cust).Error)
+		cid := cust.ID
+
 		// Test data
 		req := &CreateUserRequest{
-			Email:     "newuser@example.com",
-			Username:  "newuser",
-			FirstName: "New",
-			LastName:  "User",
-			Password:  "Password123!",
-			Role:      "customer",
-			IsActive:  true,
+			Email:      "newuser@example.com",
+			Username:   "newuser",
+			FirstName:  "New",
+			LastName:   "User",
+			Password:   "Password123!",
+			Role:       "customer",
+			IsActive:   true,
+			CustomerID: &cid,
 		}
 
 		// Execute

@@ -15,6 +15,7 @@ import (
 	"github.com/company/smartticket/internal/api/middleware"
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/config"
+	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/database"
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/importexport"
@@ -159,6 +160,7 @@ func (s *Server) setupRoutes() {
 	// Initialize ticket service with SLA calculator
 	ticketService := ticket.NewService(s.db.DB, slaCalculator)
 	productService := product.NewService(s.db.DB)
+	customerService := customer.NewService(s.db.DB)
 	serviceManagementService := servicemgmt.NewService(s.db.DB)
 	slaService := sla.NewService(s.db.DB)
 	knowledgeService := knowledge.NewService(s.db.DB)
@@ -168,6 +170,7 @@ func (s *Server) setupRoutes() {
 	userHandlers := user.NewHandlers(userService)
 	ticketHandlers := ticket.NewHandlers(ticketService)
 	productHandlers := product.NewHandlers(productService)
+	customerHandlers := customer.NewHandlers(customerService)
 	serviceHandlers := servicemgmt.NewHandlers(serviceManagementService)
 	slaHandlers := sla.NewHandlers(slaService, slaCalculator)
 	knowledgeHandlers := knowledge.NewHandlers(knowledgeService)
@@ -283,6 +286,18 @@ func (s *Server) setupRoutes() {
 				// TODO: Implement message routes in next phase
 				// tickets.GET("/:id/messages", s.getTicketMessages)
 				// tickets.POST("/:id/messages", s.createTicketMessage)
+			}
+
+			// Customer organization management routes (team-only).
+			customers := protected.Group("/customers")
+			customers.Use(s.adminMiddleware())
+			{
+				customers.POST("", customerHandlers.CreateCustomer)
+				customers.GET("", customerHandlers.ListCustomers)
+				customers.GET("/:id", customerHandlers.GetCustomer)
+				customers.PUT("/:id", customerHandlers.UpdateCustomer)
+				customers.DELETE("/:id", customerHandlers.DeleteCustomer)
+				customers.GET("/:id/users", customerHandlers.ListCustomerUsers)
 			}
 
 			// Knowledge base routes

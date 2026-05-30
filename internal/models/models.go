@@ -18,6 +18,22 @@ type BaseModel struct {
 
 
 // User represents a user account.
+// Customer represents a customer organization (a company the operator serves).
+// Customer-role users belong to one Customer; their tickets are scoped to it.
+type Customer struct {
+	BaseModel
+	Name        string   `gorm:"size:255;not null;index" json:"name"`
+	// Code is an optional unique short code. It is a pointer so that multiple
+	// customers without a code store NULL (distinct under the unique index)
+	// rather than colliding on the empty string.
+	Code        *string  `gorm:"size:100;uniqueIndex" json:"code,omitempty"`
+	Domain      string   `gorm:"size:255;index" json:"domain"`
+	IsActive    bool     `gorm:"default:true" json:"is_active"`
+	Description string   `gorm:"type:text" json:"description"`
+	Users       []User   `gorm:"foreignKey:CustomerID" json:"users,omitempty"`
+	Tickets     []Ticket `gorm:"foreignKey:CustomerID" json:"tickets,omitempty"`
+}
+
 type User struct {
 	BaseModel
 	Email        string `gorm:"size:255;not null;uniqueIndex" json:"email"`
@@ -29,6 +45,10 @@ type User struct {
 	IsActive     bool       `gorm:"default:true" json:"is_active"`
 	LastLoginAt  *time.Time `json:"last_login_at"`
 	Preferences  string     `gorm:"type:text" json:"preferences"` // JSON string
+	// CustomerID links a customer-role user to the customer organization they
+	// belong to. Nil for team users (admin/engineer).
+	CustomerID   *uint      `gorm:"index" json:"customer_id,omitempty"`
+	Customer     *Customer  `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
 	Tickets      []Ticket   `gorm:"foreignKey:CreatedBy;references:ID" json:"tickets,omitempty"`
 	Messages     []Message  `gorm:"foreignKey:UserID;references:ID" json:"messages,omitempty"`
 	Roles        []Role     `gorm:"many2many:user_roles;" json:"roles,omitempty"`
@@ -49,6 +69,8 @@ type Ticket struct {
 	Product        *Product     `gorm:"foreignKey:ProductID" json:"product,omitempty"`
 	ServiceID      *uint        `gorm:"index" json:"service_id"`
 	Service        *Service     `gorm:"foreignKey:ServiceID" json:"service,omitempty"`
+	CustomerID     *uint        `gorm:"index" json:"customer_id,omitempty"`
+	Customer       *Customer    `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
 	AssignedTo     *uint        `gorm:"index" json:"assigned_to"`
 	AssignedUser   *User        `gorm:"foreignKey:AssignedTo" json:"assigned_user,omitempty"`
 	RequesterName  string       `gorm:"size:255" json:"requester_name"`

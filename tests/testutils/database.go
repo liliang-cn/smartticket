@@ -43,6 +43,7 @@ func WithTestDatabase(t *testing.T, testFunc func(t *testing.T, db *database.Dat
 
 	// Run GORM auto-migration for all models
 	if err := db.DB.AutoMigrate(
+		&models.Customer{},
 		&models.User{},
 		&models.Ticket{},
 		&models.Message{},

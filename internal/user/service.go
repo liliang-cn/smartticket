@@ -10,8 +10,12 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/company/smartticket/internal/auth"
+	apperrors "github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/models"
 )
+
+// teamRoles are the operator-side roles that must not belong to a customer org.
+var teamRoles = map[string]bool{"admin": true, "engineer": true}
 
 // Service provides user management business logic.
 type Service struct {
@@ -63,6 +67,9 @@ type CreateUserRequest struct {
 	Role        string `json:"role" binding:"required,oneof=admin engineer support customer sales" example:"customer"`
 	IsActive    bool   `json:"is_active" example:"true"`
 	Preferences string `json:"preferences,omitempty" example:"{\"timezone\": \"UTC\", \"language\": \"en\"}"`
+	// CustomerID links the user to a customer organization. Required for the
+	// "customer" role; forbidden for team roles (admin/engineer).
+	CustomerID *uint `json:"customer_id,omitempty" example:"1"`
 }
 
 // UpdateUserRequest represents user update request.
@@ -121,6 +128,23 @@ func (s *Service) CreateUser(req *CreateUserRequest) (*auth.UserInfo, error) {
 		return nil, fmt.Errorf("password validation failed: %w", err)
 	}
 
+	// Validate customer_id against role: the customer role must belong to a
+	// customer organization; team roles must not.
+	if req.Role == "customer" {
+		if req.CustomerID == nil {
+			return nil, apperrors.NewValidationError("customer role requires customer_id")
+		}
+		var existingCustomer models.Customer
+		if err := s.db.Where("id = ?", *req.CustomerID).First(&existingCustomer).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, apperrors.NewValidationError("customer not found")
+			}
+			return nil, fmt.Errorf("failed to verify customer: %w", err)
+		}
+	} else if teamRoles[req.Role] && req.CustomerID != nil {
+		return nil, apperrors.NewValidationError("team roles must not have customer_id")
+	}
+
 	// Check if email already exists
 	exists, err := s.repo.CheckEmailExists(req.Email)
 	if err != nil {
@@ -154,6 +178,8 @@ func (s *Service) CreateUser(req *CreateUserRequest) (*auth.UserInfo, error) {
 		PasswordHash: string(hashedPassword),
 		IsActive:     req.IsActive,
 		Preferences:  req.Preferences,
+		Role:         req.Role,
+		CustomerID:   req.CustomerID,
 	}
 
 	// Start transaction

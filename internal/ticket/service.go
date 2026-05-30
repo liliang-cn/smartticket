@@ -6,11 +6,21 @@ import (
 	"time"
 
 	stderrors "errors"
+	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/sla"
 	"gorm.io/gorm"
 )
+
+// scopeToActor restricts a ticket query to the actor's customer when the actor
+// is a customer-role user. Team actors (admin/engineer) are unrestricted.
+func scopeToActor(q *gorm.DB, actor authz.Actor) *gorm.DB {
+	if actor.IsCustomer() && actor.CustomerID != nil {
+		return q.Where("customer_id = ?", *actor.CustomerID)
+	}
+	return q
+}
 
 // Service provides ticket management business logic.
 type Service struct {
@@ -36,6 +46,7 @@ type CreateTicketRequest struct {
 	Type           string `json:"type" binding:"omitempty,max=50"`
 	ProductID      *uint  `json:"product_id" binding:"omitempty"`
 	ServiceID      *uint  `json:"service_id" binding:"omitempty"`
+	CustomerID     *uint  `json:"customer_id" binding:"omitempty"` // team may file on behalf of a customer; ignored for customer actors
 	RequesterName  string `json:"requester_name" binding:"required,min=1,max=255"`
 	RequesterEmail string `json:"requester_email" binding:"required,email,max=255"`
 	Tags           string `json:"tags" binding:"omitempty"`          // JSON array
@@ -109,8 +120,9 @@ type UserInfo struct {
 	Role      string `json:"role"`
 }
 
-// CreateTicket creates a new ticket.
-func (s *Service) CreateTicket(userID uint, req *CreateTicketRequest) (*TicketResponse, error) {
+// CreateTicket creates a new ticket. A customer actor's ticket is forced to the
+// actor's own customer; a team actor may optionally set req.CustomerID.
+func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicketRequest) (*TicketResponse, error) {
 	// Normalize and validate input
 	req.Title = strings.TrimSpace(req.Title)
 	req.Description = strings.TrimSpace(req.Description)
@@ -137,6 +149,13 @@ func (s *Service) CreateTicket(userID uint, req *CreateTicketRequest) (*TicketRe
 		return nil, fmt.Errorf("failed to calculate SLA: %w", err)
 	}
 
+	// Determine the owning customer: a customer actor always files for their own
+	// customer; a team actor may set one explicitly via the request.
+	customerID := req.CustomerID
+	if actor.IsCustomer() {
+		customerID = actor.CustomerID
+	}
+
 	// Create ticket
 	ticket := &models.Ticket{
 		BaseModel: models.BaseModel{
@@ -155,6 +174,7 @@ func (s *Service) CreateTicket(userID uint, req *CreateTicketRequest) (*TicketRe
 		Type:           req.Type,
 		ProductID:      req.ProductID,
 		ServiceID:      req.ServiceID,
+		CustomerID:     customerID,
 		AssignedTo:     nil, // Default to nil (unassigned)
 		RequesterName:  req.RequesterName,
 		RequesterEmail: req.RequesterEmail,
@@ -171,10 +191,10 @@ func (s *Service) CreateTicket(userID uint, req *CreateTicketRequest) (*TicketRe
 	return s.ticketToResponse(ticket), nil
 }
 
-// GetTicket gets a ticket by ID.
-func (s *Service) GetTicket(ticketID uint) (*TicketResponse, error) {
+// GetTicket gets a ticket by ID, scoped to the actor's customer.
+func (s *Service) GetTicket(actor authz.Actor, ticketID uint) (*TicketResponse, error) {
 	var ticket models.Ticket
-	if err := s.db.Where("id = ?", ticketID).
+	if err := scopeToActor(s.db.Where("id = ?", ticketID), actor).
 		Preload("AssignedUser").
 		First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
@@ -186,8 +206,8 @@ func (s *Service) GetTicket(ticketID uint) (*TicketResponse, error) {
 	return s.ticketToResponse(&ticket), nil
 }
 
-// ListTickets lists tickets with pagination and filtering.
-func (s *Service) ListTickets(page, pageSize int, filters map[string]interface{}) (*TicketListResponse, error) {
+// ListTickets lists tickets with pagination and filtering, scoped to the actor's customer.
+func (s *Service) ListTickets(actor authz.Actor, page, pageSize int, filters map[string]interface{}) (*TicketListResponse, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -203,7 +223,7 @@ func (s *Service) ListTickets(page, pageSize int, filters map[string]interface{}
 	var tickets []models.Ticket
 	var total int64
 
-	query := s.db.Model(&models.Ticket{})
+	query := scopeToActor(s.db.Model(&models.Ticket{}), actor)
 
 	// Apply filters
 	if status, ok := filters["status"].(string); ok && status != "" {
@@ -255,10 +275,10 @@ func (s *Service) ListTickets(page, pageSize int, filters map[string]interface{}
 	}, nil
 }
 
-// UpdateTicket updates a ticket.
-func (s *Service) UpdateTicket(ticketID uint, userID uint, req *UpdateTicketRequest) (*TicketResponse, error) {
+// UpdateTicket updates a ticket, scoped to the actor's customer.
+func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, req *UpdateTicketRequest) (*TicketResponse, error) {
 	var ticket models.Ticket
-	if err := s.db.Where("id = ?", ticketID).
+	if err := scopeToActor(s.db.Where("id = ?", ticketID), actor).
 		First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("ticket")
@@ -328,7 +348,8 @@ func (s *Service) UpdateTicket(ticketID uint, userID uint, req *UpdateTicketRequ
 	if req.ServiceID != nil {
 		ticket.ServiceID = req.ServiceID
 	}
-	if req.AssignedTo != nil {
+	if req.AssignedTo != nil && actor.IsTeam() {
+		// Only team members may (re)assign a ticket.
 		ticket.AssignedTo = req.AssignedTo
 	}
 	if req.RequesterName != "" {
@@ -370,10 +391,9 @@ func (s *Service) UpdateTicket(ticketID uint, userID uint, req *UpdateTicketRequ
 	return s.ticketToResponse(&ticket), nil
 }
 
-// DeleteTicket soft deletes a ticket.
-func (s *Service) DeleteTicket(ticketID uint) error {
-	result := s.db.Model(&models.Ticket{}).
-		Where("id = ?", ticketID).
+// DeleteTicket soft deletes a ticket, scoped to the actor's customer.
+func (s *Service) DeleteTicket(actor authz.Actor, ticketID uint) error {
+	result := scopeToActor(s.db.Model(&models.Ticket{}).Where("id = ?", ticketID), actor).
 		Update("is_deleted", true)
 
 	if result.Error != nil {
@@ -387,8 +407,11 @@ func (s *Service) DeleteTicket(ticketID uint) error {
 	return nil
 }
 
-// AssignTicket assigns a ticket to a user.
-func (s *Service) AssignTicket(ticketID uint, assignedTo uint) error {
+// AssignTicket assigns a ticket to a user. Team-only.
+func (s *Service) AssignTicket(actor authz.Actor, ticketID uint, assignedTo uint) error {
+	if !actor.IsTeam() {
+		return errors.NewForbiddenError("only team members can assign tickets")
+	}
 	result := s.db.Model(&models.Ticket{}).
 		Where("id = ?", ticketID).
 		Update("assigned_to", &assignedTo)
@@ -404,8 +427,8 @@ func (s *Service) AssignTicket(ticketID uint, assignedTo uint) error {
 	return nil
 }
 
-// GetTicketStats gets ticket statistics.
-func (s *Service) GetTicketStats() (map[string]interface{}, error) {
+// GetTicketStats gets ticket statistics, scoped to the actor's customer.
+func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, error) {
 	var stats struct {
 		Total         int64 `json:"total"`
 		Open          int64 `json:"open"`
@@ -420,13 +443,13 @@ func (s *Service) GetTicketStats() (map[string]interface{}, error) {
 	}
 
 	// Get basic status counts
-	if err := s.db.Model(&models.Ticket{}).
+	if err := scopeToActor(s.db.Model(&models.Ticket{}), actor).
 		Count(&stats.Total).Error; err != nil {
 		return nil, fmt.Errorf("failed to count total tickets: %w", err)
 	}
 
 	// Get status breakdown
-	rows, err := s.db.Model(&models.Ticket{}).
+	rows, err := scopeToActor(s.db.Model(&models.Ticket{}), actor).
 		Select("status, COUNT(*) as count").
 		Group("status").
 		Rows()
@@ -454,7 +477,7 @@ func (s *Service) GetTicketStats() (map[string]interface{}, error) {
 	}
 
 	// Get priority breakdown
-	priorityRows, err := s.db.Model(&models.Ticket{}).
+	priorityRows, err := scopeToActor(s.db.Model(&models.Ticket{}), actor).
 		Where("status IN ?", []string{"open", "in_progress"}).
 		Select("priority, COUNT(*) as count").
 		Group("priority").
@@ -484,7 +507,7 @@ func (s *Service) GetTicketStats() (map[string]interface{}, error) {
 
 	// Get overdue count
 	now := time.Now()
-	if err := s.db.Model(&models.Ticket{}).
+	if err := scopeToActor(s.db.Model(&models.Ticket{}), actor).
 		Where("status IN ? AND due_date < ?",
 			[]string{"open", "in_progress"}, now).
 		Count(&stats.OverdueCount).Error; err != nil {

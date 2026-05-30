@@ -14,9 +14,10 @@ import (
 
 // JWTClaims represents the claims structure for JWT tokens.
 type JWTClaims struct {
-	UserID uint   `json:"user_id"`
-	Email  string `json:"email"`
-	Role   string `json:"role"`
+	UserID     uint   `json:"user_id"`
+	Email      string `json:"email"`
+	Role       string `json:"role"`
+	CustomerID *uint  `json:"customer_id,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -253,9 +254,10 @@ func (s *Service) generateTokenPair(user *models.User) (*TokenPair, error) {
 
 	// Generate access token
 	accessClaims := &JWTClaims{
-		UserID: user.ID,
-		Email:  user.Email,
-		Role:   effectiveRole,
+		UserID:     user.ID,
+		Email:      user.Email,
+		Role:       effectiveRole,
+		CustomerID: user.CustomerID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   "access",
 			Issuer:    s.issuer,
@@ -272,9 +274,10 @@ func (s *Service) generateTokenPair(user *models.User) (*TokenPair, error) {
 
 	// Generate refresh token
 	refreshClaims := &JWTClaims{
-		UserID: user.ID,
-		Email:  user.Email,
-		Role:   effectiveRole,
+		UserID:     user.ID,
+		Email:      user.Email,
+		Role:       effectiveRole,
+		CustomerID: user.CustomerID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   "refresh",
 			Issuer:    s.issuer,

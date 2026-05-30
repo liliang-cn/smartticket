@@ -170,6 +170,7 @@ func runServe(cmd *cobra.Command, _ []string) error {
 	dbModels := []interface{}{
 		// Base tables first (no foreign key dependencies)
 		&models.SystemSetting{},
+		&models.Customer{},
 		&models.Product{},
 		&models.Service{},
 		&models.SLATemplate{},
@@ -313,6 +314,7 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 	dbModels := []interface{}{
 		// Base tables first (no foreign key dependencies)
 		&models.SystemSetting{},
+		&models.Customer{},
 		&models.Product{},
 		&models.Service{},
 		&models.SLATemplate{},
@@ -406,12 +408,29 @@ func runCreateAdmin(cmd *cobra.Command, _ []string) error {
 
 	now := time.Now()
 	err = db.DB.Transaction(func(tx *gorm.DB) error {
-		// Ensure the admin role exists.
+		// Ensure all standard roles exist. Bootstrapping via createadmin creates
+		// a user before serve runs, which makes InitializeIfNeeded skip its
+		// seeding; without this, the engineer/customer roles would be missing and
+		// later creating customer contacts / team members would fail on role
+		// assignment.
+		standardRoles := []models.Role{
+			{Name: "admin", Description: "System administrator with full access", IsSystem: true},
+			{Name: "engineer", Description: "Support engineer with technical access"},
+			{Name: "customer", Description: "Customer with basic access"},
+		}
+		for _, r := range standardRoles {
+			var existing models.Role
+			if err := tx.Where(models.Role{Name: r.Name}).
+				Attrs(models.Role{Description: r.Description, IsSystem: r.IsSystem}).
+				FirstOrCreate(&existing).Error; err != nil {
+				return fmt.Errorf("failed to ensure role %q: %w", r.Name, err)
+			}
+		}
+
+		// Look up the admin role for assignment to this user.
 		var adminRole models.Role
-		if err := tx.Where(models.Role{Name: "admin"}).
-			Attrs(models.Role{Description: "System administrator with full access", IsSystem: true}).
-			FirstOrCreate(&adminRole).Error; err != nil {
-			return fmt.Errorf("failed to ensure admin role: %w", err)
+		if err := tx.Where(models.Role{Name: "admin"}).First(&adminRole).Error; err != nil {
+			return fmt.Errorf("failed to load admin role: %w", err)
 		}
 
 		// Create or update the user.

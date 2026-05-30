@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/database"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/sla"
@@ -35,7 +36,7 @@ func TestTicketService_CreateTicket(t *testing.T) {
 		}
 
 		// Execute
-		result, err := service.CreateTicket(user.ID, req)
+		result, err := service.CreateTicket(teamActor, user.ID, req)
 
 		// Assert
 		require.NoError(t, err)
@@ -61,7 +62,7 @@ func TestTicketService_GetTicket(t *testing.T) {
 		ticket := createTestTicket(t, db, user.ID)
 
 		// Execute
-		result, err := service.GetTicket(ticket.ID)
+		result, err := service.GetTicket(teamActor, ticket.ID)
 
 		// Assert
 		require.NoError(t, err)
@@ -78,7 +79,7 @@ func TestTicketService_GetTicket_NotFound(t *testing.T) {
 		service := NewService(db.DB, slaCalc)
 
 		// Execute
-		result, err := service.GetTicket(999999)
+		result, err := service.GetTicket(teamActor, 999999)
 
 		// Assert
 		assert.Error(t, err)
@@ -102,7 +103,7 @@ func TestTicketService_ListTickets(t *testing.T) {
 
 		// Execute with filters map
 		filters := map[string]interface{}{}
-		result, err := service.ListTickets(1, 20, filters)
+		result, err := service.ListTickets(teamActor, 1, 20, filters)
 
 		// Assert
 		require.NoError(t, err)
@@ -131,7 +132,7 @@ func TestTicketService_UpdateTicket(t *testing.T) {
 		}
 
 		// Execute
-		result, err := service.UpdateTicket(ticket.ID, user.ID, req)
+		result, err := service.UpdateTicket(teamActor, ticket.ID, user.ID, req)
 
 		// Assert
 		require.NoError(t, err)
@@ -154,13 +155,13 @@ func TestTicketService_AssignTicket(t *testing.T) {
 		ticket := createTestTicket(t, db, user1.ID)
 
 		// Execute
-		err := service.AssignTicket(ticket.ID, user2.ID)
+		err := service.AssignTicket(teamActor, ticket.ID, user2.ID)
 
 		// Assert
 		require.NoError(t, err)
 
 		// Verify the assignment by getting the ticket
-		updatedTicket, err := service.GetTicket(ticket.ID)
+		updatedTicket, err := service.GetTicket(teamActor, ticket.ID)
 		require.NoError(t, err)
 		assert.NotNil(t, updatedTicket)
 		require.NotNil(t, updatedTicket.AssignedTo)
@@ -178,7 +179,7 @@ func TestTicketService_DeleteTicket(t *testing.T) {
 		ticket := createTestTicket(t, db, user.ID)
 
 		// Execute
-		err := service.DeleteTicket(ticket.ID)
+		err := service.DeleteTicket(teamActor, ticket.ID)
 
 		// Assert
 		require.NoError(t, err)
@@ -206,7 +207,7 @@ func TestTicketService_GetTicketStats(t *testing.T) {
 		createTestTicketWithStatus(t, db, user.ID, "closed")
 
 		// Execute
-		stats, err := service.GetTicketStats()
+		stats, err := service.GetTicketStats(teamActor)
 
 		// Assert
 		require.NoError(t, err)
@@ -284,6 +285,10 @@ func createTestTicketWithStatus(t *testing.T, db *database.Database, userID uint
 
 	return ticket
 }
+
+// teamActor is an admin (team) actor used by the existing tests, which exercise
+// unrestricted access. Customer-isolation scoping is covered by dedicated tests.
+var teamActor = authz.Actor{Role: authz.RoleAdmin}
 
 // testTicketSeq guarantees unique ticket numbers across rapid successive
 // createTestTicket* calls. A timestamp-based scheme collided when several

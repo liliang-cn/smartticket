@@ -73,7 +73,9 @@ func (h *Handlers) CreateUser(c *gin.Context) {
 		log.Warn("User creation failed", zap.Error(err))
 
 		var appErr *errors.AppError
-		if err.Error() == "email already exists" || err.Error() == "username already exists" {
+		if existingAppErr, ok := err.(*errors.AppError); ok {
+			appErr = existingAppErr.WithRequestID(requestID.(string))
+		} else if err.Error() == "email already exists" || err.Error() == "username already exists" {
 			appErr = errors.NewConflictError(err.Error()).
 				WithRequestID(requestID.(string))
 		} else {

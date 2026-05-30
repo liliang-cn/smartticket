@@ -203,7 +203,7 @@ func (s *Server) authMiddleware() gin.HandlerFunc {
 		token := parts[1]
 
 		// Validate JWT token with auth service
-		userID, userRole, err := s.validateJWTToken(token)
+		userID, userRole, customerID, err := s.validateJWTToken(token)
 		if err != nil {
 			appErr := errors.NewUnauthorizedError("Invalid or expired token").
 				WithRequestID(c.GetString("request_id"))
@@ -218,6 +218,9 @@ func (s *Server) authMiddleware() gin.HandlerFunc {
 		// Set user information in context
 		c.Set("user_id", userID)
 		c.Set("user_role", userRole)
+		if customerID != nil {
+			c.Set("user_customer_id", *customerID)
+		}
 		c.Next()
 	}
 }
@@ -320,15 +323,15 @@ func generateRequestID() string {
 }
 
 // validateJWTToken validates a JWT token and returns user information.
-func (s *Server) validateJWTToken(token string) (uint, string, error) {
+func (s *Server) validateJWTToken(token string) (uint, string, *uint, error) {
 	if s.authService == nil {
-		return 0, "", fmt.Errorf("auth service not available")
+		return 0, "", nil, fmt.Errorf("auth service not available")
 	}
 
 	claims, err := s.authService.ValidateToken(token)
 	if err != nil {
-		return 0, "", err
+		return 0, "", nil, err
 	}
 
-	return claims.UserID, claims.Role, nil
+	return claims.UserID, claims.Role, claims.CustomerID, nil
 }

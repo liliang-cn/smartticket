@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/company/smartticket/internal/auth"
+	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/models"
@@ -31,35 +32,39 @@ var _ Backend = (*MockBackend)(nil)
 
 // --- Ticket domain ---
 
-func (m *MockBackend) CreateTicket(userID uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error) {
+// Ticket mock methods accept the Actor but do not include it in expectation
+// matching — customer-isolation scoping is exercised at the service layer, so
+// MCP tool tests set expectations on the business arguments only.
+
+func (m *MockBackend) CreateTicket(_ authz.Actor, userID uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error) {
 	args := m.Called(userID, req)
 	return getPtr[ticket.TicketResponse](args, 0), args.Error(1)
 }
 
-func (m *MockBackend) GetTicket(ticketID uint) (*ticket.TicketResponse, error) {
+func (m *MockBackend) GetTicket(_ authz.Actor, ticketID uint) (*ticket.TicketResponse, error) {
 	args := m.Called(ticketID)
 	return getPtr[ticket.TicketResponse](args, 0), args.Error(1)
 }
 
-func (m *MockBackend) ListTickets(page, pageSize int, filters map[string]interface{}) (*ticket.TicketListResponse, error) {
+func (m *MockBackend) ListTickets(_ authz.Actor, page, pageSize int, filters map[string]interface{}) (*ticket.TicketListResponse, error) {
 	args := m.Called(page, pageSize, filters)
 	return getPtr[ticket.TicketListResponse](args, 0), args.Error(1)
 }
 
-func (m *MockBackend) UpdateTicket(ticketID, userID uint, req *ticket.UpdateTicketRequest) (*ticket.TicketResponse, error) {
+func (m *MockBackend) UpdateTicket(_ authz.Actor, ticketID, userID uint, req *ticket.UpdateTicketRequest) (*ticket.TicketResponse, error) {
 	args := m.Called(ticketID, userID, req)
 	return getPtr[ticket.TicketResponse](args, 0), args.Error(1)
 }
 
-func (m *MockBackend) DeleteTicket(ticketID uint) error {
+func (m *MockBackend) DeleteTicket(_ authz.Actor, ticketID uint) error {
 	return m.Called(ticketID).Error(0)
 }
 
-func (m *MockBackend) AssignTicket(ticketID, assignedTo uint) error {
+func (m *MockBackend) AssignTicket(_ authz.Actor, ticketID, assignedTo uint) error {
 	return m.Called(ticketID, assignedTo).Error(0)
 }
 
-func (m *MockBackend) GetTicketStats() (map[string]interface{}, error) {
+func (m *MockBackend) GetTicketStats(_ authz.Actor) (map[string]interface{}, error) {
 	args := m.Called()
 	return getMap(args, 0), args.Error(1)
 }
