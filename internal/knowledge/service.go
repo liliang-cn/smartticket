@@ -97,7 +97,7 @@ type RecentArticle struct {
 }
 
 // CreateKnowledgeArticle creates a new knowledge article.
-func (s *Service) CreateKnowledgeArticle(tenantID uint, userID uint, req *CreateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
+func (s *Service) CreateKnowledgeArticle(userID uint, req *CreateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
 	// Normalize and validate input
 	req.Title = trimString(req.Title)
 	req.Summary = trimString(req.Summary)
@@ -113,7 +113,7 @@ func (s *Service) CreateKnowledgeArticle(tenantID uint, userID uint, req *Create
 
 	// Get user from ID
 	var user models.User
-	if err := s.db.Where("id = ? AND tenant_id = ? AND is_active = ?", userID, tenantID, true).First(&user).Error; err != nil {
+	if err := s.db.Where("id = ? AND is_active = ?", userID, true).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperrors.NewUnauthorizedError("用户未找到")
 		}
@@ -156,9 +156,9 @@ func (s *Service) CreateKnowledgeArticle(tenantID uint, userID uint, req *Create
 }
 
 // GetKnowledgeArticle retrieves a knowledge article by ID and increments view count.
-func (s *Service) GetKnowledgeArticle(tenantID uint, id uint) (*KnowledgeArticleResponse, error) {
+func (s *Service) GetKnowledgeArticle(id uint) (*KnowledgeArticleResponse, error) {
 	var article models.KnowledgeArticle
-	if err := s.db.Where("id = ? AND tenant_id = ?", id, tenantID).
+	if err := s.db.Where("id = ?", id).
 		Preload("Product").
 		Preload("Service").
 		Preload("Attachments").
@@ -180,12 +180,11 @@ func (s *Service) GetKnowledgeArticle(tenantID uint, id uint) (*KnowledgeArticle
 }
 
 // ListKnowledgeArticles retrieves knowledge articles with pagination and filtering.
-func (s *Service) ListKnowledgeArticles(tenantID uint, page, pageSize int, filters map[string]interface{}) (*KnowledgeArticleListResponse, error) {
+func (s *Service) ListKnowledgeArticles(page, pageSize int, filters map[string]interface{}) (*KnowledgeArticleListResponse, error) {
 	offset := (page - 1) * pageSize
 
 	// Build query
 	query := s.db.Model(&models.KnowledgeArticle{}).
-		Where("tenant_id = ?", tenantID).
 		Preload("Product").
 		Preload("Service").
 		Preload("Attachments")
@@ -245,9 +244,9 @@ func (s *Service) ListKnowledgeArticles(tenantID uint, page, pageSize int, filte
 }
 
 // UpdateKnowledgeArticle updates an existing knowledge article.
-func (s *Service) UpdateKnowledgeArticle(tenantID uint, id uint, userID uint, req *UpdateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
+func (s *Service) UpdateKnowledgeArticle(id uint, userID uint, req *UpdateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
 	var article models.KnowledgeArticle
-	if err := s.db.Where("id = ? AND tenant_id = ?", id, tenantID).
+	if err := s.db.Where("id = ?", id).
 		First(&article).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperrors.NewNotFoundError("knowledge article not found")
@@ -257,7 +256,7 @@ func (s *Service) UpdateKnowledgeArticle(tenantID uint, id uint, userID uint, re
 
 	// Get user email from database
 	var user models.User
-	if err := s.db.Where("id = ? AND tenant_id = ? AND is_active = ?", userID, tenantID, true).First(&user).Error; err != nil {
+	if err := s.db.Where("id = ? AND is_active = ?", userID, true).First(&user).Error; err != nil {
 		return nil, apperrors.NewInternalError("failed to find user: %w", err)
 	}
 
@@ -310,15 +309,15 @@ func (s *Service) UpdateKnowledgeArticle(tenantID uint, id uint, userID uint, re
 }
 
 // DeleteKnowledgeArticle soft deletes a knowledge article.
-func (s *Service) DeleteKnowledgeArticle(tenantID uint, id uint, userID uint) error {
+func (s *Service) DeleteKnowledgeArticle(id uint, userID uint) error {
 	// Get user email from database
 	var user models.User
-	if err := s.db.Where("id = ? AND tenant_id = ? AND is_active = ?", userID, tenantID, true).First(&user).Error; err != nil {
+	if err := s.db.Where("id = ? AND is_active = ?", userID, true).First(&user).Error; err != nil {
 		return apperrors.NewInternalError("failed to find user: %w", err)
 	}
 
 	result := s.db.Model(&models.KnowledgeArticle{}).
-		Where("id = ? AND tenant_id = ?", id, tenantID).
+		Where("id = ?", id).
 		Updates(map[string]interface{}{
 			"deleted_at": gorm.Expr("CURRENT_TIMESTAMP"),
 			"updated_by": user.Email,
@@ -336,12 +335,11 @@ func (s *Service) DeleteKnowledgeArticle(tenantID uint, id uint, userID uint) er
 }
 
 // GetKnowledgeArticleStats retrieves knowledge article statistics.
-func (s *Service) GetKnowledgeArticleStats(tenantID uint) (*KnowledgeArticleStatsResponse, error) {
+func (s *Service) GetKnowledgeArticleStats() (*KnowledgeArticleStatsResponse, error) {
 	stats := &KnowledgeArticleStatsResponse{}
 
 	// Get total counts
 	if err := s.db.Model(&models.KnowledgeArticle{}).
-		Where("tenant_id = ?", tenantID).
 		Count(&stats.TotalArticles).Error; err != nil {
 		return nil, apperrors.NewInternalError("failed to count total articles: %w", err)
 	}
@@ -353,7 +351,6 @@ func (s *Service) GetKnowledgeArticleStats(tenantID uint) (*KnowledgeArticleStat
 	}
 	if err := s.db.Model(&models.KnowledgeArticle{}).
 		Select("status, count(*) as count").
-		Where("tenant_id = ?", tenantID).
 		Group("status").
 		Scan(&statusCounts).Error; err != nil {
 		return nil, apperrors.NewInternalError("failed to get status breakdown: %w", err)
@@ -382,7 +379,6 @@ func (s *Service) GetKnowledgeArticleStats(tenantID uint) (*KnowledgeArticleStat
 	}
 	if err := s.db.Model(&models.KnowledgeArticle{}).
 		Select("category, count(*) as count").
-		Where("tenant_id = ?", tenantID).
 		Group("category").
 		Scan(&categoryCounts).Error; err != nil {
 		return nil, apperrors.NewInternalError("failed to get category breakdown: %w", err)
@@ -394,7 +390,6 @@ func (s *Service) GetKnowledgeArticleStats(tenantID uint) (*KnowledgeArticleStat
 
 	// Get total views
 	if err := s.db.Model(&models.KnowledgeArticle{}).
-		Where("tenant_id = ?", tenantID).
 		Select("COALESCE(SUM(views), 0)").
 		Scan(&stats.TotalViews).Error; err != nil {
 		return nil, apperrors.NewInternalError("failed to get total views: %w", err)
@@ -402,7 +397,7 @@ func (s *Service) GetKnowledgeArticleStats(tenantID uint) (*KnowledgeArticleStat
 
 	// Get recent activity (last 10 updated articles)
 	var recentArticles []models.KnowledgeArticle
-	if err := s.db.Where("tenant_id = ?", tenantID).
+	if err := s.db.Model(&models.KnowledgeArticle{}).
 		Order("updated_at DESC").
 		Limit(10).
 		Select("id, title, status, updated_at").
@@ -490,11 +485,11 @@ func generateSlug(title string) string {
 	return result
 }
 
-// ValidateProductService validates that product and service belong to the same tenant.
-func (s *Service) ValidateProductService(tenantID uint, productID, serviceID *uint) error {
+// ValidateProductService validates that product and service exist and are active.
+func (s *Service) ValidateProductService(productID, serviceID *uint) error {
 	if productID != nil {
 		var product models.Product
-		if err := s.db.Where("id = ? AND tenant_id = ? AND status = ?", *productID, tenantID, "active").
+		if err := s.db.Where("id = ? AND status = ?", *productID, "active").
 			First(&product).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return apperrors.NewValidationError("product not found or inactive")
@@ -505,7 +500,7 @@ func (s *Service) ValidateProductService(tenantID uint, productID, serviceID *ui
 
 	if serviceID != nil {
 		var service models.Service
-		if err := s.db.Where("id = ? AND tenant_id = ? AND status = ?", *serviceID, tenantID, "active").
+		if err := s.db.Where("id = ? AND status = ?", *serviceID, "active").
 			First(&service).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return apperrors.NewValidationError("service not found or inactive")
