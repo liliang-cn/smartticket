@@ -11,6 +11,8 @@ export interface UserInfo {
   role: Role;
   is_active: boolean;
   last_login_at?: string | null;
+  created_at?: string | null;
+  customer_id?: number | null;
 }
 
 export interface TokenPair {

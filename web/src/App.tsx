@@ -8,6 +8,8 @@ import { TicketsListPage } from "@/pages/tickets-list";
 import { TicketDetailPage } from "@/pages/ticket-detail";
 import { CustomersListPage } from "@/pages/customers-list";
 import { CustomerDetailPage } from "@/pages/customer-detail";
+import { UsersListPage } from "@/pages/users-list";
+import { UserDetailPage } from "@/pages/user-detail";
 import type { JSX } from "react";
 
 function FullScreenLoader() {
@@ -55,6 +57,8 @@ export default function App() {
         <Route path="/tickets/:id" element={<TicketDetailPage />} />
         <Route path="/customers" element={<CustomersListPage />} />
         <Route path="/customers/:id" element={<CustomerDetailPage />} />
+        <Route path="/users" element={<UsersListPage />} />
+        <Route path="/users/:id" element={<UserDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
