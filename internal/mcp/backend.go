@@ -13,6 +13,7 @@ import (
 
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/models"
@@ -126,6 +127,14 @@ type Backend interface {
 	RemovePermissionFromUser(ctx context.Context, userID, permissionID uint) error
 	AssignPermissionToRole(ctx context.Context, roleID, permissionID uint) error
 	RemovePermissionFromRole(ctx context.Context, roleID, permissionID uint) error
+
+	// --- Customer domain --- (team-only; gated by customer:read/write)
+	CreateCustomer(req *customer.CreateCustomerRequest) (*customer.CustomerResponse, error)
+	GetCustomer(customerID uint) (*customer.CustomerResponse, error)
+	ListCustomers(req *customer.ListCustomersRequest) ([]customer.CustomerResponse, int64, error)
+	UpdateCustomer(customerID uint, req *customer.UpdateCustomerRequest) (*customer.CustomerResponse, error)
+	DeleteCustomer(customerID uint) error
+	ListCustomerUsers(customerID uint) ([]customer.CustomerUserResponse, error)
 }
 
 // Session holds the authenticated identity and effective permission set for a

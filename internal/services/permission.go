@@ -46,6 +46,29 @@ func (ps *PermissionService) GetUserPermissions(ctx context.Context, userID uint
 	return permissions, nil
 }
 
+// GetEffectivePermissions returns the union of permissions granted directly to
+// the user and those granted via any role the user holds. Authorization should
+// check this so role-based grants (e.g. an admin role carrying every permission)
+// take effect without attaching permissions to each user individually.
+func (ps *PermissionService) GetEffectivePermissions(ctx context.Context, userID uint) ([]models.Permission, error) {
+	var permissions []models.Permission
+
+	err := ps.db.WithContext(ctx).
+		Distinct("permissions.*").
+		Table("permissions").
+		Joins("LEFT JOIN user_permissions ON user_permissions.permission_id = permissions.id AND user_permissions.user_id = ?", userID).
+		Joins("LEFT JOIN role_permissions ON role_permissions.permission_id = permissions.id").
+		Joins("LEFT JOIN user_roles ON user_roles.role_id = role_permissions.role_id AND user_roles.user_id = ?", userID).
+		Where("user_permissions.user_id IS NOT NULL OR user_roles.user_id IS NOT NULL").
+		Find(&permissions).Error
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to get effective permissions: %w", err)
+	}
+
+	return permissions, nil
+}
+
 // GetUserRoles returns all roles assigned to a user.
 func (ps *PermissionService) GetUserRoles(ctx context.Context, userID uint) ([]models.Role, error) {
 	var roles []models.Role

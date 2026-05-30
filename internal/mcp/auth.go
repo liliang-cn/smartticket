@@ -49,7 +49,7 @@ func (a *Authenticator) Authenticate(ctx context.Context, token string) (*Sessio
 		return nil, fmt.Errorf("invalid credential token: %w", err)
 	}
 
-	permList, err := a.perms.GetUserPermissions(ctx, claims.UserID)
+	permList, err := a.perms.GetEffectivePermissions(ctx, claims.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load permissions: %w", err)
 	}

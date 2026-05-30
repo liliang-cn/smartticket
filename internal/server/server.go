@@ -283,9 +283,8 @@ func (s *Server) setupRoutes() {
 				tickets.PUT("/:id", ticketHandlers.UpdateTicket)
 				tickets.DELETE("/:id", ticketHandlers.DeleteTicket)
 				tickets.POST("/:id/assign", ticketHandlers.AssignTicket)
-				// TODO: Implement message routes in next phase
-				// tickets.GET("/:id/messages", s.getTicketMessages)
-				// tickets.POST("/:id/messages", s.createTicketMessage)
+				tickets.GET("/:id/messages", ticketHandlers.GetTicketMessages)
+				tickets.POST("/:id/messages", ticketHandlers.CreateTicketMessage)
 			}
 
 			// Customer organization management routes (team-only).
@@ -425,9 +424,9 @@ func (s *Server) GetConfig() *config.Config {
 	return s.config
 }
 
-// serveSwaggerYAML serves the complete OpenAPI specification.
+// serveSwaggerYAML serves the authoritative (swag-generated) OpenAPI spec.
 func (s *Server) serveSwaggerYAML(c *gin.Context) {
-	openAPIPath := "./docs/api/complete-openapi.yaml"
+	openAPIPath := "./docs/swagger.yaml"
 	yamlContent, err := os.ReadFile(openAPIPath)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{

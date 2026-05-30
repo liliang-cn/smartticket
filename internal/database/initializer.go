@@ -84,44 +84,12 @@ func (i *Initializer) seedEssentialData() error {
 		adminID := adminUser.ID
 		logger.Info("Created default admin user", zap.String("email", "admin@smartticket.local"), zap.Uint("id", adminID))
 
-		// Create system roles
-		systemRoles := []models.Role{
-			{
-				BaseModel: models.BaseModel{
-					CreatedAt: now,
-					UpdatedAt: now,
-				},
-				Name:        "admin",
-				Description: "System administrator with full access",
-				IsSystem:   true,
-			},
-			{
-				BaseModel: models.BaseModel{
-					CreatedAt: now,
-					UpdatedAt: now,
-				},
-				Name:        "engineer",
-				Description: "Support engineer with technical access",
-				IsSystem:   false,
-			},
-			{
-				BaseModel: models.BaseModel{
-					CreatedAt: now,
-					UpdatedAt: now,
-				},
-				Name:        "customer",
-				Description: "Customer with basic access",
-				IsSystem:   false,
-			},
+		// Create system roles, the permission catalog, and role→permission
+		// grants (idempotent, shared with the createadmin bootstrap path).
+		if err := EnsureRolesAndPermissions(tx); err != nil {
+			return fmt.Errorf("failed to seed roles and permissions: %w", err)
 		}
-
-		// Create roles
-		for _, role := range systemRoles {
-			if err := tx.Create(&role).Error; err != nil {
-				return fmt.Errorf("failed to create role %s: %w", role.Name, err)
-			}
-		}
-		logger.Info("Created system roles", zap.Int("count", len(systemRoles)))
+		logger.Info("Seeded roles and permissions")
 
 		// Get the admin role ID
 		var adminRole models.Role

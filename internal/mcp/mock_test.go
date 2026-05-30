@@ -8,6 +8,7 @@ import (
 
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/models"
@@ -459,4 +460,35 @@ func newTestSession(perms ...string) *Session {
 // ctxWithSession returns a context carrying the given test session.
 func ctxWithSession(s *Session) context.Context {
 	return WithSession(context.Background(), s)
+}
+
+// --- Customer domain ---
+
+func (m *MockBackend) CreateCustomer(req *customer.CreateCustomerRequest) (*customer.CustomerResponse, error) {
+	args := m.Called(req)
+	return getPtr[customer.CustomerResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) GetCustomer(customerID uint) (*customer.CustomerResponse, error) {
+	args := m.Called(customerID)
+	return getPtr[customer.CustomerResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) ListCustomers(req *customer.ListCustomersRequest) ([]customer.CustomerResponse, int64, error) {
+	args := m.Called(req)
+	return getSlice[customer.CustomerResponse](args, 0), int64(args.Int(1)), args.Error(2)
+}
+
+func (m *MockBackend) UpdateCustomer(customerID uint, req *customer.UpdateCustomerRequest) (*customer.CustomerResponse, error) {
+	args := m.Called(customerID, req)
+	return getPtr[customer.CustomerResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) DeleteCustomer(customerID uint) error {
+	return m.Called(customerID).Error(0)
+}
+
+func (m *MockBackend) ListCustomerUsers(customerID uint) ([]customer.CustomerUserResponse, error) {
+	args := m.Called(customerID)
+	return getSlice[customer.CustomerUserResponse](args, 0), args.Error(1)
 }

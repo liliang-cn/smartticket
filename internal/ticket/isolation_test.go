@@ -16,15 +16,15 @@ import (
 // isolationFixture builds two customers (A and B), one customer-role user each,
 // and one ticket per customer. It returns the service and the customer IDs.
 type isolationFixture struct {
-	service     *Service
-	custA       uint
-	custB       uint
-	ticketA     uint
-	ticketB     uint
-	actorA      authz.Actor
-	actorB      authz.Actor
-	teamActor   authz.Actor
-	userAID     uint
+	service   *Service
+	custA     uint
+	custB     uint
+	ticketA   uint
+	ticketB   uint
+	actorA    authz.Actor
+	actorB    authz.Actor
+	teamActor authz.Actor
+	userAID   uint
 }
 
 func setupIsolation(t *testing.T, db *database.Database) *isolationFixture {
