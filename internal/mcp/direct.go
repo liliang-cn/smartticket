@@ -319,6 +319,38 @@ func (b *DirectBackend) GetAllRoles(ctx context.Context) ([]models.Role, error) 
 	return b.permission.GetAllRoles(ctx)
 }
 
+func (b *DirectBackend) GetRoleByID(ctx context.Context, id uint) (*models.Role, error) {
+	return b.permission.GetRoleByID(ctx, id)
+}
+
+func (b *DirectBackend) GetPermissionByID(ctx context.Context, id uint) (*models.Permission, error) {
+	return b.permission.GetPermissionByID(ctx, id)
+}
+
+func (b *DirectBackend) CreateRole(ctx context.Context, role *models.Role) error {
+	return b.permission.CreateRole(ctx, role)
+}
+
+func (b *DirectBackend) CreatePermission(ctx context.Context, permission *models.Permission) error {
+	return b.permission.CreatePermission(ctx, permission)
+}
+
+func (b *DirectBackend) UpdateRole(ctx context.Context, role *models.Role) error {
+	return b.permission.UpdateRole(ctx, role)
+}
+
+func (b *DirectBackend) UpdatePermission(ctx context.Context, permission *models.Permission) error {
+	return b.permission.UpdatePermission(ctx, permission)
+}
+
+func (b *DirectBackend) DeleteRole(ctx context.Context, id uint) error {
+	return b.permission.DeleteRole(ctx, id)
+}
+
+func (b *DirectBackend) DeletePermission(ctx context.Context, id uint) error {
+	return b.permission.DeletePermission(ctx, id)
+}
+
 func (b *DirectBackend) HasPermission(ctx context.Context, userID uint, permissionCode string) (bool, error) {
 	return b.permission.HasPermission(ctx, userID, permissionCode)
 }

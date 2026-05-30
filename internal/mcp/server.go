@@ -15,37 +15,49 @@ import (
 // the register<Domain>Tools functions; the auth_whoami tool below is the
 // canonical reference implementation.
 //
+// PREFER registerTool. The registerTool helper (tools_helpers.go) applies the
+// cross-cutting concerns — RBAC enforcement, panic recovery, latency timing,
+// per-call structured logging, and clean service-error mapping — uniformly so
+// individual tools do not reimplement them. A domain task should normally only
+// provide:
+//   - In/Out structs (the tool's MCP schema, see (2) below);
+//   - a business closure func(ctx, in In) (Out, summary string, err error).
+// and register it via:
+//
+//     registerTool(s, "<domain>_<action>", "<description>", "<permission-code>",
+//         func(ctx context.Context, in In) (Out, string, error) { ... })
+//
+// Inside the closure: do NOT call RequirePermission (the helper already did it
+// from the permission arg), do NOT recover panics, do NOT map errors — just call
+// the Backend and return (out, summary, err). The helper turns any returned
+// error into a clean IsError result via mapServiceError, recovers panics into a
+// tool error, and logs {tool, user, latency, outcome}. Resolve the acting user
+// via SessionFromContext when a Backend method needs a userID.
+//
+// Only drop down to mcp.AddTool directly for special cases the helper cannot
+// express (e.g. streaming, custom multi-content results, or tools that must
+// inspect the raw *mcp.CallToolRequest).
+//
 //  1. NAMING. Tools are named "<domain>_<action>", e.g. "ticket_create",
 //     "knowledge_list", "rbac_assign_role". Use snake_case.
 //
 //  2. INPUT/OUTPUT TYPES. Each tool declares its own MCP-specific Input and
 //     Output structs. DO NOT reuse the service-layer DTOs directly as the tool
-//     schema — translate between them inside the handler. Annotate fields with
+//     schema — translate between them inside the closure. Annotate fields with
 //     the `json` tag (wire name) and the `jsonschema` tag (human-readable
 //     description); the SDK infers the JSON Schema from these via AddTool.
 //     Optional fields should be pointers or use omitempty so the schema marks
 //     them non-required appropriately.
 //
-//  3. HANDLER SIGNATURE. Use the typed handler form:
+//  3. RBAC. Pass the required permission code as registerTool's permission
+//     argument; the helper enforces it before the closure runs. Pass "" only for
+//     identity tools (like auth_whoami) that manage their own session checks.
 //
-//        func(ctx context.Context, req *mcp.CallToolRequest, in In) (*mcp.CallToolResult, Out, error)
-//
-//     Register it with mcp.AddTool(s, &mcp.Tool{Name: ..., Description: ...}, handler).
-//     You may return a nil *mcp.CallToolResult and let the SDK synthesize the
-//     result from the Out value (it fills StructuredContent and a JSON text
-//     summary automatically). To provide a friendlier text summary, return a
-//     *mcp.CallToolResult whose Content carries a *mcp.TextContent.
-//
-//  4. RBAC FIRST. The handler must call RequirePermission(ctx, "<code>") before
-//     touching the Backend. Resolve the acting user via SessionFromContext when
-//     a Backend method needs a userID.
-//
-//  5. ERROR MAPPING. Translate Backend/service errors into tool errors, never
-//     protocol errors: return them via toolError(...) which sets IsError and
-//     packs a clean message into Content. Do NOT leak raw Go error text or
-//     internal details (wrap with a stable, user-facing message). Returning a
-//     non-nil error from the handler also produces a tool error automatically,
-//     but prefer toolError for control over the surfaced message.
+//  4. ERROR MAPPING. Just return the error from the closure; registerTool routes
+//     it through mapServiceError, which produces a clean, non-leaking message and
+//     never surfaces raw Go error text or internal details. When dropping down to
+//     mcp.AddTool directly, call mapServiceError yourself and never return a
+//     protocol-level error for business failures.
 //
 // ----------------------------------------------------------------------------
 
@@ -138,32 +150,33 @@ type WhoAmIOutput struct {
 }
 
 // registerAuthTools registers connection/identity tools. auth_whoami is the
-// template every domain tool follows.
+// canonical template every domain tool follows: it declares In/Out structs and a
+// business closure, then defers all RBAC/recover/logging/error-mapping to
+// registerTool. It passes an empty permission code because identity introspection
+// requires only an authenticated session (which it checks itself), not a specific
+// permission.
 func registerAuthTools(s *mcp.Server, _ Backend) {
-	mcp.AddTool(s, &mcp.Tool{
-		Name:        "auth_whoami",
-		Description: "Return the identity and effective permissions of the authenticated MCP session.",
-	}, func(ctx context.Context, _ *mcp.CallToolRequest, _ WhoAmIInput) (*mcp.CallToolResult, WhoAmIOutput, error) {
-		// Step 1: resolve the session. auth_whoami needs no specific permission,
-		// but it still requires an authenticated connection.
-		session, ok := SessionFromContext(ctx)
-		if !ok || session == nil {
-			return toolError("not authenticated"), WhoAmIOutput{}, nil
-		}
+	registerTool(s,
+		"auth_whoami",
+		"Return the identity and effective permissions of the authenticated MCP session.",
+		"", // no specific permission required; the closure validates the session.
+		func(ctx context.Context, _ WhoAmIInput) (WhoAmIOutput, string, error) {
+			session, ok := SessionFromContext(ctx)
+			if !ok || session == nil {
+				return WhoAmIOutput{}, "", ErrUnauthenticated
+			}
 
-		// Step 2: build the structured output.
-		perms := make([]string, 0, len(session.Permissions))
-		for code := range session.Permissions {
-			perms = append(perms, code)
-		}
+			perms := make([]string, 0, len(session.Permissions))
+			for code := range session.Permissions {
+				perms = append(perms, code)
+			}
 
-		out := WhoAmIOutput{
-			UserID:      session.UserID,
-			Permissions: perms,
-		}
-
-		// Step 3: return a friendly text summary alongside the structured output.
-		summary := fmt.Sprintf("Authenticated as user #%d with %d permission(s).", out.UserID, len(perms))
-		return textResult(summary), out, nil
-	})
+			out := WhoAmIOutput{
+				UserID:      session.UserID,
+				Permissions: perms,
+			}
+			summary := fmt.Sprintf("Authenticated as user #%d with %d permission(s).", out.UserID, len(perms))
+			return out, summary, nil
+		},
+	)
 }

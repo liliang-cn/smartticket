@@ -354,6 +354,40 @@ func (m *MockBackend) GetAllRoles(ctx context.Context) ([]models.Role, error) {
 	return getSlice[models.Role](args, 0), args.Error(1)
 }
 
+func (m *MockBackend) GetRoleByID(ctx context.Context, id uint) (*models.Role, error) {
+	args := m.Called(ctx, id)
+	return getPtr[models.Role](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) GetPermissionByID(ctx context.Context, id uint) (*models.Permission, error) {
+	args := m.Called(ctx, id)
+	return getPtr[models.Permission](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) CreateRole(ctx context.Context, role *models.Role) error {
+	return m.Called(ctx, role).Error(0)
+}
+
+func (m *MockBackend) CreatePermission(ctx context.Context, permission *models.Permission) error {
+	return m.Called(ctx, permission).Error(0)
+}
+
+func (m *MockBackend) UpdateRole(ctx context.Context, role *models.Role) error {
+	return m.Called(ctx, role).Error(0)
+}
+
+func (m *MockBackend) UpdatePermission(ctx context.Context, permission *models.Permission) error {
+	return m.Called(ctx, permission).Error(0)
+}
+
+func (m *MockBackend) DeleteRole(ctx context.Context, id uint) error {
+	return m.Called(ctx, id).Error(0)
+}
+
+func (m *MockBackend) DeletePermission(ctx context.Context, id uint) error {
+	return m.Called(ctx, id).Error(0)
+}
+
 func (m *MockBackend) HasPermission(ctx context.Context, userID uint, permissionCode string) (bool, error) {
 	args := m.Called(ctx, userID, permissionCode)
 	return args.Bool(0), args.Error(1)

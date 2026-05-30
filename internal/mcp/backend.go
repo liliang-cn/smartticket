@@ -110,6 +110,14 @@ type Backend interface {
 	GetRolePermissions(ctx context.Context, roleID uint) ([]models.Permission, error)
 	GetAllPermissions(ctx context.Context) ([]models.Permission, error)
 	GetAllRoles(ctx context.Context) ([]models.Role, error)
+	GetRoleByID(ctx context.Context, id uint) (*models.Role, error)
+	GetPermissionByID(ctx context.Context, id uint) (*models.Permission, error)
+	CreateRole(ctx context.Context, role *models.Role) error
+	CreatePermission(ctx context.Context, permission *models.Permission) error
+	UpdateRole(ctx context.Context, role *models.Role) error
+	UpdatePermission(ctx context.Context, permission *models.Permission) error
+	DeleteRole(ctx context.Context, id uint) error
+	DeletePermission(ctx context.Context, id uint) error
 	HasPermission(ctx context.Context, userID uint, permissionCode string) (bool, error)
 	AssignRoleToUser(ctx context.Context, userID, roleID uint) error
 	RemoveRoleFromUser(ctx context.Context, userID, roleID uint) error
