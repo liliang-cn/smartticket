@@ -98,7 +98,7 @@ func TestReadFile(t *testing.T) {
 	// Test reading non-existing file
 	_, err = ReadFile("/path/to/nonexistent/file.txt")
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "File Not Found")
+	assert.Contains(t, err.Error(), "File not found")
 }
 
 func TestWriteFile(t *testing.T) {

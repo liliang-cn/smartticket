@@ -148,16 +148,21 @@ func TestDateTime_EndOfMonth(t *testing.T) {
 }
 
 func TestDateTime_Age(t *testing.T) {
-	// Test age calculation - using current time for realistic age
+	// Compute the expected age range dynamically so the test does not rot over
+	// time: a person born in a given year is either (currentYear - birthYear) if
+	// their birthday has already passed, or one less if it hasn't yet.
+	const birthYear = 1990
+	maxAge := time.Now().Year() - birthYear
+
+	// Birthday at the very start of the year: always already passed.
 	birthDate, _ := ParseDateTime("2006-01-02", "1990-01-01")
-
 	age := birthDate.Age()
-	assert.True(t, age >= 33 && age <= 35, "Age should be reasonable for 1990 birth year")
+	assert.True(t, age >= maxAge-1 && age <= maxAge, "Age should be reasonable for 1990 birth year")
 
-	// Test with birthday later in the year
+	// Birthday later in the year: may or may not have passed yet.
 	birthDate, _ = ParseDateTime("2006-01-02", "1990-06-15")
 	age = birthDate.Age()
-	assert.True(t, age >= 33 && age <= 35, "Age should be reasonable for 1990 birth year")
+	assert.True(t, age >= maxAge-1 && age <= maxAge, "Age should be reasonable for 1990 birth year")
 }
 
 func TestDateTime_DiffInDays(t *testing.T) {
