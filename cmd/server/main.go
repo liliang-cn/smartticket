@@ -397,7 +397,7 @@ func runCreateAdmin(cmd *cobra.Command, _ []string) error {
 	defer func() { _ = db.Close() }()
 
 	// Ensure the tables this command touches exist (idempotent).
-	if err := db.DB.AutoMigrate(&models.SystemSetting{}, &models.User{}, &models.Role{}, &models.UserRole{}); err != nil {
+	if err := db.DB.AutoMigrate(&models.SystemSetting{}, &models.User{}, &models.Role{}, &models.UserRole{}, &models.Permission{}, &models.RolePermission{}); err != nil {
 		return fmt.Errorf("failed to migrate required tables: %w", err)
 	}
 
@@ -407,26 +407,15 @@ func runCreateAdmin(cmd *cobra.Command, _ []string) error {
 	}
 
 	now := time.Now()
-	err = db.DB.Transaction(func(tx *gorm.DB) error {
-		// Ensure all standard roles exist. Bootstrapping via createadmin creates
-		// a user before serve runs, which makes InitializeIfNeeded skip its
-		// seeding; without this, the engineer/customer roles would be missing and
-		// later creating customer contacts / team members would fail on role
-		// assignment.
-		standardRoles := []models.Role{
-			{Name: "admin", Description: "System administrator with full access", IsSystem: true},
-			{Name: "engineer", Description: "Support engineer with technical access"},
-			{Name: "customer", Description: "Customer with basic access"},
-		}
-		for _, r := range standardRoles {
-			var existing models.Role
-			if err := tx.Where(models.Role{Name: r.Name}).
-				Attrs(models.Role{Description: r.Description, IsSystem: r.IsSystem}).
-				FirstOrCreate(&existing).Error; err != nil {
-				return fmt.Errorf("failed to ensure role %q: %w", r.Name, err)
-			}
-		}
+	// Ensure all standard roles, the permission catalog, and role→permission
+	// grants exist. Bootstrapping via createadmin creates a user before serve
+	// runs, which makes InitializeIfNeeded skip its seeding; without this, the
+	// engineer/customer roles and permission grants would be missing.
+	if err := database.EnsureRolesAndPermissions(db.DB); err != nil {
+		return fmt.Errorf("failed to seed roles and permissions: %w", err)
+	}
 
+	err = db.DB.Transaction(func(tx *gorm.DB) error {
 		// Look up the admin role for assignment to this user.
 		var adminRole models.Role
 		if err := tx.Where(models.Role{Name: "admin"}).First(&adminRole).Error; err != nil {
