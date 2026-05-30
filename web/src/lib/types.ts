@@ -1,6 +1,8 @@
 // API types mirroring the SmartTicket backend.
 
-export type Role = "admin" | "engineer" | "customer";
+// Mirrors the backend's accepted roles (CreateUserRequest oneof). The team UI
+// only creates admin/engineer/customer, but users may carry support/sales.
+export type Role = "admin" | "engineer" | "support" | "customer" | "sales";
 
 export interface UserInfo {
   id: number;
