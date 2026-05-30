@@ -8,6 +8,7 @@ import (
 
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/models"
@@ -30,6 +31,7 @@ type DirectBackend struct {
 	sla          *sla.Service
 	importexport *importexport.Service
 	user         *user.Service
+	customer     *customer.Service
 	permission   *services.PermissionService
 }
 
@@ -48,6 +50,7 @@ func NewDirectBackend(db *gorm.DB, authService *auth.Service, permissionService 
 		sla:          sla.NewService(db),
 		importexport: importexport.NewService(db),
 		user:         user.NewService(db, authRepo, authService),
+		customer:     customer.NewService(db),
 		permission:   permissionService,
 	}
 }
@@ -378,6 +381,32 @@ func (b *DirectBackend) AssignPermissionToRole(ctx context.Context, roleID, perm
 
 func (b *DirectBackend) RemovePermissionFromRole(ctx context.Context, roleID, permissionID uint) error {
 	return b.permission.RemovePermissionFromRole(ctx, roleID, permissionID)
+}
+
+// --- Customer domain ---
+
+func (b *DirectBackend) CreateCustomer(req *customer.CreateCustomerRequest) (*customer.CustomerResponse, error) {
+	return b.customer.CreateCustomer(req)
+}
+
+func (b *DirectBackend) GetCustomer(customerID uint) (*customer.CustomerResponse, error) {
+	return b.customer.GetCustomer(customerID)
+}
+
+func (b *DirectBackend) ListCustomers(req *customer.ListCustomersRequest) ([]customer.CustomerResponse, int64, error) {
+	return b.customer.ListCustomers(req)
+}
+
+func (b *DirectBackend) UpdateCustomer(customerID uint, req *customer.UpdateCustomerRequest) (*customer.CustomerResponse, error) {
+	return b.customer.UpdateCustomer(customerID, req)
+}
+
+func (b *DirectBackend) DeleteCustomer(customerID uint) error {
+	return b.customer.DeleteCustomer(customerID)
+}
+
+func (b *DirectBackend) ListCustomerUsers(customerID uint) ([]customer.CustomerUserResponse, error) {
+	return b.customer.ListCustomerUsers(customerID)
 }
 
 // Ensure DirectBackend satisfies the Backend interface.
