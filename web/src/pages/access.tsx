@@ -132,7 +132,7 @@ export function AccessPage() {
   }
 
   return (
-    <div ref={ref} className="mx-auto max-w-6xl">
+    <div ref={ref} className="w-full">
       <div data-reveal className="mb-6">
         <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
           access control

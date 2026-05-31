@@ -162,7 +162,7 @@ export function DataJobsPage() {
   const failed = statusBreakdown["failed"] ?? 0;
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="w-full">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
