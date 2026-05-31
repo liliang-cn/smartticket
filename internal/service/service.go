@@ -285,7 +285,7 @@ func (s *Service) ListServices(req *ListServicesRequest) ([]ServiceResponse, int
 // UpdateService updates an existing service.
 func (s *Service) UpdateService(serviceID uint, req *UpdateServiceRequest) (*ServiceResponse, error) {
 	var service models.Service
-	if err := s.db.Where("id = ? AND is_deleted = ?", serviceID, false).First(&service).Error; err != nil {
+	if err := s.db.Where("id = ?", serviceID).First(&service).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Service")
 		}
@@ -301,7 +301,7 @@ func (s *Service) UpdateService(serviceID uint, req *UpdateServiceRequest) (*Ser
 		req.Code = strings.ToUpper(strings.TrimSpace(req.Code))
 		// Check if code conflicts with another service
 		var existingService models.Service
-		err := s.db.Where("code = ? AND id != ? AND is_deleted = ?", req.Code, serviceID, false).First(&existingService).Error
+		err := s.db.Where("code = ? AND id != ?", req.Code, serviceID).First(&existingService).Error
 		if err == nil {
 			return nil, errors.NewConflictError("Service code already exists")
 		}
@@ -314,7 +314,7 @@ func (s *Service) UpdateService(serviceID uint, req *UpdateServiceRequest) (*Ser
 	if req.ProductID != nil {
 		// Validate product exists
 		var product models.Product
-		if err := s.db.Where("id = ? AND is_deleted = ?", *req.ProductID, false).First(&product).Error; err != nil {
+		if err := s.db.Where("id = ?", *req.ProductID).First(&product).Error; err != nil {
 			if stderrors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errors.NewNotFoundError("Product")
 			}
@@ -393,7 +393,7 @@ func (s *Service) UpdateService(serviceID uint, req *UpdateServiceRequest) (*Ser
 // DeleteService soft deletes a service.
 func (s *Service) DeleteService(serviceID uint) error {
 	var service models.Service
-	if err := s.db.Where("id = ? AND is_deleted = ?", serviceID, false).First(&service).Error; err != nil {
+	if err := s.db.Where("id = ?", serviceID).First(&service).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NewNotFoundError("Service")
 		}
@@ -431,7 +431,7 @@ func (s *Service) DeactivateService(serviceID uint) error {
 // Helper functions.
 func (s *Service) updateServiceStatus(serviceID uint, status string) error {
 	var service models.Service
-	if err := s.db.Where("id = ? AND is_deleted = ?", serviceID, false).First(&service).Error; err != nil {
+	if err := s.db.Where("id = ?", serviceID).First(&service).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NewNotFoundError("Service")
 		}

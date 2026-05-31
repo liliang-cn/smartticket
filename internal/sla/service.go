@@ -74,7 +74,7 @@ func (s *Service) CreateSLATemplate(req *CreateSLATemplateRequest) (*SLATemplate
 	}
 
 	var existingTemplate models.SLATemplate
-	err := s.db.Where("name = ? AND is_deleted = ?", req.Name, false).First(&existingTemplate).Error
+	err := s.db.Where("name = ?", req.Name).First(&existingTemplate).Error
 	if err == nil {
 		return nil, errors.NewConflictError("SLA template name already exists")
 	}
@@ -111,7 +111,7 @@ func (s *Service) CreateSLATemplate(req *CreateSLATemplateRequest) (*SLATemplate
 
 // ListSLATemplates lists SLA templates with pagination and filtering.
 func (s *Service) ListSLATemplates(req *ListSLATemplatesRequest) ([]SLATemplateResponse, int64, error) {
-	query := s.db.Model(&models.SLATemplate{}).Where("is_deleted = ?", false)
+	query := s.db.Model(&models.SLATemplate{})
 
 	if req.Search != "" {
 		searchTerm := "%" + req.Search + "%"
@@ -227,7 +227,7 @@ func (s *Service) slaTemplateToResponse(template *models.SLATemplate) *SLATempla
 // GetSLATemplate gets a single SLA template by ID.
 func (s *Service) GetSLATemplate(templateID uint) (*SLATemplateResponse, error) {
 	var template models.SLATemplate
-	if err := s.db.Where("id = ? AND is_deleted = ?", templateID, false).First(&template).Error; err != nil {
+	if err := s.db.Where("id = ?", templateID).First(&template).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("SLA template")
 		}
@@ -255,7 +255,7 @@ type UpdateSLATemplateRequest struct {
 // UpdateSLATemplate updates an existing SLA template.
 func (s *Service) UpdateSLATemplate(templateID uint, req *UpdateSLATemplateRequest) (*SLATemplateResponse, error) {
 	var template models.SLATemplate
-	if err := s.db.Where("id = ? AND is_deleted = ?", templateID, false).First(&template).Error; err != nil {
+	if err := s.db.Where("id = ?", templateID).First(&template).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("SLA template")
 		}
@@ -271,7 +271,7 @@ func (s *Service) UpdateSLATemplate(templateID uint, req *UpdateSLATemplateReque
 
 		// Check if name conflicts with another template
 		var existingTemplate models.SLATemplate
-		err := s.db.Where("name = ? AND id != ? AND is_deleted = ?", name, templateID, false).First(&existingTemplate).Error
+		err := s.db.Where("name = ? AND id != ?", name, templateID).First(&existingTemplate).Error
 		if err == nil {
 			return nil, errors.NewConflictError("SLA template name already exists")
 		}
@@ -289,7 +289,7 @@ func (s *Service) UpdateSLATemplate(templateID uint, req *UpdateSLATemplateReque
 	if req.IsDefault != nil {
 		// If setting as default, unset other default templates
 		if *req.IsDefault && !template.IsDefault {
-			if err := s.db.Model(&models.SLATemplate{}).Where("is_default = ? AND is_deleted = ?", true, false).Update("is_default", false).Error; err != nil {
+			if err := s.db.Model(&models.SLATemplate{}).Where("is_default = ?", true).Update("is_default", false).Error; err != nil {
 				return nil, fmt.Errorf("failed to unset existing default templates: %w", err)
 			}
 		}
@@ -340,7 +340,7 @@ func (s *Service) UpdateSLATemplate(templateID uint, req *UpdateSLATemplateReque
 // DeleteSLATemplate soft deletes an SLA template.
 func (s *Service) DeleteSLATemplate(templateID uint) error {
 	var template models.SLATemplate
-	if err := s.db.Where("id = ? AND is_deleted = ?", templateID, false).First(&template).Error; err != nil {
+	if err := s.db.Where("id = ?", templateID).First(&template).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NewNotFoundError("SLA template")
 		}
@@ -349,7 +349,7 @@ func (s *Service) DeleteSLATemplate(templateID uint) error {
 
 	// Check if template is being used by SLA rules
 	var ruleCount int64
-	if err := s.db.Model(&models.SLARule{}).Where("sla_template_id = ? AND is_deleted = ?", templateID, false).Count(&ruleCount).Error; err != nil {
+	if err := s.db.Model(&models.SLARule{}).Where("template_id = ?", templateID).Count(&ruleCount).Error; err != nil {
 		return fmt.Errorf("failed to check associated SLA rules: %w", err)
 	}
 
@@ -368,7 +368,7 @@ func (s *Service) DeleteSLATemplate(templateID uint) error {
 // SetDefaultSLATemplate sets an SLA template as the default.
 func (s *Service) SetDefaultSLATemplate(templateID uint) error {
 	var template models.SLATemplate
-	if err := s.db.Where("id = ? AND is_deleted = ?", templateID, false).First(&template).Error; err != nil {
+	if err := s.db.Where("id = ?", templateID).First(&template).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NewNotFoundError("SLA template")
 		}
@@ -376,7 +376,7 @@ func (s *Service) SetDefaultSLATemplate(templateID uint) error {
 	}
 
 	// Unset current default template
-	if err := s.db.Model(&models.SLATemplate{}).Where("is_default = ? AND is_deleted = ?", true, false).Update("is_default", false).Error; err != nil {
+	if err := s.db.Model(&models.SLATemplate{}).Where("is_default = ?", true).Update("is_default", false).Error; err != nil {
 		return fmt.Errorf("failed to unset existing default template: %w", err)
 	}
 
@@ -404,7 +404,7 @@ func (s *Service) DeactivateSLATemplate(templateID uint) error {
 // Helper function to update template status.
 func (s *Service) updateTemplateStatus(templateID uint, isActive bool) error {
 	var template models.SLATemplate
-	if err := s.db.Where("id = ? AND is_deleted = ?", templateID, false).First(&template).Error; err != nil {
+	if err := s.db.Where("id = ?", templateID).First(&template).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NewNotFoundError("SLA template")
 		}
@@ -481,7 +481,7 @@ type ListSLARulesRequest struct {
 func (s *Service) CreateSLARule(req *CreateSLARuleRequest) (*SLARuleResponse, error) {
 	// Validate template exists
 	var template models.SLATemplate
-	if err := s.db.Where("id = ? AND is_deleted = ?", req.TemplateID, false).First(&template).Error; err != nil {
+	if err := s.db.Where("id = ?", req.TemplateID).First(&template).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("SLA template")
 		}
@@ -491,7 +491,7 @@ func (s *Service) CreateSLARule(req *CreateSLARuleRequest) (*SLARuleResponse, er
 	// Validate product and service if provided
 	if req.ProductID != nil {
 		var product models.Product
-		if err := s.db.Where("id = ? AND is_deleted = ?", *req.ProductID, false).First(&product).Error; err != nil {
+		if err := s.db.Where("id = ?", *req.ProductID).First(&product).Error; err != nil {
 			if stderrors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errors.NewNotFoundError("Product")
 			}
@@ -501,7 +501,7 @@ func (s *Service) CreateSLARule(req *CreateSLARuleRequest) (*SLARuleResponse, er
 
 	if req.ServiceID != nil {
 		var service models.Service
-		if err := s.db.Where("id = ? AND is_deleted = ?", *req.ServiceID, false).First(&service).Error; err != nil {
+		if err := s.db.Where("id = ?", *req.ServiceID).First(&service).Error; err != nil {
 			if stderrors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errors.NewNotFoundError("Service")
 			}
@@ -548,7 +548,7 @@ func (s *Service) CreateSLARule(req *CreateSLARuleRequest) (*SLARuleResponse, er
 
 // ListSLARules lists SLA rules with pagination and filtering.
 func (s *Service) ListSLARules(req *ListSLARulesRequest) ([]SLARuleResponse, int64, error) {
-	query := s.db.Model(&models.SLARule{}).Where("is_deleted = ?", false)
+	query := s.db.Model(&models.SLARule{})
 
 	if req.Search != "" {
 		searchTerm := "%" + req.Search + "%"
@@ -612,7 +612,7 @@ func (s *Service) ListSLARules(req *ListSLARulesRequest) ([]SLARuleResponse, int
 // GetSLARule gets a single SLA rule by ID.
 func (s *Service) GetSLARule(ruleID uint) (*SLARuleResponse, error) {
 	var rule models.SLARule
-	if err := s.db.Where("id = ? AND is_deleted = ?", ruleID, false).First(&rule).Error; err != nil {
+	if err := s.db.Where("id = ?", ruleID).First(&rule).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("SLA rule")
 		}
@@ -625,7 +625,7 @@ func (s *Service) GetSLARule(ruleID uint) (*SLARuleResponse, error) {
 // UpdateSLARule updates an existing SLA rule.
 func (s *Service) UpdateSLARule(ruleID uint, req *UpdateSLARuleRequest) (*SLARuleResponse, error) {
 	var rule models.SLARule
-	if err := s.db.Where("id = ? AND is_deleted = ?", ruleID, false).First(&rule).Error; err != nil {
+	if err := s.db.Where("id = ?", ruleID).First(&rule).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("SLA rule")
 		}
@@ -636,7 +636,7 @@ func (s *Service) UpdateSLARule(ruleID uint, req *UpdateSLARuleRequest) (*SLARul
 	if req.TemplateID != nil {
 		// Validate template exists
 		var template models.SLATemplate
-		if err := s.db.Where("id = ? AND is_deleted = ?", *req.TemplateID, false).First(&template).Error; err != nil {
+		if err := s.db.Where("id = ?", *req.TemplateID).First(&template).Error; err != nil {
 			if stderrors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errors.NewNotFoundError("SLA template")
 			}
@@ -668,7 +668,7 @@ func (s *Service) UpdateSLARule(ruleID uint, req *UpdateSLARuleRequest) (*SLARul
 	if req.ProductID != nil {
 		// Validate product exists
 		var product models.Product
-		if err := s.db.Where("id = ? AND is_deleted = ?", *req.ProductID, false).First(&product).Error; err != nil {
+		if err := s.db.Where("id = ?", *req.ProductID).First(&product).Error; err != nil {
 			if stderrors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errors.NewNotFoundError("Product")
 			}
@@ -680,7 +680,7 @@ func (s *Service) UpdateSLARule(ruleID uint, req *UpdateSLARuleRequest) (*SLARul
 	if req.ServiceID != nil {
 		// Validate service exists
 		var service models.Service
-		if err := s.db.Where("id = ? AND is_deleted = ?", *req.ServiceID, false).First(&service).Error; err != nil {
+		if err := s.db.Where("id = ?", *req.ServiceID).First(&service).Error; err != nil {
 			if stderrors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errors.NewNotFoundError("Service")
 			}
@@ -705,7 +705,7 @@ func (s *Service) UpdateSLARule(ruleID uint, req *UpdateSLARuleRequest) (*SLARul
 // DeleteSLARule soft deletes an SLA rule.
 func (s *Service) DeleteSLARule(ruleID uint) error {
 	var rule models.SLARule
-	if err := s.db.Where("id = ? AND is_deleted = ?", ruleID, false).First(&rule).Error; err != nil {
+	if err := s.db.Where("id = ?", ruleID).First(&rule).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NewNotFoundError("SLA rule")
 		}
@@ -733,7 +733,7 @@ func (s *Service) DeactivateSLARule(ruleID uint) error {
 // Helper function to update rule status.
 func (s *Service) updateRuleStatus(ruleID uint, isActive bool) error {
 	var rule models.SLARule
-	if err := s.db.Where("id = ? AND is_deleted = ?", ruleID, false).First(&rule).Error; err != nil {
+	if err := s.db.Where("id = ?", ruleID).First(&rule).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NewNotFoundError("SLA rule")
 		}
