@@ -20,6 +20,7 @@ import { ServiceDetailPage } from "@/pages/service-detail";
 import { SLAPage } from "@/pages/sla";
 import { DataJobsPage } from "@/pages/data-jobs";
 import { LLMProvidersPage } from "@/pages/llm-providers";
+import { SubscriptionsPage } from "@/pages/subscriptions-list";
 import type { JSX } from "react";
 
 function FullScreenLoader() {
@@ -89,6 +90,7 @@ export default function App() {
         <Route path="/products/:id" element={<TeamOnly><ProductDetailPage /></TeamOnly>} />
         <Route path="/services" element={<TeamOnly><ServicesListPage /></TeamOnly>} />
         <Route path="/services/:id" element={<TeamOnly><ServiceDetailPage /></TeamOnly>} />
+        <Route path="/subscriptions" element={<TeamOnly><SubscriptionsPage /></TeamOnly>} />
         <Route path="/sla" element={<TeamOnly><SLAPage /></TeamOnly>} />
         <Route path="/data" element={<TeamOnly><DataJobsPage /></TeamOnly>} />
         <Route path="/rbac" element={<TeamOnly><AccessPage /></TeamOnly>} />

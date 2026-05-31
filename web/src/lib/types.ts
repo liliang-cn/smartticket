@@ -158,6 +158,28 @@ export interface RbacRole {
   permissions?: RbacPermission[];
 }
 
+export interface Subscription {
+  id: number;
+  customer_id: number;
+  customer_name: string;
+  product_id: number;
+  product_name: string;
+  sla_template_id?: number | null;
+  sla_template_name?: string;
+  plan: string;
+  billing_unit: "per_node" | "per_cluster";
+  node_count: number;
+  billing_period: "annual" | "monthly";
+  starts_at: string;
+  expires_at: string;
+  status: "active" | "expired" | "cancelled";
+  unit_price: number;
+  currency: string;
+  notes: string;
+  total_units: number;
+  is_expired: boolean;
+}
+
 export interface TicketStats {
   total_tickets: number;
   open_tickets: number;
