@@ -408,7 +408,7 @@ export function LLMProvidersPage() {
     try {
       const r = await test.mutateAsync(id);
       const summary = `chat:${r.chat_ok} embed:${r.embedding_ok} cortex:${r.cortex_ok} (${r.latency_ms}ms)`;
-      if (r.error || !(r.chat_ok || r.embedding_ok)) {
+      if (r.error || !(r.chat_ok || r.embedding_ok || r.cortex_ok)) {
         toast.error(r.error ? `${summary} — ${r.error}` : summary);
       } else {
         toast.success(summary);
