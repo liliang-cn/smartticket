@@ -141,7 +141,7 @@ export function AppShell() {
       <div className="flex min-h-screen flex-col">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/70 px-7 backdrop-blur">
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            superleo workspace
+            LINBIT workspace
           </div>
           <div className="flex items-center gap-3">
           <ThemeToggle />
