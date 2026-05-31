@@ -20,6 +20,9 @@ import (
 // aiUnavailableMsg is returned by AI endpoints when semantic search is not configured.
 const aiUnavailableMsg = "AI search is not configured (set up an embedding provider)"
 
+// aiSearchFailedMsg is returned when AI is configured but a search call fails at runtime.
+const aiSearchFailedMsg = "AI search is temporarily unavailable, please try again"
+
 // askFallback is returned by Ask when no relevant context is found.
 const askFallback = "I don't have information on that in the knowledge base."
 
@@ -91,7 +94,8 @@ func (s *Service) Search(ctx context.Context, query string, topK int) ([]SearchH
 	}
 	res, err := s.store.Search(ctx, query, topK)
 	if err != nil {
-		return nil, aiUnavailable(aiUnavailableMsg)
+		logger.Warn("knowledge search failed", zap.Error(err))
+		return nil, aiUnavailable(aiSearchFailedMsg)
 	}
 	return res.Hits, nil
 }
@@ -116,7 +120,8 @@ func (s *Service) Ask(ctx context.Context, question string, topK int) (*AskResul
 	}
 	res, err := s.store.Search(ctx, question, topK)
 	if err != nil {
-		return nil, aiUnavailable(aiUnavailableMsg)
+		logger.Warn("knowledge ask search failed", zap.Error(err))
+		return nil, aiUnavailable(aiSearchFailedMsg)
 	}
 	if len(res.Hits) == 0 {
 		return &AskResult{Answer: askFallback, Citations: []SearchHit{}}, nil
