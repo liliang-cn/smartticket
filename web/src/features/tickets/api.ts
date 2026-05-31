@@ -74,6 +74,52 @@ export function useTicket(id: number | undefined) {
   });
 }
 
+export interface TicketSLA {
+  ticket_id: number;
+  priority: string;
+  severity: string;
+  source: "rule" | "default";
+  policy_name: string;
+  response_minutes: number;
+  resolution_minutes: number;
+  business_only: boolean;
+  due_date?: string | null;
+  sla_status: string;
+}
+
+/** The SLA policy governing a ticket (matched rule + template, targets, status). */
+export function useTicketSLA(id: number | undefined) {
+  return useQuery({
+    queryKey: ["ticket-sla", id],
+    enabled: id != null,
+    queryFn: async (): Promise<TicketSLA> => {
+      const res = await api.get(`/tickets/${id}/sla`);
+      return unwrap<TicketSLA>(res.data);
+    },
+  });
+}
+
+export interface TicketEvent {
+  id: number;
+  action: string;
+  summary: string;
+  actor_name?: string;
+  actor_role?: string;
+  created_at: string;
+}
+
+/** A ticket's activity log (creation, status/priority changes, assignment, replies). */
+export function useTicketEvents(id: number | undefined) {
+  return useQuery({
+    queryKey: ["ticket-events", id],
+    enabled: id != null,
+    queryFn: async (): Promise<TicketEvent[]> => {
+      const res = await api.get(`/tickets/${id}/events`);
+      return unwrap<TicketEvent[]>(res.data) ?? [];
+    },
+  });
+}
+
 export function useTicketStats() {
   return useQuery({
     queryKey: ["ticket-stats"],
@@ -130,6 +176,8 @@ export function useUpdateTicket(id: number) {
       qc.invalidateQueries({ queryKey: ["ticket", id] });
       qc.invalidateQueries({ queryKey: ["tickets"] });
       qc.invalidateQueries({ queryKey: ["ticket-stats"] });
+      qc.invalidateQueries({ queryKey: ["ticket-events", id] });
+      qc.invalidateQueries({ queryKey: ["ticket-sla", id] });
     },
   });
 }
@@ -144,6 +192,7 @@ export function useAssignTicket(id: number) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["ticket", id] });
       qc.invalidateQueries({ queryKey: ["tickets"] });
+      qc.invalidateQueries({ queryKey: ["ticket-events", id] });
     },
   });
 }
@@ -201,6 +250,7 @@ export function useAddMessage(id: number) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["ticket-messages", id] });
+      qc.invalidateQueries({ queryKey: ["ticket-events", id] });
     },
   });
 }

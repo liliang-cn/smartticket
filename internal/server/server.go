@@ -367,6 +367,8 @@ func (s *Server) setupRoutes() {
 				tickets.PUT("/:id", ticketHandlers.UpdateTicket)
 				tickets.DELETE("/:id", ticketHandlers.DeleteTicket)
 				tickets.POST("/:id/assign", ticketHandlers.AssignTicket)
+				tickets.GET("/:id/sla", ticketHandlers.GetTicketSLA)
+				tickets.GET("/:id/events", ticketHandlers.GetTicketEvents)
 				tickets.GET("/:id/messages", ticketHandlers.GetTicketMessages)
 				tickets.POST("/:id/messages", ticketHandlers.CreateTicketMessage)
 				tickets.POST("/:id/attachments", attachmentHandlers.Upload)

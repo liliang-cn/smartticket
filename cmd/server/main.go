@@ -202,6 +202,7 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		&models.ImportExportJob{},
 		&models.AuditLog{},
 		&models.Notification{},
+		&models.TicketEvent{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -358,6 +359,7 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		&models.ImportExportJob{},
 		&models.AuditLog{},
 		&models.Notification{},
+		&models.TicketEvent{},
 	}
 
 	// Run GORM AutoMigrate

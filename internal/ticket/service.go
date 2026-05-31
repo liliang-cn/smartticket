@@ -192,6 +192,8 @@ func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicket
 		return nil, fmt.Errorf("failed to create ticket: %w", err)
 	}
 
+	s.recordEvent(ticket.ID, userID, "created", "created the ticket")
+
 	return s.ticketToResponse(ticket), nil
 }
 
@@ -290,6 +292,11 @@ func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, re
 		return nil, fmt.Errorf("failed to get ticket: %w", err)
 	}
 
+	// Capture pre-update values for the activity log.
+	oldPriority := ticket.Priority
+	oldSeverity := ticket.Severity
+	oldAssigned := ticket.AssignedTo
+
 	// Normalize input
 	if req.Title != "" {
 		req.Title = strings.TrimSpace(req.Title)
@@ -387,6 +394,20 @@ func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, re
 		return nil, fmt.Errorf("failed to update ticket: %w", err)
 	}
 
+	// Activity log: record the meaningful changes.
+	if req.Status != "" && ticket.Status != oldStatus {
+		s.recordEvent(ticket.ID, userID, "status", fmt.Sprintf("changed status: %s → %s", oldStatus, ticket.Status))
+	}
+	if priorityChanged {
+		s.recordEvent(ticket.ID, userID, "priority", fmt.Sprintf("changed priority: %s → %s", oldPriority, ticket.Priority))
+	}
+	if severityChanged {
+		s.recordEvent(ticket.ID, userID, "severity", fmt.Sprintf("changed severity: %s → %s", oldSeverity, ticket.Severity))
+	}
+	if req.AssignedTo != nil && actor.IsTeam() && !sameUintPtr(oldAssigned, ticket.AssignedTo) {
+		s.recordEvent(ticket.ID, userID, "assigned", s.assignSummary(ticket.AssignedTo))
+	}
+
 	// Best-effort: on an actual status change, notify the ticket's customer-side
 	// users (skip if no owning customer). Author is excluded from recipients.
 	if s.notifier != nil && req.Status != "" && req.Status != oldStatus && ticket.CustomerID != nil {
@@ -442,6 +463,8 @@ func (s *Service) AssignTicket(actor authz.Actor, ticketID uint, assignedTo uint
 		s.notifier.Notify(context.Background(), []uint{assignedTo}, "ticket_assigned",
 			fmt.Sprintf("You were assigned ticket #%d", ticketID), "", "ticket", ticketID)
 	}
+
+	s.recordEvent(ticketID, actor.UserID, "assigned", s.assignSummary(&assignedTo))
 
 	return nil
 }
@@ -535,6 +558,12 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 	// Best-effort in-app notification (after the message is committed; never
 	// affects the request path). Internal notes are NEVER surfaced to customers.
 	s.notifyMessage(actor, tkt, message, userID)
+
+	if isInternal {
+		s.recordEvent(ticketID, userID, "note", "added an internal note")
+	} else {
+		s.recordEvent(ticketID, userID, "replied", "replied to the ticket")
+	}
 
 	// Load the author so the response carries the author's name/role.
 	_ = s.db.Preload("User").First(message, message.ID).Error
@@ -832,4 +861,147 @@ func (s *Service) ticketToResponse(ticket *models.Ticket) *TicketResponse {
 	s.db.Model(&models.Attachment{}).Where("ticket_id = ?", ticket.ID).Count(&response.AttachmentCount)
 
 	return response
+}
+
+// TicketSLAResponse describes the SLA policy governing a ticket: which rule
+// (and template) matched, the response/resolution targets, and the ticket's
+// current due date and SLA status.
+type TicketSLAResponse struct {
+	TicketID          uint       `json:"ticket_id"`
+	Priority          string     `json:"priority"`
+	Severity          string     `json:"severity"`
+	Source            string     `json:"source"`      // "rule" or "default"
+	PolicyName        string     `json:"policy_name"` // SLA template name, rule label, or "Default policy"
+	ResponseMinutes   int        `json:"response_minutes"`
+	ResolutionMinutes int        `json:"resolution_minutes"`
+	BusinessOnly      bool       `json:"business_only"`
+	DueDate           *time.Time `json:"due_date"`
+	SLAStatus         string     `json:"sla_status"`
+}
+
+// GetTicketSLA resolves the SLA policy that governs a ticket — the same rule the
+// due-date calculator matches (by priority/severity/product/service), with its
+// template name — so the UI can show exactly which SLA applies. Access is
+// customer-isolated via GetTicket.
+func (s *Service) GetTicketSLA(actor authz.Actor, ticketID uint) (*TicketSLAResponse, error) {
+	tr, err := s.GetTicket(actor, ticketID)
+	if err != nil {
+		return nil, err
+	}
+
+	out := &TicketSLAResponse{
+		TicketID:  tr.ID,
+		Priority:  tr.Priority,
+		Severity:  tr.Severity,
+		DueDate:   tr.DueDate,
+		SLAStatus: tr.SLAStatus,
+	}
+
+	// Targets (minutes) come from the calculator, which falls back to the
+	// built-in defaults when no rule matches.
+	if due, derr := s.slaCalculator.CalculateSLADueDates(tr.Priority, tr.Severity, tr.ProductID, tr.ServiceID); derr == nil && due != nil {
+		out.ResponseMinutes = due.ResponseMinutes
+		out.ResolutionMinutes = due.ResolutionMinutes
+		out.BusinessOnly = due.BusinessOnly
+	}
+
+	// The policy name + source come from the matched rule (or the default).
+	if rule, ok := s.slaCalculator.MatchRule(tr.Priority, tr.Severity, tr.ProductID, tr.ServiceID); ok {
+		out.Source = "rule"
+		if rule.SLATemplate.Name != "" {
+			out.PolicyName = rule.SLATemplate.Name
+		} else {
+			out.PolicyName = fmt.Sprintf("SLA rule #%d", rule.ID)
+		}
+	} else {
+		out.Source = "default"
+		out.PolicyName = "Default policy (by priority)"
+	}
+
+	return out, nil
+}
+
+// sameUintPtr reports whether two *uint hold the same value (both nil counts as equal).
+func sameUintPtr(a, b *uint) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return *a == *b
+}
+
+// userDisplay resolves a user's display name by ID for activity summaries.
+func (s *Service) userDisplay(id uint) string {
+	if id == 0 {
+		return ""
+	}
+	var u models.User
+	if err := s.db.First(&u, id).Error; err == nil {
+		return displayName(&u)
+	}
+	return fmt.Sprintf("user #%d", id)
+}
+
+// assignSummary renders an assignment activity summary.
+func (s *Service) assignSummary(assignedTo *uint) string {
+	if assignedTo == nil || *assignedTo == 0 {
+		return "unassigned the ticket"
+	}
+	return "assigned the ticket to " + s.userDisplay(*assignedTo)
+}
+
+// recordEvent appends an entry to a ticket's activity log. Best-effort: a
+// failure here never affects the originating operation.
+func (s *Service) recordEvent(ticketID, userID uint, action, summary string) {
+	_ = s.db.Create(&models.TicketEvent{
+		TicketID: ticketID,
+		UserID:   userID,
+		Action:   action,
+		Summary:  summary,
+	}).Error
+}
+
+// TicketEventResponse is a flat, schema-safe view of a ticket activity entry.
+type TicketEventResponse struct {
+	ID        uint      `json:"id"`
+	Action    string    `json:"action"`
+	Summary   string    `json:"summary"`
+	ActorName string    `json:"actor_name,omitempty"`
+	ActorRole string    `json:"actor_role,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// ListTicketEvents returns a ticket's activity log (oldest first), scoped to the
+// actor's customer. Internal-note events are hidden from customer actors.
+func (s *Service) ListTicketEvents(actor authz.Actor, ticketID uint) ([]TicketEventResponse, error) {
+	if _, err := s.findTicketForActor(actor, ticketID); err != nil {
+		return nil, err
+	}
+
+	var events []models.TicketEvent
+	if err := s.db.Preload("User").Where("ticket_id = ?", ticketID).
+		Order("created_at ASC").Find(&events).Error; err != nil {
+		return nil, fmt.Errorf("failed to list ticket events: %w", err)
+	}
+
+	out := make([]TicketEventResponse, 0, len(events))
+	for i := range events {
+		e := &events[i]
+		if actor.IsCustomer() && e.Action == "note" {
+			continue // never reveal internal notes to customers
+		}
+		r := TicketEventResponse{
+			ID:        e.ID,
+			Action:    e.Action,
+			Summary:   e.Summary,
+			CreatedAt: e.CreatedAt,
+		}
+		if e.User != nil {
+			r.ActorName = displayName(e.User)
+			r.ActorRole = e.User.Role
+		} else {
+			r.ActorName = "System"
+		}
+		out = append(out, r)
+	}
+	return out, nil
 }

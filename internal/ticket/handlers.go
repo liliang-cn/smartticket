@@ -130,6 +130,53 @@ func (h *Handlers) GetTicket(c *gin.Context) {
 	})
 }
 
+// GetTicketSLA returns the SLA policy governing a ticket (matched rule +
+// template, targets, due date and status).
+// @Summary Get a ticket's SLA policy
+// @Tags tickets
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Ticket ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/tickets/{id}/sla [get]
+func (h *Handlers) GetTicketSLA(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+	sla, err := h.service.GetTicketSLA(actorFromContext(c), uint(id))
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": sla})
+}
+
+// GetTicketEvents returns a ticket's activity log (creation, status/priority
+// changes, assignments, replies). Customer-isolated; internal-note events are
+// hidden from customer actors.
+// @Summary Get a ticket's activity log
+// @Tags tickets
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Ticket ID"
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/tickets/{id}/events [get]
+func (h *Handlers) GetTicketEvents(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+	events, err := h.service.ListTicketEvents(actorFromContext(c), uint(id))
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": events})
+}
+
 // ListTickets lists tickets with pagination and filtering.
 // @Summary List tickets
 // @Description Retrieves a paginated list of tickets with optional filtering

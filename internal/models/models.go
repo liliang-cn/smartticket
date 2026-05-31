@@ -116,6 +116,18 @@ type Attachment struct {
 	Hash               string            `gorm:"size:64;index" json:"hash"` // SHA-256 hash
 }
 
+// TicketEvent is an append-only record of an operation performed on a ticket
+// (creation, status/priority changes, assignment, replies and notes). It powers
+// the ticket activity/history timeline.
+type TicketEvent struct {
+	BaseModel
+	TicketID uint   `gorm:"index;not null" json:"ticket_id"`
+	UserID   uint   `gorm:"index" json:"user_id"` // acting user; 0 = system
+	User     *User  `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Action   string `gorm:"size:50;not null" json:"action"` // created, status, priority, severity, assigned, replied, note, updated
+	Summary  string `gorm:"size:500" json:"summary"`
+}
+
 // KnowledgeArticle represents a knowledge base article.
 type KnowledgeArticle struct {
 	BaseModel

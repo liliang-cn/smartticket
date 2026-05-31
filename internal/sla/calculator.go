@@ -80,6 +80,30 @@ func (c *Calculator) CalculateSLADueDates(priority, severity string, productID, 
 	}, nil
 }
 
+// MatchRule returns the active SLA rule that governs a ticket with the given
+// attributes — the same most-specific match the due-date calculation uses —
+// with its SLATemplate preloaded. ok is false when no rule matches, meaning the
+// built-in default policy applies.
+func (c *Calculator) MatchRule(priority, severity string, productID, serviceID *uint) (*models.SLARule, bool) {
+	var rule models.SLARule
+	query := c.db.Preload("SLATemplate").
+		Where("priority = ? AND severity = ? AND is_active = ?", priority, severity, true)
+	if productID != nil {
+		query = query.Where("(product_id = ? OR product_id IS NULL)", *productID)
+	}
+	if serviceID != nil {
+		query = query.Where("(service_id = ? OR service_id IS NULL)", *serviceID)
+	}
+	query = query.Order("CASE WHEN product_id IS NOT NULL AND service_id IS NOT NULL THEN 1 " +
+		"WHEN product_id IS NOT NULL THEN 2 " +
+		"WHEN service_id IS NOT NULL THEN 3 " +
+		"ELSE 4 END")
+	if err := query.First(&rule).Error; err != nil {
+		return nil, false
+	}
+	return &rule, true
+}
+
 // getDefaultSLADueDates returns default SLA due dates when no rule is found.
 func (c *Calculator) getDefaultSLADueDates(priority, severity string) *SLADueDate {
 	now := time.Now()

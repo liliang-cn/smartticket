@@ -8,11 +8,16 @@ import {
   Download,
   Paperclip,
   Loader2,
+  Timer,
+  History,
+  CircleDot,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
   useTicket,
   useTicketMessages,
+  useTicketSLA,
+  useTicketEvents,
   useUpdateTicket,
   useAddMessage,
   useAssignTicket,
@@ -202,6 +207,97 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+// fmtMinutes renders an SLA target in minutes as a compact human string.
+function fmtMinutes(m: number): string {
+  if (!m || m <= 0) return "—";
+  if (m % 1440 === 0) return `${m / 1440}d`;
+  if (m % 60 === 0) return `${m / 60}h`;
+  if (m > 60) return `${Math.floor(m / 60)}h ${m % 60}m`;
+  return `${m}m`;
+}
+
+const SLA_STATUS_STYLE: Record<string, string> = {
+  within: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+  warning: "border-amber-500/30 bg-amber-500/10 text-amber-300",
+  breached: "border-red-500/30 bg-red-500/10 text-red-300",
+};
+
+/** SlaCard shows which SLA policy governs the ticket — the matched rule/template,
+ *  its response & resolution targets, and the current SLA status. */
+function SlaCard({ ticketId }: { ticketId: number }) {
+  const { data: sla, isLoading } = useTicketSLA(ticketId);
+  if (isLoading || !sla) return null;
+  const statusClass =
+    SLA_STATUS_STYLE[sla.sla_status] ??
+    "border-border bg-muted text-muted-foreground";
+  return (
+    <Card className="p-5">
+      <div className="mb-3 flex items-center justify-between">
+        <Label>SLA policy</Label>
+        <span
+          className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${statusClass}`}
+        >
+          {sla.sla_status || "—"}
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <Timer className="size-4 text-primary" />
+        <span className="font-medium">{sla.policy_name}</span>
+      </div>
+      <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+        {sla.source === "rule"
+          ? `matched by ${sla.priority}/${sla.severity}`
+          : "no rule matched — default targets"}
+        {sla.business_only ? " · business hours" : ""}
+      </p>
+      <Separator className="my-3" />
+      <MetaRow label="Response" value={fmtMinutes(sla.response_minutes)} />
+      <MetaRow label="Resolution" value={fmtMinutes(sla.resolution_minutes)} />
+      <MetaRow
+        label="Due"
+        value={sla.due_date ? relativeTime(sla.due_date) : "—"}
+      />
+    </Card>
+  );
+}
+
+// ActivityCard renders the ticket's operation history as a timeline.
+function ActivityCard({ ticketId }: { ticketId: number }) {
+  const { data: events, isLoading } = useTicketEvents(ticketId);
+  return (
+    <Card className="p-5">
+      <div className="mb-3 flex items-center gap-2">
+        <History className="size-4 text-muted-foreground" />
+        <Label>Activity</Label>
+        <span className="font-mono text-xs text-muted-foreground">
+          ({events?.length ?? 0})
+        </span>
+      </div>
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">Loading…</p>
+      ) : events && events.length > 0 ? (
+        <ol className="relative space-y-3 border-l border-border pl-5">
+          {events.map((e) => (
+            <li key={e.id} className="relative">
+              <CircleDot className="absolute -left-[1.42rem] top-0.5 size-3.5 text-primary/70" />
+              <div className="text-sm">
+                <span className="font-medium">{e.actor_name || "System"}</span>{" "}
+                <span className="text-muted-foreground">{e.summary}</span>
+              </div>
+              <div className="font-mono text-[11px] text-muted-foreground/70">
+                {relativeTime(e.created_at)}
+                {e.actor_role ? ` · ${e.actor_role}` : ""}
+              </div>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
+      )}
+    </Card>
+  );
+}
+
 export function TicketDetailPage() {
   const { id } = useParams();
   const ticketId = id ? Number(id) : undefined;
@@ -379,6 +475,8 @@ export function TicketDetailPage() {
           </div>
 
           <AttachmentsCard ticketId={ticket.id} />
+
+          <ActivityCard ticketId={ticket.id} />
         </div>
 
         {/* Meta sidebar */}
@@ -462,6 +560,8 @@ export function TicketDetailPage() {
             <MetaRow label="Created" value={relativeTime(ticket.created_at)} />
             <MetaRow label="Due" value={relativeTime(ticket.due_date)} />
           </Card>
+
+          <SlaCard ticketId={ticket.id} />
         </aside>
       </div>
     </div>
