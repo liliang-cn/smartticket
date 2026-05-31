@@ -30,8 +30,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 # Production stage
 FROM m.daocloud.io/docker.io/library/alpine:latest
 
-# Install runtime dependencies
-RUN apk --no-cache add ca-certificates tzdata sqlite
+# Install runtime dependencies (modernc embeds SQLite in the static binary —
+# no libsqlite3 needed, so the sqlite package is intentionally omitted).
+RUN apk --no-cache add ca-certificates tzdata
 
 # Create non-root user
 RUN addgroup -g 1001 -S smartticket && \
