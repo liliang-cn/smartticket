@@ -47,6 +47,8 @@ type Backend interface {
 	GetTicketStats(actor authz.Actor) (map[string]interface{}, error)
 	CreateMessage(actor authz.Actor, ticketID, userID uint, req *ticket.CreateMessageRequest) (*ticket.MessageResponse, error)
 	ListMessages(actor authz.Actor, ticketID uint) ([]ticket.MessageResponse, error)
+	GetTicketSLA(actor authz.Actor, ticketID uint) (*ticket.TicketSLAResponse, error)
+	ListTicketEvents(actor authz.Actor, ticketID uint) ([]ticket.TicketEventResponse, error)
 
 	// --- Knowledge domain ---
 	CreateKnowledgeArticle(userID uint, req *knowledge.CreateKnowledgeArticleRequest) (*knowledge.KnowledgeArticleResponse, error)

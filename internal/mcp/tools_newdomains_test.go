@@ -12,6 +12,7 @@ import (
 	"github.com/company/smartticket/internal/llm"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/subscription"
+	"github.com/company/smartticket/internal/ticket"
 )
 
 // --- Subscription ---
@@ -130,5 +131,29 @@ func TestAttachmentList(t *testing.T) {
 	require.Len(t, out.Attachments, 1)
 	assert.Equal(t, "log.txt", out.Attachments[0].OriginalName)
 	assert.Contains(t, summary, "#5")
+	b.AssertExpectations(t)
+}
+
+func TestTicketSLAAndEvents(t *testing.T) {
+	b := new(MockBackend)
+	ctx := ctxWithSession(newTestSession("ticket:read"))
+
+	b.On("GetTicketSLA", uint(4)).Return(&ticket.TicketSLAResponse{
+		TicketID: 4, Priority: "high", Severity: "minor", Source: "default",
+		PolicyName: "Default policy (by priority)", ResponseMinutes: 30, ResolutionMinutes: 120,
+		SLAStatus: "within",
+	}, nil)
+	sla, _, err := ticketSLA(ctx, b, ticketGetInput{ID: 4})
+	require.NoError(t, err)
+	assert.Equal(t, "Default policy (by priority)", sla.PolicyName)
+	assert.Equal(t, 30, sla.ResponseMinutes)
+
+	b.On("ListTicketEvents", uint(4)).Return([]ticket.TicketEventResponse{
+		{ID: 1, Action: "status", Summary: "changed status: open → in_progress", ActorName: "Admin"},
+	}, nil)
+	ev, _, err := ticketEvents(ctx, b, ticketGetInput{ID: 4})
+	require.NoError(t, err)
+	require.Len(t, ev.Events, 1)
+	assert.Equal(t, "status", ev.Events[0].Action)
 	b.AssertExpectations(t)
 }

@@ -206,6 +206,86 @@ func registerTicketTools(s *mcp.Server, b Backend) {
 			return ticketMessageList(ctx, b, in)
 		},
 	)
+
+	registerTool(s,
+		"ticket_sla",
+		"Get the SLA policy governing a ticket: the matched rule/template, response and resolution targets, due date and within/breached status.",
+		"ticket:read",
+		func(ctx context.Context, in ticketGetInput) (ticketSLAOutput, string, error) {
+			return ticketSLA(ctx, b, in)
+		},
+	)
+
+	registerTool(s,
+		"ticket_events",
+		"List a ticket's activity log: creation, status/priority/severity changes, assignment, replies and notes (oldest first).",
+		"ticket:read",
+		func(ctx context.Context, in ticketGetInput) (ticketEventsOutput, string, error) {
+			return ticketEvents(ctx, b, in)
+		},
+	)
+}
+
+// ----------------------------------------------------------------------------
+// ticket_sla / ticket_events schemas + closures
+// ----------------------------------------------------------------------------
+
+type ticketSLAOutput struct {
+	TicketID          uint       `json:"ticket_id" jsonschema:"the ticket ID"`
+	Priority          string     `json:"priority" jsonschema:"the ticket priority"`
+	Severity          string     `json:"severity" jsonschema:"the ticket severity"`
+	Source            string     `json:"source" jsonschema:"'rule' (a matching SLA rule) or 'default'"`
+	PolicyName        string     `json:"policy_name" jsonschema:"the governing SLA template/rule name, or 'Default policy'"`
+	ResponseMinutes   int        `json:"response_minutes" jsonschema:"response target in minutes"`
+	ResolutionMinutes int        `json:"resolution_minutes" jsonschema:"resolution target in minutes"`
+	BusinessOnly      bool       `json:"business_only" jsonschema:"whether targets count business hours only"`
+	DueDate           *time.Time `json:"due_date,omitempty" jsonschema:"the ticket's due date, if set"`
+	SLAStatus         string     `json:"sla_status,omitempty" jsonschema:"within, warning, or breached"`
+}
+
+type ticketEventView struct {
+	ID        uint      `json:"id" jsonschema:"event ID"`
+	Action    string    `json:"action" jsonschema:"event type: created, status, priority, severity, assigned, replied, note"`
+	Summary   string    `json:"summary" jsonschema:"human-readable description of the event"`
+	ActorName string    `json:"actor_name,omitempty" jsonschema:"who performed the action"`
+	ActorRole string    `json:"actor_role,omitempty" jsonschema:"the actor's role"`
+	CreatedAt time.Time `json:"created_at" jsonschema:"when it happened"`
+}
+
+type ticketEventsOutput struct {
+	Events []ticketEventView `json:"events,omitempty" jsonschema:"the activity log, oldest first"`
+	Total  int               `json:"total" jsonschema:"number of events"`
+}
+
+func ticketSLA(ctx context.Context, b Backend, in ticketGetInput) (ticketSLAOutput, string, error) {
+	r, err := b.GetTicketSLA(sessionActor(ctx), in.ID)
+	if err != nil {
+		return ticketSLAOutput{}, "", err
+	}
+	out := ticketSLAOutput{
+		TicketID: r.TicketID, Priority: r.Priority, Severity: r.Severity,
+		Source: r.Source, PolicyName: r.PolicyName,
+		ResponseMinutes: r.ResponseMinutes, ResolutionMinutes: r.ResolutionMinutes,
+		BusinessOnly: r.BusinessOnly, DueDate: r.DueDate, SLAStatus: r.SLAStatus,
+	}
+	return out, fmt.Sprintf("Ticket #%d SLA: %s (status %s).", r.TicketID, r.PolicyName, r.SLAStatus), nil
+}
+
+func ticketEvents(ctx context.Context, b Backend, in ticketGetInput) (ticketEventsOutput, string, error) {
+	evs, err := b.ListTicketEvents(sessionActor(ctx), in.ID)
+	if err != nil {
+		return ticketEventsOutput{}, "", err
+	}
+	views := make([]ticketEventView, 0, len(evs))
+	for i := range evs {
+		e := &evs[i]
+		views = append(views, ticketEventView{
+			ID: e.ID, Action: e.Action, Summary: e.Summary,
+			ActorName: e.ActorName, ActorRole: e.ActorRole, CreatedAt: e.CreatedAt,
+		})
+	}
+	return ticketEventsOutput{Events: views, Total: len(views)},
+		fmt.Sprintf("Ticket #%d has %d activity event(s).", in.ID, len(views)), nil
 }
 
 // ----------------------------------------------------------------------------

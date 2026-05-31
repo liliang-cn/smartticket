@@ -83,6 +83,16 @@ func (m *MockBackend) ListMessages(_ authz.Actor, ticketID uint) ([]ticket.Messa
 	return getSlice[ticket.MessageResponse](args, 0), args.Error(1)
 }
 
+func (m *MockBackend) GetTicketSLA(_ authz.Actor, ticketID uint) (*ticket.TicketSLAResponse, error) {
+	args := m.Called(ticketID)
+	return getPtr[ticket.TicketSLAResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) ListTicketEvents(_ authz.Actor, ticketID uint) ([]ticket.TicketEventResponse, error) {
+	args := m.Called(ticketID)
+	return getSlice[ticket.TicketEventResponse](args, 0), args.Error(1)
+}
+
 // --- Knowledge domain ---
 
 func (m *MockBackend) CreateKnowledgeArticle(userID uint, req *knowledge.CreateKnowledgeArticleRequest) (*knowledge.KnowledgeArticleResponse, error) {

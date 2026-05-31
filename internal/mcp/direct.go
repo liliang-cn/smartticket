@@ -119,6 +119,14 @@ func (b *DirectBackend) ListMessages(actor authz.Actor, ticketID uint) ([]ticket
 	return b.ticket.ListMessages(actor, ticketID)
 }
 
+func (b *DirectBackend) GetTicketSLA(actor authz.Actor, ticketID uint) (*ticket.TicketSLAResponse, error) {
+	return b.ticket.GetTicketSLA(actor, ticketID)
+}
+
+func (b *DirectBackend) ListTicketEvents(actor authz.Actor, ticketID uint) ([]ticket.TicketEventResponse, error) {
+	return b.ticket.ListTicketEvents(actor, ticketID)
+}
+
 // --- Knowledge domain ---
 
 func (b *DirectBackend) CreateKnowledgeArticle(userID uint, req *knowledge.CreateKnowledgeArticleRequest) (*knowledge.KnowledgeArticleResponse, error) {
