@@ -12,12 +12,14 @@ import {
   Timer,
   Database,
   Sparkles,
+  Settings,
   LogOut,
   Sun,
   Moon,
   Monitor,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useBranding } from "@/lib/branding";
 import { useTheme, type Theme } from "@/lib/theme";
 import { useReveal } from "@/lib/use-reveal";
 import { cn } from "@/lib/utils";
@@ -39,6 +41,8 @@ interface NavItem {
   soon?: boolean;
   /** Team-only (admin/engineer/...). Hidden from customer-role users. */
   team?: boolean;
+  /** Admin-only. Shown only to the admin role. */
+  admin?: boolean;
 }
 
 const NAV: NavItem[] = [
@@ -54,17 +58,24 @@ const NAV: NavItem[] = [
   { to: "/data", label: "Data", icon: Database, team: true },
   { to: "/rbac", label: "Access", icon: ShieldCheck, team: true },
   { to: "/llm", label: "AI Providers", icon: Sparkles, team: true },
+  { to: "/settings", label: "Settings", icon: Settings, admin: true },
 ];
 
 export function AppShell() {
   const { user, logout } = useAuth();
+  const branding = useBranding();
   const navigate = useNavigate();
   const navRef = useReveal<HTMLElement>();
 
   // Customer-role users see only the customer portal surface (their own
   // company's tickets + the knowledge base); team users see everything.
+  // Admin-only items (e.g. Settings) are gated to the admin role.
   const isTeam = user?.role !== "customer";
-  const navItems = NAV.filter((item) => isTeam || !item.team);
+  const isAdmin = user?.role === "admin";
+  const navItems = NAV.filter((item) => {
+    if (item.admin) return isAdmin;
+    return isTeam || !item.team;
+  });
 
   const initials = (
     (user?.first_name?.[0] ?? user?.username?.[0] ?? user?.email?.[0] ?? "?") +
@@ -76,15 +87,23 @@ export function AppShell() {
       {/* Left rail */}
       <aside className="sticky top-0 flex h-screen flex-col border-r border-border bg-card/40 backdrop-blur">
         <div className="flex h-16 items-center gap-2.5 px-5">
-          <div className="grid size-8 place-items-center rounded-md bg-primary text-primary-foreground shadow-[0_0_20px_-4px_rgba(255,176,31,0.8)]">
-            <Ticket className="size-4.5" strokeWidth={2.5} />
+          <div className="grid size-8 place-items-center overflow-hidden rounded-md bg-primary text-primary-foreground shadow-[0_0_20px_-4px_color-mix(in_srgb,var(--primary)_70%,transparent)]">
+            {branding.has_logo ? (
+              <img
+                src={branding.logo_url}
+                alt={branding.app_name}
+                className="size-full object-contain"
+              />
+            ) : (
+              <Ticket className="size-4.5" strokeWidth={2.5} />
+            )}
           </div>
           <div className="leading-none">
             <div className="font-display text-[15px] font-bold tracking-tight">
-              SmartTicket
+              {branding.app_name}
             </div>
             <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-              console
+              {branding.app_subtitle}
             </div>
           </div>
         </div>
@@ -144,7 +163,7 @@ export function AppShell() {
       <div className="flex min-h-screen flex-col">
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-background/70 px-7 backdrop-blur">
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            LINBIT workspace
+            {branding.workspace_name}
           </div>
           <div className="flex items-center gap-3">
           <NotificationBell />

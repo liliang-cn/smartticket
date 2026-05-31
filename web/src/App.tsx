@@ -21,6 +21,7 @@ import { SLAPage } from "@/pages/sla";
 import { DataJobsPage } from "@/pages/data-jobs";
 import { LLMProvidersPage } from "@/pages/llm-providers";
 import { SubscriptionsPage } from "@/pages/subscriptions-list";
+import { SettingsPage } from "@/pages/settings";
 import type { JSX } from "react";
 
 function FullScreenLoader() {
@@ -45,6 +46,13 @@ function Protected({ children }: { children: JSX.Element }) {
 function TeamOnly({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
   if (user?.role === "customer") return <Navigate to="/tickets" replace />;
+  return children;
+}
+
+/** AdminOnly gates settings that affect the whole deployment. */
+function AdminOnly({ children }: { children: JSX.Element }) {
+  const { user } = useAuth();
+  if (user?.role !== "admin") return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -95,6 +103,7 @@ export default function App() {
         <Route path="/data" element={<TeamOnly><DataJobsPage /></TeamOnly>} />
         <Route path="/rbac" element={<TeamOnly><AccessPage /></TeamOnly>} />
         <Route path="/llm" element={<TeamOnly><LLMProvidersPage /></TeamOnly>} />
+        <Route path="/settings" element={<AdminOnly><SettingsPage /></AdminOnly>} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

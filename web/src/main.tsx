@@ -15,6 +15,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
+import { BrandingProvider } from "@/lib/branding";
 import { Toaster } from "@/components/ui/toaster";
 
 const queryClient = new QueryClient({
@@ -27,12 +28,14 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <AuthProvider>
-            <App />
-            <Toaster />
-          </AuthProvider>
-        </BrowserRouter>
+        <BrandingProvider>
+          <BrowserRouter>
+            <AuthProvider>
+              <App />
+              <Toaster />
+            </AuthProvider>
+          </BrowserRouter>
+        </BrandingProvider>
       </QueryClientProvider>
     </ThemeProvider>
   </StrictMode>

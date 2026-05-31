@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Ticket, ArrowRight } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useBranding } from "@/lib/branding";
 import { apiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 
 export function LoginPage() {
   const { login } = useAuth();
+  const branding = useBranding();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,15 +37,23 @@ export function LoginPage() {
       <div className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
           <div className="mb-10 flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-lg bg-primary text-primary-foreground shadow-[0_0_30px_-6px_rgba(255,176,31,0.9)]">
-              <Ticket className="size-5" strokeWidth={2.5} />
+            <div className="grid size-10 place-items-center overflow-hidden rounded-lg bg-primary text-primary-foreground shadow-[0_0_30px_-6px_color-mix(in_srgb,var(--primary)_75%,transparent)]">
+              {branding.has_logo ? (
+                <img
+                  src={branding.logo_url}
+                  alt={branding.app_name}
+                  className="size-full object-contain"
+                />
+              ) : (
+                <Ticket className="size-5" strokeWidth={2.5} />
+              )}
             </div>
             <div>
               <div className="font-display text-xl font-bold tracking-tight">
-                SmartTicket
+                {branding.app_name}
               </div>
               <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                operations console
+                {branding.app_subtitle}
               </div>
             </div>
           </div>
@@ -100,10 +110,10 @@ export function LoginPage() {
             // mission control
           </div>
           <p className="mt-4 max-w-md font-display text-3xl font-bold leading-tight tracking-tight">
-            Every ticket, SLA and customer — under one calm, fast surface.
+            {branding.login_tagline}
           </p>
           <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-            Self-hosted. Single-tenant. Your data, your rules.
+            {branding.login_subtext}
           </p>
         </div>
       </div>

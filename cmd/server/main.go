@@ -170,6 +170,7 @@ func runServe(cmd *cobra.Command, _ []string) error {
 	dbModels := []interface{}{
 		// Base tables first (no foreign key dependencies)
 		&models.SystemSetting{},
+		&models.Branding{},
 		&models.Customer{},
 		&models.Product{},
 		&models.Service{},
@@ -325,6 +326,7 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 	dbModels := []interface{}{
 		// Base tables first (no foreign key dependencies)
 		&models.SystemSetting{},
+		&models.Branding{},
 		&models.Customer{},
 		&models.Product{},
 		&models.Service{},

@@ -1,0 +1,40 @@
+# SmartTicket — one-command self-host.
+#
+#   docker compose up -d   →   open http://localhost:6533
+#   Default login: admin@smartticket.local / admin123  (change it immediately)
+#
+# The image is a single static binary that serves BOTH the web console and the
+# REST API on port 6533 — no database, reverse proxy, or other services needed
+# (SQLite is embedded). Data persists in the `smartticket-data` named volume.
+#
+# For a real deployment, set strong secrets first (see .env.example):
+#   echo "SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)"  > .env
+#   echo "SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)" >> .env
+
+services:
+  smartticket:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: smartticket:latest
+    container_name: smartticket
+    ports:
+      - "6533:6533"
+    environment:
+      # Empty values fall back to safe in-app defaults for a quick demo; always
+      # override them in production via a .env file (see above).
+      - SMARTTICKET_JWT_SECRET=${SMARTTICKET_JWT_SECRET:-}
+      - SMARTTICKET_SECRET_KEY=${SMARTTICKET_SECRET_KEY:-}
+    volumes:
+      - smartticket-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:6533/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  smartticket-data:
+    driver: local

@@ -15,9 +15,10 @@ CONFIG_FILE=configs/config.dev.yaml
 .PHONY: help
 help: ## Show help
 	@echo "SmartTicket - Simple Commands:"
-	@echo "  make dev      - Start development server"
-	@echo "  make build    - Build binary"
-	@echo "  make test     - Run tests"
+	@echo "  make dev       - Start development server (API only)"
+	@echo "  make build     - Build API-only binary"
+	@echo "  make build-all - Build single binary with embedded web console"
+	@echo "  make test      - Run tests"
 	@echo "  make run      - Run without building"
 	@echo "  make clean    - Clean build files"
 	@echo "  make deps     - Install dependencies"
@@ -32,9 +33,19 @@ run: dev ## Alias for dev
 
 # Building
 .PHONY: build
-build: ## Build binary
+build: ## Build API-only binary (no embedded web console)
 	@mkdir -p $(BUILD_DIR)
 	$(GOBUILD) -o $(BUILD_DIR)/$(BINARY_NAME) cmd/server/main.go
+
+.PHONY: build-web
+build-web: ## Build the web console (web/dist)
+	cd web && pnpm install --frozen-lockfile && pnpm build
+
+.PHONY: build-all
+build-all: build-web ## Build single static binary with the web console embedded
+	@mkdir -p $(BUILD_DIR)
+	CGO_ENABLED=0 $(GOBUILD) -tags embedui -ldflags="-s -w" -o $(BUILD_DIR)/$(BINARY_NAME) ./cmd/server
+	@echo "Built $(BUILD_DIR)/$(BINARY_NAME) — serves API + console on :6533"
 
 # Testing
 .PHONY: test

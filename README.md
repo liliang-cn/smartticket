@@ -11,6 +11,45 @@ SmartTicket provides enterprise-grade ticketing and knowledge management with:
 - **Custom AI Integration**: Support for any LLM provider or local models
 - **Data Sovereignty**: Complete data export and portability features
 
+> 🌐 **Landing page / docs:** see [`docs/index.html`](docs/index.html) (served via GitHub Pages).
+> 🔴 **Live demo:** https://smartticket.superleo.app
+
+## Deploy in 5 minutes
+
+SmartTicket ships as a **single static binary** that serves the web console **and**
+the REST API together on port `6533` — no database server, message queue, or
+reverse proxy needed to get started (SQLite is embedded).
+
+### Docker (recommended)
+
+```bash
+git clone https://github.com/liliang-cn/smartticket.git
+cd smartticket
+
+# (recommended) generate strong secrets
+echo "SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)"  > .env
+echo "SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)" >> .env
+
+docker compose up -d
+```
+
+Open **http://localhost:6533** and sign in with `admin@smartticket.local` /
+`admin123` (change it immediately). Data persists in the `smartticket-data`
+volume.
+
+### From source (single binary)
+
+Requires Go 1.25+, Node 20+ and pnpm:
+
+```bash
+make build-all      # builds the console and embeds it into one binary
+./build/smartticket serve --config configs/config.dev.yaml
+```
+
+`make build-all` runs the frontend build then `go build -tags embedui`; the
+resulting binary at `build/smartticket` serves the full app on `:6533`.
+(`make build` produces an API-only binary without the embedded console.)
+
 ## Technology Stack
 
 - **Backend**: Go 1.21+ with Clean Architecture

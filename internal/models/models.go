@@ -227,6 +227,27 @@ type SystemSetting struct {
 	IsPublic    bool   `gorm:"default:false" json:"is_public"`
 }
 
+// Branding holds the org-wide white-label configuration for this single-tenant
+// deployment: the displayed product/workspace names, the signal accent color
+// and an optional uploaded logo. It is a singleton — exactly one row (ID 1) is
+// ever created, lazily, by the branding service. Read access is public (the
+// login page and app shell render it before authentication); writes are
+// admin-only.
+type Branding struct {
+	BaseModel
+	AppName       string `gorm:"size:100" json:"app_name"`
+	AppSubtitle   string `gorm:"size:100" json:"app_subtitle"`
+	WorkspaceName string `gorm:"size:120" json:"workspace_name"`
+	PrimaryColor  string `gorm:"size:32" json:"primary_color"`
+	LoginTagline  string `gorm:"size:200" json:"login_tagline"`
+	LoginSubtext  string `gorm:"size:300" json:"login_subtext"`
+	// LogoPath is the on-disk path of the uploaded logo (never exposed to
+	// clients); LogoExt is its extension (incl. leading dot). Empty when no
+	// logo has been uploaded.
+	LogoPath string `gorm:"size:512" json:"-"`
+	LogoExt  string `gorm:"size:16" json:"-"`
+}
+
 // Product represents a product or service offering.
 type Product struct {
 	BaseModel

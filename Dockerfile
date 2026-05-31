@@ -1,5 +1,18 @@
 # SmartTicket Dockerfile
-# Multi-stage build for Go backend application
+# Multi-stage build producing a single static binary that serves BOTH the REST
+# API and the embedded web console (true single-binary deployment).
+
+# Frontend build stage — compiles the React/Vite console into web/dist.
+FROM m.daocloud.io/docker.io/library/node:20-alpine AS web
+WORKDIR /web
+# Pin pnpm to a version that understands the v9 lockfile (deterministic builds).
+RUN corepack enable && corepack prepare pnpm@10.33.2 --activate
+# Install dependencies first for better layer caching.
+COPY web/package.json web/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+# Build the SPA.
+COPY web/ ./
+RUN pnpm build
 
 # Build stage
 FROM m.daocloud.io/docker.io/library/golang:1.25-alpine AS builder
@@ -20,9 +33,14 @@ RUN go mod download && go mod verify
 # Copy source code
 COPY . .
 
+# Overlay the compiled frontend so go:embed (build tag `embedui`) bundles the
+# console into the binary.
+COPY --from=web /web/dist ./web/dist
+
 # Build the application. The pure-Go modernc SQLite driver requires no cgo,
-# producing a fully static binary.
+# producing a fully static binary; `-tags embedui` embeds the web console.
 RUN CGO_ENABLED=0 GOOS=linux go build \
+    -tags embedui \
     -ldflags="-s -w" \
     -o smartticket \
     ./cmd/server

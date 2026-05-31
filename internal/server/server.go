@@ -4,18 +4,25 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
+	"io/fs"
+	"mime"
 	"net/http"
 	"os"
+	"path"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
+	smartticketweb "github.com/company/smartticket/web"
+
 	"github.com/company/smartticket/internal/api/handlers"
 	"github.com/company/smartticket/internal/api/middleware"
 	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
+	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/database"
@@ -44,6 +51,9 @@ type Server struct {
 	authService          *auth.Service
 	permissionMiddleware *middleware.PermissionMiddleware
 	kbStore              *knowledgebase.Store
+	// uiFS is the embedded single-page frontend, served for non-API GET routes.
+	// nil in API-only builds (built without the `embedui` tag).
+	uiFS fs.FS
 }
 
 // NewServer creates a new HTTP server instance.
@@ -76,6 +86,13 @@ func NewServer(cfg *config.Config, db *database.Database) *Server {
 		router:      router,
 		db:          db,
 		authService: authService,
+	}
+
+	// Serve the embedded console when the binary was built with the `embedui`
+	// tag (single-binary deployment); otherwise the server runs API-only.
+	if uiFS, ok := smartticketweb.DistFS(); ok {
+		server.uiFS = uiFS
+		logger.Info("Embedded web console enabled (serving SPA from binary)")
 	}
 
 	server.setupMiddleware()
@@ -145,8 +162,9 @@ func (s *Server) setupMiddleware() {
 	// Validation middleware for request binding
 	s.router.Use(errors.ValidationMiddleware())
 
-	// Set up custom error handlers
-	s.router.NoRoute(errors.NotFoundHandler)
+	// Set up custom error handlers. NoRoute also serves the embedded SPA (when
+	// present) so client-side routes resolve to the app shell.
+	s.router.NoRoute(s.handleNoRoute)
 	s.router.NoMethod(errors.MethodNotAllowedHandler)
 }
 
@@ -180,6 +198,7 @@ func (s *Server) setupRoutes() {
 	subscriptionService := subscription.NewService(s.db.DB)
 	importExportService := importexport.NewService(s.db.DB, s.config.Storage.DataPath)
 	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
+	brandingService := branding.NewService(s.db.DB, s.config.Storage.DataPath)
 
 	authHandlers := auth.NewHandlers(s.authService)
 	userHandlers := user.NewHandlers(userService)
@@ -191,6 +210,7 @@ func (s *Server) setupRoutes() {
 	subscriptionHandlers := subscription.NewHandlers(subscriptionService)
 	importExportHandlers := importexport.NewHandlers(importExportService)
 	attachmentHandlers := attachment.NewHandlers(attachmentService)
+	brandingHandlers := branding.NewHandlers(brandingService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
 
@@ -267,6 +287,11 @@ func (s *Server) setupRoutes() {
 		public := api.Group("/")
 		{
 			public.GET("/info", s.appInfo)
+
+			// Branding: read is public so the login page and app shell can
+			// render the white-label config before authentication.
+			public.GET("/settings/branding", brandingHandlers.Get)
+			public.GET("/settings/branding/logo", brandingHandlers.ServeLogo)
 		}
 
 		// Protected endpoints (auth required)
@@ -370,6 +395,16 @@ func (s *Server) setupRoutes() {
 				customers.PUT("/:id", customerHandlers.UpdateCustomer)
 				customers.DELETE("/:id", customerHandlers.DeleteCustomer)
 				customers.GET("/:id/users", customerHandlers.ListCustomerUsers)
+			}
+
+			// Branding / white-label settings (admin-only writes; reads are
+			// public, registered above).
+			settings := protected.Group("/settings")
+			settings.Use(s.adminMiddleware())
+			{
+				settings.PUT("/branding", brandingHandlers.Update)
+				settings.POST("/branding/logo", brandingHandlers.UploadLogo)
+				settings.DELETE("/branding/logo", brandingHandlers.DeleteLogo)
 			}
 
 			// LLM provider management routes (admin-only).
@@ -534,6 +569,46 @@ func (s *Server) GetRouter() *gin.Engine {
 // GetConfig returns the server configuration.
 func (s *Server) GetConfig() *config.Config {
 	return s.config
+}
+
+// handleNoRoute serves the embedded single-page app for unmatched non-API GET
+// routes (so client-side routing works on hard refresh / deep links), and
+// returns the standard JSON 404 for API and infrastructure paths. In API-only
+// builds (no embedded UI) every unmatched route gets the JSON 404.
+func (s *Server) handleNoRoute(c *gin.Context) {
+	p := c.Request.URL.Path
+	if s.uiFS == nil || c.Request.Method != http.MethodGet ||
+		strings.HasPrefix(p, "/api/") ||
+		strings.HasPrefix(p, "/swagger") ||
+		p == "/metrics" || p == "/health" || p == "/healthz" || p == "/version" {
+		errors.NotFoundHandler(c)
+		return
+	}
+
+	rel := strings.TrimPrefix(path.Clean(p), "/")
+	if rel == "" {
+		rel = "index.html"
+	}
+	data, err := fs.ReadFile(s.uiFS, rel)
+	if err != nil {
+		// Unknown asset → serve the SPA shell so the client router can handle it.
+		rel = "index.html"
+		data, err = fs.ReadFile(s.uiFS, rel)
+		if err != nil {
+			errors.NotFoundHandler(c)
+			return
+		}
+	}
+
+	ctype := mime.TypeByExtension(path.Ext(rel))
+	if ctype == "" {
+		ctype = http.DetectContentType(data)
+	}
+	// Vite emits content-hashed asset filenames, so they can cache forever.
+	if strings.HasPrefix(rel, "assets/") {
+		c.Header("Cache-Control", "public, max-age=31536000, immutable")
+	}
+	c.Data(http.StatusOK, ctype, data)
 }
 
 // serveSwaggerYAML serves the authoritative (swag-generated) OpenAPI spec.

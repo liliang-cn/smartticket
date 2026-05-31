@@ -17,6 +17,19 @@ export interface UserInfo {
   customer_id?: number | null;
 }
 
+// Org-wide white-label configuration (see internal/branding). Read is public.
+export interface Branding {
+  app_name: string;
+  app_subtitle: string;
+  workspace_name: string;
+  primary_color: string;
+  login_tagline: string;
+  login_subtext: string;
+  has_logo: boolean;
+  logo_url: string;
+  updated_at: number;
+}
+
 export interface TokenPair {
   access_token: string;
   refresh_token: string;
