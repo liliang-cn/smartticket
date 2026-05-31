@@ -52,6 +52,7 @@ type UserInfo struct {
 	FirstName   string     `json:"first_name"`
 	LastName    string     `json:"last_name"`
 	Role        string     `json:"role"`
+	CustomerID  *uint      `json:"customer_id,omitempty"`
 	IsActive    bool       `json:"is_active"`
 	LastLoginAt *time.Time `json:"last_login_at"`
 }
@@ -320,6 +321,7 @@ func (s *Service) createUserInfo(user *models.User) *UserInfo {
 		FirstName:   user.FirstName,
 		LastName:    user.LastName,
 		Role:        user.Role,
+		CustomerID:  user.CustomerID,
 		IsActive:    user.IsActive,
 		LastLoginAt: user.LastLoginAt,
 	}
