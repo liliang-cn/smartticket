@@ -50,7 +50,7 @@ func (h *Handlers) CreateKnowledgeArticle(c *gin.Context) {
 	c.Set("target_resource", req.Title)
 
 	// Create knowledge article
-	article, err := h.service.CreateKnowledgeArticle(userID, &req)
+	article, err := h.service.CreateKnowledgeArticleCtx(c.Request.Context(), userID, &req)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -217,7 +217,7 @@ func (h *Handlers) UpdateKnowledgeArticle(c *gin.Context) {
 	c.Set("target_resource", strconv.FormatUint(articleID, 10))
 
 	// Update knowledge article
-	article, err := h.service.UpdateKnowledgeArticle(uint(articleID), userID, &req)
+	article, err := h.service.UpdateKnowledgeArticleCtx(c.Request.Context(), uint(articleID), userID, &req)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -265,7 +265,7 @@ func (h *Handlers) DeleteKnowledgeArticle(c *gin.Context) {
 	c.Set("target_resource", strconv.FormatUint(articleID, 10))
 
 	// Delete knowledge article
-	err = h.service.DeleteKnowledgeArticle(uint(articleID), userID)
+	err = h.service.DeleteKnowledgeArticleCtx(c.Request.Context(), uint(articleID), userID)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -304,5 +304,109 @@ func (h *Handlers) GetKnowledgeArticleStats(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"data":    stats,
+	})
+}
+
+// SearchRequest is the body for POST /knowledge/search.
+type SearchRequest struct {
+	Query string `json:"query"`
+	TopK  int    `json:"top_k"`
+}
+
+// SearchKnowledge runs a semantic search over indexed knowledge articles.
+// @Summary Semantic search over knowledge base
+// @Tags knowledge
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body knowledge.SearchRequest true "Search query"
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 503 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Router /api/v1/knowledge/search [post]
+func (h *Handlers) SearchKnowledge(c *gin.Context) {
+	var req SearchRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("request_body", err.Error()))
+		return
+	}
+	if trimString(req.Query) == "" {
+		errors.ErrorHandler(c, errors.NewValidationError("query must not be empty"))
+		return
+	}
+
+	hits, err := h.service.Search(c.Request.Context(), req.Query, req.TopK)
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    gin.H{"hits": hits},
+	})
+}
+
+// AskRequest is the body for POST /knowledge/ask.
+type AskRequest struct {
+	Question string `json:"question"`
+	TopK     int    `json:"top_k"`
+}
+
+// AskKnowledge answers a question using RAG over the knowledge base.
+// @Summary Ask the knowledge base assistant (RAG)
+// @Tags knowledge
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body knowledge.AskRequest true "Question"
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 400 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Failure 503 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Router /api/v1/knowledge/ask [post]
+func (h *Handlers) AskKnowledge(c *gin.Context) {
+	var req AskRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("request_body", err.Error()))
+		return
+	}
+	if trimString(req.Question) == "" {
+		errors.ErrorHandler(c, errors.NewValidationError("question must not be empty"))
+		return
+	}
+
+	res, err := h.service.Ask(c.Request.Context(), req.Question, req.TopK)
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"answer":    res.Answer,
+			"citations": res.Citations,
+		},
+	})
+}
+
+// ReindexKnowledge re-indexes all non-deleted articles into the semantic store.
+// @Summary Re-index the knowledge base (admin)
+// @Tags knowledge
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} github_com_company_smartticket_internal_server.Response
+// @Failure 503 {object} github_com_company_smartticket_internal_errors.ErrorResponse
+// @Router /api/v1/knowledge/reindex [post]
+func (h *Handlers) ReindexKnowledge(c *gin.Context) {
+	indexed, failed, err := h.service.Reindex(c.Request.Context())
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    gin.H{"indexed": indexed, "failed": failed},
 	})
 }

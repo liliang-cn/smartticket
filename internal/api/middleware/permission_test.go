@@ -10,10 +10,10 @@ import (
 
 	"github.com/company/smartticket/internal/models"
 	"github.com/gin-gonic/gin"
+	sqlite "github.com/company/smartticket/internal/database/moderncsqlite"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 

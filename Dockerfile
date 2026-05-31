@@ -4,9 +4,9 @@
 # Build stage
 FROM m.daocloud.io/docker.io/library/golang:1.25-alpine AS builder
 
-# Install build dependencies (gcc + musl-dev are required: the SQLite driver
-# uses cgo, so the binary must be built with CGO_ENABLED=1).
-RUN apk add --no-cache git ca-certificates tzdata gcc musl-dev
+# Install build dependencies (pure-Go modernc SQLite driver needs no cgo,
+# so only module-fetch tooling is required).
+RUN apk add --no-cache git ca-certificates tzdata
 
 # Set working directory
 WORKDIR /build
@@ -20,18 +20,19 @@ RUN go mod download && go mod verify
 # Copy source code
 COPY . .
 
-# Build the application. CGO is required by the SQLite driver (mattn/go-sqlite3);
-# the resulting binary links musl dynamically and runs on the alpine runtime.
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build \
-    -ldflags='-w -s' \
+# Build the application. The pure-Go modernc SQLite driver requires no cgo,
+# producing a fully static binary.
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -ldflags="-s -w" \
     -o smartticket \
-    cmd/server/main.go
+    ./cmd/server
 
 # Production stage
 FROM m.daocloud.io/docker.io/library/alpine:latest
 
-# Install runtime dependencies
-RUN apk --no-cache add ca-certificates tzdata sqlite
+# Install runtime dependencies (modernc embeds SQLite in the static binary —
+# no libsqlite3 needed, so the sqlite package is intentionally omitted).
+RUN apk --no-cache add ca-certificates tzdata
 
 # Create non-root user
 RUN addgroup -g 1001 -S smartticket && \

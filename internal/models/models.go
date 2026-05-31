@@ -149,8 +149,11 @@ type LLMProvider struct {
 	Name          string  `gorm:"size:255;not null" json:"name"`
 	ProviderType  string  `gorm:"size:50;not null" json:"provider_type"` // openai, azure, anthropic, deepseek, ollama, local
 	APIEndpoint   string  `gorm:"size:500" json:"api_endpoint"`
-	APIKey        string  `gorm:"size:500" json:"api_key"` // encrypted
+	// APIKey holds AES-GCM ciphertext; json:"-" so it never serializes to clients.
+	APIKey        string  `gorm:"size:500" json:"-"`
 	Model         string  `gorm:"size:100" json:"model"`
+	// Dimensions is the embedding output dimension (used when TaskTypes includes "embedding").
+	Dimensions    int     `gorm:"default:1024" json:"dimensions"`
 	MaxTokens     int     `gorm:"default:4096" json:"max_tokens"`
 	Temperature   float64 `gorm:"default:0.7" json:"temperature"`
 	TaskTypes     string  `gorm:"type:text" json:"task_types"` // JSON array

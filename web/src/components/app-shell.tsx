@@ -10,6 +10,7 @@ import {
   Layers,
   Timer,
   Database,
+  Sparkles,
   LogOut,
   Sun,
   Moon,
@@ -49,6 +50,7 @@ const NAV: NavItem[] = [
   { to: "/sla", label: "SLA", icon: Timer, team: true },
   { to: "/data", label: "Data", icon: Database, team: true },
   { to: "/rbac", label: "Access", icon: ShieldCheck, team: true },
+  { to: "/llm", label: "AI Providers", icon: Sparkles, team: true },
 ];
 
 export function AppShell() {

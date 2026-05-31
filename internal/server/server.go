@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"net/http"
 	"os"
@@ -20,6 +21,8 @@ import (
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
+	"github.com/company/smartticket/internal/knowledgebase"
+	"github.com/company/smartticket/internal/llm"
 	"github.com/company/smartticket/internal/logger"
 	"github.com/company/smartticket/internal/product"
 	servicemgmt "github.com/company/smartticket/internal/service"
@@ -37,6 +40,7 @@ type Server struct {
 	db                   *database.Database
 	authService          *auth.Service
 	permissionMiddleware *middleware.PermissionMiddleware
+	kbStore              *knowledgebase.Store
 }
 
 // NewServer creates a new HTTP server instance.
@@ -163,7 +167,6 @@ func (s *Server) setupRoutes() {
 	customerService := customer.NewService(s.db.DB)
 	serviceManagementService := servicemgmt.NewService(s.db.DB)
 	slaService := sla.NewService(s.db.DB)
-	knowledgeService := knowledge.NewService(s.db.DB)
 	importExportService := importexport.NewService(s.db.DB)
 
 	authHandlers := auth.NewHandlers(s.authService)
@@ -173,10 +176,52 @@ func (s *Server) setupRoutes() {
 	customerHandlers := customer.NewHandlers(customerService)
 	serviceHandlers := servicemgmt.NewHandlers(serviceManagementService)
 	slaHandlers := sla.NewHandlers(slaService, slaCalculator)
-	knowledgeHandlers := knowledge.NewHandlers(knowledgeService)
 	importExportHandlers := importexport.NewHandlers(importExportService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
+
+	// AI foundation: LLM providers + CortexDB knowledge store.
+	// Encryption key from SMARTTICKET_SECRET_KEY; dev fallback = SHA-256(JWT secret).
+	var llmHandlers *llm.Handlers
+	var llmServiceRef *llm.Service
+	secretKey, kerr := llm.LoadKey(s.config.SecretKeyRaw)
+	if kerr != nil {
+		logger.Warn("SMARTTICKET_SECRET_KEY not set or invalid; deriving encryption key from JWT secret — changing the JWT secret will make stored LLM API keys unrecoverable")
+		sum := sha256.Sum256([]byte(s.config.JWT.Secret))
+		secretKey = sum[:]
+	}
+	cipher, cerr := llm.NewCipher(secretKey)
+	if cerr != nil {
+		logger.Error("llm cipher init failed; LLM provider endpoints disabled", zap.Error(cerr))
+	} else {
+		llmService := llm.NewService(s.db.DB, cipher)
+		llmServiceRef = llmService
+		llmHandlers = llm.NewHandlers(llmService)
+
+		embedder := knowledgebase.NewProviderEmbedder(func(ctx context.Context, texts []string) ([][]float32, error) {
+			ep, key, err := llmService.ResolveEmbedding()
+			if err != nil {
+				return nil, err
+			}
+			return llm.NewClient(ep.APIEndpoint, key).Embed(ctx, ep.Model, ep.Dimensions, texts)
+		}, 1024)
+		kbStore, kerr2 := knowledgebase.Open("./data/cortex.db", embedder)
+		if kerr2 != nil {
+			logger.Warn("cortexdb unavailable", zap.Error(kerr2)) // non-fatal
+		} else {
+			s.kbStore = kbStore
+			llmHandlers.SetCortexProbe(func(ctx context.Context, vec []float32) error {
+				if kbStore == nil || !kbStore.Healthy() {
+					return fmt.Errorf("cortexdb not open")
+				}
+				return nil // full embed->store->recall round-trip lands with the ingest API (next slice)
+			})
+		}
+	}
+
+	// Knowledge service/handlers depend on the (optional) AI store + LLM service.
+	knowledgeService := knowledge.NewService(s.db.DB, s.kbStore, llmServiceRef)
+	knowledgeHandlers := knowledge.NewHandlers(knowledgeService)
 
 	// Health check endpoints (no authentication required)
 	health := s.router.Group("/")
@@ -299,6 +344,20 @@ func (s *Server) setupRoutes() {
 				customers.GET("/:id/users", customerHandlers.ListCustomerUsers)
 			}
 
+			// LLM provider management routes (admin-only).
+			if llmHandlers != nil {
+				llmGroup := protected.Group("/llm/providers")
+				llmGroup.Use(s.adminMiddleware())
+				{
+					llmGroup.GET("", llmHandlers.List)
+					llmGroup.POST("", llmHandlers.Create)
+					llmGroup.GET("/:id", llmHandlers.Get)
+					llmGroup.PUT("/:id", llmHandlers.Update)
+					llmGroup.DELETE("/:id", llmHandlers.Delete)
+					llmGroup.POST("/:id/test", llmHandlers.Test)
+				}
+			}
+
 			// Knowledge base routes
 			knowledge := protected.Group("/knowledge")
 			{
@@ -308,6 +367,15 @@ func (s *Server) setupRoutes() {
 				knowledge.POST("/articles", knowledgeHandlers.CreateKnowledgeArticle)
 				knowledge.PUT("/articles/:id", knowledgeHandlers.UpdateKnowledgeArticle)
 				knowledge.DELETE("/articles/:id", knowledgeHandlers.DeleteKnowledgeArticle)
+
+				// AI: semantic search + RAG ask (any authenticated role).
+				knowledge.POST("/search", knowledgeHandlers.SearchKnowledge)
+				knowledge.POST("/ask", knowledgeHandlers.AskKnowledge)
+
+				// AI: full re-index (admin only).
+				knowledgeAdmin := knowledge.Group("")
+				knowledgeAdmin.Use(s.adminMiddleware())
+				knowledgeAdmin.POST("/reindex", knowledgeHandlers.ReindexKnowledge)
 			}
 
 			// Import/Export routes
@@ -410,6 +478,12 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	}
 
 	logger.Info("Shutting down HTTP server...")
+
+	if s.kbStore != nil {
+		if err := s.kbStore.Close(); err != nil {
+			logger.Warn("failed to close cortexdb store", zap.Error(err))
+		}
+	}
 
 	return s.server.Shutdown(ctx)
 }

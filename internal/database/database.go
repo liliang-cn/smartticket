@@ -5,9 +5,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
-	"gorm.io/driver/sqlite"
+	sqlite "github.com/company/smartticket/internal/database/moderncsqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
@@ -91,14 +92,22 @@ func NewDatabase(cfg *config.DatabaseConfig) (*Database, error) {
 	return database, nil
 }
 
-// openSQLite creates a new SQLite database connection.
+// openSQLite creates a new SQLite database connection (pure-Go modernc driver).
 func openSQLite(dsn string, gormLogger logger.Interface) (*gorm.DB, error) {
-	// SQLite specific configuration (disable foreign keys during migration to prevent constraint issues)
-	dsn = fmt.Sprintf("%s?cache=shared&mode=rwc&_journal_mode=WAL&_foreign_keys=0", dsn)
+	// modernc uses _pragma=NAME(value) syntax. Foreign keys are disabled during
+	// migration (re-enabled by EnableForeignKeys) to avoid constraint churn.
+	// Only wrap a bare filesystem path: leave :memory:, existing file: URIs and
+	// any DSN that already carries query params untouched.
+	if dsn != ":memory:" && !strings.HasPrefix(dsn, "file:") && !strings.Contains(dsn, "?") {
+		dsn = fmt.Sprintf(
+			"file:%s?_pragma=journal_mode(WAL)&_pragma=foreign_keys(0)&_pragma=busy_timeout(5000)",
+			dsn,
+		)
+	}
 
 	return gorm.Open(sqlite.Open(dsn), &gorm.Config{
 		Logger:      gormLogger,
-		PrepareStmt: true, // Prepare statements for better performance
+		PrepareStmt: true,
 	})
 }
 

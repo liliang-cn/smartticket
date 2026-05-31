@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/company/smartticket/internal/models"
+	sqlite "github.com/company/smartticket/internal/database/moderncsqlite"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
