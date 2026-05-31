@@ -6,6 +6,10 @@ import {
   Building2,
   Users,
   ShieldCheck,
+  Package,
+  Layers,
+  Timer,
+  Database,
   LogOut,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
@@ -26,21 +30,32 @@ interface NavItem {
   label: string;
   icon: typeof Ticket;
   soon?: boolean;
+  /** Team-only (admin/engineer/...). Hidden from customer-role users. */
+  team?: boolean;
 }
 
 const NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/tickets", label: "Tickets", icon: Ticket },
   { to: "/knowledge", label: "Knowledge", icon: BookOpen },
-  { to: "/customers", label: "Customers", icon: Building2 },
-  { to: "/users", label: "Users", icon: Users },
-  { to: "/rbac", label: "Access", icon: ShieldCheck },
+  { to: "/customers", label: "Customers", icon: Building2, team: true },
+  { to: "/users", label: "Users", icon: Users, team: true },
+  { to: "/products", label: "Products", icon: Package, team: true },
+  { to: "/services", label: "Services", icon: Layers, team: true },
+  { to: "/sla", label: "SLA", icon: Timer, team: true },
+  { to: "/data", label: "Data", icon: Database, team: true },
+  { to: "/rbac", label: "Access", icon: ShieldCheck, team: true },
 ];
 
 export function AppShell() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const navRef = useReveal<HTMLElement>();
+
+  // Customer-role users see only the customer portal surface (their own
+  // company's tickets + the knowledge base); team users see everything.
+  const isTeam = user?.role !== "customer";
+  const navItems = NAV.filter((item) => isTeam || !item.team);
 
   const initials = (
     (user?.first_name?.[0] ?? user?.username?.[0] ?? user?.email?.[0] ?? "?") +
@@ -66,7 +81,7 @@ export function AppShell() {
         </div>
 
         <nav ref={navRef} className="flex flex-1 flex-col gap-0.5 px-3 py-2">
-          {NAV.map((item) =>
+          {navItems.map((item) =>
             item.soon ? (
               <span
                 key={item.to}

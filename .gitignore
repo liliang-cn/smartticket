@@ -35,12 +35,13 @@ bin/
 *~
 .DS_Store
 
-# Project specific
-data/
-data_dev/
-data_test/
-logs/
-backups/
+# Project specific — anchored to repo root so nested dirs like
+# web/src/features/data/ are not accidentally ignored.
+/data/
+/data_dev/
+/data_test/
+/logs/
+/backups/
 *.db
 *.sqlite
 *.sqlite3
