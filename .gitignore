@@ -148,3 +148,6 @@ Thumbs.db
 .playwright-mcp/
 *.png
 tickets-snap.md
+
+# stray build artifact from `go build ./...`
+/server
