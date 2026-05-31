@@ -29,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/misc";
+import { NotificationBell } from "@/components/notification-bell";
 
 interface NavItem {
   to: string;
@@ -144,6 +145,7 @@ export function AppShell() {
             LINBIT workspace
           </div>
           <div className="flex items-center gap-3">
+          <NotificationBell />
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-full border border-border bg-card/60 py-1 pl-1 pr-3 outline-none transition-colors hover:bg-accent">
