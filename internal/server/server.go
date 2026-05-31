@@ -178,7 +178,7 @@ func (s *Server) setupRoutes() {
 	serviceManagementService := servicemgmt.NewService(s.db.DB)
 	slaService := sla.NewService(s.db.DB)
 	subscriptionService := subscription.NewService(s.db.DB)
-	importExportService := importexport.NewService(s.db.DB)
+	importExportService := importexport.NewService(s.db.DB, s.config.Storage.DataPath)
 	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
 
 	authHandlers := auth.NewHandlers(s.authService)

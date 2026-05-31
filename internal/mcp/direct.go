@@ -54,7 +54,7 @@ func NewDirectBackend(db *gorm.DB, authService *auth.Service, permissionService 
 		product:      product.NewService(db),
 		service:      servicemgmt.NewService(db),
 		sla:          sla.NewService(db),
-		importexport: importexport.NewService(db),
+		importexport: importexport.NewService(db, ""),
 		user:         user.NewService(db, authRepo, authService),
 		customer:     customer.NewService(db),
 		permission:   permissionService,

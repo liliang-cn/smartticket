@@ -2,6 +2,8 @@ package importexport
 
 import (
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/company/smartticket/internal/errors"
@@ -311,18 +313,20 @@ func (h *Handlers) DownloadExportFile(c *gin.Context) {
 		return
 	}
 
-	// TODO: In a real implementation, you would:
-	// 1. Serve the actual file from secure storage
-	// 2. Set appropriate Content-Type header
-	// 3. Set Content-Disposition for download
-	// 4. Log the download for audit
+	// Ensure the file still exists on disk.
+	if _, statErr := os.Stat(job.FilePath); statErr != nil {
+		appErr := errors.NewNotFoundError("export file not found on disk")
+		errors.ErrorHandler(c, appErr)
+		return
+	}
 
-	// For now, return a placeholder response
-	c.JSON(http.StatusOK, gin.H{
-		"success":   true,
-		"message":   "File download functionality not yet implemented",
-		"file_path": job.FilePath,
-	})
+	// Log the download for audit.
+	h.logSecurityEvent(c, "export_file_downloaded", strconv.FormatUint(uint64(jobID), 10))
+
+	filename := filepath.Base(job.FilePath)
+	c.Header("Content-Disposition", `attachment; filename="`+filename+`"`)
+	c.Header("Content-Type", ContentTypeForExt(filepath.Ext(job.FilePath)))
+	c.File(job.FilePath)
 }
 
 // GetImportTemplate returns an import template for the specified type.

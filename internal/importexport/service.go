@@ -4,23 +4,32 @@ import (
 	"encoding/json"
 	"errors"
 	"mime/multipart"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	apperrors "github.com/company/smartticket/internal/errors"
+	"github.com/company/smartticket/internal/logger"
 	"github.com/company/smartticket/internal/models"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 // Service provides import/export operations.
 type Service struct {
-	db *gorm.DB
+	db       *gorm.DB
+	dataPath string
 }
 
-// NewService creates a new import/export service.
-func NewService(db *gorm.DB) *Service {
-	return &Service{db: db}
+// NewService creates a new import/export service. dataPath is the root storage
+// directory; export files are written under <dataPath>/exports/. When empty it
+// defaults to "./data".
+func NewService(db *gorm.DB, dataPath string) *Service {
+	if dataPath == "" {
+		dataPath = "./data"
+	}
+	return &Service{db: db, dataPath: dataPath}
 }
 
 // JobStatus represents the status of an import/export job.
@@ -147,13 +156,17 @@ func (s *Service) CreateImportJob(userID uint, file *multipart.FileHeader, req *
 	return s.getJobResponse(job)
 }
 
-// CreateExportJob creates a new export job.
+// CreateExportJob creates a new export job and runs the export synchronously.
+// Data volumes are small for a single-tenant deployment, so an inline export is
+// simpler and more reliable than a background worker. On success the job is
+// marked completed with FilePath pointing at the generated file; on failure the
+// job is marked failed and the error is returned to the caller.
 func (s *Service) CreateExportJob(userID uint, req *ExportRequest) (*JobResponse, error) {
-	// Create export job
+	now := time.Now()
 	job := &models.ImportExportJob{
 
 		Type:             string(req.Type),
-		Status:           string(JobStatusPending),
+		Status:           string(JobStatusRunning),
 		Progress:         0,
 		TotalRecords:     0,
 		ProcessedRecords: 0,
@@ -163,17 +176,37 @@ func (s *Service) CreateExportJob(userID uint, req *ExportRequest) (*JobResponse
 		FilePath:         "",
 		Configuration:    s.buildExportConfig(req),
 		StartedBy:        userID,
+		StartedAt:        &now,
 	}
 
 	if err := s.db.Create(job).Error; err != nil {
 		return nil, apperrors.NewInternalError("failed to create export job: %w", err)
 	}
 
-	// TODO: In a real implementation, you would:
-	// 1. Start a background goroutine to process the export
-	// 2. Query data based on export type and filters
-	// 3. Generate file in requested format
-	// 4. Update job status and provide download URL
+	if err := s.runExport(job, req); err != nil {
+		// Best-effort cleanup of any partial file.
+		if job.FilePath != "" {
+			_ = os.Remove(job.FilePath)
+		}
+		completedAt := time.Now()
+		job.Status = string(JobStatusFailed)
+		job.Error = err.Error()
+		job.FilePath = ""
+		job.CompletedAt = &completedAt
+		if saveErr := s.db.Save(job).Error; saveErr != nil {
+			logger.Error("failed to persist failed export job", zap.Uint("job_id", job.ID), zap.Error(saveErr))
+		}
+		logger.Error("export job failed", zap.Uint("job_id", job.ID), zap.String("type", job.Type), zap.String("format", job.TargetFormat), zap.Error(err))
+		return nil, err
+	}
+
+	completedAt := time.Now()
+	job.Status = string(JobStatusCompleted)
+	job.Progress = 100
+	job.CompletedAt = &completedAt
+	if err := s.db.Save(job).Error; err != nil {
+		return nil, apperrors.NewInternalError("failed to update export job: %w", err)
+	}
 
 	return s.getJobResponse(job)
 }

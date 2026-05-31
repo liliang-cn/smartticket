@@ -66,7 +66,7 @@ func createMockFileHeader(filename string, size int64) *multipart.FileHeader {
 
 func TestNewService(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	assert.NotNil(t, service)
 	assert.Equal(t, db, service.db)
@@ -74,7 +74,7 @@ func TestNewService(t *testing.T) {
 
 func TestService_CreateImportJob(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	// Setup test data
 	user := createTestUser(t, db)
@@ -174,7 +174,7 @@ func TestService_CreateImportJob(t *testing.T) {
 
 func TestService_CreateExportJob(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	// Setup test data
 	user := createTestUser(t, db)
@@ -214,13 +214,13 @@ func TestService_CreateExportJob(t *testing.T) {
 			expectSuccess: true,
 		},
 		{
-			name: "SQLite export job",
+			name: "Complete + SQLite is unsupported",
 			request: &ExportRequest{
 				Type:         ExportTypeComplete,
 				TargetFormat: FileTypeSQLite,
 				Options:      `{"compress": true}`,
 			},
-			expectSuccess: true,
+			expectedError: "sqlite export not supported for complete",
 		},
 		{
 			name: "XML export job",
@@ -240,7 +240,7 @@ func TestService_CreateExportJob(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, job)
 				assert.Equal(t, string(tt.request.Type), job.Type)
-				assert.Equal(t, string(JobStatusPending), job.Status)
+				assert.Equal(t, string(JobStatusCompleted), job.Status)
 				assert.Equal(t, string(tt.request.TargetFormat), job.TargetFormat)
 				if job.StartedByUser != nil {
 					assert.Equal(t, user.ID, job.StartedByUser.ID)
@@ -273,7 +273,7 @@ func TestService_CreateExportJob(t *testing.T) {
 
 func TestService_GetJob(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	// Setup test data
 	user := createTestUser(t, db)
@@ -336,7 +336,7 @@ func TestService_GetJob(t *testing.T) {
 
 func TestService_ListJobs(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	// Setup test data
 	user := createTestUser(t, db)
@@ -429,7 +429,7 @@ func TestService_ListJobs(t *testing.T) {
 
 func TestService_CancelJob(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	// Setup test data
 	user := createTestUser(t, db)
@@ -517,7 +517,7 @@ func TestService_CancelJob(t *testing.T) {
 
 func TestService_DeleteJob(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	// Setup test data
 	user := createTestUser(t, db)
@@ -581,7 +581,7 @@ func TestService_DeleteJob(t *testing.T) {
 
 func TestService_ValidateFileFormat(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	tests := []struct {
 		name          string
@@ -691,7 +691,7 @@ func TestService_ValidateFileFormat(t *testing.T) {
 
 func TestService_GetJobStats(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	// Setup test data
 	user := createTestUser(t, db)
@@ -760,7 +760,7 @@ func TestService_GetJobStats(t *testing.T) {
 
 func TestService_ConfigurationBuilding(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	t.Run("Build import job configuration", func(t *testing.T) {
 		req := &ImportRequest{
@@ -838,7 +838,7 @@ func TestService_ConfigurationBuilding(t *testing.T) {
 
 func TestService_ErrorHandling(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	user := createTestUser(t, db)
 
@@ -881,7 +881,7 @@ func TestService_ErrorHandling(t *testing.T) {
 // Test sequential operations (changed from concurrent to avoid SQLite WAL issues).
 func TestService_SequentialOperations(t *testing.T) {
 	db := setupTestDB(t)
-	service := NewService(db)
+	service := NewService(db, t.TempDir())
 
 	user := createTestUser(t, db)
 
@@ -928,7 +928,7 @@ func TestService_SequentialOperations(t *testing.T) {
 // Benchmark operations.
 func BenchmarkService_CreateImportJob(b *testing.B) {
 	db := setupTestDB(&testing.T{})
-	service := NewService(db)
+	service := NewService(db, b.TempDir())
 
 	user := createTestUser(&testing.T{}, db)
 
@@ -950,7 +950,7 @@ func BenchmarkService_CreateImportJob(b *testing.B) {
 
 func BenchmarkService_ListJobs(b *testing.B) {
 	db := setupTestDB(&testing.T{})
-	service := NewService(db)
+	service := NewService(db, b.TempDir())
 
 	user := createTestUser(&testing.T{}, db)
 
