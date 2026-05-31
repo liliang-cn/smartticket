@@ -46,26 +46,22 @@ func (h *Handlers) parseRuleID(c *gin.Context) (uint, error) {
 	return uint(ruleID), nil
 }
 
-// getUserInfo extracts user info from context with error handling.
+// getUserInfo extracts the acting user from context. The auth middleware sets
+// user_id/user_role (not a full "user" object), so build a minimal UserInfo
+// from those. The route is already auth+admin gated; this is just a guard.
 func (h *Handlers) getUserInfo(c *gin.Context) (*auth.UserInfo, error) {
-	userInfo, exists := c.Get("user")
-	if !exists {
+	userID := c.GetUint("user_id")
+	if userID == 0 {
 		appErr := apperrors.NewUnauthorizedError("User not authenticated")
 		apperrors.ErrorHandler(c, appErr)
 		return nil, errors.New("user not authenticated")
 	}
-	return userInfo.(*auth.UserInfo), nil
+	return &auth.UserInfo{ID: userID, Role: c.GetString("user_role")}, nil
 }
 
-// parseAndValidateUser extracts user info from context with unified error handling.
+// parseAndValidateUser is an alias of getUserInfo kept for existing call sites.
 func (h *Handlers) parseAndValidateUser(c *gin.Context) (*auth.UserInfo, error) {
-	userInfo, exists := c.Get("user")
-	if !exists {
-		appErr := apperrors.NewUnauthorizedError("User not authenticated")
-		apperrors.ErrorHandler(c, appErr)
-		return nil, errors.New("user not authenticated")
-	}
-	return userInfo.(*auth.UserInfo), nil
+	return h.getUserInfo(c)
 }
 
 // sendPaginatedResponse sends a standardized paginated response.

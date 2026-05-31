@@ -31,15 +31,17 @@ func (h *Handlers) parseServiceID(c *gin.Context) (uint, error) {
 	return uint(serviceID), nil
 }
 
-// getUserInfo extracts user info from context with error handling.
+// getUserInfo extracts the acting user from context. The auth middleware sets
+// user_id/user_role (not a full "user" object), so build a minimal UserInfo
+// from those. The route is already auth+admin gated; this is just a guard.
 func (h *Handlers) getUserInfo(c *gin.Context) (*auth.UserInfo, error) {
-	userInfo, exists := c.Get("user")
-	if !exists {
+	userID := c.GetUint("user_id")
+	if userID == 0 {
 		appErr := apperrors.NewUnauthorizedError("User not authenticated")
 		apperrors.ErrorHandler(c, appErr)
 		return nil, errors.New("user not authenticated")
 	}
-	return userInfo.(*auth.UserInfo), nil
+	return &auth.UserInfo{ID: userID, Role: c.GetString("user_role")}, nil
 }
 
 // logServiceEvent logs a service-related security event.
@@ -72,7 +74,7 @@ func (h *Handlers) CreateService(c *gin.Context) {
 	}
 
 	// Ensure the user is authenticated
-	if _, exists := c.Get("user"); !exists {
+	if c.GetUint("user_id") == 0 {
 		appErr := apperrors.NewUnauthorizedError("User not authenticated")
 		apperrors.ErrorHandler(c, appErr)
 		return
@@ -128,7 +130,7 @@ func (h *Handlers) ListServices(c *gin.Context) {
 	}
 
 	// Ensure the user is authenticated
-	if _, exists := c.Get("user"); !exists {
+	if c.GetUint("user_id") == 0 {
 		appErr := apperrors.NewUnauthorizedError("User not authenticated")
 		apperrors.ErrorHandler(c, appErr)
 		return
