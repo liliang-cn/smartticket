@@ -21,11 +21,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { relativeTime } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
 
 const ALL = "__all__";
 
 export function TicketsListPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  // Customers see only their own org's tickets, so the customer column is
+  // redundant for them; show it to team users who triage across customers.
+  const isTeam = user?.role !== "customer";
+  const colCount = isTeam ? 6 : 5;
   const [filters, setFilters] = useState<TicketFilters>({
     page: 1,
     page_size: 15,
@@ -99,6 +105,7 @@ export function TicketsListPage() {
               <th className="px-4 py-3 font-medium">Ticket</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Priority</th>
+              {isTeam && <th className="px-4 py-3 font-medium">Customer</th>}
               <th className="px-4 py-3 font-medium">Requester</th>
               <th className="px-4 py-3 text-right font-medium">Updated</th>
             </tr>
@@ -107,7 +114,7 @@ export function TicketsListPage() {
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <tr key={i} className="border-b border-border/60">
-                  {Array.from({ length: 5 }).map((__, j) => (
+                  {Array.from({ length: colCount }).map((__, j) => (
                     <td key={j} className="px-4 py-3.5">
                       <Skeleton className="h-4 w-full" />
                     </td>
@@ -137,6 +144,11 @@ export function TicketsListPage() {
                   <td className="px-4 py-3.5">
                     <PriorityBadge priority={t.priority} />
                   </td>
+                  {isTeam && (
+                    <td className="px-4 py-3.5 text-muted-foreground">
+                      {t.customer_name || "—"}
+                    </td>
+                  )}
                   <td className="px-4 py-3.5 text-muted-foreground">
                     {t.requester_name || "—"}
                   </td>
@@ -147,7 +159,7 @@ export function TicketsListPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-4 py-16 text-center">
+                <td colSpan={colCount} className="px-4 py-16 text-center">
                   <Inbox className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
                     No tickets match these filters.

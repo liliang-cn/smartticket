@@ -86,6 +86,8 @@ type TicketResponse struct {
 	Type            string                 `json:"type"`
 	ProductID       *uint                  `json:"product_id"`
 	ServiceID       *uint                  `json:"service_id"`
+	CustomerID      *uint                  `json:"customer_id"`
+	CustomerName    string                 `json:"customer_name,omitempty"`
 	AssignedTo      *uint                  `json:"assigned_to"`
 	AssignedUser    *UserInfo              `json:"assigned_user,omitempty"`
 	RequesterName   string                 `json:"requester_name"`
@@ -197,7 +199,7 @@ func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicket
 func (s *Service) GetTicket(actor authz.Actor, ticketID uint) (*TicketResponse, error) {
 	var ticket models.Ticket
 	if err := scopeToActor(s.db.Where("id = ?", ticketID), actor).
-		Preload("AssignedUser").
+		Preload("AssignedUser").Preload("Customer").
 		First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("ticket")
@@ -252,7 +254,7 @@ func (s *Service) ListTickets(actor authz.Actor, page, pageSize int, filters map
 	}
 
 	// Get paginated results with associations
-	if err := query.Preload("AssignedUser").
+	if err := query.Preload("AssignedUser").Preload("Customer").
 		Offset(offset).
 		Limit(pageSize).
 		Order("created_at DESC").
@@ -394,7 +396,7 @@ func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, re
 	}
 
 	// Reload with associations
-	if err := s.db.Preload("AssignedUser").
+	if err := s.db.Preload("AssignedUser").Preload("Customer").
 		First(&ticket, ticket.ID).Error; err != nil {
 		return nil, fmt.Errorf("failed to reload ticket: %w", err)
 	}
@@ -759,6 +761,7 @@ func (s *Service) ticketToResponse(ticket *models.Ticket) *TicketResponse {
 		Type:           ticket.Type,
 		ProductID:      ticket.ProductID,
 		ServiceID:      ticket.ServiceID,
+		CustomerID:     ticket.CustomerID,
 		AssignedTo:     ticket.AssignedTo,
 		RequesterName:  ticket.RequesterName,
 		RequesterEmail: ticket.RequesterEmail,
@@ -769,6 +772,11 @@ func (s *Service) ticketToResponse(ticket *models.Ticket) *TicketResponse {
 		ResolvedAt:     ticket.ResolvedAt,
 		DueDate:        ticket.DueDate,
 		SLAStatus:      ticket.SLAStatus,
+	}
+
+	// Add the owning customer organization's name when the relation is loaded.
+	if ticket.Customer != nil {
+		response.CustomerName = ticket.Customer.Name
 	}
 
 	// Add assigned user info (role would be determined by auth service)

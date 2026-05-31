@@ -249,6 +249,10 @@ export function TicketDetailPage() {
               value={<PriorityBadge priority={ticket.severity as never} />}
             />
             <Separator />
+            <MetaRow
+              label="Customer"
+              value={ticket.customer_name || (ticket.customer_id ? `#${ticket.customer_id}` : "—")}
+            />
             <MetaRow label="Requester" value={ticket.requester_name || "—"} />
             <MetaRow
               label="Email"

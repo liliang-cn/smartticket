@@ -54,6 +54,7 @@ export interface Ticket {
   product_id?: number | null;
   service_id?: number | null;
   customer_id?: number | null;
+  customer_name?: string;
   assigned_to?: number | null;
   assigned_user?: UserInfo | null;
   requester_name: string;

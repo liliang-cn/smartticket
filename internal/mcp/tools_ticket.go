@@ -35,6 +35,8 @@ type ticketResponse struct {
 	Type            string                 `json:"type,omitempty" jsonschema:"the ticket type"`
 	ProductID       *uint                  `json:"product_id,omitempty" jsonschema:"associated product ID, if any"`
 	ServiceID       *uint                  `json:"service_id,omitempty" jsonschema:"associated service ID, if any"`
+	CustomerID      *uint                  `json:"customer_id,omitempty" jsonschema:"the owning customer organization's ID, if any"`
+	CustomerName    string                 `json:"customer_name,omitempty" jsonschema:"the owning customer organization's name, if any"`
 	AssignedTo      *uint                  `json:"assigned_to,omitempty" jsonschema:"the user ID the ticket is assigned to, if any"`
 	RequesterName   string                 `json:"requester_name" jsonschema:"the requester's name"`
 	RequesterEmail  string                 `json:"requester_email" jsonschema:"the requester's email address"`
@@ -70,6 +72,8 @@ func ticketResponseFrom(r *ticket.TicketResponse) ticketResponse {
 		Type:            r.Type,
 		ProductID:       r.ProductID,
 		ServiceID:       r.ServiceID,
+		CustomerID:      r.CustomerID,
+		CustomerName:    r.CustomerName,
 		AssignedTo:      r.AssignedTo,
 		RequesterName:   r.RequesterName,
 		RequesterEmail:  r.RequesterEmail,
