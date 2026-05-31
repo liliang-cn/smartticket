@@ -39,6 +39,10 @@ var permissionCatalog = []permissionDef{
 	{"rbac:write", "Manage roles/permissions", "rbac"},
 	{"llm:read", "Read LLM providers", "llm"},
 	{"llm:write", "Manage LLM providers", "llm"},
+	{"subscription:read", "Read subscriptions", "subscription"},
+	{"subscription:write", "Manage subscriptions", "subscription"},
+	{"settings:read", "Read deployment settings/branding", "settings"},
+	{"settings:write", "Manage deployment settings/branding", "settings"},
 	{"admin:system", "Full system administration", "system"},
 }
 
@@ -57,18 +61,22 @@ var roleGrants = map[string][]string{
 		"user:read",
 		"rbac:read",
 		"llm:read",
+		"subscription:read", "subscription:write",
+		"settings:read",
 	},
 	"support": {
 		"ticket:read", "ticket:write",
 		"knowledge:read", "knowledge:write",
 		"customer:read",
 		"product:read", "service:read", "sla:read",
+		"subscription:read",
 	},
 	"sales": {
 		"customer:read", "customer:write",
 		"ticket:read",
 		"knowledge:read",
 		"product:read", "service:read",
+		"subscription:read",
 	},
 	"customer": {
 		"ticket:read", "ticket:write",

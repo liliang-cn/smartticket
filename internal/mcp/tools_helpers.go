@@ -107,6 +107,13 @@ func registerTool[In, Out any](
 	})
 }
 
+// deleteOutput is a small shared result type for delete-style tools across the
+// newer domain toolsets.
+type deleteOutput struct {
+	ID      uint `json:"id" jsonschema:"the affected record ID"`
+	Deleted bool `json:"deleted" jsonschema:"true when the record was deleted"`
+}
+
 // logToolCall emits one structured log line per tool invocation, recording the
 // tool name, acting user, latency, and outcome (ok/error/denied).
 func logToolCall(tool string, userID uint, latency time.Duration, outcome string) {

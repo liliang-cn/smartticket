@@ -13,13 +13,16 @@ import (
 
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
+	"github.com/company/smartticket/internal/llm"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/product"
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/sla"
+	"github.com/company/smartticket/internal/subscription"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
 )
@@ -137,6 +140,36 @@ type Backend interface {
 	UpdateCustomer(customerID uint, req *customer.UpdateCustomerRequest) (*customer.CustomerResponse, error)
 	DeleteCustomer(customerID uint) error
 	ListCustomerUsers(customerID uint) ([]customer.CustomerUserResponse, error)
+
+	// --- Subscription domain --- (team-only; gated by subscription:read/write)
+	CreateSubscription(req *subscription.CreateSubscriptionRequest) (*subscription.SubscriptionResponse, error)
+	GetSubscription(id uint) (*subscription.SubscriptionResponse, error)
+	ListSubscriptions(req *subscription.ListSubscriptionsRequest) ([]subscription.SubscriptionResponse, int64, error)
+	UpdateSubscription(id uint, req *subscription.UpdateSubscriptionRequest) (*subscription.SubscriptionResponse, error)
+	DeleteSubscription(id uint) error
+
+	// --- Notification domain --- (each tool acts on the calling user's own notifications)
+	ListNotifications(userID uint, unreadOnly bool, page, pageSize int) ([]models.Notification, int64, error)
+	UnreadNotificationCount(userID uint) (int64, error)
+	MarkNotificationRead(userID, id uint) error
+	MarkAllNotificationsRead(userID uint) error
+
+	// --- LLM provider domain --- (gated by llm:read/write)
+	ListLLMProviders() ([]models.LLMProvider, error)
+	GetLLMProvider(id uint) (*models.LLMProvider, error)
+	CreateLLMProvider(in llm.CreateProviderInput) (*models.LLMProvider, error)
+	UpdateLLMProvider(id uint, in llm.CreateProviderInput) (*models.LLMProvider, error)
+	DeleteLLMProvider(id uint) error
+	TestLLMProvider(ctx context.Context, id uint) (llm.TestResult, error)
+
+	// --- Branding / settings domain --- (read open to any session; writes gated by settings:write)
+	GetBranding() (*models.Branding, error)
+	UpdateBranding(req *branding.UpdateRequest) (*models.Branding, error)
+	DeleteBrandingLogo() (*models.Branding, error)
+
+	// --- Attachment domain --- (metadata only; binary upload/download is not exposed over MCP)
+	ListAttachments(actor authz.Actor, ticketID uint) ([]models.Attachment, error)
+	GetAttachment(actor authz.Actor, attachmentID uint) (*models.Attachment, error)
 }
 
 // Session holds the authenticated identity and effective permission set for a

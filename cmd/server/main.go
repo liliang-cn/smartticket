@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"log"
@@ -23,6 +24,7 @@ import (
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/database"
+	"github.com/company/smartticket/internal/llm"
 	"github.com/company/smartticket/internal/logger"
 	mcpserver "github.com/company/smartticket/internal/mcp"
 	"github.com/company/smartticket/internal/models"
@@ -548,7 +550,21 @@ func runMCP(cmd *cobra.Command, _ []string) error {
 	)
 	permissionService := services.NewPermissionService(db.DB)
 
-	backend := mcpserver.NewDirectBackend(db.DB, authService, permissionService)
+	// Build the LLM service when an encryption key is available (mirrors
+	// internal/server). Without it, the LLM MCP tools report "not configured".
+	var llmService *llm.Service
+	secretKey, kerr := llm.LoadKey(cfg.SecretKeyRaw)
+	if kerr != nil {
+		sum := sha256.Sum256([]byte(cfg.JWT.Secret))
+		secretKey = sum[:]
+	}
+	if cipher, cerr := llm.NewCipher(secretKey); cerr != nil {
+		logger.Warn("llm cipher init failed; LLM MCP tools disabled", zap.Error(cerr))
+	} else {
+		llmService = llm.NewService(db.DB, cipher)
+	}
+
+	backend := mcpserver.NewDirectBackend(db.DB, authService, permissionService, llmService, cfg.Storage.DataPath)
 	authn := mcpserver.NewAuthenticator(authService, permissionService)
 
 	// Parse toolsets flag.

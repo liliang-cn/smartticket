@@ -8,13 +8,16 @@ import (
 
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
+	"github.com/company/smartticket/internal/llm"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/product"
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/sla"
+	"github.com/company/smartticket/internal/subscription"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
 )
@@ -501,4 +504,114 @@ func (m *MockBackend) DeleteCustomer(customerID uint) error {
 func (m *MockBackend) ListCustomerUsers(customerID uint) ([]customer.CustomerUserResponse, error) {
 	args := m.Called(customerID)
 	return getSlice[customer.CustomerUserResponse](args, 0), args.Error(1)
+}
+
+// --- Subscription domain ---
+
+func (m *MockBackend) CreateSubscription(req *subscription.CreateSubscriptionRequest) (*subscription.SubscriptionResponse, error) {
+	args := m.Called(req)
+	return getPtr[subscription.SubscriptionResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) GetSubscription(id uint) (*subscription.SubscriptionResponse, error) {
+	args := m.Called(id)
+	return getPtr[subscription.SubscriptionResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) ListSubscriptions(req *subscription.ListSubscriptionsRequest) ([]subscription.SubscriptionResponse, int64, error) {
+	args := m.Called(req)
+	return getSlice[subscription.SubscriptionResponse](args, 0), int64(args.Int(1)), args.Error(2)
+}
+
+func (m *MockBackend) UpdateSubscription(id uint, req *subscription.UpdateSubscriptionRequest) (*subscription.SubscriptionResponse, error) {
+	args := m.Called(id, req)
+	return getPtr[subscription.SubscriptionResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) DeleteSubscription(id uint) error {
+	return m.Called(id).Error(0)
+}
+
+// --- Notification domain ---
+
+func (m *MockBackend) ListNotifications(userID uint, unreadOnly bool, page, pageSize int) ([]models.Notification, int64, error) {
+	args := m.Called(userID, unreadOnly, page, pageSize)
+	return getSlice[models.Notification](args, 0), int64(args.Int(1)), args.Error(2)
+}
+
+func (m *MockBackend) UnreadNotificationCount(userID uint) (int64, error) {
+	args := m.Called(userID)
+	return int64(args.Int(0)), args.Error(1)
+}
+
+func (m *MockBackend) MarkNotificationRead(userID, id uint) error {
+	return m.Called(userID, id).Error(0)
+}
+
+func (m *MockBackend) MarkAllNotificationsRead(userID uint) error {
+	return m.Called(userID).Error(0)
+}
+
+// --- LLM provider domain ---
+
+func (m *MockBackend) ListLLMProviders() ([]models.LLMProvider, error) {
+	args := m.Called()
+	return getSlice[models.LLMProvider](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) GetLLMProvider(id uint) (*models.LLMProvider, error) {
+	args := m.Called(id)
+	return getPtr[models.LLMProvider](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) CreateLLMProvider(in llm.CreateProviderInput) (*models.LLMProvider, error) {
+	args := m.Called(in)
+	return getPtr[models.LLMProvider](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) UpdateLLMProvider(id uint, in llm.CreateProviderInput) (*models.LLMProvider, error) {
+	args := m.Called(id, in)
+	return getPtr[models.LLMProvider](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) DeleteLLMProvider(id uint) error {
+	return m.Called(id).Error(0)
+}
+
+func (m *MockBackend) TestLLMProvider(ctx context.Context, id uint) (llm.TestResult, error) {
+	args := m.Called(ctx, id)
+	var res llm.TestResult
+	if v := args.Get(0); v != nil {
+		res = v.(llm.TestResult)
+	}
+	return res, args.Error(1)
+}
+
+// --- Branding domain ---
+
+func (m *MockBackend) GetBranding() (*models.Branding, error) {
+	args := m.Called()
+	return getPtr[models.Branding](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) UpdateBranding(req *branding.UpdateRequest) (*models.Branding, error) {
+	args := m.Called(req)
+	return getPtr[models.Branding](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) DeleteBrandingLogo() (*models.Branding, error) {
+	args := m.Called()
+	return getPtr[models.Branding](args, 0), args.Error(1)
+}
+
+// --- Attachment domain ---
+
+func (m *MockBackend) ListAttachments(_ authz.Actor, ticketID uint) ([]models.Attachment, error) {
+	args := m.Called(ticketID)
+	return getSlice[models.Attachment](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) GetAttachment(_ authz.Actor, attachmentID uint) (*models.Attachment, error) {
+	args := m.Called(attachmentID)
+	return getPtr[models.Attachment](args, 0), args.Error(1)
 }

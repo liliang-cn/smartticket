@@ -6,17 +6,22 @@ import (
 
 	"gorm.io/gorm"
 
+	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/customer"
+	apperrors "github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
+	"github.com/company/smartticket/internal/llm"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/notification"
 	"github.com/company/smartticket/internal/product"
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/services"
 	"github.com/company/smartticket/internal/sla"
+	"github.com/company/smartticket/internal/subscription"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
 )
@@ -34,19 +39,29 @@ type DirectBackend struct {
 	user         *user.Service
 	customer     *customer.Service
 	permission   *services.PermissionService
+	subscription *subscription.Service
+	notification *notification.Service
+	branding     *branding.Service
+	attachment   *attachment.Service
+	// llm may be nil when the deployment has no encryption key configured; the
+	// LLM-domain methods then return a clean "not configured" error.
+	llm *llm.Service
 }
 
 // NewDirectBackend constructs a DirectBackend, wiring up each domain service the
 // same way internal/server does. It needs the *gorm.DB plus the shared
-// auth.Service so the user service can reuse it for token/user info.
-func NewDirectBackend(db *gorm.DB, authService *auth.Service, permissionService *services.PermissionService) *DirectBackend {
+// auth.Service (so the user service can reuse it for token/user info), an
+// optional *llm.Service (nil disables the LLM tools), and the storage dataPath
+// used by branding/attachment file operations.
+func NewDirectBackend(db *gorm.DB, authService *auth.Service, permissionService *services.PermissionService, llmService *llm.Service, dataPath string) *DirectBackend {
 	slaCalculator := sla.NewCalculator(db)
 	authRepo := auth.NewRepository(db)
 
 	// Wire in-app notifications so ticket actions performed via MCP (e.g. an
 	// agent posting a reply) emit notifications just like the REST path.
+	notifSvc := notification.NewService(db)
 	ticketSvc := ticket.NewService(db, slaCalculator)
-	ticketSvc.SetNotifier(notification.NewService(db))
+	ticketSvc.SetNotifier(notifSvc)
 
 	return &DirectBackend{
 		ticket:       ticketSvc,
@@ -54,10 +69,15 @@ func NewDirectBackend(db *gorm.DB, authService *auth.Service, permissionService 
 		product:      product.NewService(db),
 		service:      servicemgmt.NewService(db),
 		sla:          sla.NewService(db),
-		importexport: importexport.NewService(db, ""),
+		importexport: importexport.NewService(db, dataPath),
 		user:         user.NewService(db, authRepo, authService),
 		customer:     customer.NewService(db),
 		permission:   permissionService,
+		subscription: subscription.NewService(db),
+		notification: notifSvc,
+		branding:     branding.NewService(db, dataPath),
+		attachment:   attachment.NewService(db, dataPath, 0, nil),
+		llm:          llmService,
 	}
 }
 
@@ -421,6 +441,120 @@ func (b *DirectBackend) DeleteCustomer(customerID uint) error {
 
 func (b *DirectBackend) ListCustomerUsers(customerID uint) ([]customer.CustomerUserResponse, error) {
 	return b.customer.ListCustomerUsers(customerID)
+}
+
+// --- Subscription domain ---
+
+func (b *DirectBackend) CreateSubscription(req *subscription.CreateSubscriptionRequest) (*subscription.SubscriptionResponse, error) {
+	return b.subscription.Create(req)
+}
+
+func (b *DirectBackend) GetSubscription(id uint) (*subscription.SubscriptionResponse, error) {
+	return b.subscription.Get(id)
+}
+
+func (b *DirectBackend) ListSubscriptions(req *subscription.ListSubscriptionsRequest) ([]subscription.SubscriptionResponse, int64, error) {
+	return b.subscription.List(req)
+}
+
+func (b *DirectBackend) UpdateSubscription(id uint, req *subscription.UpdateSubscriptionRequest) (*subscription.SubscriptionResponse, error) {
+	return b.subscription.Update(id, req)
+}
+
+func (b *DirectBackend) DeleteSubscription(id uint) error {
+	return b.subscription.Delete(id)
+}
+
+// --- Notification domain ---
+
+func (b *DirectBackend) ListNotifications(userID uint, unreadOnly bool, page, pageSize int) ([]models.Notification, int64, error) {
+	return b.notification.List(userID, unreadOnly, page, pageSize)
+}
+
+func (b *DirectBackend) UnreadNotificationCount(userID uint) (int64, error) {
+	return b.notification.UnreadCount(userID)
+}
+
+func (b *DirectBackend) MarkNotificationRead(userID, id uint) error {
+	return b.notification.MarkRead(userID, id)
+}
+
+func (b *DirectBackend) MarkAllNotificationsRead(userID uint) error {
+	return b.notification.MarkAllRead(userID)
+}
+
+// --- LLM provider domain ---
+
+// errLLMUnavailable is returned when LLM tools are invoked but no encryption key
+// was configured at startup (so the provider store cannot be opened safely).
+func (b *DirectBackend) errLLMUnavailable() error {
+	return apperrors.NewValidationError("LLM provider management is not available: no encryption key configured on this server")
+}
+
+func (b *DirectBackend) ListLLMProviders() ([]models.LLMProvider, error) {
+	if b.llm == nil {
+		return nil, b.errLLMUnavailable()
+	}
+	return b.llm.List()
+}
+
+func (b *DirectBackend) GetLLMProvider(id uint) (*models.LLMProvider, error) {
+	if b.llm == nil {
+		return nil, b.errLLMUnavailable()
+	}
+	return b.llm.Get(id)
+}
+
+func (b *DirectBackend) CreateLLMProvider(in llm.CreateProviderInput) (*models.LLMProvider, error) {
+	if b.llm == nil {
+		return nil, b.errLLMUnavailable()
+	}
+	return b.llm.Create(in)
+}
+
+func (b *DirectBackend) UpdateLLMProvider(id uint, in llm.CreateProviderInput) (*models.LLMProvider, error) {
+	if b.llm == nil {
+		return nil, b.errLLMUnavailable()
+	}
+	return b.llm.Update(id, in)
+}
+
+func (b *DirectBackend) DeleteLLMProvider(id uint) error {
+	if b.llm == nil {
+		return b.errLLMUnavailable()
+	}
+	return b.llm.Delete(id)
+}
+
+func (b *DirectBackend) TestLLMProvider(ctx context.Context, id uint) (llm.TestResult, error) {
+	if b.llm == nil {
+		return llm.TestResult{}, b.errLLMUnavailable()
+	}
+	return b.llm.TestProvider(ctx, id, nil)
+}
+
+// --- Branding / settings domain ---
+
+func (b *DirectBackend) GetBranding() (*models.Branding, error) {
+	return b.branding.Get()
+}
+
+func (b *DirectBackend) UpdateBranding(req *branding.UpdateRequest) (*models.Branding, error) {
+	return b.branding.Update(req)
+}
+
+func (b *DirectBackend) DeleteBrandingLogo() (*models.Branding, error) {
+	return b.branding.DeleteLogo()
+}
+
+// --- Attachment domain ---
+
+func (b *DirectBackend) ListAttachments(actor authz.Actor, ticketID uint) ([]models.Attachment, error) {
+	return b.attachment.List(actor, ticketID)
+}
+
+func (b *DirectBackend) GetAttachment(actor authz.Actor, attachmentID uint) (*models.Attachment, error) {
+	return b.attachment.Get(actor, attachmentID)
 }
 
 // Ensure DirectBackend satisfies the Backend interface.
