@@ -60,6 +60,11 @@ func (s *Store) SaveArticle(ctx context.Context, id uint, title, content, source
 		Content:     content,
 		SourceURL:   sourceURL,
 		Collection:  collection,
+		// Richer chunks for technical docs (chunk size is in words). The
+		// sliding-window chunker (cortexdb v2.20.3+) keeps these coherent;
+		// the overlap preserves continuity across chunk boundaries.
+		ChunkSize:    220,
+		ChunkOverlap: 40,
 	})
 	if err != nil {
 		return fmt.Errorf("save knowledge article %d: %w", id, err)
