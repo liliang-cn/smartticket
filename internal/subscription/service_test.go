@@ -152,3 +152,28 @@ func TestDelete(t *testing.T) {
 	_, err = svc.Get(created.ID)
 	require.Error(t, err)
 }
+
+func TestCreateFlexibleBillingUnits(t *testing.T) {
+	svc, customer, product, _ := setupTestService(t)
+
+	// Quantity-based units count the node/seat/etc value as total_units.
+	for _, unit := range []string{"per_seat", "per_user", "per_agent", "per_device", "per_core", "per_instance", "per_site", "per_gb", "per_request", "usage"} {
+		resp, err := svc.Create(&CreateSubscriptionRequest{
+			CustomerID: customer.ID, ProductID: product.ID,
+			BillingUnit: unit, NodeCount: 7,
+		})
+		require.NoErrorf(t, err, "unit %s should be valid", unit)
+		require.Equal(t, unit, resp.BillingUnit)
+		require.Equalf(t, 7, resp.TotalUnits, "unit %s: total_units should equal the quantity", unit)
+	}
+
+	// Single-unit billing (flat / per_cluster) always totals 1 regardless of quantity.
+	for _, unit := range []string{"flat", "per_cluster"} {
+		resp, err := svc.Create(&CreateSubscriptionRequest{
+			CustomerID: customer.ID, ProductID: product.ID,
+			BillingUnit: unit, NodeCount: 50,
+		})
+		require.NoErrorf(t, err, "unit %s should be valid", unit)
+		require.Equalf(t, 1, resp.TotalUnits, "unit %s: total_units should be 1", unit)
+	}
+}

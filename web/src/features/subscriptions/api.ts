@@ -26,7 +26,7 @@ export interface CreateSubscriptionInput {
   product_id: number;
   sla_template_id?: number | null;
   plan?: string;
-  billing_unit?: "per_node" | "per_cluster" | "per_seat" | "per_user" | "per_agent" | "per_device" | "flat";
+  billing_unit?: string;
   node_count?: number;
   billing_period?: "annual" | "monthly";
   starts_at?: string;

@@ -3,6 +3,7 @@ package subscription
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -99,22 +100,35 @@ const (
 	statusCancelled       = "cancelled"
 )
 
-// billingUnits is the generic set of supported billing units. It deliberately
-// covers both infrastructure products (per_node / per_cluster) and SaaS-style
-// products (per_seat / per_user / per_agent) plus a flat single-unit option, so
-// the catalog is not tied to any one product shape.
+// billingUnits is the generic set of supported billing units. It covers the
+// common commercial models so the catalog is not tied to any one product shape:
+//
+//	infrastructure : per_node, per_cluster, per_core, per_instance
+//	SaaS / users   : per_seat, per_user, per_agent
+//	assets / scope : per_device, per_site
+//	capacity/usage : per_gb, per_request, usage
+//	whole product  : flat
+//
+// The subscription's quantity (NodeCount) is interpreted per unit (seats, cores,
+// GB, requests, …). The frontend mirrors this list; keep them in sync.
 var billingUnits = map[string]bool{
 	billingUnitPerNode:    true,
 	billingUnitPerCluster: true,
+	"per_core":            true,
+	"per_instance":        true,
 	"per_seat":            true,
 	"per_user":            true,
 	"per_agent":           true,
 	"per_device":          true,
+	"per_site":            true,
+	"per_gb":              true,
+	"per_request":         true,
+	"usage":               true,
 	"flat":                true,
 }
 
 // singleUnitBilling marks units that always bill as one unit regardless of the
-// node/seat count (used to derive total_units).
+// quantity (used to derive total_units).
 var singleUnitBilling = map[string]bool{
 	billingUnitPerCluster: true,
 	"flat":                true,
@@ -122,6 +136,17 @@ var singleUnitBilling = map[string]bool{
 
 func isValidBillingUnit(v string) bool {
 	return billingUnits[v]
+}
+
+// supportedBillingUnits returns the sorted list of valid billing-unit codes,
+// used in validation error messages so they stay in sync with billingUnits.
+func supportedBillingUnits() string {
+	units := make([]string, 0, len(billingUnits))
+	for u := range billingUnits {
+		units = append(units, u)
+	}
+	sort.Strings(units)
+	return strings.Join(units, ", ")
 }
 
 func isValidBillingPeriod(v string) bool {
@@ -176,7 +201,7 @@ func (s *Service) Create(req *CreateSubscriptionRequest) (*SubscriptionResponse,
 		billingUnit = billingUnitPerNode
 	}
 	if !isValidBillingUnit(billingUnit) {
-		return nil, apperrors.NewInvalidInputError("billing_unit", "must be one of per_node, per_cluster, per_seat, per_user, per_agent, per_device, flat")
+		return nil, apperrors.NewInvalidInputError("billing_unit", "must be one of: "+supportedBillingUnits())
 	}
 
 	billingPeriod := strings.TrimSpace(req.BillingPeriod)
@@ -322,7 +347,7 @@ func (s *Service) Update(id uint, req *UpdateSubscriptionRequest) (*Subscription
 	if req.BillingUnit != nil {
 		v := strings.TrimSpace(*req.BillingUnit)
 		if !isValidBillingUnit(v) {
-			return nil, apperrors.NewInvalidInputError("billing_unit", "must be one of per_node, per_cluster, per_seat, per_user, per_agent, per_device, flat")
+			return nil, apperrors.NewInvalidInputError("billing_unit", "must be one of: "+supportedBillingUnits())
 		}
 		subscription.BillingUnit = v
 	}

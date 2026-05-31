@@ -68,20 +68,32 @@ function plusOneYearISODate(): string {
 
 // ── Create dialog ─────────────────────────────────────────────────────────────
 
+// BILLING_UNITS is the single source of truth for the form's unit options. It
+// mirrors the backend's billingUnits set (internal/subscription). `single` marks
+// units that always bill as one unit (so the quantity field is hidden).
+export const BILLING_UNITS: { value: string; label: string; single?: boolean }[] = [
+  { value: "per_node", label: "Per node" },
+  { value: "per_cluster", label: "Per cluster", single: true },
+  { value: "per_core", label: "Per core" },
+  { value: "per_instance", label: "Per instance" },
+  { value: "per_seat", label: "Per seat" },
+  { value: "per_user", label: "Per user" },
+  { value: "per_agent", label: "Per agent" },
+  { value: "per_device", label: "Per device" },
+  { value: "per_site", label: "Per site" },
+  { value: "per_gb", label: "Per GB" },
+  { value: "per_request", label: "Per request" },
+  { value: "usage", label: "Usage / metered" },
+  { value: "flat", label: "Flat fee", single: true },
+];
+const SINGLE_UNITS = new Set(BILLING_UNITS.filter((u) => u.single).map((u) => u.value));
+
 const schema = z.object({
   customer_id: z.string().min(1, "Customer is required"),
   product_id: z.string().min(1, "Product is required"),
   sla_template_id: z.string().optional(),
   plan: z.string().optional(),
-  billing_unit: z.enum([
-    "per_node",
-    "per_cluster",
-    "per_seat",
-    "per_user",
-    "per_agent",
-    "per_device",
-    "flat",
-  ]),
+  billing_unit: z.string().min(1, "Billing unit is required"),
   node_count: z.string().optional(),
   billing_period: z.enum(["annual", "monthly"]),
   starts_at: z.string().min(1, "Start date is required"),
@@ -275,25 +287,25 @@ function SubscriptionFormDialog() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="per_node">Per node</SelectItem>
-                  <SelectItem value="per_cluster">Per cluster</SelectItem>
-                  <SelectItem value="per_seat">Per seat</SelectItem>
-                  <SelectItem value="per_user">Per user</SelectItem>
-                  <SelectItem value="per_agent">Per agent</SelectItem>
-                  <SelectItem value="per_device">Per device</SelectItem>
-                  <SelectItem value="flat">Flat</SelectItem>
+                  {BILLING_UNITS.map((u) => (
+                    <SelectItem key={u.value} value={u.value}>
+                      {u.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="s-nodes">Node count</Label>
-              <Input
-                id="s-nodes"
-                type="number"
-                placeholder="3"
-                {...register("node_count")}
-              />
-            </div>
+            {!SINGLE_UNITS.has(watch("billing_unit")) && (
+              <div className="space-y-1.5">
+                <Label htmlFor="s-nodes">Quantity</Label>
+                <Input
+                  id="s-nodes"
+                  type="number"
+                  placeholder="3"
+                  {...register("node_count")}
+                />
+              </div>
+            )}
             <div className="space-y-1.5">
               <Label>Billing period</Label>
               <Select
