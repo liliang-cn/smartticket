@@ -1,6 +1,12 @@
 package llm
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
 	"testing"
 
 	"github.com/glebarez/sqlite"
@@ -10,7 +16,11 @@ import (
 )
 
 func newTestService(t *testing.T) *Service {
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	// Unique shared-cache name per test: shared across this test's pooled
+	// connections, but isolated from every other test so state cannot leak
+	// (which previously broke -shuffle=on runs).
+	dsn := fmt.Sprintf("file:%s?mode=memory&cache=shared", t.Name())
+	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,4 +90,138 @@ func TestMaskedKey(t *testing.T) {
 	if MaskKey("") != "" {
 		t.Fatal("empty stays empty")
 	}
+	if MaskKey("abc") != "****" {
+		t.Fatal("short key must be ****")
+	}
+}
+
+func TestListGetDelete(t *testing.T) {
+	s := newTestService(t)
+	p1, err := s.Create(CreateProviderInput{
+		Name: "first", ProviderType: "openai-compatible", APIEndpoint: "https://a.example",
+		APIKey: "sk-a", Model: "m1", TaskTypes: []string{"chat"}, IsEnabled: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	p2, err := s.Create(CreateProviderInput{
+		Name: "second", ProviderType: "openai-compatible", APIEndpoint: "https://b.example",
+		APIKey: "sk-b", Model: "m2", TaskTypes: []string{"embedding"}, Dimensions: 8, IsEnabled: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	list, err := s.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(list) != 2 {
+		t.Fatalf("want 2 providers, got %d", len(list))
+	}
+	if list[0].ID != p1.ID || list[1].ID != p2.ID {
+		t.Fatalf("list not ordered by id: %d, %d", list[0].ID, list[1].ID)
+	}
+
+	got, err := s.Get(p1.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Name != "first" || got.Model != "m1" {
+		t.Fatalf("Get returned wrong fields: name=%q model=%q", got.Name, got.Model)
+	}
+
+	if err := s.Delete(p1.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Get(p1.ID); err == nil {
+		t.Fatal("expected error getting deleted provider")
+	}
+	list, err = s.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(list) != 1 || list[0].ID != p2.ID {
+		t.Fatalf("after delete want only p2, got %+v", list)
+	}
+}
+
+func TestServiceTest(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		switch r.URL.Path {
+		case "/chat/completions":
+			json.NewEncoder(w).Encode(map[string]any{
+				"choices": []any{map[string]any{
+					"message": map[string]any{"role": "assistant", "content": "pong"},
+				}},
+			})
+		case "/embeddings":
+			var body struct {
+				Input []string `json:"input"`
+			}
+			json.NewDecoder(r.Body).Decode(&body)
+			data := make([]any, len(body.Input))
+			for i := range body.Input {
+				data[i] = map[string]any{"embedding": []float32{0.1, 0.2, 0.3, 0.4}, "index": i}
+			}
+			json.NewEncoder(w).Encode(map[string]any{"data": data})
+		default:
+			t.Errorf("unexpected path %s", r.URL.Path)
+		}
+	}))
+	defer srv.Close()
+
+	setup := func() *Service {
+		s := newTestService(t)
+		if _, err := s.Create(CreateProviderInput{
+			Name: "chat", ProviderType: "openai-compatible", APIEndpoint: srv.URL,
+			APIKey: "sk-chat", Model: "x", TaskTypes: []string{"chat"}, IsEnabled: true,
+		}); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := s.Create(CreateProviderInput{
+			Name: "embed", ProviderType: "openai-compatible", APIEndpoint: srv.URL,
+			APIKey: "sk-embed", Model: "y", TaskTypes: []string{"embedding"}, Dimensions: 4, IsEnabled: true,
+		}); err != nil {
+			t.Fatal(err)
+		}
+		return s
+	}
+
+	// With a cortex probe: chat, embedding, and cortex all succeed.
+	t.Run("with_probe", func(t *testing.T) {
+		s := setup()
+		var gotVec []float32
+		probe := func(ctx context.Context, vec []float32) error {
+			gotVec = vec
+			return nil
+		}
+		res := s.Test(context.Background(), probe)
+		if !res.ChatOK {
+			t.Fatalf("ChatOK false, err=%q", res.Error)
+		}
+		if !res.EmbeddingOK {
+			t.Fatalf("EmbeddingOK false, err=%q", res.Error)
+		}
+		if !res.CortexOK {
+			t.Fatalf("CortexOK false, err=%q", res.Error)
+		}
+		want := []float32{0.1, 0.2, 0.3, 0.4}
+		if !reflect.DeepEqual(gotVec, want) {
+			t.Fatalf("probe got vector %v, want %v", gotVec, want)
+		}
+	})
+
+	// Without a cortex probe: embedding succeeds but cortex is not exercised.
+	t.Run("nil_probe", func(t *testing.T) {
+		s := setup()
+		res := s.Test(context.Background(), nil)
+		if !res.EmbeddingOK {
+			t.Fatalf("EmbeddingOK false, err=%q", res.Error)
+		}
+		if res.CortexOK {
+			t.Fatal("CortexOK must be false with nil probe")
+		}
+	})
 }
