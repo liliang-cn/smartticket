@@ -151,25 +151,50 @@ type TestResult struct {
 	Error       string `json:"error,omitempty"`
 }
 
-// Test exercises the resolved chat + embedding providers. cortexProbe, if
-// non-nil, runs an embed->store->recall round-trip with the produced vector and
-// sets CortexOK.
-func (s *Service) Test(ctx context.Context, cortexProbe func(ctx context.Context, vec []float32) error) TestResult {
+// TestProvider exercises a SPECIFIC provider (by id) for the task types it
+// declares. cortexProbe, if non-nil, runs an embed->store->recall round-trip
+// with the produced vector and sets CortexOK. Returns an error only when the
+// provider cannot be loaded.
+func (s *Service) TestProvider(ctx context.Context, id uint, cortexProbe func(ctx context.Context, vec []float32) error) (TestResult, error) {
+	var p models.LLMProvider
+	if err := s.db.First(&p, id).Error; err != nil {
+		return TestResult{}, err
+	}
+
+	key := ""
+	if p.APIKey != "" {
+		dec, err := s.cipher.Decrypt(p.APIKey)
+		if err != nil {
+			return TestResult{}, err
+		}
+		key = dec
+	}
+
+	var tasks []string
+	_ = json.Unmarshal([]byte(p.TaskTypes), &tasks)
+	has := func(task string) bool {
+		for _, t := range tasks {
+			if t == task {
+				return true
+			}
+		}
+		return false
+	}
+
 	start := time.Now()
 	res := TestResult{}
+	client := NewClient(p.APIEndpoint, key)
 
-	if cp, key, err := s.ResolveChat(); err == nil {
-		c := NewClient(cp.APIEndpoint, key)
-		if _, err := c.Chat(ctx, cp.Model, []ChatMessage{{Role: "user", Content: "ping"}}); err == nil {
+	if has("chat") {
+		if _, err := client.Chat(ctx, p.Model, []ChatMessage{{Role: "user", Content: "ping"}}); err == nil {
 			res.ChatOK = true
-		} else {
+		} else if res.Error == "" {
 			res.Error = "chat: " + err.Error()
 		}
 	}
 
-	if ep, key, err := s.ResolveEmbedding(); err == nil {
-		c := NewClient(ep.APIEndpoint, key)
-		vecs, err := c.Embed(ctx, ep.Model, ep.Dimensions, []string{"hello"})
+	if has("embedding") {
+		vecs, err := client.Embed(ctx, p.Model, p.Dimensions, []string{"hello"})
 		if err == nil && len(vecs) == 1 {
 			res.EmbeddingOK = true
 			if cortexProbe != nil {
@@ -185,7 +210,7 @@ func (s *Service) Test(ctx context.Context, cortexProbe func(ctx context.Context
 	}
 
 	res.LatencyMS = time.Since(start).Milliseconds()
-	return res
+	return res, nil
 }
 
 func embErr(err error) string {

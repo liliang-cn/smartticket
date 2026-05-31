@@ -187,6 +187,7 @@ func (s *Server) setupRoutes() {
 	var llmHandlers *llm.Handlers
 	secretKey, kerr := llm.LoadKey(s.config.SecretKeyRaw)
 	if kerr != nil {
+		logger.Warn("SMARTTICKET_SECRET_KEY not set or invalid; deriving encryption key from JWT secret — changing the JWT secret will make stored LLM API keys unrecoverable")
 		sum := sha256.Sum256([]byte(s.config.JWT.Secret))
 		secretKey = sum[:]
 	}

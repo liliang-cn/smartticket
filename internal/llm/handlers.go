@@ -2,10 +2,12 @@ package llm
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"github.com/company/smartticket/internal/models"
 )
@@ -57,7 +59,11 @@ func (h *Handlers) Get(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	p, err := h.svc.Get(uint(id))
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"message": "provider not found"}})
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"message": "provider not found"}})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": gin.H{"message": err.Error()}})
+		}
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": h.view(*p)})
@@ -101,8 +107,17 @@ func (h *Handlers) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
-// Test runs the provider self-test (chat + embedding + optional CortexDB round-trip).
+// Test runs the self-test for a specific provider (chat + embedding + optional CortexDB round-trip).
 func (h *Handlers) Test(c *gin.Context) {
-	res := h.svc.Test(c.Request.Context(), h.probe)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "error": gin.H{"message": "invalid provider id"}})
+		return
+	}
+	res, err := h.svc.TestProvider(c.Request.Context(), uint(id), h.probe)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": gin.H{"message": "provider not found"}})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": res})
 }

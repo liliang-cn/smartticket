@@ -172,32 +172,33 @@ func TestServiceTest(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	setup := func() *Service {
+	setup := func() (*Service, uint) {
 		s := newTestService(t)
-		if _, err := s.Create(CreateProviderInput{
-			Name: "chat", ProviderType: "openai-compatible", APIEndpoint: srv.URL,
-			APIKey: "sk-chat", Model: "x", TaskTypes: []string{"chat"}, IsEnabled: true,
-		}); err != nil {
+		// A single provider tagged for BOTH chat and embedding, hitting one
+		// httptest server that serves /chat/completions and /embeddings.
+		p, err := s.Create(CreateProviderInput{
+			Name: "both", ProviderType: "openai-compatible", APIEndpoint: srv.URL,
+			APIKey: "sk-both", Model: "x", TaskTypes: []string{"chat", "embedding"},
+			Dimensions: 4, IsEnabled: true,
+		})
+		if err != nil {
 			t.Fatal(err)
 		}
-		if _, err := s.Create(CreateProviderInput{
-			Name: "embed", ProviderType: "openai-compatible", APIEndpoint: srv.URL,
-			APIKey: "sk-embed", Model: "y", TaskTypes: []string{"embedding"}, Dimensions: 4, IsEnabled: true,
-		}); err != nil {
-			t.Fatal(err)
-		}
-		return s
+		return s, p.ID
 	}
 
 	// With a cortex probe: chat, embedding, and cortex all succeed.
 	t.Run("with_probe", func(t *testing.T) {
-		s := setup()
+		s, id := setup()
 		var gotVec []float32
 		probe := func(ctx context.Context, vec []float32) error {
 			gotVec = vec
 			return nil
 		}
-		res := s.Test(context.Background(), probe)
+		res, err := s.TestProvider(context.Background(), id, probe)
+		if err != nil {
+			t.Fatal(err)
+		}
 		if !res.ChatOK {
 			t.Fatalf("ChatOK false, err=%q", res.Error)
 		}
@@ -215,13 +216,24 @@ func TestServiceTest(t *testing.T) {
 
 	// Without a cortex probe: embedding succeeds but cortex is not exercised.
 	t.Run("nil_probe", func(t *testing.T) {
-		s := setup()
-		res := s.Test(context.Background(), nil)
+		s, id := setup()
+		res, err := s.TestProvider(context.Background(), id, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 		if !res.EmbeddingOK {
 			t.Fatalf("EmbeddingOK false, err=%q", res.Error)
 		}
 		if res.CortexOK {
 			t.Fatal("CortexOK must be false with nil probe")
+		}
+	})
+
+	// Unknown provider id returns an error.
+	t.Run("not_found", func(t *testing.T) {
+		s, _ := setup()
+		if _, err := s.TestProvider(context.Background(), 99999, nil); err == nil {
+			t.Fatal("expected error for unknown provider id")
 		}
 	})
 }
