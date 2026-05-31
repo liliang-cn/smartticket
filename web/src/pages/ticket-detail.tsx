@@ -143,12 +143,28 @@ export function TicketDetailPage() {
                     <div className="mb-1.5 flex items-center gap-2 text-xs text-muted-foreground">
                       <Avatar className="size-5">
                         <AvatarFallback className="text-[9px]">
-                          {m.is_from_ai ? "AI" : `U${m.user_id}`}
+                          {m.is_from_ai
+                            ? "AI"
+                            : m.author_name
+                              ? m.author_name
+                                  .split(" ")
+                                  .map((p) => p[0])
+                                  .join("")
+                                  .slice(0, 2)
+                                  .toUpperCase()
+                              : `U${m.user_id}`}
                         </AvatarFallback>
                       </Avatar>
                       <span className="font-medium text-foreground/80">
-                        {m.is_from_ai ? "Assistant" : `User #${m.user_id}`}
+                        {m.is_from_ai
+                          ? "Assistant"
+                          : m.author_name || `User #${m.user_id}`}
                       </span>
+                      {!m.is_from_ai && m.author_role && (
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/70">
+                          {m.author_role === "customer" ? "customer" : "team"}
+                        </span>
+                      )}
                       {m.is_from_ai && <Bot className="size-3" />}
                       {m.is_internal && (
                         <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-primary">
@@ -265,7 +281,14 @@ export function TicketDetailPage() {
             <Separator />
             <MetaRow
               label="Assignee"
-              value={ticket.assigned_to ? `#${ticket.assigned_to}` : "Unassigned"}
+              value={
+                ticket.assigned_user
+                  ? `${ticket.assigned_user.first_name} ${ticket.assigned_user.last_name}`.trim() ||
+                    ticket.assigned_user.username
+                  : ticket.assigned_to
+                    ? `#${ticket.assigned_to}`
+                    : "Unassigned"
+              }
             />
             <MetaRow label="Created" value={relativeTime(ticket.created_at)} />
             <MetaRow label="Due" value={relativeTime(ticket.due_date)} />

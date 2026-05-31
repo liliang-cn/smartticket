@@ -451,6 +451,8 @@ type MessageResponse struct {
 	ID          uint      `json:"id"`
 	TicketID    uint      `json:"ticket_id"`
 	UserID      uint      `json:"user_id"`
+	AuthorName  string    `json:"author_name,omitempty"`
+	AuthorRole  string    `json:"author_role,omitempty"`
 	Content     string    `json:"content"`
 	ContentType string    `json:"content_type"`
 	IsInternal  bool      `json:"is_internal"`
@@ -485,7 +487,7 @@ func (s *Service) ListMessages(actor authz.Actor, ticketID uint) ([]MessageRespo
 		return nil, err
 	}
 
-	query := s.db.Where("ticket_id = ?", ticketID)
+	query := s.db.Preload("User").Where("ticket_id = ?", ticketID)
 	if actor.IsCustomer() {
 		query = query.Where("is_internal = ?", false)
 	}
@@ -534,6 +536,9 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 	// affects the request path). Internal notes are NEVER surfaced to customers.
 	s.notifyMessage(actor, tkt, message, userID)
 
+	// Load the author so the response carries the author's name/role.
+	_ = s.db.Preload("User").First(message, message.ID).Error
+
 	resp := messageToResponse(message)
 	return &resp, nil
 }
@@ -569,7 +574,7 @@ func (s *Service) notifyMessage(actor authz.Actor, tkt *models.Ticket, msg *mode
 }
 
 func messageToResponse(m *models.Message) MessageResponse {
-	return MessageResponse{
+	r := MessageResponse{
 		ID:          m.ID,
 		TicketID:    m.TicketID,
 		UserID:      m.UserID,
@@ -579,6 +584,24 @@ func messageToResponse(m *models.Message) MessageResponse {
 		IsFromAI:    m.IsFromAI,
 		CreatedAt:   m.CreatedAt,
 	}
+	if m.User != nil {
+		r.AuthorName = displayName(m.User)
+		r.AuthorRole = m.User.Role
+	}
+	return r
+}
+
+// displayName returns a human-friendly name for a user, falling back to
+// username then email when names are unset.
+func displayName(u *models.User) string {
+	full := strings.TrimSpace(strings.TrimSpace(u.FirstName) + " " + strings.TrimSpace(u.LastName))
+	if full != "" {
+		return full
+	}
+	if u.Username != "" {
+		return u.Username
+	}
+	return u.Email
 }
 
 // GetTicketStats gets ticket statistics, scoped to the actor's customer.

@@ -81,6 +81,8 @@ export interface TicketMessage {
   id: number;
   ticket_id: number;
   user_id: number;
+  author_name?: string;
+  author_role?: string;
   content: string;
   content_type: string;
   is_internal: boolean;

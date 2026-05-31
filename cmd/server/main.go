@@ -224,6 +224,15 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		return fmt.Errorf("failed to initialize database: %w", err)
 	}
 
+	// Ensure the standard role/permission catalog is up to date on EVERY startup
+	// (idempotent). InitializeIfNeeded only seeds on a fresh DB, so without this
+	// newly-added standard roles (e.g. support/sales) would never appear on an
+	// already-initialized deployment. Admin-created custom roles persist alongside.
+	if err := database.EnsureRolesAndPermissions(db.DB); err != nil {
+		logger.Error("Failed to ensure roles and permissions", zap.Error(err))
+		return fmt.Errorf("failed to ensure roles and permissions: %w", err)
+	}
+
 	// Set up HTTP server
 	logger.Debug("Setting up HTTP server")
 	httpServer := server.NewServer(cfg, db)
