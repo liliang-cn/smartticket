@@ -115,6 +115,8 @@ an embedding provider is configured), and create a "LINBIT" customer.`,
 		RunE: runImportLinbit,
 	}
 	importLinbitCmd.Flags().String("config", "", "Configuration file path")
+	importLinbitCmd.Flags().String("prefix", "", "Only import files whose name starts with this (e.g. \"drbd-\")")
+	importLinbitCmd.Flags().Int("max-kb", 0, "Skip files larger than this many KB (0 = no limit)")
 	rootCmd.AddCommand(importLinbitCmd)
 
 	// Add version command
@@ -591,6 +593,9 @@ func runImportLinbit(cmd *cobra.Command, _ []string) error {
 	}
 
 	importer := linbit.NewImporter(db.DB, knowledgeService, customerService, aiReady)
+	importer.NamePrefix, _ = cmd.Flags().GetString("prefix")
+	maxKB, _ := cmd.Flags().GetInt("max-kb")
+	importer.MaxBytes = maxKB * 1024
 	res, err := importer.Run(context.Background(), authorID)
 	if err != nil {
 		return fmt.Errorf("import failed: %w", err)

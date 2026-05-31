@@ -31,6 +31,7 @@ const userAgent = "smartticket-importlinbit/1.0"
 type ghContent struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
+	Size        int    `json:"size"`
 	DownloadURL string `json:"download_url"`
 }
 
@@ -51,6 +52,13 @@ type Importer struct {
 	// AIReady reports whether an embedding provider is configured so articles
 	// will be auto-indexed on creation.
 	AIReady bool
+
+	// NamePrefix, when set, limits the import to files whose name starts with it
+	// (e.g. "drbd-" to import only the DRBD docs).
+	NamePrefix string
+	// MaxBytes, when > 0, skips files larger than this many bytes (e.g. to skip
+	// the very large LINSTOR manuals).
+	MaxBytes int
 
 	httpClient *http.Client
 }
@@ -78,6 +86,13 @@ func (im *Importer) Run(ctx context.Context, authorID uint) (*Result, error) {
 
 	for _, f := range files {
 		if f.Type != "file" || !strings.HasSuffix(f.Name, ".adoc") {
+			continue
+		}
+		if im.NamePrefix != "" && !strings.HasPrefix(f.Name, im.NamePrefix) {
+			continue
+		}
+		if im.MaxBytes > 0 && f.Size > im.MaxBytes {
+			logger.Info("importlinbit: skipping large file", zap.String("name", f.Name), zap.Int("size", f.Size))
 			continue
 		}
 		res.FilesFound++
