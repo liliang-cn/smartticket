@@ -20,6 +20,9 @@ type Config struct {
 	Logger      LoggerConfig    `mapstructure:"logger" validate:"required"`
 	RateLimit   RateLimitConfig `mapstructure:"rate_limit" validate:"required"`
 	LLM         LLMConfig       `mapstructure:"llm"`
+	// SecretKeyRaw is the raw encryption key (hex/base64) used for at-rest
+	// secrets such as LLM provider API keys. Bound from SMARTTICKET_SECRET_KEY.
+	SecretKeyRaw string `mapstructure:"secret_key"`
 }
 
 // ServerConfig contains HTTP server configuration.
@@ -122,6 +125,7 @@ func loadFrom(configFile string) (*Config, error) {
 	v.SetEnvPrefix("SMARTTICKET")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
+	v.BindEnv("secret_key", "SMARTTICKET_SECRET_KEY")
 
 	if configFile != "" {
 		// Use the explicitly provided config file.

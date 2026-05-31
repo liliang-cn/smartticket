@@ -37,6 +37,8 @@ var permissionCatalog = []permissionDef{
 	{"customer:write", "Manage customers", "customers"},
 	{"rbac:read", "Read roles/permissions", "rbac"},
 	{"rbac:write", "Manage roles/permissions", "rbac"},
+	{"llm:read", "Read LLM providers", "llm"},
+	{"llm:write", "Manage LLM providers", "llm"},
 	{"admin:system", "Full system administration", "system"},
 }
 
@@ -54,6 +56,7 @@ var roleGrants = map[string][]string{
 		"customer:read", "customer:write",
 		"user:read",
 		"rbac:read",
+		"llm:read",
 	},
 	"customer": {
 		"ticket:read", "ticket:write",
