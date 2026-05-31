@@ -19,15 +19,35 @@ export function LoginPage() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Use fromTo (not from) with explicit visible end states: under React
+      // StrictMode's double-mount, `from` can record the already-offset value
+      // as its target and animate opacity 0 → 0, leaving an element (here the
+      // submit button) permanently invisible.
       gsap
         .timeline({ defaults: { ease: "power3.out" } })
-        .from(".login-brand", { y: 20, opacity: 0, duration: 0.6 })
-        .from(
+        .fromTo(
+          ".login-brand",
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, clearProps: "transform,opacity" }
+        )
+        .fromTo(
           ".login-field",
-          { y: 16, opacity: 0, duration: 0.5, stagger: 0.08 },
+          { y: 16, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.5,
+            stagger: 0.08,
+            clearProps: "transform,opacity",
+          },
           "-=0.3"
         )
-        .from(".login-aside", { opacity: 0, duration: 0.8 }, "-=0.6");
+        .fromTo(
+          ".login-aside",
+          { opacity: 0 },
+          { opacity: 1, duration: 0.8, clearProps: "opacity" },
+          "-=0.6"
+        );
     }, rootRef);
     return () => ctx.revert();
   }, []);
