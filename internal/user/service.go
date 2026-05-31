@@ -14,8 +14,6 @@ import (
 	"github.com/company/smartticket/internal/models"
 )
 
-// teamRoles are the operator-side roles that must not belong to a customer org.
-var teamRoles = map[string]bool{"admin": true, "engineer": true, "support": true, "sales": true}
 
 // Service provides user management business logic.
 type Service struct {
@@ -64,11 +62,13 @@ type CreateUserRequest struct {
 	FirstName   string `json:"first_name" binding:"required,min=1,max=100" example:"John"`
 	LastName    string `json:"last_name" binding:"required,min=1,max=100" example:"Doe"`
 	Password    string `json:"password" binding:"required,min=8" example:"SecurePass123!"`
-	Role        string `json:"role" binding:"required,oneof=admin engineer support customer sales" example:"customer"`
+	// Role must be one of the roles configured in RBAC (validated against the
+	// roles table at create time); it is NOT a fixed enum.
+	Role        string `json:"role" binding:"required" example:"engineer"`
 	IsActive    bool   `json:"is_active" example:"true"`
 	Preferences string `json:"preferences,omitempty" example:"{\"timezone\": \"UTC\", \"language\": \"en\"}"`
 	// CustomerID links the user to a customer organization. Required for the
-	// "customer" role; forbidden for team roles (admin/engineer).
+	// "customer" role; forbidden for every other (team) role.
 	CustomerID *uint `json:"customer_id,omitempty" example:"1"`
 }
 
@@ -78,7 +78,7 @@ type UpdateUserRequest struct {
 	Username    string `json:"username,omitempty" binding:"omitempty,min=3,max=50" example:"johndoe"`
 	FirstName   string `json:"first_name,omitempty" binding:"omitempty,min=1,max=100" example:"John"`
 	LastName    string `json:"last_name,omitempty" binding:"omitempty,min=1,max=100" example:"Doe"`
-	Role        string `json:"role,omitempty" binding:"omitempty,oneof=admin engineer support customer sales" example:"customer"`
+	Role        string `json:"role,omitempty" binding:"omitempty" example:"engineer"`
 	IsActive    *bool  `json:"is_active,omitempty" example:"true"`
 	Preferences string `json:"preferences,omitempty" example:"{\"timezone\": \"UTC\", \"language\": \"en\"}"`
 }
@@ -128,8 +128,19 @@ func (s *Service) CreateUser(req *CreateUserRequest) (*auth.UserInfo, error) {
 		return nil, apperrors.NewValidationError(err.Error())
 	}
 
+	// Validate the role against the RBAC roles configuration (not a fixed enum),
+	// so a clean 400 is returned for an unknown role instead of a 500 at role
+	// assignment time.
+	var roleCount int64
+	if err := s.db.Model(&models.Role{}).Where("name = ?", req.Role).Count(&roleCount).Error; err != nil {
+		return nil, fmt.Errorf("failed to verify role: %w", err)
+	}
+	if roleCount == 0 {
+		return nil, apperrors.NewValidationError(fmt.Sprintf("unknown role %q", req.Role))
+	}
+
 	// Validate customer_id against role: the customer role must belong to a
-	// customer organization; team roles must not.
+	// customer organization; every other (team) role must not.
 	if req.Role == "customer" {
 		if req.CustomerID == nil {
 			return nil, apperrors.NewValidationError("customer role requires customer_id")
@@ -141,8 +152,8 @@ func (s *Service) CreateUser(req *CreateUserRequest) (*auth.UserInfo, error) {
 			}
 			return nil, fmt.Errorf("failed to verify customer: %w", err)
 		}
-	} else if teamRoles[req.Role] && req.CustomerID != nil {
-		return nil, apperrors.NewValidationError("team roles must not have customer_id")
+	} else if req.CustomerID != nil {
+		return nil, apperrors.NewValidationError("only the customer role may have a customer_id")
 	}
 
 	// Check if email already exists

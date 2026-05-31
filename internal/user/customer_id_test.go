@@ -66,7 +66,7 @@ func TestCreateUser_TeamRoleForbidsCustomerID(t *testing.T) {
 		var appErr *apperrors.AppError
 		require.ErrorAs(t, err, &appErr)
 		assert.Equal(t, apperrors.ErrCodeValidation, appErr.Code)
-		assert.Contains(t, appErr.Message, "must not have customer_id")
+		assert.Contains(t, appErr.Message, "customer_id")
 	})
 }
 

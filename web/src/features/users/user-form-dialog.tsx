@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useCreateUser, type CreateUserInput } from "@/features/users/api";
 import { useCustomers } from "@/features/customers/api";
+import { useRoles } from "@/features/rbac/api";
 import { apiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const ROLES = ["admin", "engineer", "customer"] as const;
+// The "customer" role is the one external/customer-facing role and requires a
+// customer org; every other role is operator/team-side. The selectable roles
+// themselves are NOT hardcoded — they come from the RBAC roles configuration.
+const CUSTOMER_ROLE = "customer";
 
 const schema = z
   .object({
@@ -47,11 +51,11 @@ const schema = z
       .regex(/[a-z]/, "Needs a lowercase letter")
       .regex(/\d/, "Needs a digit")
       .regex(/[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/, "Needs a special character"),
-    role: z.enum(ROLES),
+    role: z.string().min(1, "Role is required"),
     is_active: z.boolean(),
     customer_id: z.string().optional(),
   })
-  .refine((v) => v.role !== "customer" || !!v.customer_id, {
+  .refine((v) => v.role !== CUSTOMER_ROLE || !!v.customer_id, {
     message: "Select a customer for the customer role",
     path: ["customer_id"],
   });
@@ -70,6 +74,9 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
   const create = useCreateUser();
   // Pull customers to populate the linked-customer selector.
   const { data: customers } = useCustomers({ page: 1, page_size: 100 });
+  // Selectable roles come from the RBAC roles configuration, not a hardcoded
+  // list — any role an admin creates under /rbac is assignable here.
+  const { data: roles = [] } = useRoles();
 
   const {
     register,
@@ -121,7 +128,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
       is_active: values.is_active,
       // Only the customer role carries a customer_id; team roles must not.
       customer_id:
-        values.role === "customer" && values.customer_id
+        values.role === CUSTOMER_ROLE && values.customer_id
           ? Number(values.customer_id)
           : undefined,
     };
@@ -216,17 +223,19 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
               <Select
                 value={role}
                 onValueChange={(v) => {
-                  setValue("role", v as FormValues["role"]);
-                  if (v !== "customer") setValue("customer_id", undefined);
+                  setValue("role", v);
+                  if (v !== CUSTOMER_ROLE) setValue("customer_id", undefined);
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="engineer">Engineer</SelectItem>
-                  <SelectItem value="customer">Customer</SelectItem>
+                  {roles.map((r) => (
+                    <SelectItem key={r.name} value={r.name}>
+                      {r.name.charAt(0).toUpperCase() + r.name.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -246,7 +255,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
               </Select>
             </div>
           </div>
-          {role === "customer" && (
+          {role === CUSTOMER_ROLE && (
             <div className="space-y-1.5">
               <Label>Customer</Label>
               <Select
