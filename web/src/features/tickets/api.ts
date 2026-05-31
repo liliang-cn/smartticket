@@ -134,6 +134,20 @@ export function useUpdateTicket(id: number) {
   });
 }
 
+export function useAssignTicket(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (assignedTo: number) => {
+      const res = await api.post(`/tickets/${id}/assign`, { assigned_to: assignedTo });
+      return unwrap<Ticket>(res.data);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ticket", id] });
+      qc.invalidateQueries({ queryKey: ["tickets"] });
+    },
+  });
+}
+
 export function useTicketAttachments(id: number | undefined) {
   return useQuery({
     queryKey: ["ticket-attachments", id],

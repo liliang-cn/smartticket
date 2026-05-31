@@ -15,11 +15,14 @@ import {
   useTicketMessages,
   useUpdateTicket,
   useAddMessage,
+  useAssignTicket,
   useTicketAttachments,
   useUploadAttachment,
   downloadAttachment,
 } from "@/features/tickets/api";
-import type { Attachment } from "@/lib/types";
+import { useUsers } from "@/features/users/api";
+import { useAuth } from "@/lib/auth";
+import type { Attachment, Ticket, UserInfo } from "@/lib/types";
 import { apiError } from "@/lib/api";
 import { relativeTime } from "@/lib/utils";
 import {
@@ -138,6 +141,56 @@ function AttachmentsCard({ ticketId }: { ticketId: number }) {
   );
 }
 
+function userDisplayName(u: Pick<UserInfo, "first_name" | "last_name" | "username">) {
+  return `${u.first_name} ${u.last_name}`.trim() || u.username;
+}
+
+function AssigneeControl({ ticket }: { ticket: Ticket }) {
+  const assign = useAssignTicket(ticket.id);
+  // Assignable users are non-customer roles (the support team).
+  const { data: usersPage } = useUsers({ page: 1, page_size: 100 });
+  const team = (usersPage?.items ?? []).filter((u) => u.role !== "customer");
+
+  // Ensure the current assignee is always selectable even if outside the page.
+  const options = [...team];
+  if (
+    ticket.assigned_user &&
+    !options.some((u) => u.id === ticket.assigned_user!.id)
+  ) {
+    options.push(ticket.assigned_user);
+  }
+
+  async function onAssign(value: string) {
+    const userId = Number(value);
+    const picked = options.find((u) => u.id === userId);
+    try {
+      await assign.mutateAsync(userId);
+      toast.success(`Assigned to ${picked ? userDisplayName(picked) : `#${userId}`}`);
+    } catch (err) {
+      toast.error(apiError(err));
+    }
+  }
+
+  return (
+    <Select
+      value={ticket.assigned_to ? String(ticket.assigned_to) : ""}
+      onValueChange={onAssign}
+      disabled={assign.isPending}
+    >
+      <SelectTrigger className="h-8 w-44">
+        <SelectValue placeholder="Unassigned" />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((u) => (
+          <SelectItem key={u.id} value={String(u.id)}>
+            {userDisplayName(u)}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 py-2 text-sm">
@@ -152,6 +205,7 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
 export function TicketDetailPage() {
   const { id } = useParams();
   const ticketId = id ? Number(id) : undefined;
+  const { user } = useAuth();
   const { data: ticket, isLoading } = useTicket(ticketId);
   const { data: messages } = useTicketMessages(ticketId);
   const update = useUpdateTicket(ticketId ?? 0);
@@ -393,12 +447,16 @@ export function TicketDetailPage() {
             <MetaRow
               label="Assignee"
               value={
-                ticket.assigned_user
-                  ? `${ticket.assigned_user.first_name} ${ticket.assigned_user.last_name}`.trim() ||
-                    ticket.assigned_user.username
-                  : ticket.assigned_to
-                    ? `#${ticket.assigned_to}`
-                    : "Unassigned"
+                user?.role !== "customer" ? (
+                  <AssigneeControl ticket={ticket} />
+                ) : ticket.assigned_user ? (
+                  `${ticket.assigned_user.first_name} ${ticket.assigned_user.last_name}`.trim() ||
+                  ticket.assigned_user.username
+                ) : ticket.assigned_to ? (
+                  `#${ticket.assigned_to}`
+                ) : (
+                  "Unassigned"
+                )
               }
             />
             <MetaRow label="Created" value={relativeTime(ticket.created_at)} />

@@ -1,12 +1,22 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Pencil, Trash2, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Pencil,
+  Trash2,
+  Users,
+  UserCheck,
+  UserX,
+} from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   useCustomer,
   useCustomerUsers,
   useDeleteCustomer,
 } from "@/features/customers/api";
+import { useDeleteUser, useSetUserActive } from "@/features/users/api";
+import type { CustomerUser } from "@/lib/types";
 import { CustomerFormDialog } from "@/features/customers/customer-form-dialog";
 import { AddContactDialog } from "@/features/customers/add-contact-dialog";
 import { apiError } from "@/lib/api";
@@ -35,6 +45,124 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
       </span>
       <span className="text-right">{value}</span>
     </div>
+  );
+}
+
+function ContactRow({
+  user,
+  customerId,
+}: {
+  user: CustomerUser;
+  customerId: number;
+}) {
+  const qc = useQueryClient();
+  const setActive = useSetUserActive(user.id);
+  const del = useDeleteUser();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const displayName =
+    `${user.first_name} ${user.last_name}`.trim() || user.username;
+
+  function refreshContacts() {
+    qc.invalidateQueries({ queryKey: ["customer-users", customerId] });
+  }
+
+  async function onToggleActive() {
+    try {
+      await setActive.mutateAsync(!user.is_active ? true : false);
+      refreshContacts();
+      toast.success(user.is_active ? "Contact deactivated" : "Contact activated");
+    } catch (err) {
+      toast.error(apiError(err));
+    }
+  }
+
+  async function onRemove() {
+    try {
+      await del.mutateAsync(user.id);
+      refreshContacts();
+      setConfirmOpen(false);
+      toast.success("Contact removed");
+    } catch (err) {
+      toast.error(apiError(err, "Could not remove contact"));
+    }
+  }
+
+  return (
+    <tr className="border-b border-border/60 last:border-0">
+      <td className="px-4 py-3 font-medium">{user.username}</td>
+      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+        {user.email}
+      </td>
+      <td className="px-4 py-3">
+        <Badge tone="neutral" className="capitalize">
+          {user.role}
+        </Badge>
+      </td>
+      <td className="px-4 py-3">
+        <Badge tone={user.is_active ? "green" : "slate"}>
+          {user.is_active ? "active" : "inactive"}
+        </Badge>
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onToggleActive}
+            disabled={setActive.isPending}
+          >
+            {user.is_active ? (
+              <>
+                <UserX /> Deactivate
+              </>
+            ) : (
+              <>
+                <UserCheck /> Activate
+              </>
+            )}
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="text-destructive hover:text-destructive"
+            onClick={() => setConfirmOpen(true)}
+            aria-label={`Remove ${displayName}`}
+          >
+            <Trash2 />
+          </Button>
+        </div>
+
+        <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Remove contact</DialogTitle>
+              <DialogDescription>
+                Remove{" "}
+                <span className="font-medium text-foreground">
+                  {displayName}
+                </span>{" "}
+                from this customer? This deletes the account.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="ghost">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                variant="destructive"
+                onClick={onRemove}
+                disabled={del.isPending}
+              >
+                {del.isPending ? "Removing…" : "Remove contact"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </td>
+    </tr>
   );
 }
 
@@ -160,35 +288,18 @@ export function CustomerDetailPage() {
                     <th className="px-4 py-3 font-medium">Email</th>
                     <th className="px-4 py-3 font-medium">Role</th>
                     <th className="px-4 py-3 font-medium">Active</th>
+                    <th className="px-4 py-3 text-right font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {users && users.length > 0 ? (
+                  {users && users.length > 0 && customerId != null ? (
                     users.map((u) => (
-                      <tr
-                        key={u.id}
-                        className="border-b border-border/60 last:border-0"
-                      >
-                        <td className="px-4 py-3 font-medium">{u.username}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                          {u.email}
-                        </td>
-                        <td className="px-4 py-3">
-                          <Badge tone="neutral" className="capitalize">
-                            {u.role}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Badge tone={u.is_active ? "green" : "slate"}>
-                            {u.is_active ? "active" : "inactive"}
-                          </Badge>
-                        </td>
-                      </tr>
+                      <ContactRow key={u.id} user={u} customerId={customerId} />
                     ))
                   ) : (
                     <tr>
                       <td
-                        colSpan={4}
+                        colSpan={5}
                         className="px-4 py-12 text-center text-sm text-muted-foreground"
                       >
                         No contacts linked to this customer.
