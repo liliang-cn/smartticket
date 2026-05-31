@@ -24,6 +24,7 @@ import (
 	"github.com/company/smartticket/internal/knowledgebase"
 	"github.com/company/smartticket/internal/llm"
 	"github.com/company/smartticket/internal/logger"
+	"github.com/company/smartticket/internal/notification"
 	"github.com/company/smartticket/internal/product"
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/services"
@@ -163,6 +164,13 @@ func (s *Server) setupRoutes() {
 
 	// Initialize ticket service with SLA calculator
 	ticketService := ticket.NewService(s.db.DB, slaCalculator)
+
+	// In-app notification module; injected into the ticket service so ticket
+	// events (reply/assign/status) emit notifications without coupling packages.
+	notificationService := notification.NewService(s.db.DB)
+	notificationHandlers := notification.NewHandlers(notificationService)
+	ticketService.SetNotifier(notificationService)
+
 	productService := product.NewService(s.db.DB)
 	customerService := customer.NewService(s.db.DB)
 	serviceManagementService := servicemgmt.NewService(s.db.DB)
@@ -330,6 +338,15 @@ func (s *Server) setupRoutes() {
 				tickets.POST("/:id/assign", ticketHandlers.AssignTicket)
 				tickets.GET("/:id/messages", ticketHandlers.GetTicketMessages)
 				tickets.POST("/:id/messages", ticketHandlers.CreateTicketMessage)
+			}
+
+			// In-app notification routes (per authenticated user).
+			notif := protected.Group("/notifications")
+			{
+				notif.GET("", notificationHandlers.List)
+				notif.GET("/unread-count", notificationHandlers.UnreadCount)
+				notif.POST("/:id/read", notificationHandlers.MarkRead)
+				notif.POST("/read-all", notificationHandlers.MarkAllRead)
 			}
 
 			// Customer organization management routes (team-only).

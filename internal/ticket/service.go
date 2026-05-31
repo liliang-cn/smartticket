@@ -1,6 +1,7 @@
 package ticket
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -26,6 +27,7 @@ func scopeToActor(q *gorm.DB, actor authz.Actor) *gorm.DB {
 type Service struct {
 	db            *gorm.DB
 	slaCalculator *sla.Calculator
+	notifier      Notifier // optional; nil = no-op (see SetNotifier)
 }
 
 // NewService creates a new ticket service.
@@ -307,6 +309,7 @@ func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, re
 	if req.Description != "" {
 		ticket.Description = req.Description
 	}
+	oldStatus := ticket.Status
 	if req.Status != "" {
 		ticket.Status = req.Status
 		// Handle status transitions
@@ -382,6 +385,14 @@ func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, re
 		return nil, fmt.Errorf("failed to update ticket: %w", err)
 	}
 
+	// Best-effort: on an actual status change, notify the ticket's customer-side
+	// users (skip if no owning customer). Author is excluded from recipients.
+	if s.notifier != nil && req.Status != "" && req.Status != oldStatus && ticket.CustomerID != nil {
+		recipients := s.customerRecipients(*ticket.CustomerID, userID)
+		s.notifier.Notify(context.Background(), recipients, "ticket_status",
+			fmt.Sprintf("Ticket #%d is now %s", ticket.ID, ticket.Status), "", "ticket", ticket.ID)
+	}
+
 	// Reload with associations
 	if err := s.db.Preload("AssignedUser").
 		First(&ticket, ticket.ID).Error; err != nil {
@@ -422,6 +433,12 @@ func (s *Service) AssignTicket(actor authz.Actor, ticketID uint, assignedTo uint
 
 	if result.RowsAffected == 0 {
 		return errors.NewNotFoundError("ticket")
+	}
+
+	// Best-effort: tell the newly assigned agent (never the actor themselves).
+	if s.notifier != nil && assignedTo != 0 && assignedTo != actor.UserID {
+		s.notifier.Notify(context.Background(), []uint{assignedTo}, "ticket_assigned",
+			fmt.Sprintf("You were assigned ticket #%d", ticketID), "", "ticket", ticketID)
 	}
 
 	return nil
@@ -486,7 +503,8 @@ func (s *Service) ListMessages(actor authz.Actor, ticketID uint) ([]MessageRespo
 // CreateMessage adds a message to a ticket, scoped to the actor's customer.
 // Customer actors cannot create internal notes (IsInternal is forced false).
 func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *CreateMessageRequest) (*MessageResponse, error) {
-	if _, err := s.findTicketForActor(actor, ticketID); err != nil {
+	tkt, err := s.findTicketForActor(actor, ticketID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -510,8 +528,42 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 		return nil, fmt.Errorf("failed to create message: %w", err)
 	}
 
+	// Best-effort in-app notification (after the message is committed; never
+	// affects the request path). Internal notes are NEVER surfaced to customers.
+	s.notifyMessage(actor, tkt, message, userID)
+
 	resp := messageToResponse(message)
 	return &resp, nil
+}
+
+// notifyMessage emits a ticket_reply notification for a freshly created message.
+// - Team author + public reply: notify the ticket's customer-side users.
+// - Team author + internal note: notify no one (customers must NOT learn of it).
+// - Customer author: notify the assigned agent (if any).
+// The author is always excluded from recipients.
+func (s *Service) notifyMessage(actor authz.Actor, tkt *models.Ticket, msg *models.Message, authorID uint) {
+	if s.notifier == nil {
+		return
+	}
+	snippet := msg.Content
+	if len(snippet) > 140 {
+		snippet = snippet[:140]
+	}
+	title := fmt.Sprintf("New reply on ticket #%d", tkt.ID)
+
+	switch {
+	case actor.IsTeam():
+		if msg.IsInternal || tkt.CustomerID == nil {
+			return // internal note: never notify customers; unowned: nobody to notify
+		}
+		recipients := s.customerRecipients(*tkt.CustomerID, authorID)
+		s.notifier.Notify(context.Background(), recipients, "ticket_reply", title, snippet, "ticket", tkt.ID)
+	case actor.IsCustomer():
+		if tkt.AssignedTo == nil || *tkt.AssignedTo == authorID {
+			return
+		}
+		s.notifier.Notify(context.Background(), []uint{*tkt.AssignedTo}, "ticket_reply", title, snippet, "ticket", tkt.ID)
+	}
 }
 
 func messageToResponse(m *models.Message) MessageResponse {

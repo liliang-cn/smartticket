@@ -359,6 +359,20 @@ type UserRole struct {
 	Assigner *User `gorm:"foreignKey:AssignedBy;references:ID" json:"assigner,omitempty"`
 }
 
+// Notification is an in-app notification for a single recipient user.
+type Notification struct {
+	BaseModel
+	UserID  uint   `gorm:"index;not null" json:"user_id"` // recipient
+	Type    string `gorm:"size:50;not null" json:"type"`  // ticket_reply, ticket_assigned, ticket_status, ticket_created
+	Title   string `gorm:"size:255;not null" json:"title"`
+	Body    string `gorm:"type:text" json:"body"`
+	RefType string `gorm:"size:50" json:"ref_type"` // e.g. "ticket"
+	RefID   uint   `gorm:"index" json:"ref_id"`     // e.g. ticket ID
+	IsRead  bool   `gorm:"default:false;index" json:"is_read"`
+}
+
+func (Notification) TableName() string { return "notifications" }
+
 // Table name overrides.
 func (User) TableName() string             { return "users" }
 func (Ticket) TableName() string           { return "tickets" }

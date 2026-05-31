@@ -197,6 +197,7 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		&models.Attachment{},
 		&models.ImportExportJob{},
 		&models.AuditLog{},
+		&models.Notification{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -341,6 +342,7 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		&models.Attachment{},
 		&models.ImportExportJob{},
 		&models.AuditLog{},
+		&models.Notification{},
 	}
 
 	// Run GORM AutoMigrate
@@ -397,7 +399,7 @@ func runCreateAdmin(cmd *cobra.Command, _ []string) error {
 	defer func() { _ = db.Close() }()
 
 	// Ensure the tables this command touches exist (idempotent).
-	if err := db.DB.AutoMigrate(&models.SystemSetting{}, &models.User{}, &models.Role{}, &models.UserRole{}, &models.Permission{}, &models.RolePermission{}); err != nil {
+	if err := db.DB.AutoMigrate(&models.SystemSetting{}, &models.User{}, &models.Role{}, &models.UserRole{}, &models.Permission{}, &models.RolePermission{}, &models.Notification{}); err != nil {
 		return fmt.Errorf("failed to migrate required tables: %w", err)
 	}
 
