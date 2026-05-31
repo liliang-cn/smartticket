@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gin-gonic/gin"
 	sqlite "github.com/company/smartticket/internal/database/moderncsqlite"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
 	"github.com/company/smartticket/internal/models"

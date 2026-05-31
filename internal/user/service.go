@@ -14,7 +14,6 @@ import (
 	"github.com/company/smartticket/internal/models"
 )
 
-
 // Service provides user management business logic.
 type Service struct {
 	db            *gorm.DB
@@ -57,11 +56,11 @@ func NewService(db *gorm.DB, repo *auth.Repository, authService *auth.Service) *
 
 // CreateUserRequest represents user creation request.
 type CreateUserRequest struct {
-	Email       string `json:"email" binding:"required,email" example:"user@example.com"`
-	Username    string `json:"username" binding:"required,min=3,max=50" example:"johndoe"`
-	FirstName   string `json:"first_name" binding:"required,min=1,max=100" example:"John"`
-	LastName    string `json:"last_name" binding:"required,min=1,max=100" example:"Doe"`
-	Password    string `json:"password" binding:"required,min=8" example:"SecurePass123!"`
+	Email     string `json:"email" binding:"required,email" example:"user@example.com"`
+	Username  string `json:"username" binding:"required,min=3,max=50" example:"johndoe"`
+	FirstName string `json:"first_name" binding:"required,min=1,max=100" example:"John"`
+	LastName  string `json:"last_name" binding:"required,min=1,max=100" example:"Doe"`
+	Password  string `json:"password" binding:"required,min=8" example:"SecurePass123!"`
 	// Role must be one of the roles configured in RBAC (validated against the
 	// roles table at create time); it is NOT a fixed enum.
 	Role        string `json:"role" binding:"required" example:"engineer"`

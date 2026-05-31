@@ -199,11 +199,11 @@ func (s *Service) Reindex(_ context.Context) (scheduled int, err error) {
 
 // CreateKnowledgeArticleRequest represents the request to create a knowledge article.
 type CreateKnowledgeArticleRequest struct {
-	Title     string `json:"title" binding:"required,min=3,max=255"`
-	Content   string `json:"content" binding:"required,min=10"`
-	Summary   string `json:"summary" binding:"max=1000"`
-	Category  string `json:"category" binding:"required,oneof=technical troubleshooting guide faq tutorial other"`
-	Tags      string `json:"tags"` // JSON array
+	Title      string `json:"title" binding:"required,min=3,max=255"`
+	Content    string `json:"content" binding:"required,min=10"`
+	Summary    string `json:"summary" binding:"max=1000"`
+	Category   string `json:"category" binding:"required,oneof=technical troubleshooting guide faq tutorial other"`
+	Tags       string `json:"tags"` // JSON array
 	Status     string `json:"status" binding:"oneof=draft published archived"`
 	Visibility string `json:"visibility" binding:"omitempty,oneof=public internal private"`
 	ProductID  *uint  `json:"product_id"`
@@ -212,11 +212,11 @@ type CreateKnowledgeArticleRequest struct {
 
 // UpdateKnowledgeArticleRequest represents the request to update a knowledge article.
 type UpdateKnowledgeArticleRequest struct {
-	Title     string `json:"title" binding:"omitempty,min=3,max=255"`
-	Content   string `json:"content" binding:"omitempty,min=10"`
-	Summary   string `json:"summary" binding:"omitempty,max=1000"`
-	Category  string `json:"category" binding:"omitempty,oneof=technical troubleshooting guide faq tutorial other"`
-	Tags      string `json:"tags"`
+	Title      string `json:"title" binding:"omitempty,min=3,max=255"`
+	Content    string `json:"content" binding:"omitempty,min=10"`
+	Summary    string `json:"summary" binding:"omitempty,max=1000"`
+	Category   string `json:"category" binding:"omitempty,oneof=technical troubleshooting guide faq tutorial other"`
+	Tags       string `json:"tags"`
 	Status     string `json:"status" binding:"omitempty,oneof=draft published archived"`
 	Visibility string `json:"visibility" binding:"omitempty,oneof=public internal private"`
 	ProductID  *uint  `json:"product_id"`
@@ -319,14 +319,14 @@ func (s *Service) createKnowledgeArticle(ctx context.Context, userID uint, req *
 	// Create knowledge article
 	article := &models.KnowledgeArticle{
 
-		Title:     req.Title,
-		Slug:      slug,
-		Content:   req.Content,
-		Summary:   req.Summary,
-		AuthorID:  user.ID,
-		Status:    req.Status,
-		Views:     0,
-		Version:   1,
+		Title:      req.Title,
+		Slug:       slug,
+		Content:    req.Content,
+		Summary:    req.Summary,
+		AuthorID:   user.ID,
+		Status:     req.Status,
+		Views:      0,
+		Version:    1,
 		ProductID:  req.ProductID,
 		ServiceID:  req.ServiceID,
 		Category:   req.Category,
