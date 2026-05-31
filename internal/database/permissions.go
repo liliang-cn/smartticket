@@ -58,6 +58,18 @@ var roleGrants = map[string][]string{
 		"rbac:read",
 		"llm:read",
 	},
+	"support": {
+		"ticket:read", "ticket:write",
+		"knowledge:read", "knowledge:write",
+		"customer:read",
+		"product:read", "service:read", "sla:read",
+	},
+	"sales": {
+		"customer:read", "customer:write",
+		"ticket:read",
+		"knowledge:read",
+		"product:read", "service:read",
+	},
 	"customer": {
 		"ticket:read", "ticket:write",
 		"knowledge:read",
@@ -68,6 +80,8 @@ var roleGrants = map[string][]string{
 var standardRoleDefs = []models.Role{
 	{Name: "admin", Description: "System administrator with full access", IsSystem: true},
 	{Name: "engineer", Description: "Support engineer with technical access"},
+	{Name: "support", Description: "Support agent handling tickets and knowledge"},
+	{Name: "sales", Description: "Sales representative managing customers"},
 	{Name: "customer", Description: "Customer with basic access"},
 }
 

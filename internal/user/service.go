@@ -15,7 +15,7 @@ import (
 )
 
 // teamRoles are the operator-side roles that must not belong to a customer org.
-var teamRoles = map[string]bool{"admin": true, "engineer": true}
+var teamRoles = map[string]bool{"admin": true, "engineer": true, "support": true, "sales": true}
 
 // Service provides user management business logic.
 type Service struct {

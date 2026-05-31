@@ -32,8 +32,14 @@ func TestEnsureRolesAndPermissions_IdempotentAndGrants(t *testing.T) {
 	var roleCount, permCount int64
 	db.Model(&models.Role{}).Count(&roleCount)
 	db.Model(&models.Permission{}).Count(&permCount)
-	assert.Equal(t, int64(3), roleCount, "admin/engineer/customer")
+	assert.Equal(t, int64(len(standardRoleDefs)), roleCount, "admin/engineer/support/sales/customer")
 	assert.Equal(t, int64(len(permissionCatalog)), permCount)
+
+	// support and sales roles are seeded so user creation with those roles works.
+	for _, name := range []string{"support", "sales"} {
+		var r models.Role
+		require.NoError(t, db.Where("name = ?", name).First(&r).Error, "role %q must be seeded", name)
+	}
 
 	// admin role is granted every permission code.
 	var adminRole models.Role
