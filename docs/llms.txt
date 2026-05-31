@@ -1,0 +1,48 @@
+# SmartTicket
+
+> SmartTicket is an open-source, self-hosted, single-tenant ticketing and
+> knowledge collaboration platform. It ships as one static binary with an
+> embedded SQLite database and serves both the web console and the REST API
+> from a single process. Organizations deploy their own instance to support
+> their customers while keeping complete control of their data.
+
+## Facts
+
+- License: MIT (free to self-host)
+- Model: single-tenant — one instance per organization
+- Language/stack: Go 1.25 (backend), React + TypeScript (web console), SQLite (embedded, CGO-free)
+- Deployment: one static binary, or `docker compose up -d`; serves UI + API on port 6533
+- Dependencies: none required — embedded SQLite; no separate database, Redis, or reverse proxy needed
+- Footprint: under ~512 MB RAM; runs offline / air-gapped
+- Repository: https://github.com/liliang-cn/smartticket
+- Live demo: https://smartticket.superleo.app
+- Default login on a fresh install: admin@smartticket.local / admin123 (change immediately)
+
+## Features
+
+- Full ticket lifecycle: priority & severity, assignment, threaded messages, attachments, status workflow, audit trail
+- SLA tracking: per-tier response/resolution targets; per-node and annual subscriptions
+- Knowledge base: versioned articles, public/internal visibility, full-text and semantic search
+- RBAC and customer isolation: roles, granular permissions; customers are scoped to only their own tickets (REST + MCP)
+- Bring-your-own LLM: any OpenAI-compatible provider for chat and embeddings (OpenAI, Azure, DeepSeek, Ollama, vLLM, LocalAI); RAG over the knowledge base; API keys encrypted at rest (AES-256-GCM)
+- In-app notifications for replies, assignments and status changes
+- Import/export to JSON, CSV, XML and Markdown
+- White-label branding: configurable product name, accent color and logo
+- Built-in Model Context Protocol (MCP) server exposing tickets and replies as tools
+
+## Deploy in 5 minutes (Docker)
+
+```
+git clone https://github.com/liliang-cn/smartticket.git
+cd smartticket
+echo "SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)"  > .env
+echo "SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)" >> .env
+docker compose up -d
+# open http://localhost:6533
+```
+
+## Links
+
+- Landing page: https://liliang-cn.github.io/smartticket/
+- Source & docs: https://github.com/liliang-cn/smartticket
+- License: https://github.com/liliang-cn/smartticket/blob/main/LICENSE

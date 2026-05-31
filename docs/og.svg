@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="'IBM Plex Sans', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0c0f"/>
+      <stop offset="1" stop-color="#080a0d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="82%" cy="-5%" r="60%">
+      <stop offset="0" stop-color="#ffb01f" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#ffb01f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <g transform="translate(80,76)">
+    <rect width="60" height="60" rx="14" fill="#ffb01f"/>
+    <g fill="none" stroke="#19130a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" transform="translate(12,12)">
+      <path d="M2 12a3 3 0 0 1 3-3h26a3 3 0 0 1 3 3 3 3 0 0 0 0 6H5a3 3 0 0 1-3-3 3 3 0 0 0 0-6z"/>
+      <path d="M22 7v3M22 26v3M22 16v3"/>
+    </g>
+    <text x="80" y="42" fill="#e6e8ea" font-size="38" font-weight="700">SmartTicket</text>
+  </g>
+  <text x="80" y="290" fill="#e6e8ea" font-size="68" font-weight="800" letter-spacing="-2">Your support desk &amp; knowledge</text>
+  <text x="80" y="368" fill="#ffb01f" font-size="68" font-weight="800" letter-spacing="-2">base — self-hosted.</text>
+  <text x="80" y="448" fill="#868d96" font-size="30">One static binary · embedded SQLite · RBAC · SLA · bring-your-own-LLM RAG</text>
+  <g transform="translate(80,506)" font-family="'IBM Plex Mono', monospace" font-size="22" fill="#868d96">
+    <rect x="0" y="0" width="300" height="52" rx="10" fill="#101317" stroke="#23282f"/>
+    <text x="20" y="33"><tspan fill="#34d399">$</tspan> docker compose up -d</text>
+    <text x="332" y="33" fill="#4cc4ff">Open source · MIT</text>
+  </g>
+</svg>

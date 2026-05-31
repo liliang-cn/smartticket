@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://liliang-cn.github.io/smartticket/sitemap.xml

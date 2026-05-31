@@ -5,9 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>SmartTicket — Self-hosted ticketing & knowledge, with AI you control</title>
 <meta name="description" content="SmartTicket is an open-source, single-tenant support desk and knowledge base you run yourself. One static binary, embedded SQLite, RBAC, SLA tracking, and pluggable LLM/RAG — complete data sovereignty." />
+<link rel="canonical" href="https://liliang-cn.github.io/smartticket/" />
+<meta name="keywords" content="self-hosted helpdesk, open source ticketing system, knowledge base software, SLA tracking, RBAC, RAG, self-hosted LLM, single binary, embedded SQLite, data sovereignty, Zendesk alternative, Freshdesk alternative, Go support desk" />
+<meta name="author" content="Liang Li" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0c0f" />
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f9" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23ffb01f'/%3E%3Cg fill='none' stroke='%2319130a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 2 2 0 0 0 0-4z'/%3E%3Cpath d='M13 6v2M13 16v2M13 11v2'/%3E%3C/g%3E%3C/svg%3E" />
 <meta property="og:title" content="SmartTicket — self-hosted ticketing & knowledge with AI you control" />
 <meta property="og:description" content="One binary. Zero external dependencies. Your data, your rules. Tickets, SLA, knowledge base, RBAC and bring-your-own-LLM RAG." />
 <meta property="og:type" content="website" />
+<meta property="og:url" content="https://liliang-cn.github.io/smartticket/" />
+<meta property="og:site_name" content="SmartTicket" />
+<meta property="og:image" content="https://liliang-cn.github.io/smartticket/og.svg" />
+<meta property="og:image:alt" content="SmartTicket — self-hosted ticketing & knowledge platform" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="SmartTicket — self-hosted ticketing & knowledge with AI you control" />
+<meta name="twitter:description" content="One binary. Zero external dependencies. Tickets, SLA, knowledge base, RBAC and bring-your-own-LLM RAG. Your data, your rules." />
+<meta name="twitter:image" content="https://liliang-cn.github.io/smartticket/og.svg" />
+<link rel="alternate" type="text/plain" href="https://liliang-cn.github.io/smartticket/llms.txt" title="llms.txt — LLM-readable summary" />
+<link rel="sitemap" type="application/xml" href="https://liliang-cn.github.io/smartticket/sitemap.xml" />
 <script>
   // Apply the saved / preferred theme before first paint (no flash).
   (function () {
@@ -152,7 +169,7 @@
   .rows { margin-top: 16px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
   .row { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
   .row:last-child { border-bottom: 0; }
-  .row .t { color: var(--fg); }
+  .row .t { color: var(--fg); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tag { font-size: 10.5px; font-family: "IBM Plex Mono"; padding: 3px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .08em; }
   .tag.hi { background: rgba(240,73,79,.12); color: #f0838a; border: 1px solid rgba(240,73,79,.3); }
   .tag.md { background: rgba(255,176,31,.12); color: var(--primary); border: 1px solid rgba(255,176,31,.3); }
@@ -232,7 +249,91 @@
   footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--muted); font-size: 13.5px; }
   .foot-inner { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; }
   footer a { color: var(--muted); } footer a:hover { color: var(--fg); }
+
+  /* At-a-glance facts (also aids generative-engine extraction) */
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 32px; }
+  .fact { border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: 14px 16px; }
+  .fact span { display: block; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .fact b { display: block; margin-top: 4px; font-weight: 600; font-size: 14.5px; }
+  .fact a { color: var(--primary); }
+
+  /* ── Mobile ─────────────────────────────────────────────────────────── */
+  html, body { max-width: 100%; overflow-x: hidden; }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .hero { padding: 48px 0 36px; }
+    section { padding: 48px 0; }
+    .nav-inner { gap: 10px; height: 58px; }
+    .nav-links { gap: 13px; }
+    .brand { font-size: 15px; }
+    .facts { grid-template-columns: 1fr; }
+    .oneliner { width: 100%; }
+    .oneliner code { width: 100%; overflow-x: auto; white-space: nowrap; }
+    .copybtn { width: 100%; text-align: center; }
+    .preview { margin-top: 44px; }
+    .titlebar .addr { max-width: 55vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cta { padding: 42px 18px; }
+  }
+  @media (max-width: 430px) {
+    .nav-links a.gh { display: none; }
+  }
 </style>
+
+<!-- Structured data — helps search engines (rich results) and generative
+     engines (accurate, citable facts) understand what SmartTicket is. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://liliang-cn.github.io/smartticket/#app",
+      "name": "SmartTicket",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Help Desk / Ticketing & Knowledge Base",
+      "operatingSystem": "Linux, macOS, Windows, Docker",
+      "description": "SmartTicket is an open-source, self-hosted, single-tenant ticketing and knowledge collaboration platform. It ships as one static binary with an embedded SQLite database and serves both the web console and REST API. Features include full ticket lifecycle, SLA tracking, a versioned knowledge base, role-based access control with customer isolation, in-app notifications, import/export, white-label branding, a built-in MCP server, and bring-your-own LLM retrieval-augmented generation (RAG).",
+      "softwareVersion": "1.0",
+      "license": "https://opensource.org/licenses/MIT",
+      "isAccessibleForFree": true,
+      "url": "https://liliang-cn.github.io/smartticket/",
+      "downloadUrl": "https://github.com/liliang-cn/smartticket",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Full ticket lifecycle with priority and severity",
+        "SLA tracking with per-tier targets and subscriptions",
+        "Versioned knowledge base with public/internal visibility",
+        "Role-based access control and per-customer isolation",
+        "Bring-your-own OpenAI-compatible LLM with RAG",
+        "In-app notifications",
+        "Import/export to JSON, CSV, XML and Markdown",
+        "White-label branding (name, accent color, logo)",
+        "Built-in Model Context Protocol (MCP) server"
+      ],
+      "author": { "@type": "Person", "name": "Liang Li" }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://liliang-cn.github.io/smartticket/#website",
+      "name": "SmartTicket",
+      "url": "https://liliang-cn.github.io/smartticket/",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://liliang-cn.github.io/smartticket/#faq",
+      "mainEntity": [
+        { "@type": "Question", "name": "Do I need a database server or Redis?", "acceptedAnswer": { "@type": "Answer", "text": "No. SQLite is embedded directly in the binary and there are no other required services. The whole app is one process." } },
+        { "@type": "Question", "name": "How do I update to a new version?", "acceptedAnswer": { "@type": "Answer", "text": "With Docker: git pull && docker compose up -d --build. Your data lives in a named volume and is untouched. From source: git pull && make build-all, then restart. Schema migrations run automatically on startup." } },
+        { "@type": "Question", "name": "Is AI required to use it?", "acceptedAnswer": { "@type": "Answer", "text": "No. Tickets, SLA, knowledge base and RBAC all work without any LLM configured. AI features are opt-in: add a provider only if you want semantic search and RAG answers." } },
+        { "@type": "Question", "name": "Can customers see each other's tickets?", "acceptedAnswer": { "@type": "Answer", "text": "No. Customer-role users are scoped at the service layer to their own organization's tickets only, for both the REST API and the MCP server." } },
+        { "@type": "Question", "name": "How do I back up my instance?", "acceptedAnswer": { "@type": "Answer", "text": "Copy the data volume (the SQLite file, the RAG store and uploaded attachments). To restore, put it back and start the binary. You can also export everything to JSON/CSV/XML/Markdown." } },
+        { "@type": "Question", "name": "What does it cost?", "acceptedAnswer": { "@type": "Answer", "text": "The software is open source (MIT) and free to self-host. Your only costs are the server you run it on and, if you enable AI, whatever your chosen LLM provider charges." } }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -248,7 +349,7 @@
       <a href="#deploy" class="hide-sm">Deploy</a>
       <a href="#architecture" class="hide-sm">Architecture</a>
       <a href="#faq" class="hide-sm">FAQ</a>
-      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="gh">GitHub ↗</a>
       <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark / light theme" title="Toggle theme">
         <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
@@ -324,6 +425,29 @@
     </div>
   </div>
 </div>
+
+<!-- AT A GLANCE (concise facts for humans + generative engines) -->
+<section id="at-a-glance" style="padding-bottom:24px;">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="mono-label">// at a glance</div>
+      <h2>SmartTicket in one screen.</h2>
+      <p>The essentials, stated plainly — for people and for the AI engines that summarize this page.</p>
+    </div>
+    <div class="facts">
+      <div class="fact"><span>What it is</span><b>Open-source, self-hosted ticketing &amp; knowledge base</b></div>
+      <div class="fact"><span>Model</span><b>Single-tenant — one instance per organization</b></div>
+      <div class="fact"><span>License</span><b>MIT — free to self-host</b></div>
+      <div class="fact"><span>Stack</span><b>Go 1.25 · React + TypeScript · SQLite</b></div>
+      <div class="fact"><span>Deployment</span><b>One static binary, or <code>docker compose up</code></b></div>
+      <div class="fact"><span>Dependencies</span><b>None — embedded SQLite; no DB, Redis or proxy required</b></div>
+      <div class="fact"><span>AI</span><b>Bring-your-own OpenAI-compatible LLM + RAG (optional)</b></div>
+      <div class="fact"><span>Footprint</span><b>&lt; 512&nbsp;MB RAM; runs offline / air-gapped</b></div>
+      <div class="fact"><span>Repository</span><b><a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">github.com/liliang-cn/smartticket</a></b></div>
+      <div class="fact"><span>Live demo</span><b><a href="https://smartticket.superleo.app" target="_blank" rel="noopener">smartticket.superleo.app</a></b></div>
+    </div>
+  </div>
+</section>
 
 <!-- FEATURES -->
 <section id="features">
