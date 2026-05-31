@@ -85,6 +85,14 @@ func (b *DirectBackend) GetTicketStats(actor authz.Actor) (map[string]interface{
 	return b.ticket.GetTicketStats(actor)
 }
 
+func (b *DirectBackend) CreateMessage(actor authz.Actor, ticketID, userID uint, req *ticket.CreateMessageRequest) (*ticket.MessageResponse, error) {
+	return b.ticket.CreateMessage(actor, ticketID, userID, req)
+}
+
+func (b *DirectBackend) ListMessages(actor authz.Actor, ticketID uint) ([]ticket.MessageResponse, error) {
+	return b.ticket.ListMessages(actor, ticketID)
+}
+
 // --- Knowledge domain ---
 
 func (b *DirectBackend) CreateKnowledgeArticle(userID uint, req *knowledge.CreateKnowledgeArticleRequest) (*knowledge.KnowledgeArticleResponse, error) {

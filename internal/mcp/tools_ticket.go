@@ -184,6 +184,24 @@ func registerTicketTools(s *mcp.Server, b Backend) {
 			return ticketStats(ctx, b, in)
 		},
 	)
+
+	registerTool(s,
+		"ticket_message_create",
+		"Post a reply (message) on a ticket.",
+		"ticket:write",
+		func(ctx context.Context, in ticketMessageCreateInput) (messageResponse, string, error) {
+			return ticketMessageCreate(ctx, b, in)
+		},
+	)
+
+	registerTool(s,
+		"ticket_message_list",
+		"List the messages on a ticket.",
+		"ticket:read",
+		func(ctx context.Context, in ticketMessageListInput) (messageListOutput, string, error) {
+			return ticketMessageList(ctx, b, in)
+		},
+	)
 }
 
 // ----------------------------------------------------------------------------

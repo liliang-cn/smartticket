@@ -42,6 +42,8 @@ type Backend interface {
 	DeleteTicket(actor authz.Actor, ticketID uint) error
 	AssignTicket(actor authz.Actor, ticketID, assignedTo uint) error
 	GetTicketStats(actor authz.Actor) (map[string]interface{}, error)
+	CreateMessage(actor authz.Actor, ticketID, userID uint, req *ticket.CreateMessageRequest) (*ticket.MessageResponse, error)
+	ListMessages(actor authz.Actor, ticketID uint) ([]ticket.MessageResponse, error)
 
 	// --- Knowledge domain ---
 	CreateKnowledgeArticle(userID uint, req *knowledge.CreateKnowledgeArticleRequest) (*knowledge.KnowledgeArticleResponse, error)

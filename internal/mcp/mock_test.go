@@ -70,6 +70,16 @@ func (m *MockBackend) GetTicketStats(_ authz.Actor) (map[string]interface{}, err
 	return getMap(args, 0), args.Error(1)
 }
 
+func (m *MockBackend) CreateMessage(_ authz.Actor, ticketID, userID uint, req *ticket.CreateMessageRequest) (*ticket.MessageResponse, error) {
+	args := m.Called(ticketID, userID, req)
+	return getPtr[ticket.MessageResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) ListMessages(_ authz.Actor, ticketID uint) ([]ticket.MessageResponse, error) {
+	args := m.Called(ticketID)
+	return getSlice[ticket.MessageResponse](args, 0), args.Error(1)
+}
+
 // --- Knowledge domain ---
 
 func (m *MockBackend) CreateKnowledgeArticle(userID uint, req *knowledge.CreateKnowledgeArticleRequest) (*knowledge.KnowledgeArticleResponse, error) {

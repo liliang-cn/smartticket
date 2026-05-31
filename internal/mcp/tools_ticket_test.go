@@ -203,3 +203,56 @@ func TestTicketStats(t *testing.T) {
 	assert.Equal(t, "fetched ticket statistics", summary)
 	mb.AssertExpectations(t)
 }
+
+func TestTicketMessageCreate(t *testing.T) {
+	mb := &MockBackend{}
+	ctx := ctxWithSession(newTestSession("ticket:write"))
+
+	in := ticketMessageCreateInput{
+		TicketID:    42,
+		Content:     "Working on it now",
+		ContentType: "text",
+		IsInternal:  true,
+	}
+
+	mb.On("CreateMessage", uint(42), uint(1), mock.MatchedBy(func(req *ticket.CreateMessageRequest) bool {
+		return req.Content == "Working on it now" &&
+			req.ContentType == "text" &&
+			req.IsInternal == true
+	})).Return(&ticket.MessageResponse{ID: 7, TicketID: 42, UserID: 1, Content: "Working on it now", ContentType: "text", IsInternal: true}, nil)
+
+	out, summary, err := ticketMessageCreate(ctx, mb, in)
+	assert.NoError(t, err)
+	assert.Equal(t, uint(7), out.ID)
+	assert.Equal(t, uint(42), out.TicketID)
+	assert.Equal(t, uint(1), out.UserID)
+	assert.True(t, out.IsInternal)
+	assert.Equal(t, "posted reply #7 on ticket #42", summary)
+	mb.AssertExpectations(t)
+}
+
+func TestTicketMessageCreateUnauthenticated(t *testing.T) {
+	mb := &MockBackend{}
+	_, _, err := ticketMessageCreate(t.Context(), mb, ticketMessageCreateInput{TicketID: 1, Content: "x"})
+	assert.ErrorIs(t, err, ErrUnauthenticated)
+	mb.AssertNotCalled(t, "CreateMessage", mock.Anything, mock.Anything, mock.Anything)
+}
+
+func TestTicketMessageList(t *testing.T) {
+	mb := &MockBackend{}
+	ctx := ctxWithSession(newTestSession("ticket:read"))
+
+	mb.On("ListMessages", uint(42)).Return([]ticket.MessageResponse{
+		{ID: 1, TicketID: 42, UserID: 1, Content: "first"},
+		{ID: 2, TicketID: 42, UserID: 2, Content: "second"},
+	}, nil)
+
+	out, summary, err := ticketMessageList(ctx, mb, ticketMessageListInput{TicketID: 42})
+	assert.NoError(t, err)
+	assert.Equal(t, 2, out.Total)
+	assert.Len(t, out.Data, 2)
+	assert.Equal(t, uint(1), out.Data[0].ID)
+	assert.Equal(t, "second", out.Data[1].Content)
+	assert.Equal(t, "listed 2 message(s) on ticket #42", summary)
+	mb.AssertExpectations(t)
+}
