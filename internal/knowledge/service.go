@@ -59,25 +59,36 @@ func aiUnavailable(msg string) error {
 	}
 }
 
-// indexArticle best-effort indexes an article into the knowledge store. Errors
-// are logged and swallowed so they never fail the originating HTTP request.
-func (s *Service) indexArticle(ctx context.Context, id uint, title, content, sourceURL string) {
+// indexArticle best-effort indexes an article into the knowledge store. It runs
+// DETACHED in a goroutine with its own context so embedding a large article can
+// neither block the originating HTTP request nor be cancelled when the client
+// disconnects (the request context must not be used here). Errors are logged.
+func (s *Service) indexArticle(_ context.Context, id uint, title, content, sourceURL string) {
 	if !s.aiReady() {
 		return
 	}
-	if err := s.store.SaveArticle(ctx, id, title, content, sourceURL); err != nil {
-		logger.Warn("knowledge auto-index failed", zap.Uint("article_id", id), zap.Error(err))
-	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+		defer cancel()
+		if err := s.store.SaveArticle(ctx, id, title, content, sourceURL); err != nil {
+			logger.Warn("knowledge auto-index failed", zap.Uint("article_id", id), zap.Error(err))
+		}
+	}()
 }
 
-// unindexArticle best-effort removes an article from the knowledge store.
-func (s *Service) unindexArticle(ctx context.Context, id uint) {
+// unindexArticle best-effort removes an article from the knowledge store,
+// detached from the request context.
+func (s *Service) unindexArticle(_ context.Context, id uint) {
 	if !s.aiReady() {
 		return
 	}
-	if err := s.store.DeleteArticle(ctx, id); err != nil {
-		logger.Warn("knowledge auto-unindex failed", zap.Uint("article_id", id), zap.Error(err))
-	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		if err := s.store.DeleteArticle(ctx, id); err != nil {
+			logger.Warn("knowledge auto-unindex failed", zap.Uint("article_id", id), zap.Error(err))
+		}
+	}()
 }
 
 // SearchHit is re-exported for handler/response use.
@@ -137,15 +148,14 @@ func (s *Service) Ask(ctx context.Context, question string, topK int) (*AskResul
 	return &AskResult{Answer: answer, Citations: res.Hits}, nil
 }
 
-// Reindex re-indexes ALL non-deleted articles into the knowledge store and
-// reports how many succeeded/failed.
-func (s *Service) Reindex(ctx context.Context) (indexed, failed int, err error) {
-	if !s.aiReady() {
-		return 0, 0, aiUnavailable(aiUnavailableMsg)
-	}
+// reindexAll synchronously re-embeds every non-deleted article and returns the
+// success/failure counts. Used directly by tests; the public Reindex runs it
+// detached in the background.
+func (s *Service) reindexAll(ctx context.Context) (indexed, failed int) {
 	var articles []models.KnowledgeArticle
-	if err := s.db.Where("deleted_at IS NULL").Find(&articles).Error; err != nil {
-		return 0, 0, apperrors.NewInternalError("failed to load articles for reindex: %w", err)
+	if err := s.db.Find(&articles).Error; err != nil {
+		logger.Warn("reindex: failed to load articles", zap.Error(err))
+		return 0, 0
 	}
 	for i := range articles {
 		a := &articles[i]
@@ -156,7 +166,28 @@ func (s *Service) Reindex(ctx context.Context) (indexed, failed int, err error) 
 		}
 		indexed++
 	}
-	return indexed, failed, nil
+	return indexed, failed
+}
+
+// Reindex schedules a background re-index of ALL non-deleted articles and
+// returns how many were scheduled. Embedding runs detached (with its own
+// long-lived context) so a large corpus neither blocks the request nor is
+// cancelled by the reverse proxy / client disconnect.
+func (s *Service) Reindex(_ context.Context) (scheduled int, err error) {
+	if !s.aiReady() {
+		return 0, aiUnavailable(aiUnavailableMsg)
+	}
+	var count int64
+	if err := s.db.Model(&models.KnowledgeArticle{}).Count(&count).Error; err != nil {
+		return 0, apperrors.NewInternalError("failed to count articles for reindex: %w", err)
+	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Minute)
+		defer cancel()
+		ind, fail := s.reindexAll(ctx)
+		logger.Info("knowledge reindex complete", zap.Int("indexed", ind), zap.Int("failed", fail))
+	}()
+	return int(count), nil
 }
 
 // CreateKnowledgeArticleRequest represents the request to create a knowledge article.

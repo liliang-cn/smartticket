@@ -174,12 +174,20 @@ func TestReindexCountsArticles(t *testing.T) {
 	seedArticle(t, db, "Second Article", "More content about clusters and replication.")
 
 	svc := NewService(db, store, nil)
-	indexed, failed, err := svc.Reindex(context.Background())
+
+	// Public Reindex is async and reports how many were scheduled.
+	scheduled, err := svc.Reindex(context.Background())
 	if err != nil {
 		t.Fatalf("Reindex: %v", err)
 	}
+	if scheduled != 2 {
+		t.Fatalf("reindex scheduled=%d, want 2", scheduled)
+	}
+
+	// The synchronous core does the actual work and reports counts.
+	indexed, failed := svc.reindexAll(context.Background())
 	if indexed != 2 || failed != 0 {
-		t.Fatalf("reindex counts: indexed=%d failed=%d, want 2/0", indexed, failed)
+		t.Fatalf("reindexAll counts: indexed=%d failed=%d, want 2/0", indexed, failed)
 	}
 }
 

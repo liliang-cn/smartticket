@@ -399,7 +399,7 @@ func (h *Handlers) AskKnowledge(c *gin.Context) {
 // @Failure 503 {object} github_com_company_smartticket_internal_errors.ErrorResponse
 // @Router /api/v1/knowledge/reindex [post]
 func (h *Handlers) ReindexKnowledge(c *gin.Context) {
-	indexed, failed, err := h.service.Reindex(c.Request.Context())
+	scheduled, err := h.service.Reindex(c.Request.Context())
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -407,6 +407,6 @@ func (h *Handlers) ReindexKnowledge(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"data":    gin.H{"indexed": indexed, "failed": failed},
+		"data":    gin.H{"scheduled": scheduled, "status": "started"},
 	})
 }
