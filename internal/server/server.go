@@ -167,7 +167,6 @@ func (s *Server) setupRoutes() {
 	customerService := customer.NewService(s.db.DB)
 	serviceManagementService := servicemgmt.NewService(s.db.DB)
 	slaService := sla.NewService(s.db.DB)
-	knowledgeService := knowledge.NewService(s.db.DB)
 	importExportService := importexport.NewService(s.db.DB)
 
 	authHandlers := auth.NewHandlers(s.authService)
@@ -177,7 +176,6 @@ func (s *Server) setupRoutes() {
 	customerHandlers := customer.NewHandlers(customerService)
 	serviceHandlers := servicemgmt.NewHandlers(serviceManagementService)
 	slaHandlers := sla.NewHandlers(slaService, slaCalculator)
-	knowledgeHandlers := knowledge.NewHandlers(knowledgeService)
 	importExportHandlers := importexport.NewHandlers(importExportService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
@@ -185,6 +183,7 @@ func (s *Server) setupRoutes() {
 	// AI foundation: LLM providers + CortexDB knowledge store.
 	// Encryption key from SMARTTICKET_SECRET_KEY; dev fallback = SHA-256(JWT secret).
 	var llmHandlers *llm.Handlers
+	var llmServiceRef *llm.Service
 	secretKey, kerr := llm.LoadKey(s.config.SecretKeyRaw)
 	if kerr != nil {
 		logger.Warn("SMARTTICKET_SECRET_KEY not set or invalid; deriving encryption key from JWT secret — changing the JWT secret will make stored LLM API keys unrecoverable")
@@ -196,6 +195,7 @@ func (s *Server) setupRoutes() {
 		logger.Error("llm cipher init failed; LLM provider endpoints disabled", zap.Error(cerr))
 	} else {
 		llmService := llm.NewService(s.db.DB, cipher)
+		llmServiceRef = llmService
 		llmHandlers = llm.NewHandlers(llmService)
 
 		embedder := knowledgebase.NewProviderEmbedder(func(ctx context.Context, texts []string) ([][]float32, error) {
@@ -218,6 +218,10 @@ func (s *Server) setupRoutes() {
 			})
 		}
 	}
+
+	// Knowledge service/handlers depend on the (optional) AI store + LLM service.
+	knowledgeService := knowledge.NewService(s.db.DB, s.kbStore, llmServiceRef)
+	knowledgeHandlers := knowledge.NewHandlers(knowledgeService)
 
 	// Health check endpoints (no authentication required)
 	health := s.router.Group("/")
@@ -363,6 +367,15 @@ func (s *Server) setupRoutes() {
 				knowledge.POST("/articles", knowledgeHandlers.CreateKnowledgeArticle)
 				knowledge.PUT("/articles/:id", knowledgeHandlers.UpdateKnowledgeArticle)
 				knowledge.DELETE("/articles/:id", knowledgeHandlers.DeleteKnowledgeArticle)
+
+				// AI: semantic search + RAG ask (any authenticated role).
+				knowledge.POST("/search", knowledgeHandlers.SearchKnowledge)
+				knowledge.POST("/ask", knowledgeHandlers.AskKnowledge)
+
+				// AI: full re-index (admin only).
+				knowledgeAdmin := knowledge.Group("")
+				knowledgeAdmin.Use(s.adminMiddleware())
+				knowledgeAdmin.POST("/reindex", knowledgeHandlers.ReindexKnowledge)
 			}
 
 			// Import/Export routes

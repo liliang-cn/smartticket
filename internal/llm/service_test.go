@@ -146,6 +146,45 @@ func TestListGetDelete(t *testing.T) {
 	}
 }
 
+func TestChatConvenience(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if r.URL.Path != "/chat/completions" {
+			t.Errorf("unexpected path %s", r.URL.Path)
+		}
+		json.NewEncoder(w).Encode(map[string]any{
+			"choices": []any{map[string]any{
+				"message": map[string]any{"role": "assistant", "content": "hello from chat"},
+			}},
+		})
+	}))
+	defer srv.Close()
+
+	t.Run("happy", func(t *testing.T) {
+		s := newTestService(t)
+		if _, err := s.Create(CreateProviderInput{
+			Name: "chat", ProviderType: "openai-compatible", APIEndpoint: srv.URL,
+			APIKey: "sk-chat", Model: "x", TaskTypes: []string{"chat"}, IsEnabled: true,
+		}); err != nil {
+			t.Fatal(err)
+		}
+		out, err := s.Chat(context.Background(), []ChatMessage{{Role: "user", Content: "hi"}})
+		if err != nil {
+			t.Fatalf("Chat: %v", err)
+		}
+		if out != "hello from chat" {
+			t.Fatalf("Chat content = %q, want %q", out, "hello from chat")
+		}
+	})
+
+	t.Run("no_provider", func(t *testing.T) {
+		s := newTestService(t)
+		if _, err := s.Chat(context.Background(), []ChatMessage{{Role: "user", Content: "hi"}}); err == nil {
+			t.Fatal("expected error when no chat provider configured")
+		}
+	})
+}
+
 func TestServiceTest(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

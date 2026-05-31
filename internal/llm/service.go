@@ -142,6 +142,15 @@ func (s *Service) ResolveEmbedding() (*models.LLMProvider, string, error) {
 	return s.resolve("embedding")
 }
 
+// Chat resolves the configured chat provider and generates a completion.
+func (s *Service) Chat(ctx context.Context, msgs []ChatMessage) (string, error) {
+	p, key, err := s.ResolveChat()
+	if err != nil {
+		return "", err
+	}
+	return NewClient(p.APIEndpoint, key).Chat(ctx, p.Model, msgs)
+}
+
 // TestResult reports the outcome of a provider self-test.
 type TestResult struct {
 	ChatOK      bool   `json:"chat_ok"`

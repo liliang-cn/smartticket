@@ -1,24 +1,157 @@
 package knowledge
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
 	apperrors "github.com/company/smartticket/internal/errors"
+	"github.com/company/smartticket/internal/knowledgebase"
+	"github.com/company/smartticket/internal/llm"
+	"github.com/company/smartticket/internal/logger"
 	"github.com/company/smartticket/internal/models"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
+// aiUnavailableMsg is returned by AI endpoints when semantic search is not configured.
+const aiUnavailableMsg = "AI search is not configured (set up an embedding provider)"
+
+// askFallback is returned by Ask when no relevant context is found.
+const askFallback = "I don't have information on that in the knowledge base."
+
+// askSystemPrompt instructs the assistant to answer strictly from supplied context.
+const askSystemPrompt = "You are SmartTicket's support assistant. Answer the user's question using ONLY the provided context from the knowledge base. Cite the article titles you used. If the context does not contain the answer, say you don't have that information."
+
 // Service provides knowledge base operations.
 type Service struct {
-	db *gorm.DB
+	db    *gorm.DB
+	store *knowledgebase.Store
+	llm   *llm.Service
 }
 
-// NewService creates a new knowledge service.
-func NewService(db *gorm.DB) *Service {
-	return &Service{db: db}
+// NewService creates a new knowledge service. store and llmSvc are optional:
+// when nil (or not AI-ready) the semantic-search/ask endpoints return 503 and
+// the auto-indexing hooks are skipped silently.
+func NewService(db *gorm.DB, store *knowledgebase.Store, llmSvc *llm.Service) *Service {
+	return &Service{db: db, store: store, llm: llmSvc}
+}
+
+// aiReady reports whether semantic search/indexing is available.
+func (s *Service) aiReady() bool {
+	return s.store != nil && s.store.Healthy() && s.store.DB().HasEmbedder()
+}
+
+// aiUnavailable returns a 503 AppError carrying msg verbatim.
+func aiUnavailable(msg string) error {
+	return &apperrors.AppError{
+		Code:       apperrors.ErrCodeServiceUnavailable,
+		Message:    msg,
+		HTTPStatus: http.StatusServiceUnavailable,
+		Severity:   apperrors.SeverityHigh,
+		Timestamp:  time.Now(),
+	}
+}
+
+// indexArticle best-effort indexes an article into the knowledge store. Errors
+// are logged and swallowed so they never fail the originating HTTP request.
+func (s *Service) indexArticle(ctx context.Context, id uint, title, content, sourceURL string) {
+	if !s.aiReady() {
+		return
+	}
+	if err := s.store.SaveArticle(ctx, id, title, content, sourceURL); err != nil {
+		logger.Warn("knowledge auto-index failed", zap.Uint("article_id", id), zap.Error(err))
+	}
+}
+
+// unindexArticle best-effort removes an article from the knowledge store.
+func (s *Service) unindexArticle(ctx context.Context, id uint) {
+	if !s.aiReady() {
+		return
+	}
+	if err := s.store.DeleteArticle(ctx, id); err != nil {
+		logger.Warn("knowledge auto-unindex failed", zap.Uint("article_id", id), zap.Error(err))
+	}
+}
+
+// SearchHit is re-exported for handler/response use.
+type SearchHit = knowledgebase.SearchHit
+
+// Search runs a semantic search over indexed articles. Returns a 503 AppError
+// when AI search is not configured.
+func (s *Service) Search(ctx context.Context, query string, topK int) ([]SearchHit, error) {
+	if !s.aiReady() {
+		return nil, aiUnavailable(aiUnavailableMsg)
+	}
+	if topK <= 0 {
+		topK = 5
+	}
+	res, err := s.store.Search(ctx, query, topK)
+	if err != nil {
+		return nil, aiUnavailable(aiUnavailableMsg)
+	}
+	return res.Hits, nil
+}
+
+// AskResult bundles a generated answer with the citations it was grounded in.
+type AskResult struct {
+	Answer    string      `json:"answer"`
+	Citations []SearchHit `json:"citations"`
+}
+
+// Ask answers a question using retrieved knowledge context (RAG). Returns a 503
+// AppError when AI search or chat is not configured.
+func (s *Service) Ask(ctx context.Context, question string, topK int) (*AskResult, error) {
+	if !s.aiReady() {
+		return nil, aiUnavailable(aiUnavailableMsg)
+	}
+	if s.llm == nil {
+		return nil, aiUnavailable(aiUnavailableMsg)
+	}
+	if topK <= 0 {
+		topK = 5
+	}
+	res, err := s.store.Search(ctx, question, topK)
+	if err != nil {
+		return nil, aiUnavailable(aiUnavailableMsg)
+	}
+	if len(res.Hits) == 0 {
+		return &AskResult{Answer: askFallback, Citations: []SearchHit{}}, nil
+	}
+	msgs := []llm.ChatMessage{
+		{Role: "system", Content: askSystemPrompt},
+		{Role: "user", Content: "Context:\n" + res.Context + "\n\nQuestion: " + question},
+	}
+	answer, err := s.llm.Chat(ctx, msgs)
+	if err != nil {
+		return nil, aiUnavailable("AI assistant is not configured (set up a chat provider)")
+	}
+	return &AskResult{Answer: answer, Citations: res.Hits}, nil
+}
+
+// Reindex re-indexes ALL non-deleted articles into the knowledge store and
+// reports how many succeeded/failed.
+func (s *Service) Reindex(ctx context.Context) (indexed, failed int, err error) {
+	if !s.aiReady() {
+		return 0, 0, aiUnavailable(aiUnavailableMsg)
+	}
+	var articles []models.KnowledgeArticle
+	if err := s.db.Where("deleted_at IS NULL").Find(&articles).Error; err != nil {
+		return 0, 0, apperrors.NewInternalError("failed to load articles for reindex: %w", err)
+	}
+	for i := range articles {
+		a := &articles[i]
+		if serr := s.store.SaveArticle(ctx, a.ID, a.Title, a.Content, ""); serr != nil {
+			logger.Warn("reindex article failed", zap.Uint("article_id", a.ID), zap.Error(serr))
+			failed++
+			continue
+		}
+		indexed++
+	}
+	return indexed, failed, nil
 }
 
 // CreateKnowledgeArticleRequest represents the request to create a knowledge article.
@@ -98,6 +231,16 @@ type RecentArticle struct {
 
 // CreateKnowledgeArticle creates a new knowledge article.
 func (s *Service) CreateKnowledgeArticle(userID uint, req *CreateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
+	return s.createKnowledgeArticle(context.Background(), userID, req)
+}
+
+// CreateKnowledgeArticleCtx is the context-aware variant used by handlers so the
+// best-effort indexing hook can honor request cancellation.
+func (s *Service) CreateKnowledgeArticleCtx(ctx context.Context, userID uint, req *CreateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
+	return s.createKnowledgeArticle(ctx, userID, req)
+}
+
+func (s *Service) createKnowledgeArticle(ctx context.Context, userID uint, req *CreateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
 	// Normalize and validate input
 	req.Title = trimString(req.Title)
 	req.Summary = trimString(req.Summary)
@@ -151,6 +294,9 @@ func (s *Service) CreateKnowledgeArticle(userID uint, req *CreateKnowledgeArticl
 	}).Error; err != nil {
 		// Log error but don't fail - the article is already created
 	}
+
+	// Best-effort semantic index (after commit, non-fatal).
+	s.indexArticle(ctx, article.ID, article.Title, article.Content, "")
 
 	return s.getKnowledgeArticleResponse(article)
 }
@@ -245,6 +391,15 @@ func (s *Service) ListKnowledgeArticles(page, pageSize int, filters map[string]i
 
 // UpdateKnowledgeArticle updates an existing knowledge article.
 func (s *Service) UpdateKnowledgeArticle(id uint, userID uint, req *UpdateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
+	return s.updateKnowledgeArticle(context.Background(), id, userID, req)
+}
+
+// UpdateKnowledgeArticleCtx is the context-aware variant used by handlers.
+func (s *Service) UpdateKnowledgeArticleCtx(ctx context.Context, id uint, userID uint, req *UpdateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
+	return s.updateKnowledgeArticle(ctx, id, userID, req)
+}
+
+func (s *Service) updateKnowledgeArticle(ctx context.Context, id uint, userID uint, req *UpdateKnowledgeArticleRequest) (*KnowledgeArticleResponse, error) {
 	var article models.KnowledgeArticle
 	if err := s.db.Where("id = ?", id).
 		First(&article).Error; err != nil {
@@ -305,11 +460,23 @@ func (s *Service) UpdateKnowledgeArticle(id uint, userID uint, req *UpdateKnowle
 		return nil, apperrors.NewInternalError("failed to reload knowledge article: %w", err)
 	}
 
+	// Best-effort semantic re-index (after commit, non-fatal).
+	s.indexArticle(ctx, article.ID, article.Title, article.Content, "")
+
 	return s.getKnowledgeArticleResponse(&article)
 }
 
 // DeleteKnowledgeArticle soft deletes a knowledge article.
 func (s *Service) DeleteKnowledgeArticle(id uint, userID uint) error {
+	return s.deleteKnowledgeArticle(context.Background(), id, userID)
+}
+
+// DeleteKnowledgeArticleCtx is the context-aware variant used by handlers.
+func (s *Service) DeleteKnowledgeArticleCtx(ctx context.Context, id uint, userID uint) error {
+	return s.deleteKnowledgeArticle(ctx, id, userID)
+}
+
+func (s *Service) deleteKnowledgeArticle(ctx context.Context, id uint, userID uint) error {
 	// Get user email from database
 	var user models.User
 	if err := s.db.Where("id = ? AND is_active = ?", userID, true).First(&user).Error; err != nil {
@@ -330,6 +497,9 @@ func (s *Service) DeleteKnowledgeArticle(id uint, userID uint) error {
 	if result.RowsAffected == 0 {
 		return apperrors.NewNotFoundError("knowledge article not found")
 	}
+
+	// Best-effort removal from the semantic index (non-fatal).
+	s.unindexArticle(ctx, id)
 
 	return nil
 }

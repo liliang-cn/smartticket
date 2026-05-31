@@ -44,7 +44,7 @@ func NewDirectBackend(db *gorm.DB, authService *auth.Service, permissionService 
 
 	return &DirectBackend{
 		ticket:       ticket.NewService(db, slaCalculator),
-		knowledge:    knowledge.NewService(db),
+		knowledge:    knowledge.NewService(db, nil, nil),
 		product:      product.NewService(db),
 		service:      servicemgmt.NewService(db),
 		sla:          sla.NewService(db),
