@@ -43,6 +43,13 @@ func NewService(db *gorm.DB, store *knowledgebase.Store, llmSvc *llm.Service) *S
 	return &Service{db: db, store: store, llm: llmSvc}
 }
 
+// IsTeamRole reports whether role is a team (internal) role. Any authenticated
+// non-customer role (admin/engineer/support/sales) is treated as team. Customers
+// (and unauthenticated/empty roles) are external and must not see internal content.
+func IsTeamRole(role string) bool {
+	return role != "" && role != "customer"
+}
+
 // aiReady reports whether semantic search/indexing is available.
 func (s *Service) aiReady() bool {
 	return s.store != nil && s.store.Healthy() && s.store.DB().HasEmbedder()
@@ -63,14 +70,14 @@ func aiUnavailable(msg string) error {
 // DETACHED in a goroutine with its own context so embedding a large article can
 // neither block the originating HTTP request nor be cancelled when the client
 // disconnects (the request context must not be used here). Errors are logged.
-func (s *Service) indexArticle(_ context.Context, id uint, title, content, sourceURL string) {
+func (s *Service) indexArticle(_ context.Context, id uint, title, content, sourceURL, visibility string) {
 	if !s.aiReady() {
 		return
 	}
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 		defer cancel()
-		if err := s.store.SaveArticle(ctx, id, title, content, sourceURL); err != nil {
+		if err := s.store.SaveArticle(ctx, id, title, content, sourceURL, visibility); err != nil {
 			logger.Warn("knowledge auto-index failed", zap.Uint("article_id", id), zap.Error(err))
 		}
 	}()
@@ -96,14 +103,14 @@ type SearchHit = knowledgebase.SearchHit
 
 // Search runs a semantic search over indexed articles. Returns a 503 AppError
 // when AI search is not configured.
-func (s *Service) Search(ctx context.Context, query string, topK int) ([]SearchHit, error) {
+func (s *Service) Search(ctx context.Context, query string, topK int, includeInternal bool) ([]SearchHit, error) {
 	if !s.aiReady() {
 		return nil, aiUnavailable(aiUnavailableMsg)
 	}
 	if topK <= 0 {
 		topK = 5
 	}
-	res, err := s.store.Search(ctx, query, topK)
+	res, err := s.store.Search(ctx, query, topK, includeInternal)
 	if err != nil {
 		logger.Warn("knowledge search failed", zap.Error(err))
 		return nil, aiUnavailable(aiSearchFailedMsg)
@@ -119,7 +126,7 @@ type AskResult struct {
 
 // Ask answers a question using retrieved knowledge context (RAG). Returns a 503
 // AppError when AI search or chat is not configured.
-func (s *Service) Ask(ctx context.Context, question string, topK int) (*AskResult, error) {
+func (s *Service) Ask(ctx context.Context, question string, topK int, includeInternal bool) (*AskResult, error) {
 	if !s.aiReady() {
 		return nil, aiUnavailable(aiUnavailableMsg)
 	}
@@ -129,7 +136,7 @@ func (s *Service) Ask(ctx context.Context, question string, topK int) (*AskResul
 	if topK <= 0 {
 		topK = 5
 	}
-	res, err := s.store.Search(ctx, question, topK)
+	res, err := s.store.Search(ctx, question, topK, includeInternal)
 	if err != nil {
 		logger.Warn("knowledge ask search failed", zap.Error(err))
 		return nil, aiUnavailable(aiSearchFailedMsg)
@@ -159,7 +166,7 @@ func (s *Service) reindexAll(ctx context.Context) (indexed, failed int) {
 	}
 	for i := range articles {
 		a := &articles[i]
-		if serr := s.store.SaveArticle(ctx, a.ID, a.Title, a.Content, ""); serr != nil {
+		if serr := s.store.SaveArticle(ctx, a.ID, a.Title, a.Content, "", a.Visibility); serr != nil {
 			logger.Warn("reindex article failed", zap.Uint("article_id", a.ID), zap.Error(serr))
 			failed++
 			continue
@@ -197,9 +204,10 @@ type CreateKnowledgeArticleRequest struct {
 	Summary   string `json:"summary" binding:"max=1000"`
 	Category  string `json:"category" binding:"required,oneof=technical troubleshooting guide faq tutorial other"`
 	Tags      string `json:"tags"` // JSON array
-	Status    string `json:"status" binding:"oneof=draft published archived"`
-	ProductID *uint  `json:"product_id"`
-	ServiceID *uint  `json:"service_id"`
+	Status     string `json:"status" binding:"oneof=draft published archived"`
+	Visibility string `json:"visibility" binding:"omitempty,oneof=public internal private"`
+	ProductID  *uint  `json:"product_id"`
+	ServiceID  *uint  `json:"service_id"`
 }
 
 // UpdateKnowledgeArticleRequest represents the request to update a knowledge article.
@@ -209,9 +217,10 @@ type UpdateKnowledgeArticleRequest struct {
 	Summary   string `json:"summary" binding:"omitempty,max=1000"`
 	Category  string `json:"category" binding:"omitempty,oneof=technical troubleshooting guide faq tutorial other"`
 	Tags      string `json:"tags"`
-	Status    string `json:"status" binding:"omitempty,oneof=draft published archived"`
-	ProductID *uint  `json:"product_id"`
-	ServiceID *uint  `json:"service_id"`
+	Status     string `json:"status" binding:"omitempty,oneof=draft published archived"`
+	Visibility string `json:"visibility" binding:"omitempty,oneof=public internal private"`
+	ProductID  *uint  `json:"product_id"`
+	ServiceID  *uint  `json:"service_id"`
 }
 
 // KnowledgeArticleResponse represents the response for a knowledge article.
@@ -223,6 +232,7 @@ type KnowledgeArticleResponse struct {
 	Category    string              `json:"category"`
 	Tags        string              `json:"tags"`
 	Status      string              `json:"status"`
+	Visibility  string              `json:"visibility"`
 	ViewCount   int64               `json:"view_count"`
 	Version     int                 `json:"version"`
 	ProductID   *uint               `json:"product_id"`
@@ -282,12 +292,16 @@ func (s *Service) createKnowledgeArticle(ctx context.Context, userID uint, req *
 	req.Summary = trimString(req.Summary)
 	req.Category = trimString(req.Category)
 	req.Status = trimString(req.Status)
+	req.Visibility = trimString(req.Visibility)
 
 	if req.Status == "" {
 		req.Status = "draft"
 	}
 	if req.Category == "" {
 		req.Category = "technical"
+	}
+	if req.Visibility == "" {
+		req.Visibility = "public"
 	}
 
 	// Get user from ID
@@ -313,10 +327,11 @@ func (s *Service) createKnowledgeArticle(ctx context.Context, userID uint, req *
 		Status:    req.Status,
 		Views:     0,
 		Version:   1,
-		ProductID: req.ProductID,
-		ServiceID: req.ServiceID,
-		Category:  req.Category,
-		Tags:      req.Tags,
+		ProductID:  req.ProductID,
+		ServiceID:  req.ServiceID,
+		Category:   req.Category,
+		Tags:       req.Tags,
+		Visibility: req.Visibility,
 	}
 
 	if err := s.db.Create(article).Error; err != nil {
@@ -332,13 +347,23 @@ func (s *Service) createKnowledgeArticle(ctx context.Context, userID uint, req *
 	}
 
 	// Best-effort semantic index (after commit, non-fatal).
-	s.indexArticle(ctx, article.ID, article.Title, article.Content, "")
+	s.indexArticle(ctx, article.ID, article.Title, article.Content, "", article.Visibility)
 
 	return s.getKnowledgeArticleResponse(article)
 }
 
-// GetKnowledgeArticle retrieves a knowledge article by ID and increments view count.
+// GetKnowledgeArticle retrieves a knowledge article by ID and increments view
+// count. It allows team (internal) access to every article. Use
+// GetKnowledgeArticleScoped to enforce visibility for external (customer) callers.
 func (s *Service) GetKnowledgeArticle(id uint) (*KnowledgeArticleResponse, error) {
+	return s.GetKnowledgeArticleScoped(id, true)
+}
+
+// GetKnowledgeArticleScoped retrieves a knowledge article by ID. When
+// includeInternal is false (external/customer callers), internal/private or
+// non-published articles are reported as not found so customers cannot fetch
+// internal content by ID.
+func (s *Service) GetKnowledgeArticleScoped(id uint, includeInternal bool) (*KnowledgeArticleResponse, error) {
 	var article models.KnowledgeArticle
 	if err := s.db.Where("id = ?", id).
 		Preload("Product").
@@ -351,6 +376,11 @@ func (s *Service) GetKnowledgeArticle(id uint) (*KnowledgeArticleResponse, error
 		return nil, apperrors.NewInternalError("failed to retrieve knowledge article: %w", err)
 	}
 
+	// External callers only ever see published, public articles.
+	if !includeInternal && (article.Visibility != "public" || article.Status != "published") {
+		return nil, apperrors.NewNotFoundError("knowledge article not found")
+	}
+
 	// Increment view count
 	if err := s.db.Model(&article).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error; err != nil {
 		// Log error but don't fail the request
@@ -361,8 +391,18 @@ func (s *Service) GetKnowledgeArticle(id uint) (*KnowledgeArticleResponse, error
 	return s.getKnowledgeArticleResponse(&article)
 }
 
-// ListKnowledgeArticles retrieves knowledge articles with pagination and filtering.
+// ListKnowledgeArticles retrieves knowledge articles with pagination and
+// filtering. It returns every article (team/internal view). Use
+// ListKnowledgeArticlesScoped to enforce visibility for external callers.
 func (s *Service) ListKnowledgeArticles(page, pageSize int, filters map[string]interface{}) (*KnowledgeArticleListResponse, error) {
+	return s.ListKnowledgeArticlesScoped(page, pageSize, filters, true)
+}
+
+// ListKnowledgeArticlesScoped retrieves knowledge articles with pagination and
+// filtering. When includeInternal is false (external/customer callers), the
+// result is restricted to published public articles, so customers never see
+// internal/private or unpublished content.
+func (s *Service) ListKnowledgeArticlesScoped(page, pageSize int, filters map[string]interface{}, includeInternal bool) (*KnowledgeArticleListResponse, error) {
 	offset := (page - 1) * pageSize
 
 	// Build query
@@ -370,6 +410,11 @@ func (s *Service) ListKnowledgeArticles(page, pageSize int, filters map[string]i
 		Preload("Product").
 		Preload("Service").
 		Preload("Attachments")
+
+	// External callers only ever see published, public articles.
+	if !includeInternal {
+		query = query.Where("visibility = ? AND status = ?", "public", "published")
+	}
 
 	// Apply filters
 	if status, ok := filters["status"]; ok {
@@ -475,6 +520,9 @@ func (s *Service) updateKnowledgeArticle(ctx context.Context, id uint, userID ui
 	if req.Status != "" {
 		updateData["status"] = trimString(req.Status)
 	}
+	if req.Visibility != "" {
+		updateData["visibility"] = trimString(req.Visibility)
+	}
 	if req.ProductID != nil {
 		updateData["product_id"] = req.ProductID
 	}
@@ -496,8 +544,10 @@ func (s *Service) updateKnowledgeArticle(ctx context.Context, id uint, userID ui
 		return nil, apperrors.NewInternalError("failed to reload knowledge article: %w", err)
 	}
 
-	// Best-effort semantic re-index (after commit, non-fatal).
-	s.indexArticle(ctx, article.ID, article.Title, article.Content, "")
+	// Best-effort semantic re-index (after commit, non-fatal). The reloaded
+	// article carries the (possibly changed) visibility, so SaveArticle moves
+	// it to the correct collection.
+	s.indexArticle(ctx, article.ID, article.Title, article.Content, "", article.Visibility)
 
 	return s.getKnowledgeArticleResponse(&article)
 }
@@ -634,6 +684,7 @@ func (s *Service) getKnowledgeArticleResponse(article *models.KnowledgeArticle) 
 		Category:    article.Category,
 		Tags:        article.Tags,
 		Status:      article.Status,
+		Visibility:  article.Visibility,
 		ViewCount:   int64(article.Views),
 		Version:     article.Version,
 		ProductID:   article.ProductID,

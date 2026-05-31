@@ -90,8 +90,11 @@ func (h *Handlers) GetKnowledgeArticle(c *gin.Context) {
 		return
 	}
 
+	// Customers only see published public articles; team users see everything.
+	includeInternal := IsTeamRole(c.GetString("user_role"))
+
 	// Get knowledge article
-	article, err := h.service.GetKnowledgeArticle(uint(articleID))
+	article, err := h.service.GetKnowledgeArticleScoped(uint(articleID), includeInternal)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -156,8 +159,11 @@ func (h *Handlers) ListKnowledgeArticles(c *gin.Context) {
 		filters["search"] = search
 	}
 
+	// Customers only see published public articles; team users see everything.
+	includeInternal := IsTeamRole(c.GetString("user_role"))
+
 	// Get knowledge articles
-	result, err := h.service.ListKnowledgeArticles(page, pageSize, filters)
+	result, err := h.service.ListKnowledgeArticlesScoped(page, pageSize, filters, includeInternal)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -335,7 +341,8 @@ func (h *Handlers) SearchKnowledge(c *gin.Context) {
 		return
 	}
 
-	hits, err := h.service.Search(c.Request.Context(), req.Query, req.TopK)
+	includeInternal := IsTeamRole(c.GetString("user_role"))
+	hits, err := h.service.Search(c.Request.Context(), req.Query, req.TopK, includeInternal)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
@@ -375,7 +382,8 @@ func (h *Handlers) AskKnowledge(c *gin.Context) {
 		return
 	}
 
-	res, err := h.service.Ask(c.Request.Context(), req.Question, req.TopK)
+	includeInternal := IsTeamRole(c.GetString("user_role"))
+	res, err := h.service.Ask(c.Request.Context(), req.Question, req.TopK, includeInternal)
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return

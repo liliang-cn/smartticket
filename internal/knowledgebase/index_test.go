@@ -2,6 +2,7 @@ package knowledgebase
 
 import (
 	"context"
+	"strings"
 	"testing"
 )
 
@@ -43,16 +44,16 @@ func TestSaveSearchDeleteRoundTrip(t *testing.T) {
 
 	if err := st.SaveArticle(ctx, 1, "DRBD Configuration",
 		"DRBD is configured via drbd.conf with resource sections that define peers, disks and meta-disks.",
-		"http://x/1"); err != nil {
+		"http://x/1", "public"); err != nil {
 		t.Fatalf("SaveArticle 1: %v", err)
 	}
 	if err := st.SaveArticle(ctx, 2, "LINSTOR Volumes",
 		"LINSTOR manages volumes and storage pools across nodes in a cluster.",
-		"http://x/2"); err != nil {
+		"http://x/2", "public"); err != nil {
 		t.Fatalf("SaveArticle 2: %v", err)
 	}
 
-	res, err := st.Search(ctx, "how to configure drbd", 5)
+	res, err := st.Search(ctx, "how to configure drbd", 5, true)
 	if err != nil {
 		t.Fatalf("Search: %v", err)
 	}
@@ -99,13 +100,100 @@ func TestKnowledgeIDRoundTrip(t *testing.T) {
 func TestIndexMethodsNilGuard(t *testing.T) {
 	ctx := context.Background()
 	var s *Store
-	if err := s.SaveArticle(ctx, 1, "t", "c", ""); err == nil {
+	if err := s.SaveArticle(ctx, 1, "t", "c", "", "public"); err == nil {
 		t.Error("SaveArticle on nil store should error")
 	}
 	if err := s.DeleteArticle(ctx, 1); err == nil {
 		t.Error("DeleteArticle on nil store should error")
 	}
-	if _, err := s.Search(ctx, "q", 5); err == nil {
+	if _, err := s.Search(ctx, "q", 5, true); err == nil {
 		t.Error("Search on nil store should error")
+	}
+}
+
+// TestVisibilityIsolation proves customers (includeInternal=false) only retrieve
+// public articles, while team users (includeInternal=true) can retrieve internal
+// content too.
+func TestVisibilityIsolation(t *testing.T) {
+	ctx := context.Background()
+	st := newTestStore(t)
+
+	if err := st.SaveArticle(ctx, 100, "Public Failover Guide",
+		"Public failover guide: how customers trigger a cluster failover via the dashboard.",
+		"http://x/100", "public"); err != nil {
+		t.Fatalf("SaveArticle public: %v", err)
+	}
+	if err := st.SaveArticle(ctx, 200, "Internal Failover Runbook",
+		"Internal failover runbook: SSH to the node and run the privileged failover script with the ops key.",
+		"http://x/200", "internal"); err != nil {
+		t.Fatalf("SaveArticle internal: %v", err)
+	}
+
+	// Customer search must NEVER return the internal article.
+	ext, err := st.Search(ctx, "failover", 10, false)
+	if err != nil {
+		t.Fatalf("Search external: %v", err)
+	}
+	for _, h := range ext.Hits {
+		if h.ArticleID == 200 {
+			t.Fatalf("external search leaked internal article 200: %+v", ext.Hits)
+		}
+	}
+	if strings.Contains(ext.Context, "privileged failover script") {
+		t.Fatalf("external RAG context leaked internal content: %q", ext.Context)
+	}
+	foundPublic := false
+	for _, h := range ext.Hits {
+		if h.ArticleID == 100 {
+			foundPublic = true
+		}
+	}
+	if !foundPublic {
+		t.Fatalf("external search should return public article 100, got: %+v", ext.Hits)
+	}
+
+	// Team search can return both.
+	team, err := st.Search(ctx, "failover", 10, true)
+	if err != nil {
+		t.Fatalf("Search team: %v", err)
+	}
+	foundInternal := false
+	for _, h := range team.Hits {
+		if h.ArticleID == 200 {
+			foundInternal = true
+		}
+	}
+	if !foundInternal {
+		t.Fatalf("team search should be able to return internal article 200, got: %+v", team.Hits)
+	}
+}
+
+// TestVisibilityChangeMovesCollections verifies that re-saving an article with a
+// new visibility moves it between collections so the old copy no longer leaks.
+func TestVisibilityChangeMovesCollections(t *testing.T) {
+	ctx := context.Background()
+	st := newTestStore(t)
+
+	if err := st.SaveArticle(ctx, 300, "Migration Notes",
+		"Migration notes describe the steps to migrate storage pools between cluster nodes safely.",
+		"http://x/300", "public"); err != nil {
+		t.Fatalf("SaveArticle public: %v", err)
+	}
+	// Move it to internal.
+	if err := st.SaveArticle(ctx, 300, "Migration Notes",
+		"Migration notes describe the steps to migrate storage pools between cluster nodes safely.",
+		"http://x/300", "internal"); err != nil {
+		t.Fatalf("SaveArticle internal: %v", err)
+	}
+
+	// External search must no longer find it.
+	ext, err := st.Search(ctx, "migrate storage pools", 10, false)
+	if err != nil {
+		t.Fatalf("Search external: %v", err)
+	}
+	for _, h := range ext.Hits {
+		if h.ArticleID == 300 {
+			t.Fatalf("article 300 still visible externally after move to internal: %+v", ext.Hits)
+		}
 	}
 }

@@ -74,12 +74,12 @@ func TestSearchHappyPath(t *testing.T) {
 	ctx := context.Background()
 
 	if err := store.SaveArticle(ctx, 1, "DRBD Configuration",
-		"DRBD is configured via drbd.conf with resource sections.", ""); err != nil {
+		"DRBD is configured via drbd.conf with resource sections.", "", "public"); err != nil {
 		t.Fatalf("SaveArticle: %v", err)
 	}
 
 	svc := NewService(db, store, nil)
-	hits, err := svc.Search(ctx, "how to configure drbd", 5)
+	hits, err := svc.Search(ctx, "how to configure drbd", 5, true)
 	if err != nil {
 		t.Fatalf("Search: %v", err)
 	}
@@ -91,7 +91,7 @@ func TestSearchHappyPath(t *testing.T) {
 func TestSearchNilStoreReturns503(t *testing.T) {
 	db := newTestDB(t)
 	svc := NewService(db, nil, nil) // no store -> not AI ready
-	_, err := svc.Search(context.Background(), "anything", 5)
+	_, err := svc.Search(context.Background(), "anything", 5, true)
 	if err == nil {
 		t.Fatal("expected error from nil store")
 	}
@@ -115,7 +115,7 @@ func TestAskHappyPath(t *testing.T) {
 	store := newTestStore(t)
 	ctx := context.Background()
 	if err := store.SaveArticle(ctx, 1, "DRBD Configuration",
-		"DRBD is configured via drbd.conf with resource sections.", ""); err != nil {
+		"DRBD is configured via drbd.conf with resource sections.", "", "public"); err != nil {
 		t.Fatalf("SaveArticle: %v", err)
 	}
 
@@ -129,7 +129,7 @@ func TestAskHappyPath(t *testing.T) {
 	}
 
 	svc := NewService(db, store, llmSvc)
-	res, err := svc.Ask(ctx, "how do I configure drbd?", 5)
+	res, err := svc.Ask(ctx, "how do I configure drbd?", 5, true)
 	if err != nil {
 		t.Fatalf("Ask: %v", err)
 	}
@@ -155,7 +155,7 @@ func TestAskNoHitsFallback(t *testing.T) {
 	}
 
 	svc := NewService(db, store, llmSvc)
-	res, err := svc.Ask(context.Background(), "an unindexed question", 5)
+	res, err := svc.Ask(context.Background(), "an unindexed question", 5, true)
 	if err != nil {
 		t.Fatalf("Ask: %v", err)
 	}
@@ -175,6 +175,14 @@ func TestReindexCountsArticles(t *testing.T) {
 
 	svc := NewService(db, store, nil)
 
+	// The synchronous core does the actual work and reports counts. Run it
+	// alone first — cortex.db has no busy-timeout, so two concurrent indexers
+	// (e.g. the async Reindex goroutine + this call) would contend.
+	indexed, failed := svc.reindexAll(context.Background())
+	if indexed != 2 || failed != 0 {
+		t.Fatalf("reindexAll counts: indexed=%d failed=%d, want 2/0", indexed, failed)
+	}
+
 	// Public Reindex is async and reports how many were scheduled.
 	scheduled, err := svc.Reindex(context.Background())
 	if err != nil {
@@ -182,12 +190,6 @@ func TestReindexCountsArticles(t *testing.T) {
 	}
 	if scheduled != 2 {
 		t.Fatalf("reindex scheduled=%d, want 2", scheduled)
-	}
-
-	// The synchronous core does the actual work and reports counts.
-	indexed, failed := svc.reindexAll(context.Background())
-	if indexed != 2 || failed != 0 {
-		t.Fatalf("reindexAll counts: indexed=%d failed=%d, want 2/0", indexed, failed)
 	}
 }
 
