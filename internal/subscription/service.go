@@ -99,8 +99,29 @@ const (
 	statusCancelled       = "cancelled"
 )
 
+// billingUnits is the generic set of supported billing units. It deliberately
+// covers both infrastructure products (per_node / per_cluster) and SaaS-style
+// products (per_seat / per_user / per_agent) plus a flat single-unit option, so
+// the catalog is not tied to any one product shape.
+var billingUnits = map[string]bool{
+	billingUnitPerNode:    true,
+	billingUnitPerCluster: true,
+	"per_seat":            true,
+	"per_user":            true,
+	"per_agent":           true,
+	"per_device":          true,
+	"flat":                true,
+}
+
+// singleUnitBilling marks units that always bill as one unit regardless of the
+// node/seat count (used to derive total_units).
+var singleUnitBilling = map[string]bool{
+	billingUnitPerCluster: true,
+	"flat":                true,
+}
+
 func isValidBillingUnit(v string) bool {
-	return v == billingUnitPerNode || v == billingUnitPerCluster
+	return billingUnits[v]
 }
 
 func isValidBillingPeriod(v string) bool {
@@ -155,7 +176,7 @@ func (s *Service) Create(req *CreateSubscriptionRequest) (*SubscriptionResponse,
 		billingUnit = billingUnitPerNode
 	}
 	if !isValidBillingUnit(billingUnit) {
-		return nil, apperrors.NewInvalidInputError("billing_unit", "must be per_node or per_cluster")
+		return nil, apperrors.NewInvalidInputError("billing_unit", "must be one of per_node, per_cluster, per_seat, per_user, per_agent, per_device, flat")
 	}
 
 	billingPeriod := strings.TrimSpace(req.BillingPeriod)
@@ -301,7 +322,7 @@ func (s *Service) Update(id uint, req *UpdateSubscriptionRequest) (*Subscription
 	if req.BillingUnit != nil {
 		v := strings.TrimSpace(*req.BillingUnit)
 		if !isValidBillingUnit(v) {
-			return nil, apperrors.NewInvalidInputError("billing_unit", "must be per_node or per_cluster")
+			return nil, apperrors.NewInvalidInputError("billing_unit", "must be one of per_node, per_cluster, per_seat, per_user, per_agent, per_device, flat")
 		}
 		subscription.BillingUnit = v
 	}
@@ -390,8 +411,13 @@ func toResponse(sub *models.Subscription) *SubscriptionResponse {
 		UpdatedAt:     sub.UpdatedAt,
 	}
 
-	// total_units derives from node_count for per_node billing.
-	resp.TotalUnits = sub.NodeCount
+	// total_units is the node/seat count, except for single-unit billing
+	// (per_cluster / flat) which always counts as one.
+	if singleUnitBilling[sub.BillingUnit] {
+		resp.TotalUnits = 1
+	} else {
+		resp.TotalUnits = sub.NodeCount
+	}
 
 	if !sub.ExpiresAt.IsZero() {
 		resp.IsExpired = sub.ExpiresAt.Before(time.Now())

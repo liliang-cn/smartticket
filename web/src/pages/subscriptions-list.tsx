@@ -73,7 +73,15 @@ const schema = z.object({
   product_id: z.string().min(1, "Product is required"),
   sla_template_id: z.string().optional(),
   plan: z.string().optional(),
-  billing_unit: z.enum(["per_node", "per_cluster"]),
+  billing_unit: z.enum([
+    "per_node",
+    "per_cluster",
+    "per_seat",
+    "per_user",
+    "per_agent",
+    "per_device",
+    "flat",
+  ]),
   node_count: z.string().optional(),
   billing_period: z.enum(["annual", "monthly"]),
   starts_at: z.string().min(1, "Start date is required"),
@@ -269,6 +277,11 @@ function SubscriptionFormDialog() {
                 <SelectContent>
                   <SelectItem value="per_node">Per node</SelectItem>
                   <SelectItem value="per_cluster">Per cluster</SelectItem>
+                  <SelectItem value="per_seat">Per seat</SelectItem>
+                  <SelectItem value="per_user">Per user</SelectItem>
+                  <SelectItem value="per_agent">Per agent</SelectItem>
+                  <SelectItem value="per_device">Per device</SelectItem>
+                  <SelectItem value="flat">Flat</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -477,11 +490,10 @@ export function SubscriptionsPage() {
                       {s.plan || "—"}
                     </td>
                     <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                      {s.node_count}
+                      {s.total_units}
                       <span className="text-muted-foreground/60">
-                        {s.billing_unit === "per_cluster"
-                          ? " /cluster"
-                          : " /node"}
+                        {" "}
+                        {s.billing_unit.replace("per_", "/").replace("flat", "flat")}
                       </span>
                     </td>
                     <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">

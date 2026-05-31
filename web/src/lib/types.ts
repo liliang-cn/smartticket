@@ -180,7 +180,7 @@ export interface Subscription {
   sla_template_id?: number | null;
   sla_template_name?: string;
   plan: string;
-  billing_unit: "per_node" | "per_cluster";
+  billing_unit: "per_node" | "per_cluster" | "per_seat" | "per_user" | "per_agent" | "per_device" | "flat";
   node_count: number;
   billing_period: "annual" | "monthly";
   starts_at: string;
