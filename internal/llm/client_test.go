@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 )
 
@@ -35,6 +36,9 @@ func TestClientChat(t *testing.T) {
 func TestClientEmbedBatchesAtTen(t *testing.T) {
 	var batchSizes []int
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/embeddings" {
+			t.Errorf("unexpected path %s", r.URL.Path)
+		}
 		var body struct {
 			Input []string `json:"input"`
 		}
@@ -62,7 +66,7 @@ func TestClientEmbedBatchesAtTen(t *testing.T) {
 		t.Fatalf("want 23 vectors, got %d", len(vecs))
 	}
 	want := []int{10, 10, 3}
-	if len(batchSizes) != 3 || batchSizes[0] != want[0] || batchSizes[2] != want[2] {
+	if !reflect.DeepEqual(batchSizes, want) {
 		t.Fatalf("batch sizes = %v, want %v", batchSizes, want)
 	}
 }
