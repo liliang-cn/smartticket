@@ -90,6 +90,15 @@ export interface TicketMessage {
   created_at: string;
 }
 
+export interface Attachment {
+  id: number;
+  ticket_id: number;
+  original_name: string;
+  file_size: number;
+  content_type?: string;
+  created_at: string;
+}
+
 export interface Customer {
   id: number;
   name: string;

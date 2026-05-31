@@ -1,13 +1,25 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Send, Lock, Bot } from "lucide-react";
+import {
+  ArrowLeft,
+  Send,
+  Lock,
+  Bot,
+  Download,
+  Paperclip,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   useTicket,
   useTicketMessages,
   useUpdateTicket,
   useAddMessage,
+  useTicketAttachments,
+  useUploadAttachment,
+  downloadAttachment,
 } from "@/features/tickets/api";
+import type { Attachment } from "@/lib/types";
 import { apiError } from "@/lib/api";
 import { relativeTime } from "@/lib/utils";
 import {
@@ -28,6 +40,103 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useReveal } from "@/lib/use-reveal";
+
+function formatBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function AttachmentsCard({ ticketId }: { ticketId: number }) {
+  const { data: attachments, isLoading } = useTicketAttachments(ticketId);
+  const upload = useUploadAttachment(ticketId);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const [downloading, setDownloading] = useState<number | null>(null);
+
+  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      await upload.mutateAsync(file);
+      toast.success("Attachment uploaded");
+    } catch (err) {
+      toast.error(apiError(err, "Upload failed"));
+    }
+  }
+
+  async function onDownload(att: Attachment) {
+    setDownloading(att.id);
+    try {
+      await downloadAttachment(att);
+    } catch (err) {
+      toast.error(apiError(err, "Download failed"));
+    } finally {
+      setDownloading(null);
+    }
+  }
+
+  return (
+    <Card className="p-5">
+      <div className="mb-3 flex items-center justify-between">
+        <Label>Attachments</Label>
+        <input
+          ref={fileInput}
+          type="file"
+          className="hidden"
+          onChange={onPick}
+        />
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => fileInput.current?.click()}
+          disabled={upload.isPending}
+        >
+          {upload.isPending ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <Paperclip />
+          )}
+          {upload.isPending ? "Uploading…" : "Attach file"}
+        </Button>
+      </div>
+      {isLoading ? (
+        <Skeleton className="h-10 w-full" />
+      ) : attachments && attachments.length > 0 ? (
+        <ul className="space-y-1.5">
+          {attachments.map((att) => (
+            <li
+              key={att.id}
+              className="flex items-center justify-between gap-3 rounded-md border border-border/60 px-3 py-2 text-sm"
+            >
+              <div className="min-w-0">
+                <div className="truncate font-medium">{att.original_name}</div>
+                <div className="font-mono text-[11px] text-muted-foreground">
+                  {formatBytes(att.file_size)} · {relativeTime(att.created_at)}
+                </div>
+              </div>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => onDownload(att)}
+                disabled={downloading === att.id}
+                aria-label={`Download ${att.original_name}`}
+              >
+                {downloading === att.id ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  <Download />
+                )}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm text-muted-foreground">No attachments</p>
+      )}
+    </Card>
+  );
+}
 
 function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -214,6 +323,8 @@ export function TicketDetailPage() {
               </div>
             </Card>
           </div>
+
+          <AttachmentsCard ticketId={ticket.id} />
         </div>
 
         {/* Meta sidebar */}

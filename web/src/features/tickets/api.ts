@@ -4,7 +4,12 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { api, unwrap } from "@/lib/api";
-import type { Ticket, TicketMessage, TicketStats } from "@/lib/types";
+import type {
+  Attachment,
+  Ticket,
+  TicketMessage,
+  TicketStats,
+} from "@/lib/types";
 
 export interface TicketFilters {
   page: number;
@@ -127,6 +132,50 @@ export function useUpdateTicket(id: number) {
       qc.invalidateQueries({ queryKey: ["ticket-stats"] });
     },
   });
+}
+
+export function useTicketAttachments(id: number | undefined) {
+  return useQuery({
+    queryKey: ["ticket-attachments", id],
+    enabled: (id ?? 0) > 0,
+    queryFn: async () => {
+      const res = await api.get(`/tickets/${id}/attachments`);
+      return unwrap<Attachment[]>(res.data) ?? [];
+    },
+  });
+}
+
+export function useUploadAttachment(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await api.post(`/tickets/${id}/attachments`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return unwrap<Attachment>(res.data);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ticket-attachments", id] });
+      qc.invalidateQueries({ queryKey: ["ticket", id] });
+    },
+  });
+}
+
+/** Download an attachment via the axios instance so the Bearer token is attached. */
+export async function downloadAttachment(att: Attachment) {
+  const res = await api.get(`/attachments/${att.id}/download`, {
+    responseType: "blob",
+  });
+  const url = URL.createObjectURL(res.data as Blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = att.original_name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 export function useAddMessage(id: number) {
