@@ -98,7 +98,10 @@ function RowActions({ job }: { job: Job }) {
     null
   );
   const canCancel = job.status === "pending" || job.status === "running";
-  const canDownload = job.type === "export" && job.status === "completed";
+  // A job is a downloadable export when it completed and produced a result file.
+  // (job.type holds the exported entity — e.g. "tickets" — not "export"; imports
+  // never set a file_path, so this distinguishes exports reliably.)
+  const canDownload = job.status === "completed" && !!job.file_path;
 
   async function confirmDelete() {
     if (!toDelete) return;
@@ -302,9 +305,7 @@ export function DataJobsPage() {
                       </span>
                     </div>
                     <div className="mt-0.5 font-mono text-[11px] text-muted-foreground">
-                      {j.type === "export"
-                        ? j.target_format || "—"
-                        : j.source_format || "—"}
+                      {j.target_format || j.source_format || "—"}
                     </div>
                   </td>
                   <td className="px-4 py-3.5">
