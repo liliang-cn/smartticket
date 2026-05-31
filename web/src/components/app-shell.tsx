@@ -11,8 +11,12 @@ import {
   Timer,
   Database,
   LogOut,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { useTheme, type Theme } from "@/lib/theme";
 import { useReveal } from "@/lib/use-reveal";
 import { cn } from "@/lib/utils";
 import {
@@ -137,6 +141,8 @@ export function AppShell() {
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
             superleo workspace
           </div>
+          <div className="flex items-center gap-3">
+          <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-full border border-border bg-card/60 py-1 pl-1 pr-3 outline-none transition-colors hover:bg-accent">
               <Avatar className="size-7">
@@ -164,6 +170,7 @@ export function AppShell() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </header>
 
         <main className="flex-1 px-7 py-7">
@@ -171,5 +178,42 @@ export function AppShell() {
         </main>
       </div>
     </div>
+  );
+}
+
+/** Light / dark / system theme switcher. */
+function ThemeToggle() {
+  const { theme, resolved, setTheme } = useTheme();
+  const options: { value: Theme; label: string; icon: typeof Sun }[] = [
+    { value: "light", label: "Light", icon: Sun },
+    { value: "dark", label: "Dark", icon: Moon },
+    { value: "system", label: "System", icon: Monitor },
+  ];
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label="Toggle theme"
+        className="grid size-9 place-items-center rounded-full border border-border bg-card/60 text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-foreground"
+      >
+        {resolved === "dark" ? (
+          <Moon className="size-4" />
+        ) : (
+          <Sun className="size-4" />
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Theme</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {options.map((o) => (
+          <DropdownMenuItem
+            key={o.value}
+            onSelect={() => setTheme(o.value)}
+            className={theme === o.value ? "text-primary" : undefined}
+          >
+            <o.icon /> {o.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

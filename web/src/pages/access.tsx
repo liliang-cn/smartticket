@@ -1,13 +1,43 @@
-import { ShieldCheck, KeyRound, Lock } from "lucide-react";
-import { useRoles, usePermissions } from "@/features/rbac/api";
-import type { RbacPermission } from "@/lib/types";
+import { useState } from "react";
+import {
+  ShieldCheck,
+  KeyRound,
+  Lock,
+  Pencil,
+  Trash2,
+  SlidersHorizontal,
+} from "lucide-react";
+import { toast } from "sonner";
+import {
+  useRoles,
+  usePermissions,
+  useDeleteRole,
+  useDeletePermission,
+  type RbacPermissionFull,
+} from "@/features/rbac/api";
+import { RoleFormDialog } from "@/features/rbac/role-form-dialog";
+import { PermissionFormDialog } from "@/features/rbac/permission-form-dialog";
+import { RolePermissionsDialog } from "@/features/rbac/role-permissions-dialog";
+import { apiError } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/misc";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { useReveal } from "@/lib/use-reveal";
 
-function groupByCategory(perms: RbacPermission[]): [string, RbacPermission[]][] {
-  const map = new Map<string, RbacPermission[]>();
+function groupByCategory(
+  perms: RbacPermissionFull[]
+): [string, RbacPermissionFull[]][] {
+  const map = new Map<string, RbacPermissionFull[]>();
   for (const p of perms) {
     const key = p.category || "uncategorized";
     const arr = map.get(key) ?? [];
@@ -17,12 +47,89 @@ function groupByCategory(perms: RbacPermission[]): [string, RbacPermission[]][] 
   return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 }
 
+/** Small inline confirm dialog driven by an async onConfirm. */
+function ConfirmDeleteDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  pending,
+  onConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  title: string;
+  description: string;
+  pending: boolean;
+  onConfirm: () => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button type="button" variant="ghost">
+              Cancel
+            </Button>
+          </DialogClose>
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={pending}
+            onClick={onConfirm}
+          >
+            {pending ? "Deleting…" : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function AccessPage() {
   const { data: roles, isLoading: rolesLoading } = useRoles();
   const { data: permissions, isLoading: permsLoading } = usePermissions();
+  const deleteRole = useDeleteRole();
+  const deletePermission = useDeletePermission();
   const ref = useReveal<HTMLDivElement>();
 
+  // Pending deletions (id of the entity being confirmed for delete).
+  const [roleToDelete, setRoleToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [permToDelete, setPermToDelete] = useState<{
+    id: number;
+    code: string;
+  } | null>(null);
+
   const grouped = groupByCategory(permissions ?? []);
+
+  async function confirmDeleteRole() {
+    if (!roleToDelete) return;
+    try {
+      await deleteRole.mutateAsync(roleToDelete.id);
+      toast.success("Role deleted");
+      setRoleToDelete(null);
+    } catch (err) {
+      toast.error(apiError(err, "Could not delete role"));
+    }
+  }
+
+  async function confirmDeletePermission() {
+    if (!permToDelete) return;
+    try {
+      await deletePermission.mutateAsync(permToDelete.id);
+      toast.success("Permission deleted");
+      setPermToDelete(null);
+    } catch (err) {
+      toast.error(apiError(err, "Could not delete permission"));
+    }
+  }
 
   return (
     <div ref={ref} className="mx-auto max-w-6xl">
@@ -43,6 +150,9 @@ export function AccessPage() {
               {roles.length}
             </span>
           )}
+          <div className="ml-auto">
+            <RoleFormDialog />
+          </div>
         </div>
 
         {rolesLoading ? (
@@ -98,6 +208,40 @@ export function AccessPage() {
                     </span>
                   )}
                 </div>
+
+                <div className="mt-4 flex items-center gap-1.5 border-t border-border pt-3">
+                  <RolePermissionsDialog
+                    role={role}
+                    trigger={
+                      <Button variant="outline" size="sm">
+                        <SlidersHorizontal /> Permissions
+                      </Button>
+                    }
+                  />
+                  <RoleFormDialog
+                    role={role}
+                    trigger={
+                      <Button variant="ghost" size="icon" title="Edit role">
+                        <Pencil />
+                      </Button>
+                    }
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    title={
+                      role.is_system
+                        ? "System roles cannot be deleted"
+                        : "Delete role"
+                    }
+                    disabled={role.is_system}
+                    onClick={() =>
+                      setRoleToDelete({ id: role.id, name: role.name })
+                    }
+                  >
+                    <Trash2 />
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
@@ -121,6 +265,9 @@ export function AccessPage() {
               {permissions.length}
             </span>
           )}
+          <div className="ml-auto">
+            <PermissionFormDialog />
+          </div>
         </div>
 
         {permsLoading ? (
@@ -141,14 +288,55 @@ export function AccessPage() {
                     {perms.length}
                   </span>
                 </div>
-                <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
                   {perms.map((p) => (
-                    <div key={p.id} className="min-w-0">
-                      <div className="truncate font-mono text-xs text-foreground">
-                        {p.code}
+                    <div
+                      key={p.id}
+                      className="group flex min-w-0 items-center gap-2 rounded-md px-1.5 py-1 transition-colors hover:bg-accent/40"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="truncate font-mono text-xs text-foreground">
+                            {p.code}
+                          </span>
+                          {p.is_system && (
+                            <Lock className="size-3 shrink-0 text-muted-foreground/60" />
+                          )}
+                        </div>
+                        <div className="truncate text-[11px] text-muted-foreground">
+                          {p.name}
+                        </div>
                       </div>
-                      <div className="truncate text-[11px] text-muted-foreground">
-                        {p.name}
+                      <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover:opacity-100">
+                        <PermissionFormDialog
+                          permission={p}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7"
+                              title="Edit permission"
+                            >
+                              <Pencil />
+                            </Button>
+                          }
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7"
+                          title={
+                            p.is_system
+                              ? "System permissions cannot be deleted"
+                              : "Delete permission"
+                          }
+                          disabled={p.is_system}
+                          onClick={() =>
+                            setPermToDelete({ id: p.id, code: p.code })
+                          }
+                        >
+                          <Trash2 />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -165,6 +353,24 @@ export function AccessPage() {
           </Card>
         )}
       </section>
+
+      {/* Delete confirmations */}
+      <ConfirmDeleteDialog
+        open={roleToDelete != null}
+        onOpenChange={(v) => !v && setRoleToDelete(null)}
+        title="Delete role?"
+        description={`This permanently removes the "${roleToDelete?.name}" role. Users assigned to it will lose its permissions.`}
+        pending={deleteRole.isPending}
+        onConfirm={confirmDeleteRole}
+      />
+      <ConfirmDeleteDialog
+        open={permToDelete != null}
+        onOpenChange={(v) => !v && setPermToDelete(null)}
+        title="Delete permission?"
+        description={`This permanently removes the "${permToDelete?.code}" permission from every role that grants it.`}
+        pending={deletePermission.isPending}
+        onConfirm={confirmDeletePermission}
+      />
     </div>
   );
 }

@@ -14,6 +14,7 @@ import "@fontsource/ibm-plex-mono/500.css";
 import "./index.css";
 import App from "./App.tsx";
 import { AuthProvider } from "@/lib/auth";
+import { ThemeProvider } from "@/lib/theme";
 import { Toaster } from "@/components/ui/toaster";
 
 const queryClient = new QueryClient({
@@ -24,13 +25,15 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <App />
-          <Toaster />
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AuthProvider>
+            <App />
+            <Toaster />
+          </AuthProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
   </StrictMode>
 );
