@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/glebarez/sqlite"
+	sqlite "github.com/company/smartticket/internal/database/moderncsqlite"
 	"gorm.io/gorm"
 
 	"github.com/company/smartticket/internal/models"

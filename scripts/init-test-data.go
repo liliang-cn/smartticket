@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/glebarez/sqlite"
+	sqlite "github.com/company/smartticket/internal/database/moderncsqlite"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 

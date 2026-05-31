@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/glebarez/sqlite"
+	sqlite "github.com/company/smartticket/internal/database/moderncsqlite"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

@@ -3,7 +3,7 @@ package database
 import (
 	"testing"
 
-	"github.com/glebarez/sqlite"
+	sqlite "github.com/company/smartticket/internal/database/moderncsqlite"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
