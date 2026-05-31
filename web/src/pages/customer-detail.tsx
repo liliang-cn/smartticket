@@ -8,6 +8,7 @@ import {
   useDeleteCustomer,
 } from "@/features/customers/api";
 import { CustomerFormDialog } from "@/features/customers/customer-form-dialog";
+import { AddContactDialog } from "@/features/customers/add-contact-dialog";
 import { apiError } from "@/lib/api";
 import { relativeTime } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
@@ -136,13 +137,21 @@ export function CustomerDetailPage() {
           </Card>
 
           <div data-reveal>
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold">
-              <Users className="size-4 text-muted-foreground" />
-              Contacts{" "}
-              <span className="font-mono text-xs text-muted-foreground">
-                ({users?.length ?? 0})
-              </span>
-            </h2>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h2 className="flex items-center gap-2 text-sm font-semibold">
+                <Users className="size-4 text-muted-foreground" />
+                Contacts{" "}
+                <span className="font-mono text-xs text-muted-foreground">
+                  ({users?.length ?? 0})
+                </span>
+              </h2>
+              {customerId && (
+                <AddContactDialog
+                  customerId={customerId}
+                  customerName={customer?.name}
+                />
+              )}
+            </div>
             <Card className="overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
