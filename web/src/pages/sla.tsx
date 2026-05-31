@@ -21,8 +21,11 @@ import {
 } from "@/features/sla/api";
 import { SLATemplateFormDialog } from "@/features/sla/sla-template-form-dialog";
 import { SLARuleFormDialog } from "@/features/sla/sla-rule-form-dialog";
+import { toast } from "sonner";
+import { apiError } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/misc";
@@ -104,9 +107,24 @@ function TemplateActions({ template }: { template: SLATemplate }) {
   const setDefault = useSetDefaultSLATemplate();
   const setActive = useSetSLATemplateActive();
   const remove = useDeleteSLATemplate();
+  const [toDelete, setToDelete] = useState<{ id: number; label: string } | null>(
+    null
+  );
   const busy = setDefault.isPending || setActive.isPending || remove.isPending;
 
+  async function confirmDelete() {
+    if (!toDelete) return;
+    try {
+      await remove.mutateAsync(toDelete.id);
+      toast.success("SLA template deleted");
+      setToDelete(null);
+    } catch (err) {
+      toast.error(apiError(err, "Could not delete SLA template"));
+    }
+  }
+
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
@@ -141,12 +159,29 @@ function TemplateActions({ template }: { template: SLATemplate }) {
         <DropdownMenuItem
           disabled={busy}
           className="text-destructive"
-          onSelect={() => remove.mutate(template.id)}
+          onSelect={(e) => {
+            e.preventDefault();
+            setToDelete({ id: template.id, label: template.name });
+          }}
         >
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    <ConfirmDialog
+      open={!!toDelete}
+      onOpenChange={(o) => !o && setToDelete(null)}
+      title="Delete SLA template"
+      description={
+        toDelete
+          ? `Delete the "${toDelete.label}" SLA template? This cannot be undone.`
+          : undefined
+      }
+      pending={remove.isPending}
+      onConfirm={confirmDelete}
+    />
+    </>
   );
 }
 
@@ -266,9 +301,24 @@ function TemplatesSection() {
 function RuleActions({ rule }: { rule: SLARule }) {
   const setActive = useSetSLARuleActive();
   const remove = useDeleteSLARule();
+  const [toDelete, setToDelete] = useState<{ id: number; label: string } | null>(
+    null
+  );
   const busy = setActive.isPending || remove.isPending;
 
+  async function confirmDelete() {
+    if (!toDelete) return;
+    try {
+      await remove.mutateAsync(toDelete.id);
+      toast.success("SLA rule deleted");
+      setToDelete(null);
+    } catch (err) {
+      toast.error(apiError(err, "Could not delete SLA rule"));
+    }
+  }
+
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
@@ -295,12 +345,34 @@ function RuleActions({ rule }: { rule: SLARule }) {
         <DropdownMenuItem
           disabled={busy}
           className="text-destructive"
-          onSelect={() => remove.mutate(rule.id)}
+          onSelect={(e) => {
+            e.preventDefault();
+            setToDelete({
+              id: rule.id,
+              label: `${rule.priority || "any priority"} / ${
+                rule.severity || "any severity"
+              }`,
+            });
+          }}
         >
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    <ConfirmDialog
+      open={!!toDelete}
+      onOpenChange={(o) => !o && setToDelete(null)}
+      title="Delete SLA rule"
+      description={
+        toDelete
+          ? `Delete the SLA rule for ${toDelete.label}? This cannot be undone.`
+          : undefined
+      }
+      pending={remove.isPending}
+      onConfirm={confirmDelete}
+    />
+    </>
   );
 }
 

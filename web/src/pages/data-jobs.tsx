@@ -19,7 +19,10 @@ import {
   type Job,
 } from "@/features/data/api";
 import { ExportJobDialog } from "@/features/data/export-job-dialog";
+import { toast } from "sonner";
+import { apiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/misc";
@@ -91,8 +94,22 @@ function RowActions({ job }: { job: Job }) {
   const cancel = useCancelJob();
   const remove = useDeleteJob();
   const download = useDownloadJob();
+  const [toDelete, setToDelete] = useState<{ id: number; label: string } | null>(
+    null
+  );
   const canCancel = job.status === "pending" || job.status === "running";
   const canDownload = job.type === "export" && job.status === "completed";
+
+  async function confirmDelete() {
+    if (!toDelete) return;
+    try {
+      await remove.mutateAsync(toDelete.id);
+      toast.success("Job deleted");
+      setToDelete(null);
+    } catch (err) {
+      toast.error(apiError(err, "Could not delete job"));
+    }
+  }
 
   return (
     <div className="flex items-center justify-end gap-1">
@@ -132,12 +149,28 @@ function RowActions({ job }: { job: Job }) {
           <DropdownMenuItem
             disabled={remove.isPending}
             className="text-destructive focus:text-destructive"
-            onSelect={() => remove.mutate(job.id)}
+            onSelect={(e) => {
+              e.preventDefault();
+              setToDelete({ id: job.id, label: job.type });
+            }}
           >
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <ConfirmDialog
+        open={!!toDelete}
+        onOpenChange={(o) => !o && setToDelete(null)}
+        title="Delete job"
+        description={
+          toDelete
+            ? `Delete job #${toDelete.id} (${toDelete.label})? This cannot be undone.`
+            : undefined
+        }
+        pending={remove.isPending}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

@@ -36,6 +36,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useReveal } from "@/lib/use-reveal";
 
 function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -55,6 +56,9 @@ function RolesCard({ userId }: { userId: number }) {
   const assign = useAssignRole(userId);
   const remove = useRemoveRole(userId);
   const [selected, setSelected] = useState<string>("");
+  const [toRemove, setToRemove] = useState<{ id: number; name: string } | null>(
+    null
+  );
 
   const assignedIds = new Set((assigned ?? []).map((r) => r.id));
   const available = (allRoles ?? []).filter((r) => !assignedIds.has(r.id));
@@ -70,10 +74,12 @@ function RolesCard({ userId }: { userId: number }) {
     }
   }
 
-  async function onRemove(roleId: number, name: string) {
+  async function confirmRemove() {
+    if (!toRemove) return;
     try {
-      await remove.mutateAsync(roleId);
-      toast.success(`Removed ${name}`);
+      await remove.mutateAsync(toRemove.id);
+      toast.success(`Removed ${toRemove.name}`);
+      setToRemove(null);
     } catch (err) {
       toast.error(apiError(err, "Could not remove role"));
     }
@@ -102,7 +108,7 @@ function RolesCard({ userId }: { userId: number }) {
               <span className="capitalize">{r.name}</span>
               <button
                 type="button"
-                onClick={() => onRemove(r.id, r.name)}
+                onClick={() => setToRemove({ id: r.id, name: r.name })}
                 disabled={remove.isPending}
                 className="text-muted-foreground transition-colors hover:text-red-300 disabled:opacity-50"
                 aria-label={`Remove ${r.name}`}
@@ -145,6 +151,20 @@ function RolesCard({ userId }: { userId: number }) {
           <Plus /> Assign
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={!!toRemove}
+        onOpenChange={(o) => !o && setToRemove(null)}
+        title="Remove role"
+        description={
+          toRemove
+            ? `Remove the "${toRemove.name}" role from this user?`
+            : undefined
+        }
+        confirmLabel="Remove"
+        pending={remove.isPending}
+        onConfirm={confirmRemove}
+      />
     </Card>
   );
 }
