@@ -27,6 +27,26 @@ import {
 } from "@/components/ui/dialog";
 import { useReveal } from "@/lib/use-reveal";
 
+// toList normalizes a field the API may return as a string[], a comma/JSON
+// string, or null/undefined into a clean string[]. Prevents a white-screen when
+// the backend sends null/strings where the UI expects an array.
+function toList(v: unknown): string[] {
+  if (Array.isArray(v)) return v.map(String);
+  if (typeof v === "string" && v.trim()) {
+    const s = v.trim();
+    if (s.startsWith("[")) {
+      try {
+        const arr = JSON.parse(s);
+        if (Array.isArray(arr)) return arr.map(String);
+      } catch {
+        /* fall through to comma-split */
+      }
+    }
+    return s.split(",").map((x) => x.trim()).filter(Boolean);
+  }
+  return [];
+}
+
 function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 py-2 text-sm">
@@ -175,9 +195,9 @@ export function ServiceDetailPage() {
 
           <Card data-reveal className="p-5">
             <Label>Support channels</Label>
-            {service.support_channels.length > 0 ? (
+            {toList(service.support_channels).length > 0 ? (
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {service.support_channels.map((c) => (
+                {toList(service.support_channels).map((c) => (
                   <Badge key={c} tone="blue">
                     {c}
                   </Badge>
@@ -240,11 +260,11 @@ export function ServiceDetailPage() {
             <MetaRow label="Updated" value={relativeTime(service.updated_at)} />
           </Card>
 
-          {service.tags.length > 0 && (
+          {toList(service.tags).length > 0 && (
             <Card className="p-5">
               <Label>Tags</Label>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {service.tags.map((t) => (
+                {toList(service.tags).map((t) => (
                   <Badge key={t} tone="neutral">
                     {t}
                   </Badge>

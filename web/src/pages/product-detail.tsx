@@ -28,6 +28,26 @@ import {
 } from "@/components/ui/dialog";
 import { useReveal } from "@/lib/use-reveal";
 
+// toList normalizes a field the API may return as a string[], a comma/JSON
+// string, or null/undefined into a clean string[] (prevents a white-screen
+// when the backend sends null where the UI expects an array).
+function toList(v: unknown): string[] {
+  if (Array.isArray(v)) return v.map(String);
+  if (typeof v === "string" && v.trim()) {
+    const s = v.trim();
+    if (s.startsWith("[")) {
+      try {
+        const arr = JSON.parse(s);
+        if (Array.isArray(arr)) return arr.map(String);
+      } catch {
+        /* fall through */
+      }
+    }
+    return s.split(",").map((x) => x.trim()).filter(Boolean);
+  }
+  return [];
+}
+
 function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 py-2 text-sm">
@@ -298,11 +318,11 @@ export function ProductDetailPage() {
             <MetaRow label="Updated" value={relativeTime(product.updated_at)} />
           </Card>
 
-          {product.tags.length > 0 && (
+          {toList(product.tags).length > 0 && (
             <Card className="p-5">
               <Label>Tags</Label>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {product.tags.map((t) => (
+                {toList(product.tags).map((t) => (
                   <Badge key={t} tone="neutral">
                     {t}
                   </Badge>
