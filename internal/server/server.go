@@ -30,6 +30,7 @@ import (
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/services"
 	"github.com/company/smartticket/internal/sla"
+	"github.com/company/smartticket/internal/subscription"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
 )
@@ -176,6 +177,7 @@ func (s *Server) setupRoutes() {
 	customerService := customer.NewService(s.db.DB)
 	serviceManagementService := servicemgmt.NewService(s.db.DB)
 	slaService := sla.NewService(s.db.DB)
+	subscriptionService := subscription.NewService(s.db.DB)
 	importExportService := importexport.NewService(s.db.DB)
 	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
 
@@ -186,6 +188,7 @@ func (s *Server) setupRoutes() {
 	customerHandlers := customer.NewHandlers(customerService)
 	serviceHandlers := servicemgmt.NewHandlers(serviceManagementService)
 	slaHandlers := sla.NewHandlers(slaService, slaCalculator)
+	subscriptionHandlers := subscription.NewHandlers(subscriptionService)
 	importExportHandlers := importexport.NewHandlers(importExportService)
 	attachmentHandlers := attachment.NewHandlers(attachmentService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
@@ -436,6 +439,16 @@ func (s *Server) setupRoutes() {
 			products.DELETE("/:id", productHandlers.DeleteProduct)
 			products.POST("/:id/activate", productHandlers.ActivateProduct)
 			products.POST("/:id/deactivate", productHandlers.DeactivateProduct)
+		}
+
+		// Subscription / licensing routes (admin only)
+		subscriptions := admin.Group("/subscriptions")
+		{
+			subscriptions.GET("", subscriptionHandlers.ListSubscriptions)
+			subscriptions.POST("", subscriptionHandlers.CreateSubscription)
+			subscriptions.GET("/:id", subscriptionHandlers.GetSubscription)
+			subscriptions.PUT("/:id", subscriptionHandlers.UpdateSubscription)
+			subscriptions.DELETE("/:id", subscriptionHandlers.DeleteSubscription)
 		}
 
 		// Service management routes (admin only)

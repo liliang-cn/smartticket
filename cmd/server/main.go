@@ -175,6 +175,7 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		&models.Service{},
 		&models.SLATemplate{},
 		&models.SLARule{},
+		&models.Subscription{},
 		&models.LLMProvider{},
 
 		// Core business tables (only depend on base tables)
@@ -329,6 +330,7 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		&models.Service{},
 		&models.SLATemplate{},
 		&models.SLARule{},
+		&models.Subscription{},
 		&models.LLMProvider{},
 
 		// Core business tables (only depend on base tables)

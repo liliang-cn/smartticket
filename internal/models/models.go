@@ -281,6 +281,31 @@ type SLATemplate struct {
 	SLARules        []SLARule `gorm:"foreignKey:SLATemplateID" json:"sla_rules,omitempty"`
 }
 
+// Subscription is a customer's purchased support/licensing subscription for a
+// product, billed per node (or per cluster) over a term (typically annual).
+type Subscription struct {
+	BaseModel
+	CustomerID    uint         `gorm:"index;not null" json:"customer_id"`
+	Customer      *Customer    `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
+	ProductID     uint         `gorm:"index;not null" json:"product_id"`
+	Product       *Product     `gorm:"foreignKey:ProductID" json:"product,omitempty"`
+	SLATemplateID *uint        `gorm:"index" json:"sla_template_id"`
+	SLATemplate   *SLATemplate `gorm:"foreignKey:SLATemplateID" json:"sla_template,omitempty"`
+	Plan          string       `gorm:"size:100" json:"plan"`                           // e.g. "Standard", "Premium 24x7"
+	BillingUnit   string       `gorm:"size:20;default:'per_node'" json:"billing_unit"` // per_node | per_cluster
+	NodeCount     int          `gorm:"default:1" json:"node_count"`
+	BillingPeriod string       `gorm:"size:20;default:'annual'" json:"billing_period"` // annual | monthly
+	StartsAt      time.Time    `json:"starts_at"`
+	ExpiresAt     time.Time    `json:"expires_at"`
+	Status        string       `gorm:"size:20;default:'active'" json:"status"` // active | expired | cancelled
+	UnitPrice     float64      `json:"unit_price"`                             // price per unit (per node) per period
+	Currency      string       `gorm:"size:10;default:'USD'" json:"currency"`
+	Notes         string       `gorm:"type:text" json:"notes"`
+}
+
+// TableName overrides the default table name for Subscription.
+func (Subscription) TableName() string { return "subscriptions" }
+
 // SLARule represents具体的SLA规则.
 type SLARule struct {
 	BaseModel
