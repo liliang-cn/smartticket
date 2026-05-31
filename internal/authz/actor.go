@@ -24,10 +24,12 @@ type Actor struct {
 	CustomerID *uint
 }
 
-// IsTeam reports whether the actor is operator-side staff (admin or engineer),
-// who may see and manage all customers' content.
+// IsTeam reports whether the actor is operator-side staff, who may see and
+// manage all customers' content. Every authenticated non-customer role
+// (admin/engineer/support/sales/custom) is team-side; "customer" is the sole
+// external role.
 func (a Actor) IsTeam() bool {
-	return a.Role == RoleAdmin || a.Role == RoleEngineer
+	return a.Role != "" && a.Role != RoleCustomer
 }
 
 // IsCustomer reports whether the actor is a customer-side user, whose view is

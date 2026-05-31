@@ -12,6 +12,7 @@ import (
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/models"
+	"github.com/company/smartticket/internal/notification"
 	"github.com/company/smartticket/internal/product"
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/services"
@@ -42,8 +43,13 @@ func NewDirectBackend(db *gorm.DB, authService *auth.Service, permissionService 
 	slaCalculator := sla.NewCalculator(db)
 	authRepo := auth.NewRepository(db)
 
+	// Wire in-app notifications so ticket actions performed via MCP (e.g. an
+	// agent posting a reply) emit notifications just like the REST path.
+	ticketSvc := ticket.NewService(db, slaCalculator)
+	ticketSvc.SetNotifier(notification.NewService(db))
+
 	return &DirectBackend{
-		ticket:       ticket.NewService(db, slaCalculator),
+		ticket:       ticketSvc,
 		knowledge:    knowledge.NewService(db, nil, nil),
 		product:      product.NewService(db),
 		service:      servicemgmt.NewService(db),
