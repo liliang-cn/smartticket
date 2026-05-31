@@ -7,6 +7,9 @@ import {
   Users,
   UserCheck,
   UserX,
+  CreditCard,
+  Package,
+  Timer,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -16,6 +19,7 @@ import {
   useDeleteCustomer,
 } from "@/features/customers/api";
 import { useDeleteUser, useSetUserActive } from "@/features/users/api";
+import { useSubscriptions } from "@/features/subscriptions/api";
 import type { CustomerUser } from "@/lib/types";
 import { CustomerFormDialog } from "@/features/customers/customer-form-dialog";
 import { AddContactDialog } from "@/features/customers/add-contact-dialog";
@@ -166,6 +170,111 @@ function ContactRow({
   );
 }
 
+/** SubscriptionsSection lists a customer's subscriptions — the products they
+ * are entitled to and the SLA template that governs them. This is where a
+ * customer's products / services / SLA live. */
+function SubscriptionsSection({ customerId }: { customerId: number }) {
+  const { data, isLoading } = useSubscriptions({
+    page: 1,
+    page_size: 100,
+    customer_id: customerId,
+  });
+  const subs = data?.items ?? [];
+
+  return (
+    <div data-reveal>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-sm font-semibold">
+          <CreditCard className="size-4 text-muted-foreground" />
+          Subscriptions{" "}
+          <span className="font-mono text-xs text-muted-foreground">
+            ({subs.length})
+          </span>
+        </h2>
+      </div>
+      <Card className="overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              <th className="px-4 py-3 font-medium">Product</th>
+              <th className="px-4 py-3 font-medium">Plan</th>
+              <th className="px-4 py-3 font-medium">SLA</th>
+              <th className="px-4 py-3 font-medium">Nodes</th>
+              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Expires</th>
+            </tr>
+          </thead>
+          <tbody>
+            {subs.length > 0 ? (
+              subs.map((s) => (
+                <tr
+                  key={s.id}
+                  className="border-b border-border/60 last:border-0"
+                >
+                  <td className="px-4 py-3">
+                    <Link
+                      to={`/products/${s.product_id}`}
+                      className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
+                    >
+                      <Package className="size-3.5" /> {s.product_name || `#${s.product_id}`}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-3 capitalize text-muted-foreground">
+                    {s.plan || "—"}
+                    <span className="ml-1 font-mono text-[11px] text-muted-foreground/70">
+                      {s.billing_period ? `· ${s.billing_period}` : ""}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    {s.sla_template_name ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Timer className="size-3.5 text-muted-foreground" />
+                        {s.sla_template_name}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                    {s.billing_unit === "per_node" ? s.node_count : "cluster"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Badge
+                      tone={
+                        s.status === "active"
+                          ? s.is_expired
+                            ? "amber"
+                            : "green"
+                          : "slate"
+                      }
+                    >
+                      {s.is_expired && s.status === "active" ? "expired" : s.status}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {s.expires_at ? relativeTime(s.expires_at) : "—"}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-4 py-12 text-center text-sm text-muted-foreground"
+                >
+                  {isLoading
+                    ? "Loading…"
+                    : "No subscriptions. This customer has no entitled products or SLA yet."}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </Card>
+    </div>
+  );
+}
+
 export function CustomerDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -310,6 +419,8 @@ export function CustomerDetailPage() {
               </table>
             </Card>
           </div>
+
+          {customerId != null && <SubscriptionsSection customerId={customerId} />}
         </div>
 
         {/* Meta sidebar */}
