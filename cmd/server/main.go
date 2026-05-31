@@ -20,16 +20,9 @@ import (
 
 	"strings"
 
-	"crypto/sha256"
-
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/config"
-	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/database"
-	"github.com/company/smartticket/internal/knowledge"
-	"github.com/company/smartticket/internal/knowledgebase"
-	"github.com/company/smartticket/internal/linbit"
-	"github.com/company/smartticket/internal/llm"
 	"github.com/company/smartticket/internal/logger"
 	mcpserver "github.com/company/smartticket/internal/mcp"
 	"github.com/company/smartticket/internal/models"
@@ -104,20 +97,6 @@ and assign the admin role. Optionally set the deployment's organization name.`,
 	_ = createAdminCmd.MarkFlagRequired("email")
 	_ = createAdminCmd.MarkFlagRequired("password")
 	rootCmd.AddCommand(createAdminCmd)
-
-	// Add importlinbit command
-	var importLinbitCmd = &cobra.Command{
-		Use:   "importlinbit",
-		Short: "Import LINBIT UG9 docs as knowledge articles and create the LINBIT customer",
-		Long: `Fetch the LINBIT UG9 English documentation from GitHub, import each
-AsciiDoc file as a published knowledge article (auto-indexed into CortexDB when
-an embedding provider is configured), and create a "LINBIT" customer.`,
-		RunE: runImportLinbit,
-	}
-	importLinbitCmd.Flags().String("config", "", "Configuration file path")
-	importLinbitCmd.Flags().String("prefix", "", "Only import files whose name starts with this (e.g. \"drbd-\")")
-	importLinbitCmd.Flags().Int("max-kb", 0, "Skip files larger than this many KB (0 = no limit)")
-	rootCmd.AddCommand(importLinbitCmd)
 
 	// Add version command
 	var versionCmd = &cobra.Command{
@@ -513,108 +492,6 @@ func runCreateAdmin(cmd *cobra.Command, _ []string) error {
 		fmt.Printf("; organization set to %q", org)
 	}
 	fmt.Println()
-	return nil
-}
-
-func runImportLinbit(cmd *cobra.Command, _ []string) error {
-	cfg, err := config.LoadFromFlags(cmd)
-	if err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
-	}
-	if err := logger.InitializeGlobalLogger(&cfg.Logger); err != nil {
-		return fmt.Errorf("failed to initialize logger: %w", err)
-	}
-	defer func() { _ = logger.Sync() }()
-
-	db, err := database.NewDatabase(&cfg.Database)
-	if err != nil {
-		return fmt.Errorf("failed to initialize database: %w", err)
-	}
-	defer func() { _ = db.Close() }()
-
-	if !db.IsHealthy() {
-		return fmt.Errorf("database connection is not healthy")
-	}
-
-	// Ensure the tables this command touches exist (idempotent).
-	if err := db.DB.AutoMigrate(&models.User{}, &models.Customer{}, &models.KnowledgeArticle{}); err != nil {
-		return fmt.Errorf("failed to migrate required tables: %w", err)
-	}
-
-	// Build the AI stack the same way server.go does, so created articles are
-	// auto-indexed into CortexDB when an embedding provider is configured.
-	var llmService *llm.Service
-	var kbStore *knowledgebase.Store
-
-	secretKey, kerr := llm.LoadKey(cfg.SecretKeyRaw)
-	if kerr != nil {
-		logger.Warn("SMARTTICKET_SECRET_KEY not set or invalid; deriving encryption key from JWT secret")
-		sum := sha256.Sum256([]byte(cfg.JWT.Secret))
-		secretKey = sum[:]
-	}
-	cipher, cerr := llm.NewCipher(secretKey)
-	if cerr != nil {
-		logger.Warn("llm cipher init failed; AI indexing disabled", zap.Error(cerr))
-	} else {
-		llmService = llm.NewService(db.DB, cipher)
-		embedder := knowledgebase.NewProviderEmbedder(func(ctx context.Context, texts []string) ([][]float32, error) {
-			ep, key, err := llmService.ResolveEmbedding()
-			if err != nil {
-				return nil, err
-			}
-			return llm.NewClient(ep.APIEndpoint, key).Embed(ctx, ep.Model, ep.Dimensions, texts)
-		}, 1024)
-		store, oerr := knowledgebase.Open("./data/cortex.db", embedder)
-		if oerr != nil {
-			logger.Warn("cortexdb unavailable; AI indexing disabled", zap.Error(oerr))
-		} else {
-			kbStore = store
-			defer func() { _ = kbStore.Close() }()
-		}
-	}
-
-	knowledgeService := knowledge.NewService(db.DB, kbStore, llmService)
-	customerService := customer.NewService(db.DB)
-
-	aiReady := kbStore != nil && kbStore.Healthy() && kbStore.DB().HasEmbedder()
-
-	// Resolve an author user id: prefer the first admin, fall back to any user.
-	var authorID uint
-	var admin models.User
-	if err := db.DB.Where("role = ?", "admin").Order("id asc").First(&admin).Error; err == nil {
-		authorID = admin.ID
-	} else {
-		var anyUser models.User
-		if err := db.DB.Order("id asc").First(&anyUser).Error; err == nil {
-			authorID = anyUser.ID
-		} else {
-			return fmt.Errorf("no users found; run 'createadmin' first so imported articles have an author")
-		}
-	}
-
-	importer := linbit.NewImporter(db.DB, knowledgeService, customerService, aiReady)
-	importer.NamePrefix, _ = cmd.Flags().GetString("prefix")
-	maxKB, _ := cmd.Flags().GetInt("max-kb")
-	importer.MaxBytes = maxKB * 1024
-	res, err := importer.Run(context.Background(), authorID)
-	if err != nil {
-		return fmt.Errorf("import failed: %w", err)
-	}
-
-	logger.Info("LINBIT import complete",
-		zap.Int("files_found", res.FilesFound),
-		zap.Int("articles_created", res.ArticlesCreated),
-		zap.Int("articles_skipped", res.ArticlesSkipped),
-		zap.Bool("customer_created", res.CustomerCreated),
-		zap.Bool("embedding_active", res.EmbeddingActive),
-	)
-
-	fmt.Printf("LINBIT import: %d files found, %d created, %d skipped; customer %s\n",
-		res.FilesFound, res.ArticlesCreated, res.ArticlesSkipped,
-		map[bool]string{true: "created", false: "already exists"}[res.CustomerCreated])
-	if !res.EmbeddingActive {
-		fmt.Println("No embedding provider configured — run reindex after configuring one")
-	}
 	return nil
 }
 
