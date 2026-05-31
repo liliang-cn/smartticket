@@ -14,6 +14,7 @@ import (
 
 	"github.com/company/smartticket/internal/api/handlers"
 	"github.com/company/smartticket/internal/api/middleware"
+	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/customer"
@@ -176,6 +177,7 @@ func (s *Server) setupRoutes() {
 	serviceManagementService := servicemgmt.NewService(s.db.DB)
 	slaService := sla.NewService(s.db.DB)
 	importExportService := importexport.NewService(s.db.DB)
+	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
 
 	authHandlers := auth.NewHandlers(s.authService)
 	userHandlers := user.NewHandlers(userService)
@@ -185,6 +187,7 @@ func (s *Server) setupRoutes() {
 	serviceHandlers := servicemgmt.NewHandlers(serviceManagementService)
 	slaHandlers := sla.NewHandlers(slaService, slaCalculator)
 	importExportHandlers := importexport.NewHandlers(importExportService)
+	attachmentHandlers := attachment.NewHandlers(attachmentService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
 
@@ -338,7 +341,12 @@ func (s *Server) setupRoutes() {
 				tickets.POST("/:id/assign", ticketHandlers.AssignTicket)
 				tickets.GET("/:id/messages", ticketHandlers.GetTicketMessages)
 				tickets.POST("/:id/messages", ticketHandlers.CreateTicketMessage)
+				tickets.POST("/:id/attachments", attachmentHandlers.Upload)
+				tickets.GET("/:id/attachments", attachmentHandlers.List)
 			}
+
+			// Attachment download (by attachment id, customer-isolated).
+			protected.GET("/attachments/:id/download", attachmentHandlers.Download)
 
 			// In-app notification routes (per authenticated user).
 			notif := protected.Group("/notifications")

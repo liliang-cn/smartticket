@@ -20,9 +20,17 @@ type Config struct {
 	Logger      LoggerConfig    `mapstructure:"logger" validate:"required"`
 	RateLimit   RateLimitConfig `mapstructure:"rate_limit" validate:"required"`
 	LLM         LLMConfig       `mapstructure:"llm"`
+	Storage     StorageConfig   `mapstructure:"storage"`
 	// SecretKeyRaw is the raw encryption key (hex/base64) used for at-rest
 	// secrets such as LLM provider API keys. Bound from SMARTTICKET_SECRET_KEY.
 	SecretKeyRaw string `mapstructure:"secret_key"`
+}
+
+// StorageConfig contains file (attachment) storage configuration.
+type StorageConfig struct {
+	DataPath          string   `mapstructure:"data_path"`
+	MaxFileSize       int64    `mapstructure:"max_file_size"`
+	AllowedExtensions []string `mapstructure:"allowed_extensions"`
 }
 
 // ServerConfig contains HTTP server configuration.
@@ -224,6 +232,11 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("llm.default_provider", "openai")
 	v.SetDefault("llm.rate_limit.requests_per_minute", 100)
 	v.SetDefault("llm.rate_limit.tokens_per_minute", 10000)
+
+	// Storage (attachments) defaults
+	v.SetDefault("storage.data_path", "./data")
+	v.SetDefault("storage.max_file_size", 20971520) // 20MB
+	v.SetDefault("storage.allowed_extensions", []string{})
 }
 
 // applyEnvironmentOverrides applies environment-specific overrides.
