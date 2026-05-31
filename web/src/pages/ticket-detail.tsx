@@ -235,7 +235,7 @@ export function TicketDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-4">
+      <div className="w-full space-y-4">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-48 w-full" />
       </div>
@@ -244,7 +244,7 @@ export function TicketDetailPage() {
 
   if (!ticket) {
     return (
-      <div className="mx-auto max-w-5xl py-20 text-center text-muted-foreground">
+      <div className="w-full py-20 text-center text-muted-foreground">
         Ticket not found.
         <div className="mt-4">
           <Button variant="secondary" asChild>
@@ -258,7 +258,7 @@ export function TicketDetailPage() {
   }
 
   return (
-    <div ref={ref} className="mx-auto max-w-5xl">
+    <div ref={ref} className="w-full">
       <Link
         to="/tickets"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"

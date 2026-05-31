@@ -82,7 +82,7 @@ export function ProductDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-4">
+      <div className="w-full space-y-4">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-48 w-full" />
       </div>
@@ -91,7 +91,7 @@ export function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="mx-auto max-w-5xl py-20 text-center text-muted-foreground">
+      <div className="w-full py-20 text-center text-muted-foreground">
         Product not found.
         <div className="mt-4">
           <Button variant="secondary" asChild>
@@ -107,7 +107,7 @@ export function ProductDetailPage() {
   const togglePending = activate.isPending || deactivate.isPending;
 
   return (
-    <div ref={ref} className="mx-auto max-w-5xl">
+    <div ref={ref} className="w-full">
       <Link
         to="/products"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
