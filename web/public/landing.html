@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SmartTicket — Self-hosted ticketing & knowledge, with AI you control</title>
+<meta name="description" content="SmartTicket is an open-source, single-tenant support desk and knowledge base you run yourself. One static binary, embedded SQLite, RBAC, SLA tracking, and pluggable LLM/RAG — complete data sovereignty." />
+<link rel="canonical" href="https://liliang-cn.github.io/smartticket/" />
+<meta name="keywords" content="self-hosted helpdesk, open source ticketing system, knowledge base software, SLA tracking, RBAC, RAG, self-hosted LLM, single binary, embedded SQLite, data sovereignty, Zendesk alternative, Freshdesk alternative, Go support desk" />
+<meta name="author" content="Liang Li" />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0c0f" />
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f9" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23ffb01f'/%3E%3Cg fill='none' stroke='%2319130a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 2 2 0 0 0 0-4z'/%3E%3Cpath d='M13 6v2M13 16v2M13 11v2'/%3E%3C/g%3E%3C/svg%3E" />
+<meta property="og:title" content="SmartTicket — self-hosted ticketing & knowledge with AI you control" />
+<meta property="og:description" content="One binary. Zero external dependencies. Your data, your rules. Tickets, SLA, knowledge base, RBAC and bring-your-own-LLM RAG." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://liliang-cn.github.io/smartticket/" />
+<meta property="og:site_name" content="SmartTicket" />
+<meta property="og:image" content="https://liliang-cn.github.io/smartticket/og.svg" />
+<meta property="og:image:alt" content="SmartTicket — self-hosted ticketing & knowledge platform" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="SmartTicket — self-hosted ticketing & knowledge with AI you control" />
+<meta name="twitter:description" content="One binary. Zero external dependencies. Tickets, SLA, knowledge base, RBAC and bring-your-own-LLM RAG. Your data, your rules." />
+<meta name="twitter:image" content="https://liliang-cn.github.io/smartticket/og.svg" />
+<link rel="alternate" type="text/plain" href="https://liliang-cn.github.io/smartticket/llms.txt" title="llms.txt — LLM-readable summary" />
+<link rel="sitemap" type="application/xml" href="https://liliang-cn.github.io/smartticket/sitemap.xml" />
+<script>
+  // Apply the saved / preferred theme before first paint (no flash).
+  (function () {
+    try {
+      var t = localStorage.getItem("st-theme");
+      if (!t) t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    /* Dark (default) — matches the console's mission-control aesthetic. */
+    --bg: #0a0c0f;
+    --bg2: #080a0d;
+    --fg: #e6e8ea;
+    --muted: #868d96;
+    --card: #101317;
+    --card2: #14181d;
+    --border: #23282f;
+    --primary: #ffb01f;
+    --primary-ink: #19130a;
+    --info: #4cc4ff;
+    --success: #34d399;
+    --nav-bg: rgba(10, 12, 15, .72);
+    --radius: 14px;
+    --maxw: 1120px;
+    /* Code blocks stay dark in both themes (fixed, theme-independent). */
+    --code-bg: #07090c;
+    --code-fg: #e6e8ea;
+    --code-c: #868d96;
+    --code-g: #34d399;
+    --code-y: #ffb01f;
+    --code-b: #4cc4ff;
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f7f9;
+    --bg2: #eaedf1;
+    --fg: #14181d;
+    --muted: #5c646e;
+    --card: #ffffff;
+    --card2: #eef1f5;
+    --border: #e1e5ea;
+    --primary: #f59e0b;
+    --primary-ink: #19130a;
+    --info: #0284c7;
+    --success: #059669;
+    --nav-bg: rgba(246, 247, 249, .82);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(60rem 40rem at 85% -10%, rgba(255,176,31,.10), transparent 70%),
+      radial-gradient(50rem 40rem at -10% 8%, rgba(76,196,255,.07), transparent 70%),
+      linear-gradient(to bottom, var(--bg), var(--bg2));
+    background-attachment: fixed;
+    color: var(--fg);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; margin: 0; }
+  a { color: inherit; text-decoration: none; }
+  code, kbd, pre { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+  .mono-label { font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: var(--muted); }
+
+  /* Nav */
+  header.nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(10px);
+    background: var(--nav-bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 20px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: "Bricolage Grotesque"; font-weight: 700; font-size: 17px; }
+  .glyph { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--primary); color: var(--primary-ink); box-shadow: 0 0 20px -4px rgba(255,176,31,.7); }
+  .glyph svg { width: 18px; height: 18px; }
+  .nav-links { display: flex; gap: 22px; margin-left: auto; align-items: center; }
+  .nav-links a:not(.btn) { color: var(--muted); font-size: 14px; transition: color .15s; }
+  .nav-links a:not(.btn):hover { color: var(--fg); }
+  .theme-toggle { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer; transition: color .15s, border-color .15s; }
+  .theme-toggle:hover { color: var(--fg); border-color: var(--primary); }
+  .theme-toggle svg { width: 16px; height: 16px; }
+  .ic-sun { display: none; }
+  :root[data-theme="light"] .ic-sun { display: block; }
+  :root[data-theme="light"] .ic-moon { display: none; }
+  @media (max-width: 760px) { .nav-links a.hide-sm { display: none; } }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-weight: 600; font-size: 14px; border: 1px solid transparent; cursor: pointer; transition: transform .12s, background .15s, border-color .15s; }
+  .btn svg { width: 16px; height: 16px; }
+  .btn-primary { background: var(--primary); color: var(--primary-ink); }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-ghost { border-color: var(--border); color: var(--fg); background: rgba(255,255,255,.02); }
+  .btn-ghost:hover { border-color: var(--primary); }
+
+  /* Hero */
+  .hero { padding: 84px 0 56px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border: 1px solid var(--border); border-radius: 999px; font-size: 12.5px; color: var(--muted); background: rgba(255,255,255,.02); }
+  .pill .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--success); box-shadow: 0 0 10px var(--success); }
+  .hero h1 { font-size: clamp(38px, 6vw, 64px); margin: 22px 0 0; max-width: 16ch; }
+  .hero h1 .accent { color: var(--primary); }
+  .hero p.sub { font-size: clamp(16px, 2.2vw, 20px); color: var(--muted); max-width: 60ch; margin: 20px 0 0; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .oneliner { margin-top: 26px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .oneliner code { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 11px 15px; font-size: 13.5px; color: var(--fg); }
+  .oneliner code .c { color: var(--muted); }
+  .copybtn { background: var(--card2); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 9px 12px; font-size: 12px; cursor: pointer; font-family: "IBM Plex Mono"; }
+  .copybtn:hover { color: var(--fg); border-color: var(--primary); }
+
+  /* Trust strip */
+  .trust { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 56px; }
+  .trust div { background: var(--card); padding: 20px 16px; text-align: center; }
+  .trust .n { font-family: "Bricolage Grotesque"; font-weight: 700; font-size: 22px; color: var(--primary); }
+  .trust .l { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+  @media (max-width: 760px) { .trust { grid-template-columns: repeat(2, 1fr); } .trust div:last-child { grid-column: 1 / -1; } }
+
+  /* Console preview */
+  .preview { margin-top: 64px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: linear-gradient(to bottom, var(--card2), var(--card)); box-shadow: 0 30px 80px -30px rgba(0,0,0,.7); }
+  .titlebar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,.2); }
+  .titlebar .tdot { width: 11px; height: 11px; border-radius: 999px; background: #2c333c; }
+  .titlebar .addr { margin-left: 14px; font-family: "IBM Plex Mono"; font-size: 12px; color: var(--muted); }
+  .console { display: grid; grid-template-columns: 200px 1fr; min-height: 360px; }
+  .side { border-right: 1px solid var(--border); padding: 16px 12px; }
+  .side .si { display: flex; align-items: center; gap: 10px; padding: 8px 11px; border-radius: 8px; font-size: 13px; color: var(--muted); }
+  .side .si.active { background: rgba(255,176,31,.10); color: var(--fg); position: relative; }
+  .side .si.active::before { content:""; position:absolute; left:0; top:50%; transform: translateY(-50%); width:3px; height:18px; border-radius:3px; background: var(--primary); }
+  .side .si .ico { width: 15px; height: 15px; opacity: .8; }
+  .body { padding: 22px; }
+  .kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+  .kpi { border: 1px solid var(--border); border-radius: 12px; padding: 14px; background: var(--card2); }
+  .kpi .v { font-family: "Bricolage Grotesque"; font-weight: 700; font-size: 26px; }
+  .kpi .k { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .kpi.amber .v { color: var(--primary); }
+  .rows { margin-top: 16px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .row { display: grid; grid-template-columns: 1fr auto auto; gap: 14px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .row:last-child { border-bottom: 0; }
+  .row .t { color: var(--fg); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tag { font-size: 10.5px; font-family: "IBM Plex Mono"; padding: 3px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .08em; }
+  .tag.hi { background: rgba(240,73,79,.12); color: #f0838a; border: 1px solid rgba(240,73,79,.3); }
+  .tag.md { background: rgba(255,176,31,.12); color: var(--primary); border: 1px solid rgba(255,176,31,.3); }
+  .tag.ok { background: rgba(52,211,153,.12); color: var(--success); border: 1px solid rgba(52,211,153,.3); }
+  @media (max-width: 760px) { .console { grid-template-columns: 1fr; } .side { display: none; } .kpis { grid-template-columns: repeat(2,1fr); } }
+
+  /* Sections */
+  section { padding: 72px 0; }
+  .sec-head { max-width: 60ch; }
+  .sec-head h2 { font-size: clamp(28px, 4vw, 40px); margin-top: 10px; }
+  .sec-head p { color: var(--muted); font-size: 16px; margin-top: 12px; }
+
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px; }
+  @media (max-width: 900px) { .features { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 620px) { .features { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; background: var(--card); transition: border-color .15s, transform .15s; }
+  .card:hover { border-color: rgba(255,176,31,.4); transform: translateY(-2px); }
+  .card .ic { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,176,31,.1); color: var(--primary); margin-bottom: 14px; }
+  .card .ic svg { width: 20px; height: 20px; }
+  .card h3 { font-size: 17px; }
+  .card p { color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+
+  /* Deploy */
+  .deploy-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 28px; align-items: start; margin-top: 36px; }
+  @media (max-width: 900px) { .deploy-grid { grid-template-columns: 1fr; } }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab { padding: 8px 14px; border-radius: 9px; border: 1px solid var(--border); background: var(--card); color: var(--muted); font-size: 13px; cursor: pointer; font-weight: 500; }
+  .tab.active { color: var(--primary-ink); background: var(--primary); border-color: var(--primary); }
+  pre.code { background: var(--code-bg); color: var(--code-fg); border: 1px solid var(--border); border-radius: 12px; padding: 18px; overflow-x: auto; font-size: 13px; line-height: 1.7; position: relative; }
+  pre.code .c { color: var(--code-c); }
+  pre.code .g { color: var(--code-g); }
+  pre.code .y { color: var(--code-y); }
+  pre.code .b { color: var(--code-b); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .deploy-side .card { margin-bottom: 14px; }
+  .step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; }
+  .step .num { flex: none; width: 24px; height: 24px; border-radius: 999px; background: rgba(255,176,31,.12); color: var(--primary); display: grid; place-items: center; font-family: "IBM Plex Mono"; font-size: 12px; }
+  .step .tx { font-size: 14px; }
+  .step .tx b { color: var(--fg); }
+  .step .tx span { color: var(--muted); }
+
+  /* Split highlight rows */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; padding: 28px 0; }
+  .split.rev > div:first-child { order: 2; }
+  @media (max-width: 820px) { .split, .split.rev { grid-template-columns: 1fr; } .split.rev > div:first-child { order: 0; } }
+  .split h3 { font-size: 24px; }
+  .split p { color: var(--muted); margin-top: 10px; }
+  .split ul { list-style: none; padding: 0; margin: 16px 0 0; }
+  .split li { display: flex; gap: 10px; padding: 6px 0; font-size: 14.5px; color: var(--fg); }
+  .split li svg { flex: none; width: 18px; height: 18px; color: var(--success); margin-top: 3px; }
+  .split .visual { border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); padding: 22px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font-family: "IBM Plex Mono"; font-size: 12px; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); background: var(--card2); }
+  .chip.on { color: var(--primary); border-color: rgba(255,176,31,.4); }
+
+  /* Stack */
+  .stack { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
+  .stack .s { border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; background: var(--card); font-size: 13.5px; display: flex; gap: 8px; align-items: center; }
+  .stack .s b { color: var(--fg); }
+  .stack .s span { color: var(--muted); }
+
+  /* FAQ */
+  .faq { margin-top: 32px; border-top: 1px solid var(--border); }
+  details { border-bottom: 1px solid var(--border); padding: 18px 0; }
+  summary { cursor: pointer; font-weight: 600; font-size: 16px; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  summary::-webkit-details-marker { display: none; }
+  summary .pm { color: var(--primary); font-family: "IBM Plex Mono"; }
+  details p { color: var(--muted); margin: 12px 0 0; font-size: 14.5px; }
+
+  /* CTA */
+  .cta { text-align: center; border: 1px solid var(--border); border-radius: 20px; padding: 56px 24px; background: radial-gradient(40rem 20rem at 50% -20%, rgba(255,176,31,.12), transparent 70%), var(--card); margin: 24px 0; }
+  .cta h2 { font-size: clamp(28px, 4vw, 42px); }
+  .cta p { color: var(--muted); margin: 14px auto 0; max-width: 52ch; }
+  .cta .hero-cta { justify-content: center; }
+
+  footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--muted); font-size: 13.5px; }
+  .foot-inner { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; }
+  footer a { color: var(--muted); } footer a:hover { color: var(--fg); }
+
+  /* At-a-glance facts (also aids generative-engine extraction) */
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 32px; }
+  .fact { border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: 14px 16px; }
+  .fact span { display: block; font-family: "IBM Plex Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .fact b { display: block; margin-top: 4px; font-weight: 600; font-size: 14.5px; }
+  .fact a { color: var(--primary); }
+
+  /* ── Mobile ─────────────────────────────────────────────────────────── */
+  html, body { max-width: 100%; overflow-x: hidden; }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .hero { padding: 48px 0 36px; }
+    section { padding: 48px 0; }
+    .nav-inner { gap: 10px; height: 58px; }
+    .nav-links { gap: 13px; }
+    .brand { font-size: 15px; }
+    .facts { grid-template-columns: 1fr; }
+    .oneliner { width: 100%; }
+    .oneliner code { width: 100%; overflow-x: auto; white-space: nowrap; }
+    .copybtn { width: 100%; text-align: center; }
+    .preview { margin-top: 44px; }
+    .titlebar .addr { max-width: 55vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cta { padding: 42px 18px; }
+  }
+  @media (max-width: 430px) {
+    .nav-links a.gh { display: none; }
+  }
+</style>
+
+<!-- Structured data — helps search engines (rich results) and generative
+     engines (accurate, citable facts) understand what SmartTicket is. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://liliang-cn.github.io/smartticket/#app",
+      "name": "SmartTicket",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Help Desk / Ticketing & Knowledge Base",
+      "operatingSystem": "Linux, macOS, Windows, Docker",
+      "description": "SmartTicket is an open-source, self-hosted, single-tenant ticketing and knowledge collaboration platform. It ships as one static binary with an embedded SQLite database and serves both the web console and REST API. Features include full ticket lifecycle, SLA tracking, a versioned knowledge base, role-based access control with customer isolation, in-app notifications, import/export, white-label branding, a built-in MCP server, and bring-your-own LLM retrieval-augmented generation (RAG).",
+      "softwareVersion": "1.0",
+      "license": "https://opensource.org/licenses/MIT",
+      "isAccessibleForFree": true,
+      "url": "https://liliang-cn.github.io/smartticket/",
+      "downloadUrl": "https://github.com/liliang-cn/smartticket",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Full ticket lifecycle with priority and severity",
+        "SLA tracking with per-tier targets and subscriptions",
+        "Versioned knowledge base with public/internal visibility",
+        "Role-based access control and per-customer isolation",
+        "Bring-your-own OpenAI-compatible LLM with RAG",
+        "In-app notifications",
+        "Import/export to JSON, CSV, XML and Markdown",
+        "White-label branding (name, accent color, logo)",
+        "Built-in Model Context Protocol (MCP) server"
+      ],
+      "author": { "@type": "Person", "name": "Liang Li" }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://liliang-cn.github.io/smartticket/#website",
+      "name": "SmartTicket",
+      "url": "https://liliang-cn.github.io/smartticket/",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://liliang-cn.github.io/smartticket/#faq",
+      "mainEntity": [
+        { "@type": "Question", "name": "Do I need a database server or Redis?", "acceptedAnswer": { "@type": "Answer", "text": "No. SQLite is embedded directly in the binary and there are no other required services. The whole app is one process." } },
+        { "@type": "Question", "name": "How do I update to a new version?", "acceptedAnswer": { "@type": "Answer", "text": "With Docker: git pull && docker compose up -d --build. Your data lives in a named volume and is untouched. From source: git pull && make build-all, then restart. Schema migrations run automatically on startup." } },
+        { "@type": "Question", "name": "Is AI required to use it?", "acceptedAnswer": { "@type": "Answer", "text": "No. Tickets, SLA, knowledge base and RBAC all work without any LLM configured. AI features are opt-in: add a provider only if you want semantic search and RAG answers." } },
+        { "@type": "Question", "name": "Can customers see each other's tickets?", "acceptedAnswer": { "@type": "Answer", "text": "No. Customer-role users are scoped at the service layer to their own organization's tickets only, for both the REST API and the MCP server." } },
+        { "@type": "Question", "name": "How do I back up my instance?", "acceptedAnswer": { "@type": "Answer", "text": "Copy the data volume (the SQLite file, the RAG store and uploaded attachments). To restore, put it back and start the binary. You can also export everything to JSON/CSV/XML/Markdown." } },
+        { "@type": "Question", "name": "What does it cost?", "acceptedAnswer": { "@type": "Answer", "text": "The software is open source (MIT) and free to self-host. Your only costs are the server you run it on and, if you enable AI, whatever your chosen LLM provider charges." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="brand">
+      <span class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4z"/><path d="M13 5v2M13 17v2M13 11v2"/></svg></span>
+      SmartTicket
+    </a>
+    <nav class="nav-links">
+      <a href="#features" class="hide-sm">Features</a>
+      <a href="#deploy" class="hide-sm">Deploy</a>
+      <a href="#architecture" class="hide-sm">Architecture</a>
+      <a href="#faq" class="hide-sm">FAQ</a>
+      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="gh">GitHub ↗</a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark / light theme" title="Toggle theme">
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a href="/login" class="btn btn-primary" style="padding:8px 14px;">Sign in</a>
+    </nav>
+  </div>
+</header>
+
+<a id="top"></a>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <span class="pill"><span class="dot"></span> Open source · Self-hosted · Single-tenant</span>
+    <h1>Your support desk and knowledge base — <span class="accent">on your own infrastructure.</span></h1>
+    <p class="sub">SmartTicket is a self-hosted ticketing &amp; knowledge collaboration platform. One static binary, embedded SQLite, RBAC, SLA tracking, and bring-your-own-LLM RAG. Deploy in five minutes; keep complete control of your data.</p>
+    <div class="hero-cta">
+      <a href="#deploy" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        Deploy in 5 minutes
+      </a>
+      <a href="/login" target="_blank" rel="noopener" class="btn btn-ghost">Sign in</a>
+      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-ghost">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+        Star on GitHub
+      </a>
+    </div>
+    <div class="oneliner">
+      <code><span class="c">$</span> git clone https://github.com/liliang-cn/smartticket &amp;&amp; cd smartticket &amp;&amp; <span class="y">docker compose up -d</span></code>
+      <button class="copybtn" data-copy="git clone https://github.com/liliang-cn/smartticket && cd smartticket && docker compose up -d">Copy</button>
+    </div>
+
+    <!-- Trust strip -->
+    <div class="trust">
+      <div><div class="n">1</div><div class="l">static binary</div></div>
+      <div><div class="n">&lt;512MB</div><div class="l">memory footprint</div></div>
+      <div><div class="n">0</div><div class="l">external services</div></div>
+      <div><div class="n">SQLite</div><div class="l">embedded database</div></div>
+      <div><div class="n">100%</div><div class="l">your data</div></div>
+    </div>
+
+    <!-- Console preview -->
+    <div class="preview">
+      <div class="titlebar">
+        <span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>
+        <span class="addr">https://support.your-company.com</span>
+      </div>
+      <div class="console">
+        <div class="side">
+          <div class="si active"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></span> Dashboard</div>
+          <div class="si"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4z"/></svg></span> Tickets</div>
+          <div class="si"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Knowledge</div>
+          <div class="si"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span> Customers</div>
+          <div class="si"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></span> Access</div>
+          <div class="si"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="4"/></svg></span> AI Providers</div>
+        </div>
+        <div class="body">
+          <div class="mono-label">workspace overview</div>
+          <div class="kpis" style="margin-top:14px;">
+            <div class="kpi amber"><div class="v">128</div><div class="k">Open tickets</div></div>
+            <div class="kpi"><div class="v">96%</div><div class="k">SLA met</div></div>
+            <div class="kpi"><div class="v">2.4h</div><div class="k">Avg. first reply</div></div>
+            <div class="kpi"><div class="v">312</div><div class="k">KB articles</div></div>
+          </div>
+          <div class="rows">
+            <div class="row"><span class="t">Email notifications stopped after the upgrade</span><span class="tag hi">urgent</span><span class="tag ok">in&nbsp;SLA</span></div>
+            <div class="row"><span class="t">How do I configure SSO with our provider?</span><span class="tag md">high</span><span class="tag ok">in&nbsp;SLA</span></div>
+            <div class="row"><span class="t">Export a customer's tickets to CSV</span><span class="tag md">normal</span><span class="tag ok">answered</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AT A GLANCE (concise facts for humans + generative engines) -->
+<section id="at-a-glance" style="padding-bottom:24px;">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="mono-label">// at a glance</div>
+      <h2>SmartTicket in one screen.</h2>
+      <p>The essentials, stated plainly — for people and for the AI engines that summarize this page.</p>
+    </div>
+    <div class="facts">
+      <div class="fact"><span>What it is</span><b>Open-source, self-hosted ticketing &amp; knowledge base</b></div>
+      <div class="fact"><span>Model</span><b>Single-tenant — one instance per organization</b></div>
+      <div class="fact"><span>License</span><b>MIT — free to self-host</b></div>
+      <div class="fact"><span>Stack</span><b>Go 1.25 · React + TypeScript · SQLite</b></div>
+      <div class="fact"><span>Deployment</span><b>One static binary, or <code>docker compose up</code></b></div>
+      <div class="fact"><span>Dependencies</span><b>None — embedded SQLite; no DB, Redis or proxy required</b></div>
+      <div class="fact"><span>AI</span><b>Bring-your-own OpenAI-compatible LLM + RAG (optional)</b></div>
+      <div class="fact"><span>Footprint</span><b>&lt; 512&nbsp;MB RAM; runs offline / air-gapped</b></div>
+      <div class="fact"><span>Repository</span><b><a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">github.com/liliang-cn/smartticket</a></b></div>
+      <div class="fact"><span>Live demo</span><b><a href="/login" target="_blank" rel="noopener">smartticket.superleo.app</a></b></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="mono-label">// everything in one binary</div>
+      <h2>A complete support stack, nothing to wire together.</h2>
+      <p>Tickets, SLAs, a versioned knowledge base, role-based access, customer isolation and AI assistance — all built in, all running from a single process you own.</p>
+    </div>
+    <div class="features">
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4z"/></svg></div>
+        <h3>Full ticket lifecycle</h3>
+        <p>Priority &amp; severity, assignment, threaded conversations, attachments, status workflow and audit trail — from intake to resolution.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>SLA tracking</h3>
+        <p>Per-tier response and resolution targets, configurable support levels, and per-node / annual subscription tracking.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <h3>Knowledge base</h3>
+        <p>Versioned articles with public / internal visibility controls, full-text and semantic search, and a clean read experience.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V7z"/></svg></div>
+        <h3>RBAC &amp; customer isolation</h3>
+        <p>Roles, granular permissions, and a service-layer actor model that scopes every customer to only their own tickets — REST and MCP alike.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-4 12.7V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3A7 7 0 0 0 12 2z"/><path d="M9 21h6"/></svg></div>
+        <h3>Bring-your-own LLM + RAG</h3>
+        <p>Any OpenAI-compatible provider for chat and embeddings — OpenAI, Azure, DeepSeek, Ollama, vLLM. RAG over your knowledge base, keys encrypted at rest.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <h3>In-app notifications</h3>
+        <p>Replies, assignments and status changes surface as live in-app notifications — no email server required to stay in the loop.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="M21 4v6h-6"/></svg></div>
+        <h3>Import / export</h3>
+        <p>Export tickets, knowledge, users, products and services to JSON, CSV, XML or Markdown. Your data is portable by design.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="14.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/></svg></div>
+        <h3>White-label branding</h3>
+        <p>Set your own product name, accent color and logo from a settings page — applied across the console and the sign-in screen.</p>
+      </div>
+      <div class="card">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></div>
+        <h3>MCP server built in</h3>
+        <p>A Model Context Protocol server exposes tickets &amp; replies as tools, so agents can triage and respond programmatically.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEPLOY -->
+<section id="deploy">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="mono-label">// download → run</div>
+      <h2>Deploy your own instance in five minutes.</h2>
+      <p>SmartTicket ships as one self-contained binary that serves the web console and the API together. No database server, no message queue, no reverse proxy required to get started.</p>
+    </div>
+
+    <div class="deploy-grid">
+      <div>
+        <div class="tabs">
+          <button class="tab active" data-tab="docker">Docker Compose</button>
+          <button class="tab" data-tab="source">From source</button>
+          <button class="tab" data-tab="prod">Production</button>
+        </div>
+
+        <div class="panel active" data-panel="docker">
+<pre class="code"><span class="c"># Recommended — one command, nothing else to install</span>
+git clone https://github.com/liliang-cn/smartticket.git
+cd smartticket
+
+<span class="c"># (recommended) generate strong secrets</span>
+echo <span class="y">"SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)"</span>  &gt; .env
+echo <span class="y">"SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)"</span> &gt;&gt; .env
+
+<span class="g">docker compose up -d</span>
+
+<span class="c"># → http://localhost:6533</span>
+<span class="c"># login: admin@smartticket.local / admin123 (change it!)</span></pre>
+          <button class="copybtn" style="margin-top:10px;" data-copy='git clone https://github.com/liliang-cn/smartticket.git
+cd smartticket
+echo "SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)"  > .env
+echo "SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)" >> .env
+docker compose up -d'>Copy commands</button>
+        </div>
+
+        <div class="panel" data-panel="source">
+<pre class="code"><span class="c"># Prerequisites: Go 1.25+, Node 20+, pnpm</span>
+git clone https://github.com/liliang-cn/smartticket.git
+cd smartticket
+
+<span class="c"># builds the console and embeds it into one static binary</span>
+<span class="g">make build-all</span>
+
+./build/smartticket serve --config configs/config.dev.yaml
+
+<span class="c"># → http://localhost:6533</span></pre>
+          <button class="copybtn" style="margin-top:10px;" data-copy='git clone https://github.com/liliang-cn/smartticket.git
+cd smartticket
+make build-all
+./build/smartticket serve --config configs/config.dev.yaml'>Copy commands</button>
+        </div>
+
+        <div class="panel" data-panel="prod">
+<pre class="code"><span class="c"># Build once, install the single binary</span>
+make build-all
+sudo cp build/smartticket /usr/local/bin/
+
+<span class="c"># Set persistent secrets + point at the prod config</span>
+<span class="c"># (edit storage.data_path in configs/config.prod.yaml first)</span>
+export SMARTTICKET_JWT_SECRET=<span class="y">$(openssl rand -hex 32)</span>
+export SMARTTICKET_SECRET_KEY=<span class="y">$(openssl rand -hex 32)</span>
+
+smartticket serve --config configs/config.prod.yaml
+
+<span class="c"># Put TLS in front with Caddy/Nginx, or use the</span>
+<span class="c"># systemd unit in deployments/systemd/.</span></pre>
+          <button class="copybtn" style="margin-top:10px;" data-copy='make build-all
+sudo cp build/smartticket /usr/local/bin/
+export SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)
+export SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)
+smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
+        </div>
+      </div>
+
+      <div class="deploy-side">
+        <div class="card">
+          <div class="step"><span class="num">1</span><span class="tx"><b>Clone &amp; run.</b> <span>One <code>docker compose up</code> brings up the whole app on port 6533.</span></span></div>
+          <div class="step"><span class="num">2</span><span class="tx"><b>Sign in.</b> <span>Use the seeded admin account, then change the password immediately.</span></span></div>
+          <div class="step"><span class="num">3</span><span class="tx"><b>Brand it.</b> <span>Set your name, color and logo under <code>Settings</code>.</span></span></div>
+          <div class="step"><span class="num">4</span><span class="tx"><b>Connect AI (optional).</b> <span>Add an OpenAI-compatible chat + embedding provider under <code>AI Providers</code>.</span></span></div>
+        </div>
+        <div class="card">
+          <div class="mono-label">data &amp; backups</div>
+          <p style="color:var(--muted);font-size:14px;margin-top:10px;">Everything — tickets, knowledge, the RAG vector store and config — lives in the <code>smartticket-data</code> volume (a single SQLite file plus uploads). Back it up by copying the volume; restore by putting it back.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA SOVEREIGNTY -->
+<section id="architecture" style="padding-top:24px;">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <div class="mono-label">// data sovereignty</div>
+        <h3>Your data never leaves your server.</h3>
+        <p>SmartTicket is single-tenant by design: one organization, one instance. There is no SaaS backend phoning home, no shared multi-tenant database, and no required third-party services.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Embedded SQLite — runs fully offline, air-gapped if you want.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> LLM API keys encrypted at rest with AES-256-GCM.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Full export to open formats — no lock-in, ever.</li>
+        </ul>
+      </div>
+      <div class="visual">
+        <div class="mono-label">single-tenant topology</div>
+        <pre class="code" style="margin-top:12px;border:none;"><span class="y">┌─ your server ──────────────┐</span>
+│  smartticket (1 binary)    │
+│   ├─ web console  :6533    │
+│   ├─ REST API     :6533    │
+│   ├─ MCP server   (stdio)  │
+│   └─ SQLite + RAG (vol)    │
+<span class="y">└────────────┬───────────────┘</span>
+             │ optional, you choose
+        <span class="b">your LLM provider</span></pre>
+      </div>
+    </div>
+
+    <div class="split rev">
+      <div>
+        <div class="mono-label">// bring your own intelligence</div>
+        <h3>AI assistance, on your terms.</h3>
+        <p>Configure chat and embedding providers independently — each with its own base URL, model and key. Knowledge articles are indexed into a built-in vector store for retrieval-augmented answers.</p>
+        <div class="chip-row" style="margin-top:18px;">
+          <span class="chip on">OpenAI</span>
+          <span class="chip on">Azure OpenAI</span>
+          <span class="chip on">DeepSeek</span>
+          <span class="chip on">Aliyun Bailian</span>
+          <span class="chip on">Ollama</span>
+          <span class="chip on">vLLM</span>
+          <span class="chip on">LocalAI</span>
+          <span class="chip">…any OpenAI-compatible</span>
+        </div>
+      </div>
+      <div class="visual">
+        <div class="mono-label">retrieval-augmented answer</div>
+        <div style="margin-top:14px;">
+          <div style="font-size:13px;color:var(--muted);">Q: How do I enable single sign-on for my team?</div>
+          <div style="margin-top:12px;padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--card2);font-size:13.5px;">
+            <span style="color:var(--primary);font-family:'IBM Plex Mono';font-size:11px;">ANSWER · cited from 3 KB articles</span>
+            <p style="margin:8px 0 0;color:var(--fg);">Open <code>Settings → Access</code>, add your identity provider's metadata URL, map the email claim, then enable SSO enforcement for the team…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STACK -->
+<section style="padding-top:24px;">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="mono-label">// engineered for operators</div>
+      <h2>Built on a boring, reliable stack.</h2>
+      <p>Go on the backend, React on the front, SQLite underneath. No exotic runtime, no per-seat licensing, no surprise dependencies.</p>
+    </div>
+    <div class="stack">
+      <div class="s"><b>Go 1.25</b><span>· backend</span></div>
+      <div class="s"><b>GIN + GORM</b><span>· API &amp; ORM</span></div>
+      <div class="s"><b>SQLite</b><span>· embedded (CGO-free)</span></div>
+      <div class="s"><b>React + TypeScript</b><span>· console</span></div>
+      <div class="s"><b>Vite + Tailwind</b><span>· build &amp; styling</span></div>
+      <div class="s"><b>JWT + RBAC</b><span>· auth</span></div>
+      <div class="s"><b>CortexDB</b><span>· RAG vector store</span></div>
+      <div class="s"><b>Docker</b><span>· one-command deploy</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="padding-top:24px;">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="mono-label">// questions</div>
+      <h2>Frequently asked.</h2>
+    </div>
+    <div class="faq">
+      <details open><summary>Do I need a database server or Redis?<span class="pm">+</span></summary><p>No. SQLite is embedded directly in the binary and there are no other required services. The whole app is one process — that is the entire point.</p></details>
+      <details><summary>How do I update to a new version?<span class="pm">+</span></summary><p>With Docker: <code>git pull &amp;&amp; docker compose up -d --build</code>. Your data lives in a named volume and is untouched by rebuilds. From source: <code>git pull &amp;&amp; make build-all</code> and restart the binary. Schema migrations run automatically on startup.</p></details>
+      <details><summary>Is AI required to use it?<span class="pm">+</span></summary><p>No — tickets, SLA, knowledge base and RBAC all work without any LLM configured. AI features are opt-in: add a provider only if you want semantic search and RAG answers.</p></details>
+      <details><summary>Can customers see each other's tickets?<span class="pm">+</span></summary><p>No. Customer-role users are scoped at the service layer to their own organization's tickets only — the same isolation applies to the REST API and the MCP server.</p></details>
+      <details><summary>How do I back up my instance?<span class="pm">+</span></summary><p>Copy the data volume (the SQLite file, the RAG store and uploaded attachments). To restore, put it back and start the binary. You can also export everything to JSON/CSV/XML/Markdown from the Data screen.</p></details>
+      <details><summary>What does it cost?<span class="pm">+</span></summary><p>The software is open source and free to self-host. Your only costs are the server you run it on and — if you enable AI — whatever your chosen LLM provider charges.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="wrap">
+  <div class="cta">
+    <div class="mono-label">// ready in five minutes</div>
+    <h2>Own your support stack.</h2>
+    <p>Clone it, run one command, and you have a complete ticketing and knowledge platform on your own infrastructure.</p>
+    <div class="hero-cta">
+      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-primary">Get SmartTicket on GitHub</a>
+      <a href="/login" target="_blank" rel="noopener" class="btn btn-ghost">Open the console</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="brand" style="font-size:15px;">
+      <span class="glyph" style="width:26px;height:26px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4z"/></svg></span>
+      SmartTicket
+    </div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;">
+      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">GitHub</a>
+      <a href="/login" target="_blank" rel="noopener">Sign in</a>
+      <a href="#deploy">Deploy</a>
+      <a href="https://github.com/liliang-cn/smartticket/blob/main/LICENSE" target="_blank" rel="noopener">License (MIT)</a>
+    </div>
+    <div>Self-hosted · Single-tenant · Your data, your rules.</div>
+  </div>
+</footer>
+
+<script>
+  // Theme toggle (persists choice; the head script applies it before paint).
+  document.getElementById('theme-toggle').addEventListener('click', function () {
+    var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      document.documentElement.removeAttribute('data-theme');
+      try { localStorage.setItem('st-theme', 'dark'); } catch (e) {}
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      try { localStorage.setItem('st-theme', 'light'); } catch (e) {}
+    }
+  });
+
+  // Copy-to-clipboard buttons.
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      navigator.clipboard.writeText(b.getAttribute('data-copy')).then(function () {
+        var t = b.textContent; b.textContent = 'Copied ✓';
+        setTimeout(function () { b.textContent = t; }, 1500);
+      });
+    });
+  });
+  // Deploy tabs.
+  document.querySelectorAll('.tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var name = tab.getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('active', t === tab); });
+      document.querySelectorAll('.panel').forEach(function (p) {
+        p.classList.toggle('active', p.getAttribute('data-panel') === name);
+      });
+    });
+  });
+  // FAQ +/- glyphs.
+  document.querySelectorAll('details').forEach(function (d) {
+    var pm = d.querySelector('.pm');
+    var sync = function () { if (pm) pm.textContent = d.open ? '–' : '+'; };
+    d.addEventListener('toggle', sync); sync();
+  });
+</script>
+</body>
+</html>
