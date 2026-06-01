@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Ticket, ArrowRight } from "lucide-react";
+import { Ticket, ArrowRight, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useBranding } from "@/lib/branding";
 import { apiError } from "@/lib/api";
@@ -36,6 +36,14 @@ export function LoginPage() {
       {/* Form side */}
       <div className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
+          {import.meta.env.BASE_URL !== "/" && (
+            <a
+              href="/"
+              className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <ArrowLeft className="size-4" /> Back to home
+            </a>
+          )}
           <div className="mb-10 flex items-center gap-3">
             <div className="grid size-10 place-items-center overflow-hidden rounded-lg bg-primary text-primary-foreground shadow-[0_0_30px_-6px_color-mix(in_srgb,var(--primary)_75%,transparent)]">
               {branding.has_logo ? (

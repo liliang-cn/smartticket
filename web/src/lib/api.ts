@@ -75,8 +75,10 @@ api.interceptors.response.use(
         return api(original);
       }
       tokenStore.clear();
-      if (!location.pathname.startsWith("/login")) {
-        location.assign("/login");
+      // Base-aware login path (e.g. "/login" or "/app/login").
+      const loginPath = import.meta.env.BASE_URL.replace(/\/$/, "") + "/login";
+      if (!location.pathname.startsWith(loginPath)) {
+        location.assign(loginPath);
       }
     }
     return Promise.reject(error);
