@@ -28,7 +28,7 @@ export interface CreateSubscriptionInput {
   plan?: string;
   billing_unit?: string;
   node_count?: number;
-  billing_period?: "annual" | "monthly";
+  billing_period?: string;
   starts_at?: string;
   expires_at?: string;
   status?: "active" | "expired" | "cancelled";

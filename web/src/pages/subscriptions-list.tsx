@@ -84,9 +84,20 @@ export const BILLING_UNITS: { value: string; label: string; single?: boolean }[]
   { value: "per_gb", label: "Per GB" },
   { value: "per_request", label: "Per request" },
   { value: "usage", label: "Usage / metered" },
+  { value: "per_subscriber", label: "Per subscriber (app)" },
+  { value: "per_install", label: "Per install" },
+  { value: "per_app", label: "Per app" },
   { value: "flat", label: "Flat fee", single: true },
 ];
 const SINGLE_UNITS = new Set(BILLING_UNITS.filter((u) => u.single).map((u) => u.value));
+
+// Billing cadences. Includes weekly + lifetime (one-time) for indie app subs.
+export const BILLING_PERIODS: { value: string; label: string }[] = [
+  { value: "weekly", label: "Weekly" },
+  { value: "monthly", label: "Monthly" },
+  { value: "annual", label: "Annual" },
+  { value: "lifetime", label: "Lifetime (one-time)" },
+];
 
 const schema = z.object({
   customer_id: z.string().min(1, "Customer is required"),
@@ -95,7 +106,7 @@ const schema = z.object({
   plan: z.string().optional(),
   billing_unit: z.string().min(1, "Billing unit is required"),
   node_count: z.string().optional(),
-  billing_period: z.enum(["annual", "monthly"]),
+  billing_period: z.string().min(1, "Billing period is required"),
   starts_at: z.string().min(1, "Start date is required"),
   expires_at: z.string().min(1, "Expiry date is required"),
   unit_price: z.string().optional(),
@@ -318,8 +329,11 @@ function SubscriptionFormDialog() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="annual">Annual</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
+                  {BILLING_PERIODS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>
+                      {p.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

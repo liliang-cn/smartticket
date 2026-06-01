@@ -124,7 +124,11 @@ var billingUnits = map[string]bool{
 	"per_gb":              true,
 	"per_request":         true,
 	"usage":               true,
-	"flat":                true,
+	// Indie developer / app models: consumer app subscriptions, installs, apps.
+	"per_subscriber": true,
+	"per_install":    true,
+	"per_app":        true,
+	"flat":           true,
 }
 
 // singleUnitBilling marks units that always bill as one unit regardless of the
@@ -149,8 +153,28 @@ func supportedBillingUnits() string {
 	return strings.Join(units, ", ")
 }
 
+// billingPeriods is the set of supported billing cadences. Beyond annual/monthly
+// it includes weekly and lifetime (one-time purchase) to cover indie-developer
+// app subscriptions.
+var billingPeriods = map[string]bool{
+	billingPeriodAnnual:  true,
+	billingPeriodMonthly: true,
+	"weekly":             true,
+	"lifetime":           true,
+}
+
 func isValidBillingPeriod(v string) bool {
-	return v == billingPeriodAnnual || v == billingPeriodMonthly
+	return billingPeriods[v]
+}
+
+// supportedBillingPeriods returns the sorted list of valid billing periods.
+func supportedBillingPeriods() string {
+	ps := make([]string, 0, len(billingPeriods))
+	for p := range billingPeriods {
+		ps = append(ps, p)
+	}
+	sort.Strings(ps)
+	return strings.Join(ps, ", ")
 }
 
 func isValidStatus(v string) bool {
@@ -209,7 +233,7 @@ func (s *Service) Create(req *CreateSubscriptionRequest) (*SubscriptionResponse,
 		billingPeriod = billingPeriodAnnual
 	}
 	if !isValidBillingPeriod(billingPeriod) {
-		return nil, apperrors.NewInvalidInputError("billing_period", "must be annual or monthly")
+		return nil, apperrors.NewInvalidInputError("billing_period", "must be one of: "+supportedBillingPeriods())
 	}
 
 	status := strings.TrimSpace(req.Status)
@@ -360,7 +384,7 @@ func (s *Service) Update(id uint, req *UpdateSubscriptionRequest) (*Subscription
 	if req.BillingPeriod != nil {
 		v := strings.TrimSpace(*req.BillingPeriod)
 		if !isValidBillingPeriod(v) {
-			return nil, apperrors.NewInvalidInputError("billing_period", "must be annual or monthly")
+			return nil, apperrors.NewInvalidInputError("billing_period", "must be one of: "+supportedBillingPeriods())
 		}
 		subscription.BillingPeriod = v
 	}
