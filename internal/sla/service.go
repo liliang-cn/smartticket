@@ -349,7 +349,7 @@ func (s *Service) DeleteSLATemplate(templateID uint) error {
 
 	// Check if template is being used by SLA rules
 	var ruleCount int64
-	if err := s.db.Model(&models.SLARule{}).Where("template_id = ?", templateID).Count(&ruleCount).Error; err != nil {
+	if err := s.db.Model(&models.SLARule{}).Where("sla_template_id = ?", templateID).Count(&ruleCount).Error; err != nil {
 		return fmt.Errorf("failed to check associated SLA rules: %w", err)
 	}
 
