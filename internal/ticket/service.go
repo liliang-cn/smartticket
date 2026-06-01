@@ -229,7 +229,8 @@ func (s *Service) ListTickets(actor authz.Actor, page, pageSize int, filters map
 	var tickets []models.Ticket
 	var total int64
 
-	query := scopeToActor(s.db.Model(&models.Ticket{}), actor)
+	// Exclude soft-deleted tickets from listings.
+	query := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor)
 
 	// Apply filters
 	if status, ok := filters["status"].(string); ok && status != "" {
@@ -649,13 +650,13 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 	}
 
 	// Get basic status counts
-	if err := scopeToActor(s.db.Model(&models.Ticket{}), actor).
+	if err := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
 		Count(&stats.Total).Error; err != nil {
 		return nil, fmt.Errorf("failed to count total tickets: %w", err)
 	}
 
 	// Get status breakdown
-	rows, err := scopeToActor(s.db.Model(&models.Ticket{}), actor).
+	rows, err := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
 		Select("status, COUNT(*) as count").
 		Group("status").
 		Rows()
@@ -683,7 +684,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 	}
 
 	// Get priority breakdown
-	priorityRows, err := scopeToActor(s.db.Model(&models.Ticket{}), actor).
+	priorityRows, err := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
 		Where("status IN ?", []string{"open", "in_progress"}).
 		Select("priority, COUNT(*) as count").
 		Group("priority").
@@ -713,7 +714,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 
 	// Get overdue count
 	now := time.Now()
-	if err := scopeToActor(s.db.Model(&models.Ticket{}), actor).
+	if err := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
 		Where("status IN ? AND due_date < ?",
 			[]string{"open", "in_progress"}, now).
 		Count(&stats.OverdueCount).Error; err != nil {
