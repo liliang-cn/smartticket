@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SmartTicket — Self-hosted ticketing & knowledge, with AI you control</title>
-<meta name="description" content="SmartTicket is an open-source, single-tenant support desk and knowledge base you run yourself. One static binary, embedded SQLite, RBAC, SLA tracking, and pluggable LLM/RAG — complete data sovereignty." />
-<link rel="canonical" href="https://smartticket.superleo.app/" />
+<title>SmartTicket — Mesa de soporte y base de conocimiento autoalojada, con la IA que tú controlas</title>
+<meta name="description" content="SmartTicket es una mesa de soporte y base de conocimiento de código abierto y tenant único que ejecutas tú mismo. Un binario estático, SQLite embebido, RBAC, seguimiento de SLA y LLM/RAG enchufable — soberanía total de los datos." />
+<link rel="canonical" href="https://smartticket.superleo.app/es/" />
 <!-- hreflang cluster — one localized landing per language, x-default = English. -->
 <link rel="alternate" hreflang="en" href="https://smartticket.superleo.app/" />
 <link rel="alternate" hreflang="zh" href="https://smartticket.superleo.app/zh/" />
@@ -15,29 +15,29 @@
 <link rel="alternate" hreflang="ko" href="https://smartticket.superleo.app/ko/" />
 <link rel="alternate" hreflang="it" href="https://smartticket.superleo.app/it/" />
 <link rel="alternate" hreflang="x-default" href="https://smartticket.superleo.app/" />
-<meta name="keywords" content="self-hosted helpdesk, open source ticketing system, knowledge base software, SLA tracking, RBAC, RAG, self-hosted LLM, single binary, embedded SQLite, data sovereignty, Zendesk alternative, Freshdesk alternative, Go support desk" />
+<meta name="keywords" content="mesa de soporte autoalojada, sistema de tickets de código abierto, software de base de conocimiento, seguimiento de SLA, RBAC, RAG, LLM autoalojado, binario único, SQLite embebido, soberanía de datos, alternativa a Zendesk, alternativa a Freshdesk, plataforma de soporte en Go" />
 <meta name="author" content="Liang Li" />
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0c0f" />
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f9" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23ffb01f'/%3E%3Cg fill='none' stroke='%2319130a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 2 2 0 0 0 0-4z'/%3E%3Cpath d='M13 6v2M13 16v2M13 11v2'/%3E%3C/g%3E%3C/svg%3E" />
-<meta property="og:title" content="SmartTicket — self-hosted ticketing & knowledge with AI you control" />
-<meta property="og:description" content="One binary. Zero external dependencies. Your data, your rules. Tickets, SLA, knowledge base, RBAC and bring-your-own-LLM RAG." />
+<meta property="og:title" content="SmartTicket — mesa de soporte y base de conocimiento autoalojada con la IA que tú controlas" />
+<meta property="og:description" content="Un solo binario. Sin dependencias externas. Tus datos, tus reglas. Tickets, SLA, base de conocimiento, RBAC y RAG con tu propio LLM." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://smartticket.superleo.app/" />
+<meta property="og:url" content="https://smartticket.superleo.app/es/" />
 <meta property="og:site_name" content="SmartTicket" />
-<meta property="og:locale" content="en_US" />
+<meta property="og:locale" content="es_ES" />
+<meta property="og:locale:alternate" content="en_US" />
 <meta property="og:locale:alternate" content="zh_CN" />
-<meta property="og:locale:alternate" content="es_ES" />
 <meta property="og:locale:alternate" content="de_DE" />
 <meta property="og:locale:alternate" content="ja_JP" />
 <meta property="og:locale:alternate" content="ko_KR" />
 <meta property="og:locale:alternate" content="it_IT" />
 <meta property="og:image" content="https://liliang-cn.github.io/smartticket/og.svg" />
-<meta property="og:image:alt" content="SmartTicket — self-hosted ticketing & knowledge platform" />
+<meta property="og:image:alt" content="SmartTicket — plataforma de soporte y base de conocimiento autoalojada" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="SmartTicket — self-hosted ticketing & knowledge with AI you control" />
-<meta name="twitter:description" content="One binary. Zero external dependencies. Tickets, SLA, knowledge base, RBAC and bring-your-own-LLM RAG. Your data, your rules." />
+<meta name="twitter:title" content="SmartTicket — mesa de soporte y base de conocimiento autoalojada con la IA que tú controlas" />
+<meta name="twitter:description" content="Un solo binario. Sin dependencias externas. Tickets, SLA, base de conocimiento, RBAC y RAG con tu propio LLM. Tus datos, tus reglas." />
 <meta name="twitter:image" content="https://liliang-cn.github.io/smartticket/og.svg" />
 <link rel="alternate" type="text/plain" href="https://liliang-cn.github.io/smartticket/llms.txt" title="llms.txt — LLM-readable summary" />
 <link rel="sitemap" type="application/xml" href="https://smartticket.superleo.app/sitemap.xml" />
@@ -308,9 +308,9 @@
       "@id": "https://smartticket.superleo.app/#app",
       "name": "SmartTicket",
       "applicationCategory": "BusinessApplication",
-      "applicationSubCategory": "Help Desk / Ticketing & Knowledge Base",
+      "applicationSubCategory": "Mesa de ayuda / Sistema de tickets y base de conocimiento",
       "operatingSystem": "Linux, macOS, Windows, Docker",
-      "description": "SmartTicket is an open-source, self-hosted, single-tenant ticketing and knowledge collaboration platform. It ships as one static binary with an embedded SQLite database and serves both the web console and REST API. Features include full ticket lifecycle, SLA tracking, a versioned knowledge base, role-based access control with customer isolation, in-app notifications, import/export, white-label branding, a built-in MCP server, and bring-your-own LLM retrieval-augmented generation (RAG).",
+      "description": "SmartTicket es una plataforma de código abierto, autoalojada y de tenant único para la gestión de tickets y colaboración del conocimiento. Se distribuye como un único binario estático con base de datos SQLite embebida y sirve tanto la consola web como la API REST. Incluye ciclo de vida completo de tickets, seguimiento de SLA, base de conocimiento versionada, control de acceso basado en roles con aislamiento por cliente, notificaciones en aplicación, importación/exportación, personalización de marca, un servidor MCP integrado y generación aumentada por recuperación (RAG) con tu propio LLM.",
       "softwareVersion": "1.0",
       "license": "https://opensource.org/licenses/MIT",
       "isAccessibleForFree": true,
@@ -318,15 +318,15 @@
       "downloadUrl": "https://github.com/liliang-cn/smartticket",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "featureList": [
-        "Full ticket lifecycle with priority and severity",
-        "SLA tracking with per-tier targets and subscriptions",
-        "Versioned knowledge base with public/internal visibility",
-        "Role-based access control and per-customer isolation",
-        "Bring-your-own OpenAI-compatible LLM with RAG",
-        "In-app notifications",
-        "Import/export to JSON, CSV, XML and Markdown",
-        "White-label branding (name, accent color, logo)",
-        "Built-in Model Context Protocol (MCP) server"
+        "Ciclo de vida completo de tickets con prioridad y severidad",
+        "Seguimiento de SLA con objetivos por nivel y suscripciones",
+        "Base de conocimiento versionada con visibilidad pública e interna",
+        "Control de acceso basado en roles y aislamiento por cliente",
+        "LLM compatible con OpenAI propio con RAG",
+        "Notificaciones en aplicación",
+        "Importación/exportación a JSON, CSV, XML y Markdown",
+        "Personalización de marca (nombre, color de acento, logotipo)",
+        "Servidor Model Context Protocol (MCP) integrado"
       ],
       "author": { "@type": "Person", "name": "Liang Li" }
     },
@@ -335,18 +335,18 @@
       "@id": "https://smartticket.superleo.app/#website",
       "name": "SmartTicket",
       "url": "https://smartticket.superleo.app/",
-      "inLanguage": "en"
+      "inLanguage": "es"
     },
     {
       "@type": "FAQPage",
       "@id": "https://smartticket.superleo.app/#faq",
       "mainEntity": [
-        { "@type": "Question", "name": "Do I need a database server or Redis?", "acceptedAnswer": { "@type": "Answer", "text": "No. SQLite is embedded directly in the binary and there are no other required services. The whole app is one process." } },
-        { "@type": "Question", "name": "How do I update to a new version?", "acceptedAnswer": { "@type": "Answer", "text": "With Docker: git pull && docker compose up -d --build. Your data lives in a named volume and is untouched. From source: git pull && make build-all, then restart. Schema migrations run automatically on startup." } },
-        { "@type": "Question", "name": "Is AI required to use it?", "acceptedAnswer": { "@type": "Answer", "text": "No. Tickets, SLA, knowledge base and RBAC all work without any LLM configured. AI features are opt-in: add a provider only if you want semantic search and RAG answers." } },
-        { "@type": "Question", "name": "Can customers see each other's tickets?", "acceptedAnswer": { "@type": "Answer", "text": "No. Customer-role users are scoped at the service layer to their own organization's tickets only, for both the REST API and the MCP server." } },
-        { "@type": "Question", "name": "How do I back up my instance?", "acceptedAnswer": { "@type": "Answer", "text": "Copy the data volume (the SQLite file, the RAG store and uploaded attachments). To restore, put it back and start the binary. You can also export everything to JSON/CSV/XML/Markdown." } },
-        { "@type": "Question", "name": "What does it cost?", "acceptedAnswer": { "@type": "Answer", "text": "The software is open source (MIT) and free to self-host. Your only costs are the server you run it on and, if you enable AI, whatever your chosen LLM provider charges." } }
+        { "@type": "Question", "name": "¿Necesito un servidor de base de datos o Redis?", "acceptedAnswer": { "@type": "Answer", "text": "No. SQLite está embebido directamente en el binario y no hay otros servicios requeridos. Toda la aplicación es un único proceso." } },
+        { "@type": "Question", "name": "¿Cómo actualizo a una nueva versión?", "acceptedAnswer": { "@type": "Answer", "text": "Con Docker: git pull && docker compose up -d --build. Tus datos viven en un volumen con nombre y no se modifican. Desde el código fuente: git pull && make build-all y reinicia. Las migraciones de esquema se ejecutan automáticamente al arrancar." } },
+        { "@type": "Question", "name": "¿Es obligatorio usar la IA?", "acceptedAnswer": { "@type": "Answer", "text": "No. Los tickets, SLA, la base de conocimiento y RBAC funcionan sin ningún LLM configurado. Las funciones de IA son opcionales: añade un proveedor solo si quieres búsqueda semántica y respuestas RAG." } },
+        { "@type": "Question", "name": "¿Pueden los clientes ver los tickets de otros clientes?", "acceptedAnswer": { "@type": "Answer", "text": "No. Los usuarios con rol de cliente están limitados en la capa de servicio a los tickets de su propia organización, tanto en la API REST como en el servidor MCP." } },
+        { "@type": "Question", "name": "¿Cómo hago una copia de seguridad de mi instancia?", "acceptedAnswer": { "@type": "Answer", "text": "Copia el volumen de datos (el archivo SQLite, el almacén RAG y los adjuntos subidos). Para restaurar, devuélvelo y arranca el binario. También puedes exportar todo a JSON/CSV/XML/Markdown." } },
+        { "@type": "Question", "name": "¿Cuánto cuesta?", "acceptedAnswer": { "@type": "Answer", "text": "El software es de código abierto (MIT) y gratuito para autoalojar. Tus únicos costes son el servidor donde lo ejecutas y, si activas la IA, lo que cobre tu proveedor de LLM elegido." } }
       ]
     }
   ]
@@ -363,25 +363,25 @@
       SmartTicket
     </a>
     <nav class="nav-links">
-      <a href="#features" class="hide-sm">Features</a>
-      <a href="#deploy" class="hide-sm">Deploy</a>
-      <a href="#architecture" class="hide-sm">Architecture</a>
+      <a href="#features" class="hide-sm">Funciones</a>
+      <a href="#deploy" class="hide-sm">Despliegue</a>
+      <a href="#architecture" class="hide-sm">Arquitectura</a>
       <a href="#faq" class="hide-sm">FAQ</a>
       <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="gh">GitHub ↗</a>
-      <select class="lang-select" aria-label="Language" onchange="if(this.value)location.href=this.value">
-        <option value="/" selected>EN</option>
+      <select class="lang-select" aria-label="Idioma" onchange="if(this.value)location.href=this.value">
+        <option value="/">EN</option>
         <option value="/zh/">中文</option>
-        <option value="/es/">ES</option>
+        <option value="/es/" selected>ES</option>
         <option value="/de/">DE</option>
         <option value="/ja/">日本語</option>
         <option value="/ko/">한국어</option>
         <option value="/it/">IT</option>
       </select>
-      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark / light theme" title="Toggle theme">
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar tema oscuro / claro" title="Alternar tema">
         <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
-      <a href="/app/" class="btn btn-primary" style="padding:8px 14px;">Sign in</a>
+      <a href="/app/" class="btn btn-primary" style="padding:8px 14px;">Iniciar sesión</a>
     </nav>
   </div>
 </header>
@@ -391,32 +391,32 @@
 <!-- HERO -->
 <div class="hero">
   <div class="wrap">
-    <span class="pill"><span class="dot"></span> Open source · Self-hosted · Single-tenant</span>
-    <h1>Your support desk and knowledge base — <span class="accent">on your own infrastructure.</span></h1>
-    <p class="sub">SmartTicket is a self-hosted ticketing &amp; knowledge collaboration platform. One static binary, embedded SQLite, RBAC, SLA tracking, and bring-your-own-LLM RAG. Deploy in five minutes; keep complete control of your data.</p>
+    <span class="pill"><span class="dot"></span> Código abierto · Autoalojado · Tenant único</span>
+    <h1>Tu mesa de soporte y base de conocimiento — <span class="accent">en tu propia infraestructura.</span></h1>
+    <p class="sub">SmartTicket es una plataforma de tickets y colaboración del conocimiento autoalojada. Un solo binario estático, SQLite embebido, RBAC, seguimiento de SLA y RAG con tu propio LLM. Despliega en cinco minutos y mantén el control total de tus datos.</p>
     <div class="hero-cta">
       <a href="#deploy" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        Deploy in 5 minutes
+        Desplegar en 5 minutos
       </a>
-      <a href="/app/" target="_blank" rel="noopener" class="btn btn-ghost">Sign in</a>
+      <a href="/app/" target="_blank" rel="noopener" class="btn btn-ghost">Iniciar sesión</a>
       <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-ghost">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
-        Star on GitHub
+        Destacar en GitHub
       </a>
     </div>
     <div class="oneliner">
       <code><span class="c">$</span> git clone https://github.com/liliang-cn/smartticket &amp;&amp; cd smartticket &amp;&amp; <span class="y">docker compose up -d</span></code>
-      <button class="copybtn" data-copy="git clone https://github.com/liliang-cn/smartticket && cd smartticket && docker compose up -d">Copy</button>
+      <button class="copybtn" data-copy="git clone https://github.com/liliang-cn/smartticket && cd smartticket && docker compose up -d">Copiar</button>
     </div>
 
     <!-- Trust strip -->
     <div class="trust">
-      <div><div class="n">1</div><div class="l">static binary</div></div>
-      <div><div class="n">&lt;512MB</div><div class="l">memory footprint</div></div>
-      <div><div class="n">0</div><div class="l">external services</div></div>
-      <div><div class="n">SQLite</div><div class="l">embedded database</div></div>
-      <div><div class="n">100%</div><div class="l">your data</div></div>
+      <div><div class="n">1</div><div class="l">binario estático</div></div>
+      <div><div class="n">&lt;512MB</div><div class="l">huella de memoria</div></div>
+      <div><div class="n">0</div><div class="l">servicios externos</div></div>
+      <div><div class="n">SQLite</div><div class="l">base de datos embebida</div></div>
+      <div><div class="n">100%</div><div class="l">tus datos</div></div>
     </div>
 
     <!-- Console preview -->
@@ -437,15 +437,15 @@
         <div class="body">
           <div class="mono-label">workspace overview</div>
           <div class="kpis" style="margin-top:14px;">
-            <div class="kpi amber"><div class="v">128</div><div class="k">Open tickets</div></div>
-            <div class="kpi"><div class="v">96%</div><div class="k">SLA met</div></div>
-            <div class="kpi"><div class="v">2.4h</div><div class="k">Avg. first reply</div></div>
-            <div class="kpi"><div class="v">312</div><div class="k">KB articles</div></div>
+            <div class="kpi amber"><div class="v">128</div><div class="k">Tickets abiertos</div></div>
+            <div class="kpi"><div class="v">96%</div><div class="k">SLA cumplido</div></div>
+            <div class="kpi"><div class="v">2.4h</div><div class="k">1.ª respuesta media</div></div>
+            <div class="kpi"><div class="v">312</div><div class="k">Artículos de KB</div></div>
           </div>
           <div class="rows">
-            <div class="row"><span class="t">Email notifications stopped after the upgrade</span><span class="tag hi">urgent</span><span class="tag ok">in&nbsp;SLA</span></div>
-            <div class="row"><span class="t">How do I configure SSO with our provider?</span><span class="tag md">high</span><span class="tag ok">in&nbsp;SLA</span></div>
-            <div class="row"><span class="t">Export a customer's tickets to CSV</span><span class="tag md">normal</span><span class="tag ok">answered</span></div>
+            <div class="row"><span class="t">Las notificaciones por email dejaron de funcionar tras la actualización</span><span class="tag hi">urgente</span><span class="tag ok">en&nbsp;SLA</span></div>
+            <div class="row"><span class="t">¿Cómo configuro SSO con nuestro proveedor?</span><span class="tag md">alto</span><span class="tag ok">en&nbsp;SLA</span></div>
+            <div class="row"><span class="t">Exportar los tickets de un cliente a CSV</span><span class="tag md">normal</span><span class="tag ok">respondido</span></div>
           </div>
         </div>
       </div>
@@ -457,21 +457,21 @@
 <section id="at-a-glance" style="padding-bottom:24px;">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// at a glance</div>
-      <h2>SmartTicket in one screen.</h2>
-      <p>The essentials, stated plainly — for people and for the AI engines that summarize this page.</p>
+      <div class="mono-label">// de un vistazo</div>
+      <h2>SmartTicket en una pantalla.</h2>
+      <p>Lo esencial, expresado con claridad — para personas y para los motores de IA que resumen esta página.</p>
     </div>
     <div class="facts">
-      <div class="fact"><span>What it is</span><b>Open-source, self-hosted ticketing &amp; knowledge base</b></div>
-      <div class="fact"><span>Model</span><b>Single-tenant — one instance per organization</b></div>
-      <div class="fact"><span>License</span><b>MIT — free to self-host</b></div>
+      <div class="fact"><span>Qué es</span><b>Mesa de soporte y base de conocimiento de código abierto y autoalojada</b></div>
+      <div class="fact"><span>Modelo</span><b>Tenant único — una instancia por organización</b></div>
+      <div class="fact"><span>Licencia</span><b>MIT — gratuito para autoalojar</b></div>
       <div class="fact"><span>Stack</span><b>Go 1.25 · React + TypeScript · SQLite</b></div>
-      <div class="fact"><span>Deployment</span><b>One static binary, or <code>docker compose up</code></b></div>
-      <div class="fact"><span>Dependencies</span><b>None — embedded SQLite; no DB, Redis or proxy required</b></div>
-      <div class="fact"><span>AI</span><b>Bring-your-own OpenAI-compatible LLM + RAG (optional)</b></div>
-      <div class="fact"><span>Footprint</span><b>&lt; 512&nbsp;MB RAM; runs offline / air-gapped</b></div>
-      <div class="fact"><span>Repository</span><b><a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">github.com/liliang-cn/smartticket</a></b></div>
-      <div class="fact"><span>Live demo</span><b><a href="/app/" target="_blank" rel="noopener">smartticket.superleo.app</a></b></div>
+      <div class="fact"><span>Despliegue</span><b>Un binario estático, o <code>docker compose up</code></b></div>
+      <div class="fact"><span>Dependencias</span><b>Ninguna — SQLite embebido; no se requieren DB, Redis ni proxy</b></div>
+      <div class="fact"><span>IA</span><b>LLM compatible con OpenAI propio + RAG (opcional)</b></div>
+      <div class="fact"><span>Huella</span><b>&lt; 512&nbsp;MB RAM; funciona sin conexión / air-gapped</b></div>
+      <div class="fact"><span>Repositorio</span><b><a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">github.com/liliang-cn/smartticket</a></b></div>
+      <div class="fact"><span>Demo en vivo</span><b><a href="/app/" target="_blank" rel="noopener">smartticket.superleo.app</a></b></div>
     </div>
   </div>
 </section>
@@ -480,55 +480,55 @@
 <section id="features">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// everything in one binary</div>
-      <h2>A complete support stack, nothing to wire together.</h2>
-      <p>Tickets, SLAs, a versioned knowledge base, role-based access, customer isolation and AI assistance — all built in, all running from a single process you own.</p>
+      <div class="mono-label">// todo en un binario</div>
+      <h2>Una plataforma de soporte completa, sin nada que conectar.</h2>
+      <p>Tickets, SLAs, una base de conocimiento versionada, acceso basado en roles, aislamiento de clientes y asistencia de IA — todo integrado, todo ejecutándose desde un único proceso que tú controlas.</p>
     </div>
     <div class="features">
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4z"/></svg></div>
-        <h3>Full ticket lifecycle</h3>
-        <p>Priority &amp; severity, assignment, threaded conversations, attachments, status workflow and audit trail — from intake to resolution.</p>
+        <h3>Ciclo de vida completo del ticket</h3>
+        <p>Prioridad &amp; severidad, asignación, conversaciones encadenadas, adjuntos, flujo de estados y registro de auditoría — desde la entrada hasta la resolución.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-        <h3>SLA tracking</h3>
-        <p>Per-tier response and resolution targets, configurable support levels, and per-node / annual subscription tracking.</p>
+        <h3>Seguimiento de SLA</h3>
+        <p>Objetivos de respuesta y resolución por nivel, niveles de soporte configurables y seguimiento de suscripciones por nodo o anuales.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-        <h3>Knowledge base</h3>
-        <p>Versioned articles with public / internal visibility controls, full-text and semantic search, and a clean read experience.</p>
+        <h3>Base de conocimiento</h3>
+        <p>Artículos versionados con controles de visibilidad pública e interna, búsqueda de texto completo y semántica, y una experiencia de lectura limpia.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V7z"/></svg></div>
-        <h3>RBAC &amp; customer isolation</h3>
-        <p>Roles, granular permissions, and a service-layer actor model that scopes every customer to only their own tickets — REST and MCP alike.</p>
+        <h3>RBAC &amp; aislamiento de clientes</h3>
+        <p>Roles, permisos granulares y un modelo de actor en la capa de servicio que limita a cada cliente a sus propios tickets — en la API REST y en MCP por igual.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-4 12.7V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3A7 7 0 0 0 12 2z"/><path d="M9 21h6"/></svg></div>
-        <h3>Bring-your-own LLM + RAG</h3>
-        <p>Any OpenAI-compatible provider for chat and embeddings — OpenAI, Azure, DeepSeek, Ollama, vLLM. RAG over your knowledge base, keys encrypted at rest.</p>
+        <h3>Trae tu propio LLM + RAG</h3>
+        <p>Cualquier proveedor compatible con OpenAI para chat y embeddings — OpenAI, Azure, DeepSeek, Ollama, vLLM. RAG sobre tu base de conocimiento, claves cifradas en reposo.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <h3>In-app notifications</h3>
-        <p>Replies, assignments and status changes surface as live in-app notifications — no email server required to stay in the loop.</p>
+        <h3>Notificaciones en aplicación</h3>
+        <p>Las respuestas, asignaciones y cambios de estado aparecen como notificaciones en vivo dentro de la app — sin necesidad de servidor de correo para mantenerse al día.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="M21 4v6h-6"/></svg></div>
-        <h3>Import / export</h3>
-        <p>Export tickets, knowledge, users, products and services to JSON, CSV, XML or Markdown. Your data is portable by design.</p>
+        <h3>Importación / exportación</h3>
+        <p>Exporta tickets, conocimiento, usuarios, productos y servicios a JSON, CSV, XML o Markdown. Tus datos son portátiles por diseño.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="14.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/></svg></div>
-        <h3>White-label branding</h3>
-        <p>Set your own product name, accent color and logo from a settings page — applied across the console and the sign-in screen.</p>
+        <h3>Personalización de marca</h3>
+        <p>Establece tu propio nombre de producto, color de acento y logotipo desde una página de ajustes — aplicados en toda la consola y la pantalla de inicio de sesión.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></div>
-        <h3>MCP server built in</h3>
-        <p>A Model Context Protocol server exposes tickets &amp; replies as tools, so agents can triage and respond programmatically.</p>
+        <h3>Servidor MCP integrado</h3>
+        <p>Un servidor Model Context Protocol expone tickets &amp; respuestas como herramientas, para que los agentes puedan clasificar y responder de forma programática.</p>
       </div>
     </div>
   </div>
@@ -538,17 +538,17 @@
 <section id="deploy">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// download → run</div>
-      <h2>Deploy your own instance in five minutes.</h2>
-      <p>SmartTicket ships as one self-contained binary that serves the web console and the API together. No database server, no message queue, no reverse proxy required to get started.</p>
+      <div class="mono-label">// descargar → ejecutar</div>
+      <h2>Despliega tu propia instancia en cinco minutos.</h2>
+      <p>SmartTicket se distribuye como un único binario autocontenido que sirve la consola web y la API juntas. No se necesita servidor de base de datos, cola de mensajes ni proxy inverso para empezar.</p>
     </div>
 
     <div class="deploy-grid">
       <div>
         <div class="tabs">
           <button class="tab active" data-tab="docker">Docker Compose</button>
-          <button class="tab" data-tab="source">From source</button>
-          <button class="tab" data-tab="prod">Production</button>
+          <button class="tab" data-tab="source">Desde el código fuente</button>
+          <button class="tab" data-tab="prod">Producción</button>
         </div>
 
         <div class="panel active" data-panel="docker">
@@ -568,7 +568,7 @@ echo <span class="y">"SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)"</span> &gt
 cd smartticket
 echo "SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)"  > .env
 echo "SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)" >> .env
-docker compose up -d'>Copy commands</button>
+docker compose up -d'>Copiar comandos</button>
         </div>
 
         <div class="panel" data-panel="source">
@@ -585,7 +585,7 @@ cd smartticket
           <button class="copybtn" style="margin-top:10px;" data-copy='git clone https://github.com/liliang-cn/smartticket.git
 cd smartticket
 make build-all
-./build/smartticket serve --config configs/config.dev.yaml'>Copy commands</button>
+./build/smartticket serve --config configs/config.dev.yaml'>Copiar comandos</button>
         </div>
 
         <div class="panel" data-panel="prod">
@@ -606,20 +606,20 @@ smartticket serve --config configs/config.prod.yaml
 sudo cp build/smartticket /usr/local/bin/
 export SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)
 export SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)
-smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
+smartticket serve --config configs/config.prod.yaml'>Copiar comandos</button>
         </div>
       </div>
 
       <div class="deploy-side">
         <div class="card">
-          <div class="step"><span class="num">1</span><span class="tx"><b>Clone &amp; run.</b> <span>One <code>docker compose up</code> brings up the whole app on port 6533.</span></span></div>
-          <div class="step"><span class="num">2</span><span class="tx"><b>Sign in.</b> <span>Use the seeded admin account, then change the password immediately.</span></span></div>
-          <div class="step"><span class="num">3</span><span class="tx"><b>Brand it.</b> <span>Set your name, color and logo under <code>Settings</code>.</span></span></div>
-          <div class="step"><span class="num">4</span><span class="tx"><b>Connect AI (optional).</b> <span>Add an OpenAI-compatible chat + embedding provider under <code>AI Providers</code>.</span></span></div>
+          <div class="step"><span class="num">1</span><span class="tx"><b>Clona y ejecuta.</b> <span>Un <code>docker compose up</code> levanta toda la aplicación en el puerto 6533.</span></span></div>
+          <div class="step"><span class="num">2</span><span class="tx"><b>Inicia sesión.</b> <span>Usa la cuenta de administrador preconfigurada y cambia la contraseña de inmediato.</span></span></div>
+          <div class="step"><span class="num">3</span><span class="tx"><b>Personaliza la marca.</b> <span>Establece tu nombre, color y logotipo en <code>Settings</code>.</span></span></div>
+          <div class="step"><span class="num">4</span><span class="tx"><b>Conecta la IA (opcional).</b> <span>Añade un proveedor compatible con OpenAI de chat y embeddings en <code>AI Providers</code>.</span></span></div>
         </div>
         <div class="card">
-          <div class="mono-label">data &amp; backups</div>
-          <p style="color:var(--muted);font-size:14px;margin-top:10px;">Everything — tickets, knowledge, the RAG vector store and config — lives in the <code>smartticket-data</code> volume (a single SQLite file plus uploads). Back it up by copying the volume; restore by putting it back.</p>
+          <div class="mono-label">datos &amp; copias de seguridad</div>
+          <p style="color:var(--muted);font-size:14px;margin-top:10px;">Todo — tickets, conocimiento, el almacén de vectores RAG y la configuración — vive en el volumen <code>smartticket-data</code> (un único archivo SQLite más los archivos subidos). Haz una copia de seguridad copiando el volumen; restaura devolviéndolo.</p>
         </div>
       </div>
     </div>
@@ -631,13 +631,13 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
   <div class="wrap">
     <div class="split">
       <div>
-        <div class="mono-label">// data sovereignty</div>
-        <h3>Your data never leaves your server.</h3>
-        <p>SmartTicket is single-tenant by design: one organization, one instance. There is no SaaS backend phoning home, no shared multi-tenant database, and no required third-party services.</p>
+        <div class="mono-label">// soberanía de datos</div>
+        <h3>Tus datos nunca salen de tu servidor.</h3>
+        <p>SmartTicket es de tenant único por diseño: una organización, una instancia. No hay un backend SaaS que llame a casa, ni una base de datos multi-tenant compartida, ni servicios de terceros obligatorios.</p>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Embedded SQLite — runs fully offline, air-gapped if you want.</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> LLM API keys encrypted at rest with AES-256-GCM.</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Full export to open formats — no lock-in, ever.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> SQLite embebido — funciona completamente sin conexión, air-gapped si lo deseas.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Claves de API del LLM cifradas en reposo con AES-256-GCM.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Exportación completa a formatos abiertos — sin dependencias, nunca.</li>
         </ul>
       </div>
       <div class="visual">
@@ -656,9 +656,9 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
 
     <div class="split rev">
       <div>
-        <div class="mono-label">// bring your own intelligence</div>
-        <h3>AI assistance, on your terms.</h3>
-        <p>Configure chat and embedding providers independently — each with its own base URL, model and key. Knowledge articles are indexed into a built-in vector store for retrieval-augmented answers.</p>
+        <div class="mono-label">// trae tu propia inteligencia</div>
+        <h3>Asistencia de IA, en tus condiciones.</h3>
+        <p>Configura proveedores de chat y embeddings de forma independiente — cada uno con su propia URL base, modelo y clave. Los artículos de conocimiento se indexan en un almacén de vectores integrado para respuestas con recuperación aumentada.</p>
         <div class="chip-row" style="margin-top:18px;">
           <span class="chip on">OpenAI</span>
           <span class="chip on">Azure OpenAI</span>
@@ -667,16 +667,16 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
           <span class="chip on">Ollama</span>
           <span class="chip on">vLLM</span>
           <span class="chip on">LocalAI</span>
-          <span class="chip">…any OpenAI-compatible</span>
+          <span class="chip">…cualquier compatible con OpenAI</span>
         </div>
       </div>
       <div class="visual">
-        <div class="mono-label">retrieval-augmented answer</div>
+        <div class="mono-label">respuesta con recuperación aumentada</div>
         <div style="margin-top:14px;">
-          <div style="font-size:13px;color:var(--muted);">Q: How do I enable single sign-on for my team?</div>
+          <div style="font-size:13px;color:var(--muted);">P: ¿Cómo activo el inicio de sesión único para mi equipo?</div>
           <div style="margin-top:12px;padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--card2);font-size:13.5px;">
-            <span style="color:var(--primary);font-family:'IBM Plex Mono';font-size:11px;">ANSWER · cited from 3 KB articles</span>
-            <p style="margin:8px 0 0;color:var(--fg);">Open <code>Settings → Access</code>, add your identity provider's metadata URL, map the email claim, then enable SSO enforcement for the team…</p>
+            <span style="color:var(--primary);font-family:'IBM Plex Mono';font-size:11px;">RESPUESTA · citada de 3 artículos de la KB</span>
+            <p style="margin:8px 0 0;color:var(--fg);">Abre <code>Settings → Access</code>, añade la URL de metadatos de tu proveedor de identidad, mapea el claim de email y activa la aplicación de SSO para el equipo…</p>
           </div>
         </div>
       </div>
@@ -688,19 +688,19 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
 <section style="padding-top:24px;">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// engineered for operators</div>
-      <h2>Built on a boring, reliable stack.</h2>
-      <p>Go on the backend, React on the front, SQLite underneath. No exotic runtime, no per-seat licensing, no surprise dependencies.</p>
+      <div class="mono-label">// diseñado para operadores</div>
+      <h2>Construido sobre una pila sólida y predecible.</h2>
+      <p>Go en el backend, React en el frontend, SQLite por debajo. Sin runtimes exóticos, sin licencias por usuario, sin dependencias sorpresa.</p>
     </div>
     <div class="stack">
       <div class="s"><b>Go 1.25</b><span>· backend</span></div>
       <div class="s"><b>GIN + GORM</b><span>· API &amp; ORM</span></div>
-      <div class="s"><b>SQLite</b><span>· embedded (CGO-free)</span></div>
-      <div class="s"><b>React + TypeScript</b><span>· console</span></div>
-      <div class="s"><b>Vite + Tailwind</b><span>· build &amp; styling</span></div>
-      <div class="s"><b>JWT + RBAC</b><span>· auth</span></div>
-      <div class="s"><b>CortexDB</b><span>· RAG vector store</span></div>
-      <div class="s"><b>Docker</b><span>· one-command deploy</span></div>
+      <div class="s"><b>SQLite</b><span>· embebido (sin CGO)</span></div>
+      <div class="s"><b>React + TypeScript</b><span>· consola</span></div>
+      <div class="s"><b>Vite + Tailwind</b><span>· build &amp; estilos</span></div>
+      <div class="s"><b>JWT + RBAC</b><span>· autenticación</span></div>
+      <div class="s"><b>CortexDB</b><span>· almacén de vectores RAG</span></div>
+      <div class="s"><b>Docker</b><span>· despliegue en un comando</span></div>
     </div>
   </div>
 </section>
@@ -709,16 +709,16 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
 <section id="faq" style="padding-top:24px;">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// questions</div>
-      <h2>Frequently asked.</h2>
+      <div class="mono-label">// preguntas</div>
+      <h2>Preguntas frecuentes.</h2>
     </div>
     <div class="faq">
-      <details open><summary>Do I need a database server or Redis?<span class="pm">+</span></summary><p>No. SQLite is embedded directly in the binary and there are no other required services. The whole app is one process — that is the entire point.</p></details>
-      <details><summary>How do I update to a new version?<span class="pm">+</span></summary><p>With Docker: <code>git pull &amp;&amp; docker compose up -d --build</code>. Your data lives in a named volume and is untouched by rebuilds. From source: <code>git pull &amp;&amp; make build-all</code> and restart the binary. Schema migrations run automatically on startup.</p></details>
-      <details><summary>Is AI required to use it?<span class="pm">+</span></summary><p>No — tickets, SLA, knowledge base and RBAC all work without any LLM configured. AI features are opt-in: add a provider only if you want semantic search and RAG answers.</p></details>
-      <details><summary>Can customers see each other's tickets?<span class="pm">+</span></summary><p>No. Customer-role users are scoped at the service layer to their own organization's tickets only — the same isolation applies to the REST API and the MCP server.</p></details>
-      <details><summary>How do I back up my instance?<span class="pm">+</span></summary><p>Copy the data volume (the SQLite file, the RAG store and uploaded attachments). To restore, put it back and start the binary. You can also export everything to JSON/CSV/XML/Markdown from the Data screen.</p></details>
-      <details><summary>What does it cost?<span class="pm">+</span></summary><p>The software is open source and free to self-host. Your only costs are the server you run it on and — if you enable AI — whatever your chosen LLM provider charges.</p></details>
+      <details open><summary>¿Necesito un servidor de base de datos o Redis?<span class="pm">+</span></summary><p>No. SQLite está embebido directamente en el binario y no hay otros servicios requeridos. Toda la aplicación es un único proceso — ese es precisamente el objetivo.</p></details>
+      <details><summary>¿Cómo actualizo a una nueva versión?<span class="pm">+</span></summary><p>Con Docker: <code>git pull &amp;&amp; docker compose up -d --build</code>. Tus datos viven en un volumen con nombre y no se modifican con las actualizaciones. Desde el código fuente: <code>git pull &amp;&amp; make build-all</code> y reinicia el binario. Las migraciones de esquema se ejecutan automáticamente al arrancar.</p></details>
+      <details><summary>¿Es obligatorio usar la IA?<span class="pm">+</span></summary><p>No — los tickets, SLA, la base de conocimiento y RBAC funcionan sin ningún LLM configurado. Las funciones de IA son opcionales: añade un proveedor solo si quieres búsqueda semántica y respuestas RAG.</p></details>
+      <details><summary>¿Pueden los clientes ver los tickets de otros clientes?<span class="pm">+</span></summary><p>No. Los usuarios con rol de cliente están limitados en la capa de servicio a los tickets de su propia organización únicamente — el mismo aislamiento se aplica a la API REST y al servidor MCP.</p></details>
+      <details><summary>¿Cómo hago una copia de seguridad de mi instancia?<span class="pm">+</span></summary><p>Copia el volumen de datos (el archivo SQLite, el almacén RAG y los adjuntos subidos). Para restaurar, devuélvelo y arranca el binario. También puedes exportar todo a JSON/CSV/XML/Markdown desde la pantalla de Datos.</p></details>
+      <details><summary>¿Cuánto cuesta?<span class="pm">+</span></summary><p>El software es de código abierto y gratuito para autoalojar. Tus únicos costes son el servidor donde lo ejecutas y — si activas la IA — lo que cobre tu proveedor de LLM elegido.</p></details>
     </div>
   </div>
 </section>
@@ -726,12 +726,12 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
 <!-- CTA -->
 <div class="wrap">
   <div class="cta">
-    <div class="mono-label">// ready in five minutes</div>
-    <h2>Own your support stack.</h2>
-    <p>Clone it, run one command, and you have a complete ticketing and knowledge platform on your own infrastructure.</p>
+    <div class="mono-label">// listo en cinco minutos</div>
+    <h2>Toma el control de tu plataforma de soporte.</h2>
+    <p>Clónalo, ejecuta un comando y tendrás una plataforma completa de tickets y conocimiento en tu propia infraestructura.</p>
     <div class="hero-cta">
-      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-primary">Get SmartTicket on GitHub</a>
-      <a href="/app/" target="_blank" rel="noopener" class="btn btn-ghost">Open the console</a>
+      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-primary">Obtener SmartTicket en GitHub</a>
+      <a href="/app/" target="_blank" rel="noopener" class="btn btn-ghost">Abrir la consola</a>
     </div>
   </div>
 </div>
@@ -744,11 +744,11 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
     </div>
     <div style="display:flex;gap:20px;flex-wrap:wrap;">
       <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">GitHub</a>
-      <a href="/app/" target="_blank" rel="noopener">Sign in</a>
-      <a href="#deploy">Deploy</a>
-      <a href="https://github.com/liliang-cn/smartticket/blob/main/LICENSE" target="_blank" rel="noopener">License (MIT)</a>
+      <a href="/app/" target="_blank" rel="noopener">Iniciar sesión</a>
+      <a href="#deploy">Despliegue</a>
+      <a href="https://github.com/liliang-cn/smartticket/blob/main/LICENSE" target="_blank" rel="noopener">Licencia (MIT)</a>
     </div>
-    <div>Self-hosted · Single-tenant · Your data, your rules.</div>
+    <div>Autoalojado · Tenant único · Tus datos, tus reglas.</div>
   </div>
 </footer>
 

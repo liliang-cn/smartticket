@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>SmartTicket — Self-hosted ticketing & knowledge, with AI you control</title>
-<meta name="description" content="SmartTicket is an open-source, single-tenant support desk and knowledge base you run yourself. One static binary, embedded SQLite, RBAC, SLA tracking, and pluggable LLM/RAG — complete data sovereignty." />
-<link rel="canonical" href="https://smartticket.superleo.app/" />
+<title>SmartTicket — 셀프 호스팅 티켓 관리 &amp; 지식 베이스, AI를 직접 제어하세요</title>
+<meta name="description" content="SmartTicket은 직접 운영하는 오픈소스 단일 테넌트 헬프데스크 및 지식 베이스입니다. 단일 정적 바이너리, 내장 SQLite, RBAC, SLA 추적, 플러그인형 LLM/RAG — 완전한 데이터 주권을 보장합니다." />
+<link rel="canonical" href="https://smartticket.superleo.app/ko/" />
 <!-- hreflang cluster — one localized landing per language, x-default = English. -->
 <link rel="alternate" hreflang="en" href="https://smartticket.superleo.app/" />
 <link rel="alternate" hreflang="zh" href="https://smartticket.superleo.app/zh/" />
@@ -15,29 +15,29 @@
 <link rel="alternate" hreflang="ko" href="https://smartticket.superleo.app/ko/" />
 <link rel="alternate" hreflang="it" href="https://smartticket.superleo.app/it/" />
 <link rel="alternate" hreflang="x-default" href="https://smartticket.superleo.app/" />
-<meta name="keywords" content="self-hosted helpdesk, open source ticketing system, knowledge base software, SLA tracking, RBAC, RAG, self-hosted LLM, single binary, embedded SQLite, data sovereignty, Zendesk alternative, Freshdesk alternative, Go support desk" />
+<meta name="keywords" content="셀프 호스팅 헬프데스크, 오픈소스 티켓 시스템, 지식 베이스 소프트웨어, SLA 추적, RBAC, RAG, 자체 LLM, 단일 바이너리, 내장 SQLite, 데이터 주권, Zendesk 대안, Freshdesk 대안, Go 고객지원 시스템" />
 <meta name="author" content="Liang Li" />
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0c0f" />
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f6f7f9" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23ffb01f'/%3E%3Cg fill='none' stroke='%2319130a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 2 2 0 0 0 0-4z'/%3E%3Cpath d='M13 6v2M13 16v2M13 11v2'/%3E%3C/g%3E%3C/svg%3E" />
-<meta property="og:title" content="SmartTicket — self-hosted ticketing & knowledge with AI you control" />
-<meta property="og:description" content="One binary. Zero external dependencies. Your data, your rules. Tickets, SLA, knowledge base, RBAC and bring-your-own-LLM RAG." />
+<meta property="og:title" content="SmartTicket — AI를 직접 제어하는 셀프 호스팅 티켓 관리 &amp; 지식 베이스" />
+<meta property="og:description" content="바이너리 하나. 외부 의존성 없음. 내 데이터, 내 규칙. 티켓, SLA, 지식 베이스, RBAC 그리고 직접 연결하는 LLM RAG." />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://smartticket.superleo.app/" />
+<meta property="og:url" content="https://smartticket.superleo.app/ko/" />
 <meta property="og:site_name" content="SmartTicket" />
-<meta property="og:locale" content="en_US" />
+<meta property="og:locale" content="ko_KR" />
+<meta property="og:locale:alternate" content="en_US" />
 <meta property="og:locale:alternate" content="zh_CN" />
 <meta property="og:locale:alternate" content="es_ES" />
 <meta property="og:locale:alternate" content="de_DE" />
 <meta property="og:locale:alternate" content="ja_JP" />
-<meta property="og:locale:alternate" content="ko_KR" />
 <meta property="og:locale:alternate" content="it_IT" />
 <meta property="og:image" content="https://liliang-cn.github.io/smartticket/og.svg" />
-<meta property="og:image:alt" content="SmartTicket — self-hosted ticketing & knowledge platform" />
+<meta property="og:image:alt" content="SmartTicket — 셀프 호스팅 티켓 관리 &amp; 지식 베이스 플랫폼" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="SmartTicket — self-hosted ticketing & knowledge with AI you control" />
-<meta name="twitter:description" content="One binary. Zero external dependencies. Tickets, SLA, knowledge base, RBAC and bring-your-own-LLM RAG. Your data, your rules." />
+<meta name="twitter:title" content="SmartTicket — AI를 직접 제어하는 셀프 호스팅 티켓 관리 &amp; 지식 베이스" />
+<meta name="twitter:description" content="바이너리 하나. 외부 의존성 없음. 티켓, SLA, 지식 베이스, RBAC 그리고 직접 연결하는 LLM RAG. 내 데이터, 내 규칙." />
 <meta name="twitter:image" content="https://liliang-cn.github.io/smartticket/og.svg" />
 <link rel="alternate" type="text/plain" href="https://liliang-cn.github.io/smartticket/llms.txt" title="llms.txt — LLM-readable summary" />
 <link rel="sitemap" type="application/xml" href="https://smartticket.superleo.app/sitemap.xml" />
@@ -308,9 +308,9 @@
       "@id": "https://smartticket.superleo.app/#app",
       "name": "SmartTicket",
       "applicationCategory": "BusinessApplication",
-      "applicationSubCategory": "Help Desk / Ticketing & Knowledge Base",
+      "applicationSubCategory": "헬프데스크 / 티켓 관리 &amp; 지식 베이스",
       "operatingSystem": "Linux, macOS, Windows, Docker",
-      "description": "SmartTicket is an open-source, self-hosted, single-tenant ticketing and knowledge collaboration platform. It ships as one static binary with an embedded SQLite database and serves both the web console and REST API. Features include full ticket lifecycle, SLA tracking, a versioned knowledge base, role-based access control with customer isolation, in-app notifications, import/export, white-label branding, a built-in MCP server, and bring-your-own LLM retrieval-augmented generation (RAG).",
+      "description": "SmartTicket은 오픈소스 셀프 호스팅 단일 테넌트 티켓 관리 및 지식 협업 플랫폼입니다. 내장 SQLite 데이터베이스를 포함한 단일 정적 바이너리로 제공되며 웹 콘솔과 REST API를 함께 서비스합니다. 전체 티켓 라이프사이클, SLA 추적, 버전 관리 지식 베이스, 고객 격리를 포함한 역할 기반 접근 제어, 인앱 알림, 가져오기/내보내기, 화이트라벨 브랜딩, 내장 MCP 서버, 직접 연결하는 LLM 검색 증강 생성(RAG) 기능을 제공합니다.",
       "softwareVersion": "1.0",
       "license": "https://opensource.org/licenses/MIT",
       "isAccessibleForFree": true,
@@ -318,15 +318,15 @@
       "downloadUrl": "https://github.com/liliang-cn/smartticket",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
       "featureList": [
-        "Full ticket lifecycle with priority and severity",
-        "SLA tracking with per-tier targets and subscriptions",
-        "Versioned knowledge base with public/internal visibility",
-        "Role-based access control and per-customer isolation",
-        "Bring-your-own OpenAI-compatible LLM with RAG",
-        "In-app notifications",
-        "Import/export to JSON, CSV, XML and Markdown",
-        "White-label branding (name, accent color, logo)",
-        "Built-in Model Context Protocol (MCP) server"
+        "우선순위 및 심각도를 포함한 전체 티켓 라이프사이클",
+        "티어별 목표 및 구독 기반 SLA 추적",
+        "공개/내부 공개 여부를 갖춘 버전 관리 지식 베이스",
+        "역할 기반 접근 제어 및 고객별 격리",
+        "RAG를 지원하는 OpenAI 호환 LLM 직접 연결",
+        "인앱 알림",
+        "JSON, CSV, XML, Markdown으로 가져오기/내보내기",
+        "화이트라벨 브랜딩 (이름, 강조색, 로고)",
+        "내장 Model Context Protocol (MCP) 서버"
       ],
       "author": { "@type": "Person", "name": "Liang Li" }
     },
@@ -335,18 +335,18 @@
       "@id": "https://smartticket.superleo.app/#website",
       "name": "SmartTicket",
       "url": "https://smartticket.superleo.app/",
-      "inLanguage": "en"
+      "inLanguage": "ko"
     },
     {
       "@type": "FAQPage",
       "@id": "https://smartticket.superleo.app/#faq",
       "mainEntity": [
-        { "@type": "Question", "name": "Do I need a database server or Redis?", "acceptedAnswer": { "@type": "Answer", "text": "No. SQLite is embedded directly in the binary and there are no other required services. The whole app is one process." } },
-        { "@type": "Question", "name": "How do I update to a new version?", "acceptedAnswer": { "@type": "Answer", "text": "With Docker: git pull && docker compose up -d --build. Your data lives in a named volume and is untouched. From source: git pull && make build-all, then restart. Schema migrations run automatically on startup." } },
-        { "@type": "Question", "name": "Is AI required to use it?", "acceptedAnswer": { "@type": "Answer", "text": "No. Tickets, SLA, knowledge base and RBAC all work without any LLM configured. AI features are opt-in: add a provider only if you want semantic search and RAG answers." } },
-        { "@type": "Question", "name": "Can customers see each other's tickets?", "acceptedAnswer": { "@type": "Answer", "text": "No. Customer-role users are scoped at the service layer to their own organization's tickets only, for both the REST API and the MCP server." } },
-        { "@type": "Question", "name": "How do I back up my instance?", "acceptedAnswer": { "@type": "Answer", "text": "Copy the data volume (the SQLite file, the RAG store and uploaded attachments). To restore, put it back and start the binary. You can also export everything to JSON/CSV/XML/Markdown." } },
-        { "@type": "Question", "name": "What does it cost?", "acceptedAnswer": { "@type": "Answer", "text": "The software is open source (MIT) and free to self-host. Your only costs are the server you run it on and, if you enable AI, whatever your chosen LLM provider charges." } }
+        { "@type": "Question", "name": "데이터베이스 서버나 Redis가 필요한가요?", "acceptedAnswer": { "@type": "Answer", "text": "아니요. SQLite가 바이너리에 직접 내장되어 있으며 다른 필수 서비스는 없습니다. 앱 전체가 하나의 프로세스입니다." } },
+        { "@type": "Question", "name": "새 버전으로 어떻게 업데이트하나요?", "acceptedAnswer": { "@type": "Answer", "text": "Docker 사용 시: git pull &amp;&amp; docker compose up -d --build. 데이터는 named 볼륨에 저장되어 있어 영향을 받지 않습니다. 소스에서 빌드 시: git pull &amp;&amp; make build-all 후 재시작하면 됩니다. 스키마 마이그레이션은 시작 시 자동으로 실행됩니다." } },
+        { "@type": "Question", "name": "AI 기능이 필수인가요?", "acceptedAnswer": { "@type": "Answer", "text": "아니요. 티켓, SLA, 지식 베이스, RBAC 모두 LLM 설정 없이 작동합니다. AI 기능은 선택 사항으로, 시맨틱 검색과 RAG 답변을 원할 때만 프로바이더를 추가하면 됩니다." } },
+        { "@type": "Question", "name": "고객들이 서로의 티켓을 볼 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "아니요. 고객 역할 사용자는 서비스 레이어에서 자신의 조직 티켓만 볼 수 있도록 범위가 제한되며, REST API와 MCP 서버 모두 동일하게 적용됩니다." } },
+        { "@type": "Question", "name": "인스턴스를 어떻게 백업하나요?", "acceptedAnswer": { "@type": "Answer", "text": "데이터 볼륨(SQLite 파일, RAG 스토어, 업로드된 첨부파일)을 복사하면 됩니다. 복원 시에는 파일을 되돌려 놓고 바이너리를 시작하면 됩니다. 데이터 화면에서 JSON/CSV/XML/Markdown으로 전체 내보내기도 가능합니다." } },
+        { "@type": "Question", "name": "비용이 얼마나 드나요?", "acceptedAnswer": { "@type": "Answer", "text": "소프트웨어는 오픈소스이며 셀프 호스팅 시 무료입니다. 유일한 비용은 서버 운영비이며, AI를 활성화한 경우 선택한 LLM 프로바이더 이용료가 추가됩니다." } }
       ]
     }
   ]
@@ -363,25 +363,25 @@
       SmartTicket
     </a>
     <nav class="nav-links">
-      <a href="#features" class="hide-sm">Features</a>
-      <a href="#deploy" class="hide-sm">Deploy</a>
-      <a href="#architecture" class="hide-sm">Architecture</a>
+      <a href="#features" class="hide-sm">기능</a>
+      <a href="#deploy" class="hide-sm">배포</a>
+      <a href="#architecture" class="hide-sm">아키텍처</a>
       <a href="#faq" class="hide-sm">FAQ</a>
       <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="gh">GitHub ↗</a>
       <select class="lang-select" aria-label="Language" onchange="if(this.value)location.href=this.value">
-        <option value="/" selected>EN</option>
+        <option value="/">EN</option>
         <option value="/zh/">中文</option>
         <option value="/es/">ES</option>
         <option value="/de/">DE</option>
         <option value="/ja/">日本語</option>
-        <option value="/ko/">한국어</option>
+        <option value="/ko/" selected>한국어</option>
         <option value="/it/">IT</option>
       </select>
       <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark / light theme" title="Toggle theme">
         <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
-      <a href="/app/" class="btn btn-primary" style="padding:8px 14px;">Sign in</a>
+      <a href="/app/" class="btn btn-primary" style="padding:8px 14px;">로그인</a>
     </nav>
   </div>
 </header>
@@ -391,32 +391,32 @@
 <!-- HERO -->
 <div class="hero">
   <div class="wrap">
-    <span class="pill"><span class="dot"></span> Open source · Self-hosted · Single-tenant</span>
-    <h1>Your support desk and knowledge base — <span class="accent">on your own infrastructure.</span></h1>
-    <p class="sub">SmartTicket is a self-hosted ticketing &amp; knowledge collaboration platform. One static binary, embedded SQLite, RBAC, SLA tracking, and bring-your-own-LLM RAG. Deploy in five minutes; keep complete control of your data.</p>
+    <span class="pill"><span class="dot"></span> 오픈소스 · 셀프 호스팅 · 단일 테넌트</span>
+    <h1>고객지원 데스크와 지식 베이스 — <span class="accent">직접 운영하는 인프라 위에.</span></h1>
+    <p class="sub">SmartTicket은 셀프 호스팅 티켓 관리 &amp; 지식 협업 플랫폼입니다. 단일 정적 바이너리, 내장 SQLite, RBAC, SLA 추적, 직접 연결하는 LLM RAG. 5분 만에 배포하고, 데이터를 완전히 통제하세요.</p>
     <div class="hero-cta">
       <a href="#deploy" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        Deploy in 5 minutes
+        5분 만에 배포하기
       </a>
-      <a href="/app/" target="_blank" rel="noopener" class="btn btn-ghost">Sign in</a>
+      <a href="/app/" target="_blank" rel="noopener" class="btn btn-ghost">로그인</a>
       <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-ghost">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
-        Star on GitHub
+        GitHub에서 Star
       </a>
     </div>
     <div class="oneliner">
       <code><span class="c">$</span> git clone https://github.com/liliang-cn/smartticket &amp;&amp; cd smartticket &amp;&amp; <span class="y">docker compose up -d</span></code>
-      <button class="copybtn" data-copy="git clone https://github.com/liliang-cn/smartticket && cd smartticket && docker compose up -d">Copy</button>
+      <button class="copybtn" data-copy="git clone https://github.com/liliang-cn/smartticket && cd smartticket && docker compose up -d">복사</button>
     </div>
 
     <!-- Trust strip -->
     <div class="trust">
-      <div><div class="n">1</div><div class="l">static binary</div></div>
-      <div><div class="n">&lt;512MB</div><div class="l">memory footprint</div></div>
-      <div><div class="n">0</div><div class="l">external services</div></div>
-      <div><div class="n">SQLite</div><div class="l">embedded database</div></div>
-      <div><div class="n">100%</div><div class="l">your data</div></div>
+      <div><div class="n">1</div><div class="l">정적 바이너리</div></div>
+      <div><div class="n">&lt;512MB</div><div class="l">메모리 사용량</div></div>
+      <div><div class="n">0</div><div class="l">외부 서비스</div></div>
+      <div><div class="n">SQLite</div><div class="l">내장 데이터베이스</div></div>
+      <div><div class="n">100%</div><div class="l">내 데이터</div></div>
     </div>
 
     <!-- Console preview -->
@@ -437,15 +437,15 @@
         <div class="body">
           <div class="mono-label">workspace overview</div>
           <div class="kpis" style="margin-top:14px;">
-            <div class="kpi amber"><div class="v">128</div><div class="k">Open tickets</div></div>
-            <div class="kpi"><div class="v">96%</div><div class="k">SLA met</div></div>
-            <div class="kpi"><div class="v">2.4h</div><div class="k">Avg. first reply</div></div>
-            <div class="kpi"><div class="v">312</div><div class="k">KB articles</div></div>
+            <div class="kpi amber"><div class="v">128</div><div class="k">미처리 티켓</div></div>
+            <div class="kpi"><div class="v">96%</div><div class="k">SLA 준수율</div></div>
+            <div class="kpi"><div class="v">2.4h</div><div class="k">평균 첫 응답</div></div>
+            <div class="kpi"><div class="v">312</div><div class="k">KB 문서</div></div>
           </div>
           <div class="rows">
-            <div class="row"><span class="t">Email notifications stopped after the upgrade</span><span class="tag hi">urgent</span><span class="tag ok">in&nbsp;SLA</span></div>
-            <div class="row"><span class="t">How do I configure SSO with our provider?</span><span class="tag md">high</span><span class="tag ok">in&nbsp;SLA</span></div>
-            <div class="row"><span class="t">Export a customer's tickets to CSV</span><span class="tag md">normal</span><span class="tag ok">answered</span></div>
+            <div class="row"><span class="t">업그레이드 후 이메일 알림이 중단됨</span><span class="tag hi">긴급</span><span class="tag ok">in&nbsp;SLA</span></div>
+            <div class="row"><span class="t">우리 프로바이더로 SSO를 구성하는 방법이 궁금합니다</span><span class="tag md">높음</span><span class="tag ok">in&nbsp;SLA</span></div>
+            <div class="row"><span class="t">고객 티켓을 CSV로 내보내기</span><span class="tag md">보통</span><span class="tag ok">답변 완료</span></div>
           </div>
         </div>
       </div>
@@ -457,21 +457,21 @@
 <section id="at-a-glance" style="padding-bottom:24px;">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// at a glance</div>
-      <h2>SmartTicket in one screen.</h2>
-      <p>The essentials, stated plainly — for people and for the AI engines that summarize this page.</p>
+      <div class="mono-label">// 한눈에 보기</div>
+      <h2>SmartTicket을 한 화면에.</h2>
+      <p>사람과 AI 엔진 모두를 위해, 핵심 정보를 간결하게 정리했습니다.</p>
     </div>
     <div class="facts">
-      <div class="fact"><span>What it is</span><b>Open-source, self-hosted ticketing &amp; knowledge base</b></div>
-      <div class="fact"><span>Model</span><b>Single-tenant — one instance per organization</b></div>
-      <div class="fact"><span>License</span><b>MIT — free to self-host</b></div>
-      <div class="fact"><span>Stack</span><b>Go 1.25 · React + TypeScript · SQLite</b></div>
-      <div class="fact"><span>Deployment</span><b>One static binary, or <code>docker compose up</code></b></div>
-      <div class="fact"><span>Dependencies</span><b>None — embedded SQLite; no DB, Redis or proxy required</b></div>
-      <div class="fact"><span>AI</span><b>Bring-your-own OpenAI-compatible LLM + RAG (optional)</b></div>
-      <div class="fact"><span>Footprint</span><b>&lt; 512&nbsp;MB RAM; runs offline / air-gapped</b></div>
-      <div class="fact"><span>Repository</span><b><a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">github.com/liliang-cn/smartticket</a></b></div>
-      <div class="fact"><span>Live demo</span><b><a href="/app/" target="_blank" rel="noopener">smartticket.superleo.app</a></b></div>
+      <div class="fact"><span>제품 유형</span><b>오픈소스 셀프 호스팅 티켓 관리 &amp; 지식 베이스</b></div>
+      <div class="fact"><span>모델</span><b>단일 테넌트 — 조직당 하나의 인스턴스</b></div>
+      <div class="fact"><span>라이선스</span><b>MIT — 셀프 호스팅 무료</b></div>
+      <div class="fact"><span>스택</span><b>Go 1.25 · React + TypeScript · SQLite</b></div>
+      <div class="fact"><span>배포 방식</span><b>단일 정적 바이너리, 또는 <code>docker compose up</code></b></div>
+      <div class="fact"><span>의존성</span><b>없음 — 내장 SQLite, DB·Redis·프록시 불필요</b></div>
+      <div class="fact"><span>AI</span><b>OpenAI 호환 LLM + RAG 직접 연결 (선택 사항)</b></div>
+      <div class="fact"><span>리소스</span><b>&lt; 512&nbsp;MB RAM; 오프라인 / 폐쇄망 환경에서도 동작</b></div>
+      <div class="fact"><span>저장소</span><b><a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">github.com/liliang-cn/smartticket</a></b></div>
+      <div class="fact"><span>라이브 데모</span><b><a href="/app/" target="_blank" rel="noopener">smartticket.superleo.app</a></b></div>
     </div>
   </div>
 </section>
@@ -480,55 +480,55 @@
 <section id="features">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// everything in one binary</div>
-      <h2>A complete support stack, nothing to wire together.</h2>
-      <p>Tickets, SLAs, a versioned knowledge base, role-based access, customer isolation and AI assistance — all built in, all running from a single process you own.</p>
+      <div class="mono-label">// 하나의 바이너리에 모든 것</div>
+      <h2>완전한 지원 스택, 별도 연결 작업 없음.</h2>
+      <p>티켓, SLA, 버전 관리 지식 베이스, 역할 기반 접근 제어, 고객 격리, AI 지원 — 모두 내장되어 있으며 직접 소유한 단일 프로세스에서 실행됩니다.</p>
     </div>
     <div class="features">
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4z"/></svg></div>
-        <h3>Full ticket lifecycle</h3>
-        <p>Priority &amp; severity, assignment, threaded conversations, attachments, status workflow and audit trail — from intake to resolution.</p>
+        <h3>전체 티켓 라이프사이클</h3>
+        <p>우선순위 &amp; 심각도, 담당자 배정, 스레드형 대화, 첨부파일, 상태 워크플로우, 감사 추적 — 접수부터 해결까지.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-        <h3>SLA tracking</h3>
-        <p>Per-tier response and resolution targets, configurable support levels, and per-node / annual subscription tracking.</p>
+        <h3>SLA 추적</h3>
+        <p>티어별 응답 및 해결 목표, 구성 가능한 지원 레벨, 노드별/연간 구독 추적.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-        <h3>Knowledge base</h3>
-        <p>Versioned articles with public / internal visibility controls, full-text and semantic search, and a clean read experience.</p>
+        <h3>지식 베이스</h3>
+        <p>공개/내부 공개 여부를 갖춘 버전 관리 문서, 전체 텍스트 및 시맨틱 검색, 깔끔한 읽기 화면.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V7z"/></svg></div>
-        <h3>RBAC &amp; customer isolation</h3>
-        <p>Roles, granular permissions, and a service-layer actor model that scopes every customer to only their own tickets — REST and MCP alike.</p>
+        <h3>RBAC &amp; 고객 격리</h3>
+        <p>역할, 세분화된 권한, 각 고객이 자신의 티켓만 볼 수 있도록 범위를 제한하는 서비스 레이어 액터 모델 — REST와 MCP 모두 적용.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-4 12.7V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3A7 7 0 0 0 12 2z"/><path d="M9 21h6"/></svg></div>
-        <h3>Bring-your-own LLM + RAG</h3>
-        <p>Any OpenAI-compatible provider for chat and embeddings — OpenAI, Azure, DeepSeek, Ollama, vLLM. RAG over your knowledge base, keys encrypted at rest.</p>
+        <h3>LLM + RAG 직접 연결</h3>
+        <p>채팅 및 임베딩용 OpenAI 호환 프로바이더 — OpenAI, Azure, DeepSeek, Ollama, vLLM. 지식 베이스 기반 RAG, 키는 저장 시 암호화.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-        <h3>In-app notifications</h3>
-        <p>Replies, assignments and status changes surface as live in-app notifications — no email server required to stay in the loop.</p>
+        <h3>인앱 알림</h3>
+        <p>답변, 배정, 상태 변경이 실시간 인앱 알림으로 표시됩니다 — 이메일 서버 없이도 놓치지 않습니다.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.2-8.6"/><path d="M21 4v6h-6"/></svg></div>
-        <h3>Import / export</h3>
-        <p>Export tickets, knowledge, users, products and services to JSON, CSV, XML or Markdown. Your data is portable by design.</p>
+        <h3>가져오기 / 내보내기</h3>
+        <p>티켓, 지식, 사용자, 제품 및 서비스를 JSON, CSV, XML, Markdown으로 내보내세요. 데이터는 설계상 이식 가능합니다.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="14.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/></svg></div>
-        <h3>White-label branding</h3>
-        <p>Set your own product name, accent color and logo from a settings page — applied across the console and the sign-in screen.</p>
+        <h3>화이트라벨 브랜딩</h3>
+        <p>설정 페이지에서 제품 이름, 강조색, 로고를 지정하세요 — 콘솔과 로그인 화면 전체에 적용됩니다.</p>
       </div>
       <div class="card">
         <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></div>
-        <h3>MCP server built in</h3>
-        <p>A Model Context Protocol server exposes tickets &amp; replies as tools, so agents can triage and respond programmatically.</p>
+        <h3>내장 MCP 서버</h3>
+        <p>Model Context Protocol 서버가 티켓 &amp; 답변을 도구로 노출하여 에이전트가 프로그래밍 방식으로 분류하고 응답할 수 있습니다.</p>
       </div>
     </div>
   </div>
@@ -538,17 +538,17 @@
 <section id="deploy">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// download → run</div>
-      <h2>Deploy your own instance in five minutes.</h2>
-      <p>SmartTicket ships as one self-contained binary that serves the web console and the API together. No database server, no message queue, no reverse proxy required to get started.</p>
+      <div class="mono-label">// 다운로드 → 실행</div>
+      <h2>5분 만에 나만의 인스턴스를 배포하세요.</h2>
+      <p>SmartTicket은 웹 콘솔과 API를 함께 제공하는 단일 자체 포함 바이너리로 제공됩니다. 시작하는 데 데이터베이스 서버, 메시지 큐, 리버스 프록시가 필요 없습니다.</p>
     </div>
 
     <div class="deploy-grid">
       <div>
         <div class="tabs">
           <button class="tab active" data-tab="docker">Docker Compose</button>
-          <button class="tab" data-tab="source">From source</button>
-          <button class="tab" data-tab="prod">Production</button>
+          <button class="tab" data-tab="source">소스에서 빌드</button>
+          <button class="tab" data-tab="prod">프로덕션</button>
         </div>
 
         <div class="panel active" data-panel="docker">
@@ -568,7 +568,7 @@ echo <span class="y">"SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)"</span> &gt
 cd smartticket
 echo "SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)"  > .env
 echo "SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)" >> .env
-docker compose up -d'>Copy commands</button>
+docker compose up -d'>명령어 복사</button>
         </div>
 
         <div class="panel" data-panel="source">
@@ -585,7 +585,7 @@ cd smartticket
           <button class="copybtn" style="margin-top:10px;" data-copy='git clone https://github.com/liliang-cn/smartticket.git
 cd smartticket
 make build-all
-./build/smartticket serve --config configs/config.dev.yaml'>Copy commands</button>
+./build/smartticket serve --config configs/config.dev.yaml'>명령어 복사</button>
         </div>
 
         <div class="panel" data-panel="prod">
@@ -606,20 +606,20 @@ smartticket serve --config configs/config.prod.yaml
 sudo cp build/smartticket /usr/local/bin/
 export SMARTTICKET_JWT_SECRET=$(openssl rand -hex 32)
 export SMARTTICKET_SECRET_KEY=$(openssl rand -hex 32)
-smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
+smartticket serve --config configs/config.prod.yaml'>명령어 복사</button>
         </div>
       </div>
 
       <div class="deploy-side">
         <div class="card">
-          <div class="step"><span class="num">1</span><span class="tx"><b>Clone &amp; run.</b> <span>One <code>docker compose up</code> brings up the whole app on port 6533.</span></span></div>
-          <div class="step"><span class="num">2</span><span class="tx"><b>Sign in.</b> <span>Use the seeded admin account, then change the password immediately.</span></span></div>
-          <div class="step"><span class="num">3</span><span class="tx"><b>Brand it.</b> <span>Set your name, color and logo under <code>Settings</code>.</span></span></div>
-          <div class="step"><span class="num">4</span><span class="tx"><b>Connect AI (optional).</b> <span>Add an OpenAI-compatible chat + embedding provider under <code>AI Providers</code>.</span></span></div>
+          <div class="step"><span class="num">1</span><span class="tx"><b>클론 &amp; 실행.</b> <span><code>docker compose up</code> 한 번으로 포트 6533에서 앱 전체가 실행됩니다.</span></span></div>
+          <div class="step"><span class="num">2</span><span class="tx"><b>로그인.</b> <span>기본 관리자 계정으로 로그인한 후 즉시 비밀번호를 변경하세요.</span></span></div>
+          <div class="step"><span class="num">3</span><span class="tx"><b>브랜딩 설정.</b> <span><code>Settings</code>에서 이름, 색상, 로고를 지정하세요.</span></span></div>
+          <div class="step"><span class="num">4</span><span class="tx"><b>AI 연결 (선택 사항).</b> <span><code>AI Providers</code>에서 OpenAI 호환 채팅 + 임베딩 프로바이더를 추가하세요.</span></span></div>
         </div>
         <div class="card">
-          <div class="mono-label">data &amp; backups</div>
-          <p style="color:var(--muted);font-size:14px;margin-top:10px;">Everything — tickets, knowledge, the RAG vector store and config — lives in the <code>smartticket-data</code> volume (a single SQLite file plus uploads). Back it up by copying the volume; restore by putting it back.</p>
+          <div class="mono-label">데이터 &amp; 백업</div>
+          <p style="color:var(--muted);font-size:14px;margin-top:10px;">티켓, 지식, RAG 벡터 스토어, 설정 등 모든 데이터가 <code>smartticket-data</code> 볼륨(단일 SQLite 파일과 업로드 파일)에 저장됩니다. 볼륨을 복사하면 백업 완료, 되돌려 놓으면 복원 완료입니다.</p>
         </div>
       </div>
     </div>
@@ -631,17 +631,17 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
   <div class="wrap">
     <div class="split">
       <div>
-        <div class="mono-label">// data sovereignty</div>
-        <h3>Your data never leaves your server.</h3>
-        <p>SmartTicket is single-tenant by design: one organization, one instance. There is no SaaS backend phoning home, no shared multi-tenant database, and no required third-party services.</p>
+        <div class="mono-label">// 데이터 주권</div>
+        <h3>데이터가 내 서버를 떠나지 않습니다.</h3>
+        <p>SmartTicket은 설계상 단일 테넌트입니다: 조직 하나, 인스턴스 하나. 외부 연락하는 SaaS 백엔드도, 공유 멀티 테넌트 데이터베이스도, 필수 서드파티 서비스도 없습니다.</p>
         <ul>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Embedded SQLite — runs fully offline, air-gapped if you want.</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> LLM API keys encrypted at rest with AES-256-GCM.</li>
-          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Full export to open formats — no lock-in, ever.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> 내장 SQLite — 원하면 완전 오프라인, 폐쇄망 환경에서도 실행.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> LLM API 키는 AES-256-GCM으로 저장 시 암호화.</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> 개방형 포맷으로 전체 내보내기 — 벤더 종속 없음.</li>
         </ul>
       </div>
       <div class="visual">
-        <div class="mono-label">single-tenant topology</div>
+        <div class="mono-label">단일 테넌트 토폴로지</div>
         <pre class="code" style="margin-top:12px;border:none;"><span class="y">┌─ your server ──────────────┐</span>
 │  smartticket (1 binary)    │
 │   ├─ web console  :6533    │
@@ -656,9 +656,9 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
 
     <div class="split rev">
       <div>
-        <div class="mono-label">// bring your own intelligence</div>
-        <h3>AI assistance, on your terms.</h3>
-        <p>Configure chat and embedding providers independently — each with its own base URL, model and key. Knowledge articles are indexed into a built-in vector store for retrieval-augmented answers.</p>
+        <div class="mono-label">// 나만의 AI 연결</div>
+        <h3>내 조건으로 AI 지원을.</h3>
+        <p>채팅과 임베딩 프로바이더를 각각 독립적으로 구성하세요 — 각자 고유한 베이스 URL, 모델, 키를 가집니다. 지식 문서는 검색 증강 답변을 위해 내장 벡터 스토어에 인덱싱됩니다.</p>
         <div class="chip-row" style="margin-top:18px;">
           <span class="chip on">OpenAI</span>
           <span class="chip on">Azure OpenAI</span>
@@ -667,16 +667,16 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
           <span class="chip on">Ollama</span>
           <span class="chip on">vLLM</span>
           <span class="chip on">LocalAI</span>
-          <span class="chip">…any OpenAI-compatible</span>
+          <span class="chip">…OpenAI 호환 모두 지원</span>
         </div>
       </div>
       <div class="visual">
-        <div class="mono-label">retrieval-augmented answer</div>
+        <div class="mono-label">검색 증강 답변</div>
         <div style="margin-top:14px;">
-          <div style="font-size:13px;color:var(--muted);">Q: How do I enable single sign-on for my team?</div>
+          <div style="font-size:13px;color:var(--muted);">Q: 팀을 위한 싱글 사인온(SSO)은 어떻게 활성화하나요?</div>
           <div style="margin-top:12px;padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--card2);font-size:13.5px;">
             <span style="color:var(--primary);font-family:'IBM Plex Mono';font-size:11px;">ANSWER · cited from 3 KB articles</span>
-            <p style="margin:8px 0 0;color:var(--fg);">Open <code>Settings → Access</code>, add your identity provider's metadata URL, map the email claim, then enable SSO enforcement for the team…</p>
+            <p style="margin:8px 0 0;color:var(--fg);"><code>Settings → Access</code>를 열고 아이덴티티 프로바이더의 메타데이터 URL을 추가한 후, 이메일 클레임을 매핑하고, 팀에 대한 SSO 강제 적용을 활성화하세요…</p>
           </div>
         </div>
       </div>
@@ -688,19 +688,19 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
 <section style="padding-top:24px;">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// engineered for operators</div>
-      <h2>Built on a boring, reliable stack.</h2>
-      <p>Go on the backend, React on the front, SQLite underneath. No exotic runtime, no per-seat licensing, no surprise dependencies.</p>
+      <div class="mono-label">// 운영자를 위한 설계</div>
+      <h2>검증된 안정적인 스택으로 구축.</h2>
+      <p>백엔드는 Go, 프론트엔드는 React, 하위에는 SQLite. 특별한 런타임도, 사용자당 라이선스도, 예상치 못한 의존성도 없습니다.</p>
     </div>
     <div class="stack">
-      <div class="s"><b>Go 1.25</b><span>· backend</span></div>
+      <div class="s"><b>Go 1.25</b><span>· 백엔드</span></div>
       <div class="s"><b>GIN + GORM</b><span>· API &amp; ORM</span></div>
-      <div class="s"><b>SQLite</b><span>· embedded (CGO-free)</span></div>
-      <div class="s"><b>React + TypeScript</b><span>· console</span></div>
-      <div class="s"><b>Vite + Tailwind</b><span>· build &amp; styling</span></div>
-      <div class="s"><b>JWT + RBAC</b><span>· auth</span></div>
-      <div class="s"><b>CortexDB</b><span>· RAG vector store</span></div>
-      <div class="s"><b>Docker</b><span>· one-command deploy</span></div>
+      <div class="s"><b>SQLite</b><span>· 내장 (CGO-free)</span></div>
+      <div class="s"><b>React + TypeScript</b><span>· 콘솔</span></div>
+      <div class="s"><b>Vite + Tailwind</b><span>· 빌드 &amp; 스타일링</span></div>
+      <div class="s"><b>JWT + RBAC</b><span>· 인증</span></div>
+      <div class="s"><b>CortexDB</b><span>· RAG 벡터 스토어</span></div>
+      <div class="s"><b>Docker</b><span>· 원커맨드 배포</span></div>
     </div>
   </div>
 </section>
@@ -709,16 +709,16 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
 <section id="faq" style="padding-top:24px;">
   <div class="wrap">
     <div class="sec-head">
-      <div class="mono-label">// questions</div>
-      <h2>Frequently asked.</h2>
+      <div class="mono-label">// 자주 묻는 질문</div>
+      <h2>FAQ</h2>
     </div>
     <div class="faq">
-      <details open><summary>Do I need a database server or Redis?<span class="pm">+</span></summary><p>No. SQLite is embedded directly in the binary and there are no other required services. The whole app is one process — that is the entire point.</p></details>
-      <details><summary>How do I update to a new version?<span class="pm">+</span></summary><p>With Docker: <code>git pull &amp;&amp; docker compose up -d --build</code>. Your data lives in a named volume and is untouched by rebuilds. From source: <code>git pull &amp;&amp; make build-all</code> and restart the binary. Schema migrations run automatically on startup.</p></details>
-      <details><summary>Is AI required to use it?<span class="pm">+</span></summary><p>No — tickets, SLA, knowledge base and RBAC all work without any LLM configured. AI features are opt-in: add a provider only if you want semantic search and RAG answers.</p></details>
-      <details><summary>Can customers see each other's tickets?<span class="pm">+</span></summary><p>No. Customer-role users are scoped at the service layer to their own organization's tickets only — the same isolation applies to the REST API and the MCP server.</p></details>
-      <details><summary>How do I back up my instance?<span class="pm">+</span></summary><p>Copy the data volume (the SQLite file, the RAG store and uploaded attachments). To restore, put it back and start the binary. You can also export everything to JSON/CSV/XML/Markdown from the Data screen.</p></details>
-      <details><summary>What does it cost?<span class="pm">+</span></summary><p>The software is open source and free to self-host. Your only costs are the server you run it on and — if you enable AI — whatever your chosen LLM provider charges.</p></details>
+      <details open><summary>데이터베이스 서버나 Redis가 필요한가요?<span class="pm">+</span></summary><p>아니요. SQLite가 바이너리에 직접 내장되어 있으며 다른 필수 서비스가 없습니다. 앱 전체가 하나의 프로세스입니다 — 바로 그것이 핵심입니다.</p></details>
+      <details><summary>새 버전으로 어떻게 업데이트하나요?<span class="pm">+</span></summary><p>Docker 사용 시: <code>git pull &amp;&amp; docker compose up -d --build</code>. 데이터는 named 볼륨에 저장되어 있어 재빌드 시 영향을 받지 않습니다. 소스 빌드 시: <code>git pull &amp;&amp; make build-all</code> 후 바이너리를 재시작하세요. 스키마 마이그레이션은 시작 시 자동으로 실행됩니다.</p></details>
+      <details><summary>AI 기능이 필수인가요?<span class="pm">+</span></summary><p>아니요 — 티켓, SLA, 지식 베이스, RBAC 모두 LLM 설정 없이 작동합니다. AI 기능은 선택 사항으로, 시맨틱 검색과 RAG 답변을 원할 때만 프로바이더를 추가하면 됩니다.</p></details>
+      <details><summary>고객들이 서로의 티켓을 볼 수 있나요?<span class="pm">+</span></summary><p>아니요. 고객 역할 사용자는 서비스 레이어에서 자신의 조직 티켓만 볼 수 있도록 범위가 제한됩니다 — REST API와 MCP 서버 모두 동일한 격리가 적용됩니다.</p></details>
+      <details><summary>인스턴스를 어떻게 백업하나요?<span class="pm">+</span></summary><p>데이터 볼륨(SQLite 파일, RAG 스토어, 업로드된 첨부파일)을 복사하면 됩니다. 복원 시에는 파일을 되돌려 놓고 바이너리를 시작하면 됩니다. 데이터 화면에서 JSON/CSV/XML/Markdown으로 전체 내보내기도 가능합니다.</p></details>
+      <details><summary>비용이 얼마나 드나요?<span class="pm">+</span></summary><p>소프트웨어는 오픈소스이며 셀프 호스팅 시 무료입니다. 유일한 비용은 서버 운영비이며 — AI를 활성화한 경우 — 선택한 LLM 프로바이더 이용료가 추가됩니다.</p></details>
     </div>
   </div>
 </section>
@@ -726,12 +726,12 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
 <!-- CTA -->
 <div class="wrap">
   <div class="cta">
-    <div class="mono-label">// ready in five minutes</div>
-    <h2>Own your support stack.</h2>
-    <p>Clone it, run one command, and you have a complete ticketing and knowledge platform on your own infrastructure.</p>
+    <div class="mono-label">// 5분 만에 준비 완료</div>
+    <h2>지원 스택을 직접 소유하세요.</h2>
+    <p>클론하고, 명령어 하나를 실행하면 직접 운영하는 인프라 위에 완전한 티켓 관리 및 지식 플랫폼이 갖춰집니다.</p>
     <div class="hero-cta">
-      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-primary">Get SmartTicket on GitHub</a>
-      <a href="/app/" target="_blank" rel="noopener" class="btn btn-ghost">Open the console</a>
+      <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-primary">GitHub에서 SmartTicket 받기</a>
+      <a href="/app/" target="_blank" rel="noopener" class="btn btn-ghost">콘솔 열기</a>
     </div>
   </div>
 </div>
@@ -744,11 +744,11 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
     </div>
     <div style="display:flex;gap:20px;flex-wrap:wrap;">
       <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener">GitHub</a>
-      <a href="/app/" target="_blank" rel="noopener">Sign in</a>
-      <a href="#deploy">Deploy</a>
-      <a href="https://github.com/liliang-cn/smartticket/blob/main/LICENSE" target="_blank" rel="noopener">License (MIT)</a>
+      <a href="/app/" target="_blank" rel="noopener">로그인</a>
+      <a href="#deploy">배포</a>
+      <a href="https://github.com/liliang-cn/smartticket/blob/main/LICENSE" target="_blank" rel="noopener">라이선스 (MIT)</a>
     </div>
-    <div>Self-hosted · Single-tenant · Your data, your rules.</div>
+    <div>셀프 호스팅 · 단일 테넌트 · 내 데이터, 내 규칙.</div>
   </div>
 </footer>
 
