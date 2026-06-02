@@ -21,6 +21,7 @@ type Config struct {
 	RateLimit   RateLimitConfig `mapstructure:"rate_limit" validate:"required"`
 	LLM         LLMConfig       `mapstructure:"llm"`
 	Storage     StorageConfig   `mapstructure:"storage"`
+	Email       EmailConfig     `mapstructure:"email"`
 	// SecretKeyRaw is the raw encryption key (hex/base64) used for at-rest
 	// secrets such as LLM provider API keys. Bound from SMARTTICKET_SECRET_KEY.
 	SecretKeyRaw string `mapstructure:"secret_key"`
@@ -31,6 +32,43 @@ type StorageConfig struct {
 	DataPath          string   `mapstructure:"data_path"`
 	MaxFileSize       int64    `mapstructure:"max_file_size"`
 	AllowedExtensions []string `mapstructure:"allowed_extensions"`
+}
+
+// EmailConfig configures bidirectional email: outbound ticket replies and
+// inbound email-to-ticket. Outbound goes through Resend (HTTP API) or any SMTP
+// server; inbound arrives on a signed webhook (e.g. Resend Inbound, or any MTA
+// that can POST). Disabled by default — the whole feature is opt-in.
+type EmailConfig struct {
+	Enabled bool `mapstructure:"enabled"`
+	// Provider selects the outbound transport: "resend" (default) or "smtp".
+	Provider    string        `mapstructure:"provider"`
+	FromName    string        `mapstructure:"from_name"`
+	FromAddress string        `mapstructure:"from_address"`
+	Resend      ResendConfig  `mapstructure:"resend"`
+	SMTP        SMTPConfig    `mapstructure:"smtp"`
+	Inbound     InboundConfig `mapstructure:"inbound"`
+}
+
+// ResendConfig holds the Resend API credentials (https://resend.com).
+type ResendConfig struct {
+	APIKey string `mapstructure:"api_key"`
+}
+
+// SMTPConfig is an alternative outbound transport for self-hosted mail servers.
+type SMTPConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	// TLS mode: "starttls" (default, port 587), "tls" (implicit, port 465) or "none".
+	TLS string `mapstructure:"tls"`
+}
+
+// InboundConfig guards the email→ticket webhook. The webhook is public (no JWT)
+// so it is authenticated by a shared secret presented in the request.
+type InboundConfig struct {
+	Enabled bool   `mapstructure:"enabled"`
+	Secret  string `mapstructure:"secret"`
 }
 
 // ServerConfig contains HTTP server configuration.
@@ -134,6 +172,26 @@ func loadFrom(configFile string) (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 	v.BindEnv("secret_key", "SMARTTICKET_SECRET_KEY")
+	// Email is most often configured via environment (secrets stay out of the
+	// config file). Bind each key explicitly — viper's AutomaticEnv does not
+	// reliably resolve nested keys that lack a config-file entry.
+	for envKey, path := range map[string]string{
+		"SMARTTICKET_EMAIL_ENABLED":         "email.enabled",
+		"SMARTTICKET_EMAIL_PROVIDER":        "email.provider",
+		"SMARTTICKET_EMAIL_FROM_NAME":       "email.from_name",
+		"SMARTTICKET_EMAIL_FROM_ADDRESS":    "email.from_address",
+		"SMARTTICKET_EMAIL_SMTP_HOST":       "email.smtp.host",
+		"SMARTTICKET_EMAIL_SMTP_PORT":       "email.smtp.port",
+		"SMARTTICKET_EMAIL_SMTP_USERNAME":   "email.smtp.username",
+		"SMARTTICKET_EMAIL_SMTP_PASSWORD":   "email.smtp.password",
+		"SMARTTICKET_EMAIL_SMTP_TLS":        "email.smtp.tls",
+		"SMARTTICKET_EMAIL_INBOUND_ENABLED": "email.inbound.enabled",
+		"SMARTTICKET_EMAIL_INBOUND_SECRET":  "email.inbound.secret",
+	} {
+		_ = v.BindEnv(path, envKey)
+	}
+	// Resend key accepts the project-prefixed name or a bare RESEND_API_KEY.
+	_ = v.BindEnv("email.resend.api_key", "SMARTTICKET_EMAIL_RESEND_API_KEY", "RESEND_API_KEY")
 
 	if configFile != "" {
 		// Use the explicitly provided config file.
@@ -232,6 +290,14 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("llm.default_provider", "openai")
 	v.SetDefault("llm.rate_limit.requests_per_minute", 100)
 	v.SetDefault("llm.rate_limit.tokens_per_minute", 10000)
+
+	// Email (bidirectional) defaults — feature off until configured.
+	v.SetDefault("email.enabled", false)
+	v.SetDefault("email.provider", "resend")
+	v.SetDefault("email.from_name", "Support")
+	v.SetDefault("email.smtp.port", 587)
+	v.SetDefault("email.smtp.tls", "starttls")
+	v.SetDefault("email.inbound.enabled", false)
 
 	// Storage (attachments) defaults
 	v.SetDefault("storage.data_path", "./data")

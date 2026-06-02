@@ -28,6 +28,7 @@ type Service struct {
 	db            *gorm.DB
 	slaCalculator *sla.Calculator
 	notifier      Notifier // optional; nil = no-op (see SetNotifier)
+	mailer        Mailer   // optional; nil = no-op (see SetMailer)
 }
 
 // NewService creates a new ticket service.
@@ -568,6 +569,18 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 
 	// Load the author so the response carries the author's name/role.
 	_ = s.db.Preload("User").First(message, message.ID).Error
+
+	// Best-effort: email the requester when an agent posts a public reply, so
+	// the conversation reaches them outside the app. Internal notes never leave.
+	if s.mailer != nil && actor.IsTeam() && !isInternal && tkt != nil && strings.TrimSpace(tkt.RequesterEmail) != "" {
+		author := "Support"
+		if message.User != nil {
+			if n := strings.TrimSpace(message.User.FirstName + " " + message.User.LastName); n != "" {
+				author = n
+			}
+		}
+		go s.mailer.SendTicketReply(context.Background(), tkt.RequesterEmail, tkt.TicketNumber, tkt.Title, tkt.ID, message.Content, author)
+	}
 
 	resp := messageToResponse(message)
 	return &resp, nil

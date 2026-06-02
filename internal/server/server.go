@@ -26,6 +26,7 @@ import (
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/database"
+	"github.com/company/smartticket/internal/email"
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
@@ -191,6 +192,29 @@ func (s *Server) setupRoutes() {
 	notificationHandlers := notification.NewHandlers(notificationService)
 	ticketService.SetNotifier(notificationService)
 
+	// Bidirectional email (opt-in): outbound ticket replies via Resend/SMTP, and
+	// inbound email→ticket via a signed webhook (registered as a public route).
+	var emailInbound *email.InboundHandler
+	if s.config.Email.Enabled {
+		emailService := email.NewService(email.Options{
+			Provider:     s.config.Email.Provider,
+			FromName:     s.config.Email.FromName,
+			FromAddress:  s.config.Email.FromAddress,
+			ResendAPIKey: s.config.Email.Resend.APIKey,
+			SMTP: email.SMTPOptions{
+				Host:     s.config.Email.SMTP.Host,
+				Port:     s.config.Email.SMTP.Port,
+				Username: s.config.Email.SMTP.Username,
+				Password: s.config.Email.SMTP.Password,
+				TLS:      s.config.Email.SMTP.TLS,
+			},
+		})
+		ticketService.SetMailer(emailService)
+		if s.config.Email.Inbound.Enabled {
+			emailInbound = email.NewInboundHandler(ticketService, s.config.Email.Inbound.Secret)
+		}
+	}
+
 	productService := product.NewService(s.db.DB)
 	customerService := customer.NewService(s.db.DB)
 	serviceManagementService := servicemgmt.NewService(s.db.DB)
@@ -292,6 +316,12 @@ func (s *Server) setupRoutes() {
 			// render the white-label config before authentication.
 			public.GET("/settings/branding", brandingHandlers.Get)
 			public.GET("/settings/branding/logo", brandingHandlers.ServeLogo)
+
+			// Inbound email webhook (email→ticket). Public but authenticated by
+			// a shared secret inside the handler; only mounted when configured.
+			if emailInbound != nil {
+				public.POST("/email/inbound", emailInbound.Handle)
+			}
 		}
 
 		// Protected endpoints (auth required)
