@@ -90,15 +90,27 @@ storage:
     - ".zip"
     - ".csv"
 
-# Email Configuration
+# Bidirectional email (opt-in). Prod supplies secrets via environment:
+#   SMARTTICKET_EMAIL_ENABLED=true
+#   SMARTTICKET_EMAIL_RESEND_API_KEY=...   (or RESEND_API_KEY)
+#   SMARTTICKET_EMAIL_FROM_ADDRESS=support@yourdomain.com
+#   SMARTTICKET_EMAIL_INBOUND_SECRET=...
 email:
-  enabled: true
-  smtp_host: "${SMTP_HOST}"
-  smtp_port: 587
-  username: "${SMTP_USERNAME}"
-  password: "${SMTP_PASSWORD}"
-  from_address: "${FROM_EMAIL}"
-  use_tls: true
+  enabled: false
+  provider: "resend"            # "resend" (HTTP API) or "smtp"
+  from_name: "Support"
+  from_address: ""              # a verified Resend sender, e.g. support@yourdomain.com
+  resend:
+    api_key: ""                 # prefer SMARTTICKET_EMAIL_RESEND_API_KEY / RESEND_API_KEY
+  smtp:                         # only used when provider == "smtp"
+    host: ""
+    port: 587
+    username: ""
+    password: ""
+    tls: "starttls"             # starttls | tls | none
+  inbound:                      # email -> ticket webhook (POST /api/v1/email/inbound)
+    enabled: false
+    secret: ""                  # shared secret; prefer SMARTTICKET_EMAIL_INBOUND_SECRET
 
 # Cache Configuration
 cache:
@@ -186,24 +198,3 @@ llm:
   rate_limit:
     requests_per_minute: 100
     tokens_per_minute: 50000
-# Bidirectional email (opt-in). Secrets (API key, passwords, webhook secret) are
-# best supplied via environment, not committed here:
-#   SMARTTICKET_EMAIL_ENABLED=true
-#   SMARTTICKET_EMAIL_RESEND_API_KEY=...   (or RESEND_API_KEY)
-#   SMARTTICKET_EMAIL_INBOUND_SECRET=...
-email:
-  enabled: false
-  provider: "resend"            # "resend" (HTTP API) or "smtp"
-  from_name: "Support"
-  from_address: ""              # a verified Resend sender, e.g. support@yourdomain.com
-  resend:
-    api_key: ""                 # prefer SMARTTICKET_EMAIL_RESEND_API_KEY / RESEND_API_KEY
-  smtp:                         # only used when provider == "smtp"
-    host: ""
-    port: 587
-    username: ""
-    password: ""
-    tls: "starttls"             # starttls | tls | none
-  inbound:                      # email -> ticket webhook (POST /api/v1/email/inbound)
-    enabled: false
-    secret: ""                  # shared secret; prefer SMARTTICKET_EMAIL_INBOUND_SECRET
