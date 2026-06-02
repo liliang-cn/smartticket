@@ -1,3081 +1,3096 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "My Tickets": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "我的工单"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%lld" : {
+
+    },
+    "Access your support workspace." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zugang zu deinem Support-Arbeitsbereich."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mis tickets"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accede a tu espacio de soporte."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Meine Tickets"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accedi al tuo spazio di supporto."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "マイチケット"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サポートワークスペースにアクセスします。"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "내 티켓"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지원 워크스페이스에 접속합니다."
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "I miei ticket"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "进入你的支持工作台。"
           }
         }
       }
     },
-    "Knowledge": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "知识库"
+    "Account" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konto"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conocimiento"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuenta"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wissen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ナレッジ"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アカウント"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "지식베이스"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "계정"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conoscenza"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "账户"
           }
         }
       }
     },
-    "Account": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "账户"
+    "Admin" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Admin"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cuenta"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Administrador"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Konto"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amministratore"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "アカウント"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理者"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "계정"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "관리자"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Account"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "管理员"
           }
         }
       }
+    },
+    "AI" : {
+
     },
-    "Queue": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "队列"
+    "All statuses" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Status"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cola"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todos los estados"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Warteschlange"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti gli stati"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "キュー"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのステータス"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "대기열"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 상태"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coda"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部状态"
           }
         }
       }
     },
-    "Dashboard": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "仪表盘"
+    "Article" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artikel"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Panel"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artículo"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dashboard"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Articolo"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ダッシュボード"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記事"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "대시보드"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문서"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dashboard"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "文章"
           }
         }
       }
     },
-    "Tickets": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "工单"
+    "Assign to me" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mir zuweisen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tickets"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asignarme"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tickets"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assegna a me"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "チケット"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分に割り当て"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "티켓"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나에게 할당"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ticket"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分配给我"
           }
         }
       }
     },
-    "Users": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "用户"
+    "Assignee" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearbeiter"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usuarios"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Responsable"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benutzer"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Assegnatario"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ユーザー"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "担当者"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "사용자"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "담당자"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Utenti"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "处理人"
           }
         }
       }
     },
-    "Sign in": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "登录"
+    "Brief summary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kurze Zusammenfassung"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Iniciar sesión"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resumen breve"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Anmelden"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breve riepilogo"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ログイン"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "簡単な概要"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "로그인"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "간단한 요약"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accedi"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "简要概述"
           }
         }
       }
     },
-    "Signing in…": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "登录中…"
+    "Cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Iniciando sesión…"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Anmeldung läuft…"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ログイン中…"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "로그인 중…"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accesso in corso…"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
           }
         }
       }
     },
-    "Access your support workspace.": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "进入你的支持工作台。"
+    "Cancelled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storniert"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accede a tu espacio de soporte."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelado"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zugang zu deinem Support-Arbeitsbereich."
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annullato"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "サポートワークスペースにアクセスします。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キャンセル"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "지원 워크스페이스에 접속합니다."
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "취소됨"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Accedi al tuo spazio di supporto."
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已取消"
           }
         }
       }
     },
-    "Email": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "邮箱"
+    "Closed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geschlossen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Correo"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrado"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "E-Mail"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiuso"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "メールアドレス"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クローズ"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이메일"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "종료됨"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Email"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已关闭"
           }
         }
       }
     },
-    "Password": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "密码"
+    "Conversation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konversation"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Contraseña"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversación"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Passwort"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversazione"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "パスワード"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "비밀번호"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대화"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Password"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "对话"
           }
         }
       }
     },
-    "Server": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "服务器"
+    "Created" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erstellt"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Servidor"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creado"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Server"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creato"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "サーバー"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作成日"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "서버"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "생성됨"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Server"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "创建于"
           }
         }
       }
     },
-    "Server URL": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "服务器地址"
+    "Critical" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kritisch"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "URL del servidor"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crítica"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Server-URL"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Critica"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "サーバー URL"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重大"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "서버 URL"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "심각"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "URL del server"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "紧急"
           }
         }
       }
     },
-    "The address of your self-hosted SmartTicket deployment.": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "你自托管的 SmartTicket 部署地址。"
+    "Customer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kunde"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La dirección de tu instalación autoalojada de SmartTicket."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cliente"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die Adresse deiner selbst gehosteten SmartTicket-Installation."
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cliente"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "セルフホストの SmartTicket デプロイのアドレス。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顧客"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "셀프 호스팅 SmartTicket 배포의 주소입니다."
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "고객"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "L'indirizzo della tua installazione self-hosted di SmartTicket."
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "客户"
           }
         }
       }
     },
-    "Cancel": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "取消"
+    "Dashboard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dashboard"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancelar"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panel"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abbrechen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dashboard"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "キャンセル"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダッシュボード"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "취소"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대시보드"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Annulla"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仪表盘"
           }
         }
       }
     },
-    "Save": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "保存"
+    "Deployment" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereitstellung"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Guardar"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Implementación"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Speichern"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Distribuzione"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "保存"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デプロイ"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "저장"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "배포"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salva"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部署"
           }
         }
       }
     },
-    "Search tickets": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜索工单"
+    "Describe the issue…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Problem beschreiben…"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Buscar tickets"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describe el problema…"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tickets suchen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descrivi il problema…"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "チケットを検索"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "問題を説明…"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "티켓 검색"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문제를 설명하세요…"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerca ticket"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "描述问题…"
           }
         }
       }
     },
-    "No tickets": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "暂无工单"
+    "Details" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin tickets"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detalles"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keine Tickets"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dettagli"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "チケットなし"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "詳細"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "티켓 없음"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세부 정보"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessun ticket"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "详情"
           }
         }
       }
     },
-    "Tickets will appear here.": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "工单将显示在这里。"
+    "Email" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-Mail"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Los tickets aparecerán aquí."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tickets erscheinen hier."
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "チケットはここに表示されます。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メールアドレス"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "티켓이 여기에 표시됩니다."
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이메일"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "I ticket appariranno qui."
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邮箱"
           }
         }
       }
     },
-    "No tickets match your search.": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "没有匹配的工单。"
+    "Engineer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Techniker"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ningún ticket coincide con tu búsqueda."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingeniero"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keine Tickets entsprechen deiner Suche."
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tecnico"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "検索に一致するチケットはありません。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エンジニア"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "검색과 일치하는 티켓이 없습니다."
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "엔지니어"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessun ticket corrisponde alla ricerca."
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工程师"
           }
         }
       }
     },
-    "All statuses": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "全部状态"
+    "Hello, %@." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hallo, %@."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Todos los estados"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hola, %@."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alle Status"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ciao, %@."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "すべてのステータス"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "こんにちは、%@ さん。"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "모든 상태"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "안녕하세요, %@님."
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tutti gli stati"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你好，%@。"
           }
         }
       }
     },
-    "Open": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "待处理"
+    "High" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoch"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abierto"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alta"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Offen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alta"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未対応"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "미처리"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "높음"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aperto"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高"
           }
         }
       }
     },
-    "In progress": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "处理中"
+    "https://support.example.com" : {
+
+    },
+    "In progress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Bearbeitung"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En curso"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En curso"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In Bearbeitung"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In corso"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "対応中"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "対応中"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "처리 중"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "처리 중"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In corso"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "处理中"
           }
         }
       }
     },
-    "Resolved": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已解决"
+    "Inactive" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inaktiv"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resuelto"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inactivo"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gelöst"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inattivo"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "解決済み"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無効"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "해결됨"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비활성"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Risolto"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已停用"
           }
         }
       }
     },
-    "Closed": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已关闭"
+    "Internal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intern"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerrado"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interno"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Geschlossen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interna"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "クローズ"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内部"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "종료됨"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내부"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chiuso"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内部"
           }
         }
       }
     },
-    "Cancelled": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已取消"
+    "Internal note (hidden from customer)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interne Notiz (für Kunden verborgen)"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancelado"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nota interna (oculta al cliente)"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Storniert"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nota interna (nascosta al cliente)"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "キャンセル"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内部メモ（顧客には非表示）"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "취소됨"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내부 메모(고객에게 숨김)"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Annullato"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "内部备注（对客户隐藏）"
           }
         }
       }
     },
-    "Low": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "低"
+    "Invalid email or password" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ungültige E-Mail oder Passwort"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Baja"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Correo o contraseña no válidos"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Niedrig"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Email o password non validi"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "低"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メールアドレスまたはパスワードが正しくありません"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "낮음"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이메일 또는 비밀번호가 올바르지 않습니다"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bassa"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "邮箱或密码错误"
           }
         }
       }
     },
-    "Medium": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "中"
+    "Knowledge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wissen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Media"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conocimiento"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mittel"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conoscenza"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "中"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ナレッジ"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "보통"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지식베이스"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Media"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "知识库"
           }
         }
       }
     },
-    "High": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "高"
+    "Knowledge base articles will appear here." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wissensdatenbank-Artikel erscheinen hier."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alta"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los artículos de la base de conocimiento aparecerán aquí."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hoch"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli articoli della knowledge base appariranno qui."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "高"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ナレッジベースの記事はここに表示されます。"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "높음"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지식베이스 문서가 여기에 표시됩니다."
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alta"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "知识库文章将显示在这里。"
           }
         }
       }
     },
-    "Critical": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "紧急"
+    "Language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprache"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Crítica"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Idioma"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kritisch"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lingua"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重大"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "言語"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "심각"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "언어"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Critica"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "语言"
           }
         }
       }
     },
-    "Admin": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "管理员"
+    "Low" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niedrig"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Administrador"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Baja"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Admin"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bassa"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "管理者"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "관리자"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "낮음"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Amministratore"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低"
           }
         }
       }
     },
-    "Engineer": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "工程师"
+    "Medium" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mittel"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ingeniero"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Techniker"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "エンジニア"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "엔지니어"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보통"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tecnico"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中"
           }
         }
       }
     },
-    "Support": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "支持"
+    "My Tickets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meine Tickets"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Soporte"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mis tickets"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Support"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I miei ticket"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "サポート"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイチケット"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "지원"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 티켓"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supporto"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的工单"
           }
         }
       }
     },
-    "Customer": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "客户"
+    "Name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cliente"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kunde"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "顧客"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名前"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "고객"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cliente"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "姓名"
           }
         }
       }
     },
-    "Sales": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "销售"
+    "New ticket" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neues Ticket"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ventas"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo ticket"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vertrieb"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuovo ticket"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "営業"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新規チケット"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "영업"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 티켓"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vendite"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新建工单"
           }
         }
       }
     },
-    "Ticket": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "工单"
+    "No articles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Artikel"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ticket"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin artículos"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ticket"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun articolo"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "チケット"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記事なし"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "티켓"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문서 없음"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ticket"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无文章"
           }
         }
       }
     },
-    "Requester": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "请求人"
+    "No replies yet." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Antworten."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Solicitante"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay respuestas."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Anfragender"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessuna risposta."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "依頼者"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "まだ返信はありません。"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "요청자"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 답변이 없습니다."
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Richiedente"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无回复。"
           }
         }
       }
     },
-    "Assignee": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "处理人"
+    "No tickets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Tickets"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Responsable"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin tickets"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bearbeiter"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun ticket"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "担当者"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チケットなし"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "담당자"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "티켓 없음"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Assegnatario"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无工单"
           }
         }
       }
     },
-    "Unassigned": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未分配"
+    "No tickets match your search." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Tickets entsprechen deiner Suche."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin asignar"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ningún ticket coincide con tu búsqueda."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nicht zugewiesen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun ticket corrisponde alla ricerca."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "未割り当て"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検索に一致するチケットはありません。"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "미할당"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색과 일치하는 티켓이 없습니다."
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non assegnato"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "没有匹配的工单。"
           }
         }
       }
     },
-    "Created": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "创建于"
+    "No users" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Benutzer"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Creado"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin usuarios"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erstellt"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun utente"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "作成日"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ユーザーなし"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "생성됨"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 없음"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Creato"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "暂无用户"
           }
         }
       }
     },
-    "Set status": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "设置状态"
+    "Open" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cambiar estado"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abierto"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Status setzen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aperto"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ステータスを変更"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未対応"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "상태 변경"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "미처리"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Imposta stato"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "待处理"
           }
         }
       }
     },
-    "Assign to me": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "分配给我"
+    "Overdue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Überfällig"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Asignarme"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vencidos"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mir zuweisen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In ritardo"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自分に割り当て"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "期限超過"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "나에게 할당"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기한 초과"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Assegna a me"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已逾期"
           }
         }
       }
     },
-    "Conversation": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "对话"
+    "Overview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übersicht"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conversación"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resumen"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Konversation"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panoramica"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "会話"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "概要"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "대화"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개요"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conversazione"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "概览"
           }
         }
       }
     },
-    "No replies yet.": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "暂无回复。"
+    "Password" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passwort"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aún no hay respuestas."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contraseña"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Noch keine Antworten."
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "まだ返信はありません。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パスワード"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "아직 답변이 없습니다."
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비밀번호"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ancora nessuna risposta."
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "密码"
           }
         }
       }
     },
-    "Internal note (hidden from customer)": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "内部备注（对客户隐藏）"
+    "Priority" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priorität"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nota interna (oculta al cliente)"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prioridad"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interne Notiz (für Kunden verborgen)"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priorità"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "内部メモ（顧客には非表示）"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "優先度"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "내부 메모(고객에게 숨김)"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "우선순위"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nota interna (nascosta al cliente)"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "优先级"
           }
         }
       }
     },
-    "Write a reply…": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "写回复…"
+    "Queue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warteschlange"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escribe una respuesta…"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cola"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Antwort schreiben…"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coda"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "返信を入力…"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キュー"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "답변 작성…"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기열"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Scrivi una risposta…"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "队列"
           }
         }
       }
     },
-    "Internal": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "内部"
+    "Requester" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anfragender"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interno"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solicitante"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Intern"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiedente"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "内部"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "依頼者"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "내부"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요청자"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interna"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请求人"
           }
         }
       }
     },
-    "User": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "用户"
+    "Resolved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gelöst"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usuario"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resuelto"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benutzer"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risolto"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ユーザー"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "解決済み"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "사용자"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "해결됨"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Utente"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已解决"
           }
         }
       }
     },
-    "New ticket": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "新建工单"
+    "Sales" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertrieb"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nuevo ticket"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ventas"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Neues Ticket"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vendite"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "新規チケット"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "営業"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "새 티켓"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "영업"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nuovo ticket"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "销售"
           }
         }
       }
     },
-    "Subject": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "主题"
+    "Save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Asunto"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardar"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Betreff"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "件名"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "제목"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oggetto"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存"
           }
         }
       }
     },
-    "Brief summary": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "简要概述"
+    "Search articles" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artikel suchen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resumen breve"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar artículos"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kurze Zusammenfassung"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca articoli"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "簡単な概要"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記事を検索"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "간단한 요약"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문서 검색"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Breve riepilogo"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索文章"
           }
         }
       }
     },
-    "Details": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "详情"
+    "Search tickets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tickets suchen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Detalles"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar tickets"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Details"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca ticket"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "詳細"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チケットを検索"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "세부 정보"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "티켓 검색"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dettagli"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索工单"
           }
         }
       }
     },
-    "Describe the issue…": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "描述问题…"
+    "Search users" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzer suchen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Describe el problema…"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar usuarios"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Problem beschreiben…"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca utenti"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "問題を説明…"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ユーザーを検索"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "문제를 설명하세요…"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자 검색"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descrivi il problema…"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索用户"
           }
         }
       }
     },
-    "Priority": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "优先级"
+    "Server" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prioridad"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Servidor"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Priorität"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "優先度"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サーバー"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "우선순위"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Priorità"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器"
           }
         }
       }
     },
-    "Name": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "姓名"
+    "Server URL" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server-URL"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nombre"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL del servidor"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Name"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL del server"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "名前"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サーバー URL"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이름"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서버 URL"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nome"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务器地址"
           }
         }
       }
     },
-    "Submit": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "提交"
+    "Set status" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status setzen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enviar"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar estado"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Senden"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta stato"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "送信"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ステータスを変更"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "제출"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상태 변경"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Invia"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置状态"
           }
         }
       }
     },
-    "Search articles": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜索文章"
+    "Sign in" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anmelden"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Buscar artículos"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar sesión"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Artikel suchen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accedi"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "記事を検索"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ログイン"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "문서 검색"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그인"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerca articoli"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录"
           }
         }
       }
     },
-    "No articles": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "暂无文章"
+    "Sign out" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abmelden"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin artículos"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar sesión"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keine Artikel"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esci"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "記事なし"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ログアウト"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "문서 없음"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그아웃"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessun articolo"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出登录"
           }
         }
       }
     },
-    "Knowledge base articles will appear here.": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "知识库文章将显示在这里。"
+    "Sign out of SmartTicket?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von SmartTicket abmelden?"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Los artículos de la base de conocimiento aparecerán aquí."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cerrar sesión en SmartTicket?"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wissensdatenbank-Artikel erscheinen hier."
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uscire da SmartTicket?"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ナレッジベースの記事はここに表示されます。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SmartTicket からログアウトしますか？"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "지식베이스 문서가 여기에 표시됩니다."
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SmartTicket에서 로그아웃하시겠습니까?"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gli articoli della knowledge base appariranno qui."
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "退出 SmartTicket？"
           }
         }
       }
     },
-    "Article": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "文章"
+    "Signing in…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anmeldung läuft…"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Artículo"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciando sesión…"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Artikel"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accesso in corso…"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "記事"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ログイン中…"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "문서"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "로그인 중…"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Articolo"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录中…"
           }
         }
       }
     },
-    "Overview": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "概览"
+    "SLA" : {
+
+    },
+    "Subject" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betreff"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resumen"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asunto"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Übersicht"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oggetto"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "概要"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "件名"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "개요"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Panoramica"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "主题"
           }
         }
       }
     },
-    "Hello, %@.": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "你好，%@。"
+    "Submit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senden"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hola, %@."
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hallo, %@."
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invia"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "こんにちは、%@ さん。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "送信"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "안녕하세요, %@님."
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제출"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ciao, %@."
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "提交"
           }
         }
       }
     },
-    "Overdue": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已逾期"
+    "Support" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vencidos"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soporte"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Überfällig"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supporto"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "期限超過"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サポート"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "기한 초과"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지원"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In ritardo"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支持"
           }
         }
       }
     },
-    "Total tickets": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "工单总数"
+    "System" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Total de tickets"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistema"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tickets gesamt"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sistema"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "チケット合計"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "システム"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "전체 티켓"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "시스템"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ticket totali"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "跟随系统"
           }
         }
       }
     },
-    "Search users": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜索用户"
+    "The address of your self-hosted SmartTicket deployment." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Adresse deiner selbst gehosteten SmartTicket-Installation."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Buscar usuarios"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La dirección de tu instalación autoalojada de SmartTicket."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benutzer suchen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'indirizzo della tua installazione self-hosted di SmartTicket."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ユーザーを検索"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "セルフホストの SmartTicket デプロイのアドレス。"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "사용자 검색"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "셀프 호스팅 SmartTicket 배포의 주소입니다."
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerca utenti"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你自托管的 SmartTicket 部署地址。"
           }
         }
       }
     },
-    "No users": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "暂无用户"
+    "Ticket" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ticket"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sin usuarios"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ticket"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keine Benutzer"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ticket"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ユーザーなし"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チケット"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "사용자 없음"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "티켓"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessun utente"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工单"
           }
         }
       }
     },
-    "Inactive": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已停用"
+    "Tickets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tickets"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inactivo"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tickets"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inaktiv"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ticket"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "無効"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チケット"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "비활성"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "티켓"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inattivo"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工单"
           }
         }
       }
     },
-    "Language": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "语言"
+    "Tickets will appear here." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tickets erscheinen hier."
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Idioma"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los tickets aparecerán aquí."
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sprache"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I ticket appariranno qui."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "言語"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チケットはここに表示されます。"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "언어"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "티켓이 여기에 표시됩니다."
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lingua"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工单将显示在这里。"
           }
         }
       }
     },
-    "Deployment": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "部署"
+    "Total tickets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tickets gesamt"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Implementación"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total de tickets"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bereitstellung"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ticket totali"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "デプロイ"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チケット合計"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "배포"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전체 티켓"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Distribuzione"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "工单总数"
           }
         }
       }
     },
-    "Sign out": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "退出登录"
+    "Try again" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erneut versuchen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerrar sesión"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reintentar"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abmelden"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riprova"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ログアウト"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "再試行"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "로그아웃"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다시 시도"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Esci"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重试"
           }
         }
       }
     },
-    "Sign out of SmartTicket?": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "退出 SmartTicket？"
+    "Unassigned" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht zugewiesen"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "¿Cerrar sesión en SmartTicket?"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin asignar"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Von SmartTicket abmelden?"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non assegnato"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SmartTicket からログアウトしますか？"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未割り当て"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SmartTicket에서 로그아웃하시겠습니까?"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "미할당"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uscire da SmartTicket?"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未分配"
           }
         }
       }
     },
-    "Try again": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重试"
+    "User" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzer"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reintentar"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuario"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erneut versuchen"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utente"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "再試行"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ユーザー"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다시 시도"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Riprova"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用户"
           }
         }
       }
     },
-    "System": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "跟随系统"
+    "Users" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzer"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sistema"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usuarios"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "System"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utenti"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "システム"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ユーザー"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "시스템"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사용자"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sistema"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用户"
           }
         }
       }
+    },
+    "v%lld" : {
+
     },
-    "Invalid email or password": {
-      "extractionState": "manual",
-      "localizations": {
-        "zh": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "邮箱或密码错误"
+    "Write a reply…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Antwort schreiben…"
           }
         },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Correo o contraseña no válidos"
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe una respuesta…"
           }
         },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ungültige E-Mail oder Passwort"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrivi una risposta…"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "メールアドレスまたはパスワードが正しくありません"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "返信を入力…"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "이메일 또는 비밀번호가 올바르지 않습니다"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답변 작성…"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Email o password non validi"
+        "zh" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写回复…"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

@@ -80,20 +80,20 @@ struct TicketDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 16) {
                 if let t = model.ticket {
                     header(t)
                     if canManage { manageBar(t) }
-                    Divider()
                     conversation
                 } else if let error = model.error {
                     InlineError(message: error) { Task { await model.load() } }
                 } else if model.loading {
-                    ProgressView().frame(maxWidth: .infinity).padding(.top, 40)
+                    ProgressView().frame(maxWidth: .infinity).padding(.top, 60)
                 }
             }
-            .padding()
+            .padding(20)
         }
+        .background(Color.appBG)
         .navigationTitle(model.ticket?.ticketNumber ?? "Ticket")
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) { if model.ticket != nil { composer } }
@@ -101,7 +101,7 @@ struct TicketDetailView: View {
     }
 
     private func header(_ t: Ticket) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             Text(t.title).font(.title2.bold())
             HStack(spacing: 6) {
                 StatusBadge(status: t.status)
@@ -110,24 +110,22 @@ struct TicketDetailView: View {
             if let d = t.description, !d.isEmpty {
                 Text(d).font(.callout).foregroundStyle(.secondary)
             }
-            metaGrid(t)
+            Divider()
+            VStack(spacing: 10) {
+                metaRow("person", "Requester", t.requesterName ?? t.requesterEmail ?? "—")
+                if let c = t.customerName, !c.isEmpty { metaRow("building.2", "Customer", c) }
+                metaRow("person.badge.shield.checkmark", "Assignee", t.assignedUser?.displayName ?? String(localized: "Unassigned"))
+                metaRow("calendar", "Created", DateText.medium(t.createdAt))
+                if let sla = t.slaStatus, !sla.isEmpty { metaRow("timer", "SLA", sla.capitalized) }
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .card(padding: 18)
     }
 
-    private func metaGrid(_ t: Ticket) -> some View {
-        VStack(spacing: 6) {
-            metaRow("Requester", t.requesterName ?? t.requesterEmail ?? "—")
-            if let c = t.customerName, !c.isEmpty { metaRow("Customer", c) }
-            metaRow("Assignee", t.assignedUser?.displayName ?? String(localized: "Unassigned"))
-            metaRow("Created", DateText.medium(t.createdAt))
-            if let sla = t.slaStatus, !sla.isEmpty { metaRow("SLA", sla.capitalized) }
-        }
-        .padding(12)
-        .background(.background.secondary, in: RoundedRectangle(cornerRadius: 12))
-    }
-
-    private func metaRow(_ k: LocalizedStringKey, _ v: String) -> some View {
-        HStack {
+    private func metaRow(_ icon: String, _ k: LocalizedStringKey, _ v: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon).font(.caption).foregroundStyle(Brand.primary).frame(width: 18)
             Text(k).font(.caption).foregroundStyle(.secondary)
             Spacer()
             Text(v).font(.caption.weight(.medium)).multilineTextAlignment(.trailing)
@@ -135,32 +133,39 @@ struct TicketDetailView: View {
     }
 
     private func manageBar(_ t: Ticket) -> some View {
-        HStack {
+        HStack(spacing: 10) {
             Menu {
                 ForEach(TicketStatus.allCases, id: \.self) { s in
-                    Button(s.label) { Task { await model.setStatus(s) } }
+                    Button { Task { await model.setStatus(s) } } label: { Label(s.label, systemImage: s.icon) }
                 }
             } label: {
                 Label("Set status", systemImage: "arrow.triangle.2.circlepath")
+                    .font(.subheadline.weight(.medium))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.card, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Color.hairline, lineWidth: 0.5))
             }
-            Spacer()
             if t.assignedTo == nil, let me = auth.user {
-                Button {
-                    Task { await model.assignToMe(userID: me.id) }
-                } label: {
+                Button { Task { await model.assignToMe(userID: me.id) } } label: {
                     Label("Assign to me", systemImage: "person.fill.badge.plus")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .foregroundStyle(Brand.ink)
+                        .background(Brand.gradient, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
             }
         }
-        .font(.callout)
-        .buttonStyle(.bordered)
+        .tint(.primary)
     }
 
     private var conversation: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Conversation").font(.headline)
+            Text("Conversation").eyebrow().padding(.top, 4)
             if model.messages.isEmpty {
                 Text("No replies yet.").font(.callout).foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity).padding(.vertical, 12)
             } else {
                 ForEach(model.messages) { MessageBubble(message: $0) }
             }
@@ -168,55 +173,82 @@ struct TicketDetailView: View {
     }
 
     private var composer: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 10) {
             if canManage {
-                Toggle("Internal note (hidden from customer)", isOn: $internalNote)
-                    .font(.caption)
+                Toggle(isOn: $internalNote) {
+                    Label("Internal note (hidden from customer)", systemImage: "lock")
+                        .font(.caption)
+                }
+                .tint(Brand.primary)
             }
-            HStack(alignment: .bottom, spacing: 8) {
+            HStack(alignment: .bottom, spacing: 10) {
                 TextField("Write a reply…", text: $reply, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
-                    .lineLimit(1...4)
+                    .lineLimit(1...5)
+                    .padding(.horizontal, 14).padding(.vertical, 10)
+                    .background(Color(.tertiarySystemBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).strokeBorder(Color.hairline, lineWidth: 0.5))
                 Button {
                     let text = reply.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !text.isEmpty else { return }
                     reply = ""
                     Task { await model.reply(text, internalNote: internalNote) }
                 } label: {
-                    Image(systemName: "arrow.up.circle.fill").font(.title)
+                    Image(systemName: "arrow.up")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Brand.ink)
+                        .frame(width: 40, height: 40)
+                        .background(canSend ? AnyShapeStyle(Brand.gradient) : AnyShapeStyle(Color.secondary.opacity(0.3)), in: Circle())
                 }
-                .disabled(model.sending || reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(!canSend)
             }
         }
-        .padding(12)
+        .padding(14)
         .background(.bar)
+    }
+
+    private var canSend: Bool {
+        !model.sending && !reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }
 
 struct MessageBubble: View {
     let message: TicketMessage
+
+    private var isCustomer: Bool { (message.authorRole ?? "").lowercased() == "customer" }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 Text(message.authorName ?? "User").font(.caption.weight(.semibold))
-                if message.isFromAI {
-                    Text("AI").font(.caption2).padding(.horizontal, 5).padding(.vertical, 1)
-                        .background(Brand.info.opacity(0.2), in: Capsule()).foregroundStyle(Brand.info)
-                }
-                if message.isInternal {
-                    Text("Internal").font(.caption2).padding(.horizontal, 5).padding(.vertical, 1)
-                        .background(Brand.primary.opacity(0.2), in: Capsule()).foregroundStyle(Brand.primary)
-                }
+                if message.isFromAI { tag("AI", Brand.info) }
+                if message.isInternal { tag("Internal", Brand.primary) }
                 Spacer()
                 Text(DateText.relative(message.createdAt)).font(.caption2).foregroundStyle(.tertiary)
             }
-            Text(message.content).font(.callout)
+            Text(message.content).font(.callout).foregroundStyle(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(
-            message.isInternal ? Brand.primary.opacity(0.06) : Color(.secondarySystemBackground),
-            in: RoundedRectangle(cornerRadius: 12)
+        .padding(14)
+        .background(bubbleFill, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(borderColor, lineWidth: 0.5)
         )
+    }
+
+    private var bubbleFill: Color {
+        if message.isInternal { return Brand.primary.opacity(0.08) }
+        return isCustomer ? Color.card : Brand.info.opacity(0.06)
+    }
+    private var borderColor: Color {
+        message.isInternal ? Brand.primary.opacity(0.2) : Color.hairline
+    }
+
+    private func tag(_ text: String, _ color: Color) -> some View {
+        Text(text)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 6).padding(.vertical, 1)
+            .background(color.opacity(0.18), in: Capsule())
+            .foregroundStyle(color)
     }
 }

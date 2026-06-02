@@ -34,7 +34,6 @@ final class TicketListModel {
 /// signed-in actor, so customers see only their own tickets here.
 struct TicketListView: View {
     let title: LocalizedStringKey
-    /// Whether the operator controls (status change, assign) are available.
     var canManage: Bool = false
     var canCreate: Bool = true
 
@@ -43,19 +42,28 @@ struct TicketListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if let error = model.error, model.tickets.isEmpty {
-                    InlineError(message: error) { Task { await model.load() } }
-                } else if model.tickets.isEmpty && !model.loading {
-                    EmptyStateView(
-                        systemImage: "ticket",
-                        title: "No tickets",
-                        message: model.search.isEmpty ? "Tickets will appear here." : "No tickets match your search."
-                    )
-                } else {
-                    list
+            ScrollView {
+                Group {
+                    if let error = model.error, model.tickets.isEmpty {
+                        InlineError(message: error) { Task { await model.load() } }
+                    } else if model.tickets.isEmpty && !model.loading {
+                        EmptyStateView(
+                            systemImage: "ticket",
+                            title: "No tickets",
+                            message: model.search.isEmpty ? "Tickets will appear here." : "No tickets match your search."
+                        )
+                    } else {
+                        LazyVStack(spacing: 12) {
+                            ForEach(model.tickets) { ticket in
+                                NavigationLink(value: ticket) { TicketCard(ticket: ticket) }
+                                    .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(20)
+                    }
                 }
             }
+            .background(Color.appBG)
             .navigationTitle(title)
             .searchable(text: $model.search, prompt: "Search tickets")
             .onSubmit(of: .search) { Task { await model.load() } }
@@ -69,9 +77,7 @@ struct TicketListView: View {
             }
             .refreshable { await model.load() }
             .task { if model.tickets.isEmpty { await model.load() } }
-            .sheet(isPresented: $showCreate) {
-                CreateTicketView { Task { await model.load() } }
-            }
+            .sheet(isPresented: $showCreate) { CreateTicketView { Task { await model.load() } } }
             .navigationDestination(for: Ticket.self) { ticket in
                 TicketDetailView(ticketID: ticket.id, canManage: canManage)
             }
@@ -79,16 +85,11 @@ struct TicketListView: View {
         }
     }
 
-    private var list: some View {
-        List(model.tickets) { ticket in
-            NavigationLink(value: ticket) { TicketRow(ticket: ticket) }
-        }
-        .listStyle(.plain)
-    }
-
     private var statusMenu: some View {
         Menu {
-            Button("All statuses") { model.statusFilter = nil; Task { await model.load() } }
+            Button { model.statusFilter = nil; Task { await model.load() } } label: {
+                Label("All statuses", systemImage: model.statusFilter == nil ? "checkmark" : "")
+            }
             Divider()
             ForEach(TicketStatus.allCases, id: \.self) { s in
                 Button { model.statusFilter = s; Task { await model.load() } } label: {
@@ -101,27 +102,49 @@ struct TicketListView: View {
     }
 }
 
-struct TicketRow: View {
+struct TicketCard: View {
     let ticket: Ticket
     var body: some View {
-        VStack(alignment: .leading, spacing: 7) {
-            HStack(spacing: 8) {
-                if let num = ticket.ticketNumber {
-                    Text(num).font(.caption.monospaced()).foregroundStyle(.secondary)
+        HStack(spacing: 0) {
+            // Status accent rail.
+            RoundedRectangle(cornerRadius: 3)
+                .fill(ticket.status.tint)
+                .frame(width: 4)
+                .padding(.vertical, 4)
+
+            VStack(alignment: .leading, spacing: 9) {
+                HStack(spacing: 8) {
+                    if let num = ticket.ticketNumber {
+                        Text(num)
+                            .font(.caption.monospaced().weight(.medium))
+                            .foregroundStyle(Brand.primary)
+                    }
+                    Spacer()
+                    Text(DateText.relative(ticket.createdAt))
+                        .font(.caption2).foregroundStyle(.tertiary)
                 }
-                Spacer()
-                Text(DateText.relative(ticket.createdAt))
-                    .font(.caption2).foregroundStyle(.tertiary)
-            }
-            Text(ticket.title).font(.body.weight(.medium)).lineLimit(2)
-            HStack(spacing: 6) {
-                StatusBadge(status: ticket.status)
-                PriorityBadge(priority: ticket.priority)
-                if let c = ticket.customerName, !c.isEmpty {
-                    Text(c).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                Text(ticket.title)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                HStack(spacing: 6) {
+                    StatusBadge(status: ticket.status)
+                    PriorityBadge(priority: ticket.priority)
+                    if let c = ticket.customerName, !c.isEmpty {
+                        Text(c).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                    }
                 }
             }
+            .padding(.leading, 14)
+            .padding(.vertical, 4)
         }
-        .padding(.vertical, 4)
+        .padding(12)
+        .background(Color.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.hairline, lineWidth: 0.5)
+        )
+        .shadow(color: .black.opacity(0.05), radius: 8, y: 3)
     }
 }

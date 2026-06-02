@@ -29,30 +29,25 @@ struct KnowledgeView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if let error = model.error, model.articles.isEmpty {
-                    InlineError(message: error) { Task { await model.load() } }
-                } else if model.articles.isEmpty && !model.loading {
-                    EmptyStateView(systemImage: "book", title: "No articles",
-                                   message: "Knowledge base articles will appear here.")
-                } else {
-                    List(model.articles) { article in
-                        NavigationLink(value: article) {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(article.title).font(.body.weight(.medium)).lineLimit(2)
-                                if let s = article.summary, !s.isEmpty {
-                                    Text(s).font(.caption).foregroundStyle(.secondary).lineLimit(2)
-                                }
-                                if let cat = article.category, !cat.isEmpty {
-                                    Text(cat.uppercased()).font(.caption2).foregroundStyle(Brand.primary)
-                                }
+            ScrollView {
+                Group {
+                    if let error = model.error, model.articles.isEmpty {
+                        InlineError(message: error) { Task { await model.load() } }
+                    } else if model.articles.isEmpty && !model.loading {
+                        EmptyStateView(systemImage: "book", title: "No articles",
+                                       message: "Knowledge base articles will appear here.")
+                    } else {
+                        LazyVStack(spacing: 12) {
+                            ForEach(model.articles) { article in
+                                NavigationLink(value: article) { ArticleCard(article: article) }
+                                    .buttonStyle(.plain)
                             }
-                            .padding(.vertical, 2)
                         }
+                        .padding(20)
                     }
-                    .listStyle(.plain)
                 }
             }
+            .background(Color.appBG)
             .navigationTitle("Knowledge")
             .searchable(text: $model.search, prompt: "Search articles")
             .onSubmit(of: .search) { Task { await model.load() } }
@@ -64,15 +59,45 @@ struct KnowledgeView: View {
     }
 }
 
+struct ArticleCard: View {
+    let article: KnowledgeArticle
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: "doc.text.fill")
+                .font(.system(size: 17))
+                .foregroundStyle(Brand.primary)
+                .frame(width: 42, height: 42)
+                .background(Brand.wash(Brand.primary), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            VStack(alignment: .leading, spacing: 4) {
+                Text(article.title).font(.body.weight(.semibold)).lineLimit(2)
+                    .foregroundStyle(.primary)
+                if let s = article.summary, !s.isEmpty {
+                    Text(s).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                }
+                if let cat = article.category, !cat.isEmpty {
+                    Text(cat).font(.caption2.weight(.semibold)).foregroundStyle(Brand.primary)
+                        .padding(.horizontal, 7).padding(.vertical, 2)
+                        .background(Brand.wash(Brand.primary), in: Capsule())
+                }
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right").font(.caption.weight(.semibold)).foregroundStyle(.tertiary)
+        }
+        .card()
+    }
+}
+
 struct ArticleDetailView: View {
     let article: KnowledgeArticle
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                Text(article.title).font(.title2.bold())
+            VStack(alignment: .leading, spacing: 16) {
+                Text(article.title).font(.title.bold())
                 HStack(spacing: 10) {
                     if let cat = article.category, !cat.isEmpty {
-                        Text(cat.uppercased()).font(.caption2).foregroundStyle(Brand.primary)
+                        Text(cat).font(.caption2.weight(.semibold)).foregroundStyle(Brand.primary)
+                            .padding(.horizontal, 8).padding(.vertical, 3)
+                            .background(Brand.wash(Brand.primary), in: Capsule())
                     }
                     if let v = article.version { Text("v\(v)").font(.caption2).foregroundStyle(.secondary) }
                     Text(DateText.relative(article.updatedAt)).font(.caption2).foregroundStyle(.tertiary)
@@ -81,9 +106,10 @@ struct ArticleDetailView: View {
                 Text(article.content ?? article.summary ?? "")
                     .font(.body)
             }
-            .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20)
         }
+        .background(Color.appBG)
         .navigationTitle("Article")
         .navigationBarTitleDisplayMode(.inline)
     }

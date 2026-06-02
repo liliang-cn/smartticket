@@ -5,18 +5,22 @@ struct RootView: View {
     @Environment(AuthStore.self) private var auth
 
     var body: some View {
-        Group {
-            switch auth.phase {
-            case .loading:
-                LaunchView()
-            case .signedOut:
-                LoginView()
-            case .signedIn:
-                portal(for: auth.user?.role ?? .customer)
-            }
+        let phase = auth.phase
+        return content(phase)
+            .animation(.default, value: phase)
+            .task { if auth.phase == .loading { await auth.bootstrap() } }
+    }
+
+    @ViewBuilder
+    private func content(_ phase: AuthStore.Phase) -> some View {
+        switch phase {
+        case .loading:
+            LaunchView()
+        case .signedOut:
+            LoginView()
+        case .signedIn:
+            portal(for: auth.user?.role ?? .customer)
         }
-        .animation(.default, value: auth.phase)
-        .task { if auth.phase == .loading { await auth.bootstrap() } }
     }
 
     @ViewBuilder

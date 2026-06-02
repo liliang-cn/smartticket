@@ -37,21 +37,22 @@ struct TeamPortal: View {
 
 /// Admin portal — operators plus deployment-wide overview and user management.
 struct AdminPortal: View {
+    @State private var selection = UserDefaults.standard.string(forKey: "demoTab") ?? "dashboard"
     var body: some View {
-        TabView {
-            Tab("Dashboard", systemImage: "chart.bar") {
+        TabView(selection: $selection) {
+            Tab("Dashboard", systemImage: "chart.bar", value: "dashboard") {
                 DashboardView()
             }
-            Tab("Tickets", systemImage: "tray.full") {
+            Tab("Tickets", systemImage: "tray.full", value: "tickets") {
                 TicketListView(title: "Tickets", canManage: true, canCreate: true)
             }
-            Tab("Knowledge", systemImage: "book") {
+            Tab("Knowledge", systemImage: "book", value: "knowledge") {
                 KnowledgeView()
             }
-            Tab("Users", systemImage: "person.2") {
+            Tab("Users", systemImage: "person.2", value: "users") {
                 UsersView()
             }
-            Tab("Account", systemImage: "person.crop.circle") {
+            Tab("Account", systemImage: "person.crop.circle", value: "account") {
                 ProfileView()
             }
         }

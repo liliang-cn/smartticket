@@ -20,6 +20,17 @@ final class AuthStore {
 
     /// On launch: if we hold a token, resolve the current user; else sign out.
     func bootstrap() async {
+        #if DEBUG
+        // UI-screenshot convenience, gated behind a launch argument so it never
+        // runs in normal use: `-demo 1 -demoURL <url> -demoEmail <e> -demoPassword <p>`.
+        if UserDefaults.standard.bool(forKey: "demo") {
+            if let u = UserDefaults.standard.string(forKey: "demoURL") { AppConfig.shared.baseURL = u }
+            let e = UserDefaults.standard.string(forKey: "demoEmail") ?? "admin@smartticket.local"
+            let p = UserDefaults.standard.string(forKey: "demoPassword") ?? "admin123"
+            do { try await login(email: e, password: p) } catch { phase = .signedOut }
+            return
+        }
+        #endif
         guard TokenStore.access != nil else { phase = .signedOut; return }
         do {
             let me: UserInfo = try await APIClient.shared.get("/auth/me")

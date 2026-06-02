@@ -20,6 +20,7 @@ enum Keychain {
         if status == errSecItemNotFound {
             var add = query
             add[kSecValueData as String] = data
+            add[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
             SecItemAdd(add as CFDictionary, nil)
         }
     }
@@ -49,19 +50,31 @@ enum Keychain {
 }
 
 /// Token storage facade used by the API client and auth store.
+///
+/// Tokens are cached in memory and mirrored to the Keychain. The in-memory copy
+/// keeps the current session working even when the Keychain is unavailable
+/// (e.g. unsigned builds, or transient `SecItem` failures); the Keychain copy
+/// provides persistence across app launches.
 enum TokenStore {
     private static let accessKey = "access"
     private static let refreshKey = "refresh"
 
-    static var access: String? { Keychain.get(accessKey) }
-    static var refresh: String? { Keychain.get(refreshKey) }
+    nonisolated(unsafe) private static var memAccess: String?
+    nonisolated(unsafe) private static var memRefresh: String?
+
+    static var access: String? { memAccess ?? Keychain.get(accessKey) }
+    static var refresh: String? { memRefresh ?? Keychain.get(refreshKey) }
 
     static func set(access: String, refresh: String) {
+        memAccess = access
+        memRefresh = refresh
         Keychain.set(access, for: accessKey)
         Keychain.set(refresh, for: refreshKey)
     }
 
     static func clear() {
+        memAccess = nil
+        memRefresh = nil
         Keychain.delete(accessKey)
         Keychain.delete(refreshKey)
     }
