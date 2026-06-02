@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import type { TicketPriority, TicketStatus } from "@/lib/types";
 
@@ -7,14 +8,6 @@ const STATUS_TONE: Record<TicketStatus, Parameters<typeof Badge>[0]["tone"]> = {
   resolved: "green",
   closed: "slate",
   cancelled: "neutral",
-};
-
-const STATUS_LABEL: Record<TicketStatus, string> = {
-  open: "Open",
-  in_progress: "In progress",
-  resolved: "Resolved",
-  closed: "Closed",
-  cancelled: "Cancelled",
 };
 
 const PRIORITY_TONE: Record<
@@ -28,18 +21,20 @@ const PRIORITY_TONE: Record<
 };
 
 export function StatusBadge({ status }: { status: TicketStatus }) {
+  const { t } = useTranslation("common");
   return (
     <Badge tone={STATUS_TONE[status] ?? "neutral"} className="uppercase">
       <span className="inline-block size-1.5 rounded-full bg-current" />
-      {STATUS_LABEL[status] ?? status}
+      {t(`enums.ticket_status.${status}`)}
     </Badge>
   );
 }
 
 export function PriorityBadge({ priority }: { priority: TicketPriority }) {
+  const { t } = useTranslation("common");
   return (
     <Badge tone={PRIORITY_TONE[priority] ?? "neutral"} className="uppercase">
-      {priority}
+      {t(`enums.priority.${priority}`)}
     </Badge>
   );
 }

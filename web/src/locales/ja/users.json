@@ -1,0 +1,133 @@
+{
+  "page": {
+    "directory": "ディレクトリ",
+    "title": "ユーザー"
+  },
+  "filters": {
+    "search_placeholder": "名前・メール・ユーザー名で検索…",
+    "role_placeholder": "ロール",
+    "all_roles": "すべてのロール"
+  },
+  "table": {
+    "name": "名前",
+    "email": "メール",
+    "role": "ロール",
+    "active": "状態",
+    "created": "作成日"
+  },
+  "status": {
+    "active": "有効",
+    "inactive": "無効"
+  },
+  "actions": {
+    "activate": "有効化",
+    "deactivate": "無効化",
+    "new_user": "新規ユーザー",
+    "assign": "割り当て",
+    "delete": "削除",
+    "back_to_users": "ユーザー"
+  },
+  "empty": {
+    "no_match": "条件に一致するユーザーがいません。"
+  },
+  "pagination": {
+    "summary": "{{total}} 人 · {{page}}/{{totalPages}} ページ",
+    "syncing": " · 同期中…",
+    "prev": "前へ",
+    "next": "次へ"
+  },
+  "detail": {
+    "not_found": "ユーザーが見つかりません。",
+    "back_to_users": "ユーザー一覧へ戻る",
+    "profile": "プロフィール",
+    "meta": {
+      "first_name": "名",
+      "last_name": "姓",
+      "email": "メール",
+      "username": "ユーザー名",
+      "role": "ロール",
+      "status": "状態",
+      "last_login": "最終ログイン",
+      "created": "作成日",
+      "never": "なし"
+    }
+  },
+  "roles_card": {
+    "title": "ロール",
+    "no_roles": "ロールが割り当てられていません。",
+    "remove_aria": "{{name}} を削除",
+    "select_placeholder": "割り当てるロールを選択…",
+    "no_more_roles": "割り当て可能なロールがありません。",
+    "remove_dialog": {
+      "title": "ロールを削除",
+      "description": "このユーザーから「{{name}}」ロールを削除しますか？",
+      "confirm": "削除"
+    }
+  },
+  "toasts": {
+    "role_assigned": "ロールを割り当てました",
+    "role_assign_error": "ロールの割り当てに失敗しました",
+    "role_removed": "{{name}} を削除しました",
+    "role_remove_error": "ロールの削除に失敗しました",
+    "toggle_activated": "ユーザーを有効化しました",
+    "toggle_deactivated": "ユーザーを無効化しました",
+    "toggle_error": "ユーザーの更新に失敗しました",
+    "deleted": "ユーザーを削除しました",
+    "delete_error": "ユーザーの削除に失敗しました",
+    "created": "ユーザーを作成しました",
+    "create_error": "ユーザーの作成に失敗しました"
+  },
+  "delete_dialog": {
+    "title": "ユーザーを削除",
+    "description": "{{name}} を削除しますか？アカウントは論理削除されます。",
+    "confirm_pending": "削除中…",
+    "confirm": "ユーザーを削除"
+  },
+  "form": {
+    "title": "新規ユーザー",
+    "description": "オペレーターまたはカスタマー側のアカウントを作成します。",
+    "fields": {
+      "first_name": "名",
+      "last_name": "姓",
+      "email": "メール",
+      "username": "ユーザー名",
+      "password": "パスワード",
+      "role": "ロール",
+      "status": "状態",
+      "customer": "顧客"
+    },
+    "placeholders": {
+      "role": "ロールを選択",
+      "customer": "顧客組織を選択"
+    },
+    "password_hint": "8文字以上、大文字・数字・特殊文字を含めてください。",
+    "status_options": {
+      "active": "有効",
+      "inactive": "無効"
+    },
+    "submit": "ユーザーを作成",
+    "submit_pending": "作成中…",
+    "validation": {
+      "email_required": "メールアドレスは必須です",
+      "email_invalid": "無効なメールアドレスです",
+      "username_min": "3文字以上で入力してください",
+      "username_chars": "英数字、アンダースコア、ハイフンのみ使用できます",
+      "first_name_required": "名は必須です",
+      "last_name_required": "姓は必須です",
+      "password_min": "8文字以上で入力してください",
+      "password_uppercase": "大文字を含める必要があります",
+      "password_lowercase": "小文字を含める必要があります",
+      "password_digit": "数字を含める必要があります",
+      "password_special": "特殊文字を含める必要があります",
+      "role_required": "ロールは必須です",
+      "customer_required": "顧客ロールには顧客組織を選択してください"
+    }
+  },
+  "roles": {
+    "admin": "管理者",
+    "engineer": "エンジニア",
+    "support": "サポート",
+    "sales": "営業",
+    "customer": "顧客"
+  }
+}

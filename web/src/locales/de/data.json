@@ -1,0 +1,86 @@
+{
+  "page": {
+    "section_label": "Daten",
+    "title": "Import / Export"
+  },
+  "stats": {
+    "total_jobs": "Aufträge gesamt",
+    "completed": "Abgeschlossen",
+    "running": "Laufend",
+    "failed": "Fehlgeschlagen"
+  },
+  "filters": {
+    "all_types": "Alle Typen",
+    "all_statuses": "Alle Status",
+    "type_placeholder": "Typ",
+    "status_placeholder": "Status"
+  },
+  "table": {
+    "col_type": "Typ",
+    "col_status": "Status",
+    "col_progress": "Fortschritt",
+    "col_records": "Datensätze",
+    "col_created": "Erstellt",
+    "empty_heading": "Keine Import-/Exportaufträge entsprechen diesen Filtern."
+  },
+  "records": {
+    "failed_count": "{{count}} fehlgeschlagen"
+  },
+  "pagination": {
+    "summary": "{{total}} Aufträge · Seite {{page}}/{{totalPages}}",
+    "syncing": " · synchronisiert…",
+    "prev": "Zurück",
+    "next": "Weiter"
+  },
+  "actions": {
+    "download": "Herunterladen",
+    "downloading": "Wird heruntergeladen…",
+    "cancel_job": "Auftrag abbrechen",
+    "delete": "Löschen",
+    "new_export": "Neuer Export"
+  },
+  "confirm_delete": {
+    "title": "Auftrag löschen",
+    "description": "Auftrag #{{id}} ({{label}}) löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+  },
+  "toasts": {
+    "job_deleted": "Auftrag gelöscht",
+    "delete_failed": "Auftrag konnte nicht gelöscht werden",
+    "export_created": "Exportauftrag erstellt",
+    "export_create_failed": "Exportauftrag konnte nicht erstellt werden"
+  },
+  "status": {
+    "pending": "Ausstehend",
+    "running": "Laufend",
+    "completed": "Abgeschlossen",
+    "failed": "Fehlgeschlagen",
+    "cancelled": "Abgebrochen"
+  },
+  "job_type": {
+    "import": "Import",
+    "export": "Export"
+  },
+  "format": {
+    "csv": "CSV",
+    "json": "JSON",
+    "xml": "XML",
+    "markdown": "Markdown",
+    "sqlite": "SQLite"
+  },
+  "export_dialog": {
+    "title": "Neuer Exportauftrag",
+    "description": "Stellt einen Datensatz in die Exportwarteschlange. Der Auftrag läuft im Hintergrund; nach Abschluss können Sie das Ergebnis herunterladen.",
+    "dataset_label": "Datensatz",
+    "format_label": "Format",
+    "submit": "Export erstellen",
+    "submitting": "Wird erstellt…"
+  },
+  "entity": {
+    "tickets": "Tickets",
+    "knowledge_articles": "Wissensartikel",
+    "users": "Benutzer",
+    "products": "Produkte",
+    "services": "Dienste",
+    "complete": "Vollständig (gesamte Datenbank)"
+  }
+}

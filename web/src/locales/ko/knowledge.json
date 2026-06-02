@@ -1,0 +1,63 @@
+{
+  "status": {
+    "draft": "초안",
+    "published": "게시됨",
+    "archived": "보관됨",
+    "unknown": "알 수 없음"
+  },
+  "list": {
+    "library_label": "라이브러리",
+    "heading": "지식 베이스",
+    "semantic_placeholder": "시맨틱 검색 — 자연어로 질문…",
+    "search_button": "검색",
+    "searching": "검색 중…",
+    "clear_search_aria": "검색 지우기",
+    "ask_ai": "Ask AI",
+    "filter_placeholder": "제목, 내용으로 필터…",
+    "category_placeholder": "카테고리",
+    "status_placeholder": "상태",
+    "all_statuses": "전체 상태",
+    "col_title": "제목",
+    "col_category": "카테고리",
+    "col_status": "상태",
+    "col_views": "조회수",
+    "col_updated": "업데이트",
+    "no_matches": "\"{{query}}\"에 대한 결과가 없습니다.",
+    "no_articles": "필터 조건에 맞는 문서가 없습니다.",
+    "pagination_info": "총 {{total}}개 · {{page}}/{{totalPages}} 페이지",
+    "syncing": "· 동기화 중…",
+    "prev": "이전",
+    "next": "다음",
+    "search_error": "AI 검색이 설정되지 않았습니다"
+  },
+  "detail": {
+    "not_found": "문서를 찾을 수 없습니다.",
+    "back_to_knowledge": "지식 베이스로 돌아가기",
+    "breadcrumb": "지식 베이스",
+    "summary_label": "요약",
+    "content_label": "내용",
+    "no_content": "내용이 없습니다.",
+    "meta_status": "상태",
+    "meta_category": "카테고리",
+    "meta_views": "조회수",
+    "meta_version": "버전",
+    "meta_author": "작성자",
+    "meta_created": "생성일",
+    "meta_updated": "수정일",
+    "tags_label": "태그",
+    "version_value": "v{{version}}"
+  },
+  "ask_ai": {
+    "trigger": "Ask AI",
+    "dialog_title": "지식 베이스에 질문하기",
+    "dialog_description": "질문을 입력하면 문서를 기반으로 한 AI 답변을 받을 수 있습니다.",
+    "question_placeholder": "예: 고객 비밀번호를 초기화하려면 어떻게 하나요?",
+    "shortcut_hint": "⌘/Ctrl + Enter로 질문",
+    "ask_button": "질문하기",
+    "thinking": "생각 중…",
+    "searching_message": "지식 베이스를 검색하고 답변을 작성하는 중…",
+    "answer_label": "답변",
+    "sources_label": "출처",
+    "error_default": "AI 질문에 실패했습니다"
+  }
+}

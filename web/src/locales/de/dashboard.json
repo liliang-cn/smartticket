@@ -1,0 +1,17 @@
+{
+  "overview": "übersicht",
+  "greeting": "Hallo, {{name}}.",
+  "subtitle": "So sieht die Warteschlange gerade aus.",
+  "cards": {
+    "open": "Offen",
+    "in_progress": "In Bearbeitung",
+    "resolved": "Gelöst",
+    "overdue": "Überfällig"
+  },
+  "queue": {
+    "title": "Warteschlange bearbeiten",
+    "total": "{{count}} Tickets insgesamt · zur Live-Liste springen",
+    "total_loading": "— · zur Live-Liste springen",
+    "cta": "Tickets öffnen"
+  }
+}

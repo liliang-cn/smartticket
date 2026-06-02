@@ -1,0 +1,109 @@
+{
+  "page": {
+    "section": "kommerziell",
+    "title": "Abonnements"
+  },
+  "actions": {
+    "new": "Neues Abonnement",
+    "delete": "Abonnement löschen",
+    "create": "Abonnement erstellen",
+    "creating": "Wird erstellt…",
+    "deleting": "Wird gelöscht…"
+  },
+  "toast": {
+    "created": "Abonnement erstellt",
+    "deleted": "Abonnement gelöscht",
+    "create_failed": "Abonnement konnte nicht erstellt werden",
+    "delete_failed": "Abonnement konnte nicht gelöscht werden"
+  },
+  "filter": {
+    "customer_id_placeholder": "Nach Kunden-ID filtern…",
+    "status_placeholder": "Status",
+    "all_statuses": "Alle Status"
+  },
+  "table": {
+    "customer": "Kunde",
+    "product": "Produkt",
+    "plan": "Plan",
+    "nodes": "Knoten",
+    "term": "Laufzeit",
+    "period": "Zeitraum",
+    "sla": "SLA",
+    "status": "Status"
+  },
+  "empty": {
+    "message": "Keine Abonnements entsprechen diesen Filtern."
+  },
+  "pagination": {
+    "summary": "{{total}} Abonnements · Seite {{page}}/{{totalPages}}",
+    "syncing": " · wird synchronisiert…",
+    "prev": "Zurück",
+    "next": "Weiter"
+  },
+  "form": {
+    "title": "Neues Abonnement",
+    "description": "Support-Abonnement eines Kunden für ein Produkt erfassen. Standard ist Pro-Knoten-Abrechnung mit Jahreslaufzeit.",
+    "customer": "Kunde",
+    "customer_placeholder": "Kunde auswählen",
+    "product": "Produkt",
+    "product_placeholder": "Produkt auswählen",
+    "sla_template": "SLA-Vorlage",
+    "sla_placeholder": "Optional",
+    "sla_none": "Keine",
+    "plan": "Plan",
+    "plan_placeholder": "z. B. Standard",
+    "billing_unit": "Abrechnungseinheit",
+    "quantity": "Menge",
+    "billing_period": "Abrechnungszeitraum",
+    "starts_at": "Beginnt am",
+    "expires_at": "Läuft ab am",
+    "unit_price": "Stückpreis",
+    "unit_price_placeholder": "optional",
+    "currency": "Währung"
+  },
+  "notes": {
+    "label": "Anmerkungen",
+    "placeholder": "optional"
+  },
+  "validation": {
+    "customer_required": "Kunde ist erforderlich",
+    "product_required": "Produkt ist erforderlich",
+    "billing_unit_required": "Abrechnungseinheit ist erforderlich",
+    "billing_period_required": "Abrechnungszeitraum ist erforderlich",
+    "starts_at_required": "Startdatum ist erforderlich",
+    "expires_at_required": "Ablaufdatum ist erforderlich"
+  },
+  "confirm_delete": {
+    "title": "Abonnement löschen?",
+    "description": "Das Abonnement für „{{label}}“ wird dadurch dauerhaft entfernt."
+  },
+  "status": {
+    "active": "aktiv",
+    "expired": "abgelaufen",
+    "cancelled": "gekündigt"
+  },
+  "billing_unit": {
+    "per_node": "Pro Knoten",
+    "per_cluster": "Pro Cluster",
+    "per_core": "Pro Kern",
+    "per_instance": "Pro Instanz",
+    "per_seat": "Pro Arbeitsplatz",
+    "per_user": "Pro Benutzer",
+    "per_agent": "Pro Agent",
+    "per_device": "Pro Gerät",
+    "per_site": "Pro Standort",
+    "per_gb": "Pro GB",
+    "per_request": "Pro Anfrage",
+    "usage": "Verbrauchsbasiert",
+    "per_subscriber": "Pro Abonnent (App)",
+    "per_install": "Pro Installation",
+    "per_app": "Pro App",
+    "flat": "Pauschale"
+  },
+  "billing_period": {
+    "weekly": "Wöchentlich",
+    "monthly": "Monatlich",
+    "annual": "Jährlich",
+    "lifetime": "Lebenslang (Einmalzahlung)"
+  }
+}

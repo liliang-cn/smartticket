@@ -1,0 +1,63 @@
+{
+  "status": {
+    "draft": "Bozza",
+    "published": "Pubblicato",
+    "archived": "Archiviato",
+    "unknown": "Sconosciuto"
+  },
+  "list": {
+    "library_label": "libreria",
+    "heading": "Conoscenza",
+    "semantic_placeholder": "Ricerca semantica — chiedi in linguaggio naturale…",
+    "search_button": "Cerca",
+    "searching": "Ricerca in corso…",
+    "clear_search_aria": "Cancella ricerca",
+    "ask_ai": "Ask AI",
+    "filter_placeholder": "Filtra per titolo, contenuto…",
+    "category_placeholder": "Categoria",
+    "status_placeholder": "Stato",
+    "all_statuses": "Tutti gli stati",
+    "col_title": "Titolo",
+    "col_category": "Categoria",
+    "col_status": "Stato",
+    "col_views": "Visualizzazioni",
+    "col_updated": "Aggiornato",
+    "no_matches": "Nessun risultato per «{{query}}».",
+    "no_articles": "Nessun articolo corrisponde a questi filtri.",
+    "pagination_info": "{{total}} articoli · pagina {{page}}/{{totalPages}}",
+    "syncing": "· sincronizzazione…",
+    "prev": "Precedente",
+    "next": "Successivo",
+    "search_error": "La ricerca AI non è configurata"
+  },
+  "detail": {
+    "not_found": "Articolo non trovato.",
+    "back_to_knowledge": "Torna alla base di conoscenza",
+    "breadcrumb": "Conoscenza",
+    "summary_label": "Riepilogo",
+    "content_label": "Contenuto",
+    "no_content": "Nessun contenuto.",
+    "meta_status": "Stato",
+    "meta_category": "Categoria",
+    "meta_views": "Visualizzazioni",
+    "meta_version": "Versione",
+    "meta_author": "Autore",
+    "meta_created": "Creato",
+    "meta_updated": "Aggiornato",
+    "tags_label": "Tag",
+    "version_value": "v{{version}}"
+  },
+  "ask_ai": {
+    "trigger": "Ask AI",
+    "dialog_title": "Interroga la base di conoscenza",
+    "dialog_description": "Fai una domanda e ricevi una risposta AI basata sui tuoi articoli.",
+    "question_placeholder": "Es. Come si reimposta la password di un cliente?",
+    "shortcut_hint": "⌘/Ctrl + Invio per chiedere",
+    "ask_button": "Chiedi",
+    "thinking": "Elaborazione…",
+    "searching_message": "Ricerca nella base di conoscenza e composizione della risposta…",
+    "answer_label": "Risposta",
+    "sources_label": "Fonti",
+    "error_default": "Richiesta all'AI non riuscita"
+  }
+}

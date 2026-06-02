@@ -1,0 +1,17 @@
+{
+  "overview": "概览",
+  "greeting": "你好，{{name}}。",
+  "subtitle": "这是当前队列的概况。",
+  "cards": {
+    "open": "待处理",
+    "in_progress": "处理中",
+    "resolved": "已解决",
+    "overdue": "已逾期"
+  },
+  "queue": {
+    "title": "处理队列",
+    "total": "共 {{count}} 个工单 · 进入实时列表",
+    "total_loading": "— · 进入实时列表",
+    "cta": "打开工单"
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -36,10 +37,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/misc";
 import { NotificationBell } from "@/components/notification-bell";
+import { LanguageToggle } from "@/components/language-toggle";
 
 interface NavItem {
   to: string;
-  label: string;
+  /** Translation key under the `common.nav` namespace. */
+  labelKey: string;
   icon: typeof Ticket;
   soon?: boolean;
   /** Team-only (admin/engineer/...). Hidden from customer-role users. */
@@ -49,22 +52,23 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/tickets", label: "Tickets", icon: Ticket },
-  { to: "/knowledge", label: "Knowledge", icon: BookOpen },
-  { to: "/customers", label: "Customers", icon: Building2, team: true },
-  { to: "/users", label: "Users", icon: Users, team: true },
-  { to: "/products", label: "Products", icon: Package, team: true },
-  { to: "/services", label: "Services", icon: Layers, team: true },
-  { to: "/subscriptions", label: "Subscriptions", icon: CreditCard, team: true },
-  { to: "/sla", label: "SLA", icon: Timer, team: true },
-  { to: "/data", label: "Data", icon: Database, team: true },
-  { to: "/rbac", label: "Access", icon: ShieldCheck, team: true },
-  { to: "/llm", label: "AI Providers", icon: Sparkles, team: true },
-  { to: "/settings", label: "Settings", icon: Settings, admin: true },
+  { to: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { to: "/tickets", labelKey: "nav.tickets", icon: Ticket },
+  { to: "/knowledge", labelKey: "nav.knowledge", icon: BookOpen },
+  { to: "/customers", labelKey: "nav.customers", icon: Building2, team: true },
+  { to: "/users", labelKey: "nav.users", icon: Users, team: true },
+  { to: "/products", labelKey: "nav.products", icon: Package, team: true },
+  { to: "/services", labelKey: "nav.services", icon: Layers, team: true },
+  { to: "/subscriptions", labelKey: "nav.subscriptions", icon: CreditCard, team: true },
+  { to: "/sla", labelKey: "nav.sla", icon: Timer, team: true },
+  { to: "/data", labelKey: "nav.data", icon: Database, team: true },
+  { to: "/rbac", labelKey: "nav.access", icon: ShieldCheck, team: true },
+  { to: "/llm", labelKey: "nav.ai_providers", icon: Sparkles, team: true },
+  { to: "/settings", labelKey: "nav.settings", icon: Settings, admin: true },
 ];
 
 export function AppShell() {
+  const { t } = useTranslation();
   const { user, logout } = useAuth();
   const branding = useBranding();
   const navigate = useNavigate();
@@ -159,14 +163,18 @@ export function AppShell() {
                   "flex cursor-not-allowed items-center gap-3 rounded-md py-2 text-sm text-muted-foreground/45",
                   collapsed ? "justify-center px-0" : "px-3"
                 )}
-                title={collapsed ? `${item.label} (coming soon)` : "Coming soon"}
+                title={
+                  collapsed
+                    ? t("nav.coming_soon_item", { label: t(item.labelKey) })
+                    : t("nav.coming_soon")
+                }
               >
                 <item.icon className="size-4 shrink-0" />
                 {!collapsed && (
                   <>
-                    {item.label}
+                    {t(item.labelKey)}
                     <span className="ml-auto font-mono text-[9px] uppercase tracking-wider text-muted-foreground/40">
-                      soon
+                      {t("nav.soon")}
                     </span>
                   </>
                 )}
@@ -176,7 +184,7 @@ export function AppShell() {
                 key={item.to}
                 to={item.to}
                 data-reveal
-                title={collapsed ? item.label : undefined}
+                title={collapsed ? t(item.labelKey) : undefined}
                 className={({ isActive }) =>
                   cn(
                     "group relative flex items-center gap-3 rounded-md py-2 text-sm font-medium transition-colors",
@@ -196,7 +204,7 @@ export function AppShell() {
                       )}
                     />
                     <item.icon className="size-4 shrink-0" />
-                    {!collapsed && item.label}
+                    {!collapsed && t(item.labelKey)}
                   </>
                 )}
               </NavLink>
@@ -212,14 +220,14 @@ export function AppShell() {
         >
           {!collapsed && (
             <span className="font-mono text-[10px] text-muted-foreground/50">
-              v0.1 · single-tenant
+              {t("topbar.meta")}
             </span>
           )}
           <button
             type="button"
             onClick={toggleSidebar}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-label={t(collapsed ? "topbar.expand_sidebar" : "topbar.collapse_sidebar")}
+            title={t(collapsed ? "topbar.expand_sidebar" : "topbar.collapse_sidebar")}
             className="grid size-8 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             {collapsed ? (
@@ -239,6 +247,7 @@ export function AppShell() {
           </div>
           <div className="flex items-center gap-3">
           <NotificationBell />
+          <LanguageToggle />
           <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-full border border-border bg-card/60 py-1 pl-1 pr-3 outline-none transition-colors hover:bg-accent">
@@ -263,7 +272,7 @@ export function AppShell() {
                   navigate("/login");
                 }}
               >
-                <LogOut /> Sign out
+                <LogOut /> {t("topbar.sign_out")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -280,16 +289,17 @@ export function AppShell() {
 
 /** Light / dark / system theme switcher. */
 function ThemeToggle() {
+  const { t } = useTranslation();
   const { theme, resolved, setTheme } = useTheme();
-  const options: { value: Theme; label: string; icon: typeof Sun }[] = [
-    { value: "light", label: "Light", icon: Sun },
-    { value: "dark", label: "Dark", icon: Moon },
-    { value: "system", label: "System", icon: Monitor },
+  const options: { value: Theme; labelKey: string; icon: typeof Sun }[] = [
+    { value: "light", labelKey: "theme.light", icon: Sun },
+    { value: "dark", labelKey: "theme.dark", icon: Moon },
+    { value: "system", labelKey: "theme.system", icon: Monitor },
   ];
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label="Toggle theme"
+        aria-label={t("theme.toggle")}
         className="grid size-9 place-items-center rounded-full border border-border bg-card/60 text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-foreground"
       >
         {resolved === "dark" ? (
@@ -299,7 +309,7 @@ function ThemeToggle() {
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Theme</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("theme.label")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {options.map((o) => (
           <DropdownMenuItem
@@ -307,7 +317,7 @@ function ThemeToggle() {
             onSelect={() => setTheme(o.value)}
             className={theme === o.value ? "text-primary" : undefined}
           >
-            <o.icon /> {o.label}
+            <o.icon /> {t(o.labelKey)}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

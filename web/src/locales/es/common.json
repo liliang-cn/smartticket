@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "dashboard": "Panel",
+    "tickets": "Tickets",
+    "knowledge": "Conocimiento",
+    "customers": "Clientes",
+    "users": "Usuarios",
+    "products": "Productos",
+    "services": "Servicios",
+    "subscriptions": "Suscripciones",
+    "sla": "SLA",
+    "data": "Datos",
+    "access": "Acceso",
+    "ai_providers": "Proveedores de IA",
+    "settings": "Ajustes",
+    "soon": "pronto",
+    "coming_soon": "Próximamente",
+    "coming_soon_item": "{{label}} (próximamente)"
+  },
+  "topbar": {
+    "sign_out": "Cerrar sesión",
+    "collapse_sidebar": "Contraer barra lateral",
+    "expand_sidebar": "Expandir barra lateral",
+    "meta": "v0.1 · inquilino único"
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "toggle": "Cambiar tema"
+  },
+  "language": {
+    "label": "Idioma",
+    "toggle": "Cambiar idioma"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "mark_all_read": "Marcar todo como leído",
+    "loading": "Cargando…",
+    "empty": "Sin notificaciones",
+    "aria": "Notificaciones"
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "remove": "Quitar",
+    "delete": "Eliminar",
+    "upload": "Subir",
+    "back_to_home": "Volver al inicio"
+  },
+  "enums": {
+    "ticket_status": {
+      "open": "Abierto",
+      "in_progress": "En curso",
+      "resolved": "Resuelto",
+      "closed": "Cerrado",
+      "cancelled": "Cancelado"
+    },
+    "priority": {
+      "low": "Baja",
+      "medium": "Media",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "severity": {
+      "minor": "Menor",
+      "major": "Mayor",
+      "critical": "Crítica"
+    },
+    "sla_status": {
+      "within": "Dentro del SLA",
+      "at_risk": "En riesgo",
+      "breached": "Incumplido"
+    }
+  }
+}

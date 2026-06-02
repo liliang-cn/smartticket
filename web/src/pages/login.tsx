@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Ticket, ArrowRight, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useBranding } from "@/lib/branding";
@@ -7,8 +8,10 @@ import { apiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LanguageToggle } from "@/components/language-toggle";
 
 export function LoginPage() {
+  const { t } = useTranslation("auth");
   const { login } = useAuth();
   const branding = useBranding();
   const navigate = useNavigate();
@@ -25,7 +28,7 @@ export function LoginPage() {
       await login(email.trim(), password);
       navigate("/dashboard");
     } catch (err) {
-      setError(apiError(err, "Invalid email or password"));
+      setError(apiError(err, t("invalid_credentials")));
     } finally {
       setBusy(false);
     }
@@ -33,6 +36,10 @@ export function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
+      {/* Language switcher, available before sign-in. */}
+      <div className="absolute right-4 top-4 z-10">
+        <LanguageToggle />
+      </div>
       {/* Form side */}
       <div className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm">
@@ -41,7 +48,7 @@ export function LoginPage() {
               href="/"
               className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
-              <ArrowLeft className="size-4" /> Back to home
+              <ArrowLeft className="size-4" /> {t("back_to_home")}
             </a>
           )}
           <div className="mb-10 flex items-center gap-3">
@@ -66,26 +73,26 @@ export function LoginPage() {
             </div>
           </div>
 
-          <h1 className="text-2xl font-bold">Sign in</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Access the support workspace.
+            {t("subtitle")}
           </p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-5">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input
                 id="email"
                 type="email"
                 autoComplete="username"
-                placeholder="you@company.com"
+                placeholder={t("email_placeholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("password")}</Label>
               <Input
                 id="password"
                 type="password"
@@ -102,7 +109,7 @@ export function LoginPage() {
               </p>
             )}
             <Button type="submit" size="lg" className="w-full" disabled={busy}>
-              {busy ? "Signing in…" : "Sign in"}
+              {busy ? t("signing_in") : t("sign_in")}
               {!busy && <ArrowRight />}
             </Button>
           </form>
@@ -115,7 +122,7 @@ export function LoginPage() {
         <div className="absolute inset-0 bg-[radial-gradient(40rem_30rem_at_70%_30%,rgba(255,176,31,0.16),transparent_70%)]" />
         <div className="relative flex h-full flex-col justify-end p-12">
           <div className="font-mono text-xs uppercase tracking-[0.3em] text-primary/80">
-            // mission control
+            {t("mission_control")}
           </div>
           <p className="mt-4 max-w-md font-display text-3xl font-bold leading-tight tracking-tight">
             {branding.login_tagline}

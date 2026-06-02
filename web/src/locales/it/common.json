@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "tickets": "Ticket",
+    "knowledge": "Conoscenza",
+    "customers": "Clienti",
+    "users": "Utenti",
+    "products": "Prodotti",
+    "services": "Servizi",
+    "subscriptions": "Abbonamenti",
+    "sla": "SLA",
+    "data": "Dati",
+    "access": "Accesso",
+    "ai_providers": "Provider IA",
+    "settings": "Impostazioni",
+    "soon": "presto",
+    "coming_soon": "Prossimamente",
+    "coming_soon_item": "{{label}} (prossimamente)"
+  },
+  "topbar": {
+    "sign_out": "Esci",
+    "collapse_sidebar": "Comprimi barra laterale",
+    "expand_sidebar": "Espandi barra laterale",
+    "meta": "v0.1 · single-tenant"
+  },
+  "theme": {
+    "label": "Tema",
+    "light": "Chiaro",
+    "dark": "Scuro",
+    "system": "Sistema",
+    "toggle": "Cambia tema"
+  },
+  "language": {
+    "label": "Lingua",
+    "toggle": "Cambia lingua"
+  },
+  "notifications": {
+    "title": "Notifiche",
+    "mark_all_read": "Segna tutte come lette",
+    "loading": "Caricamento…",
+    "empty": "Nessuna notifica",
+    "aria": "Notifiche"
+  },
+  "actions": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "remove": "Rimuovi",
+    "delete": "Elimina",
+    "upload": "Carica",
+    "back_to_home": "Torna alla home"
+  },
+  "enums": {
+    "ticket_status": {
+      "open": "Aperto",
+      "in_progress": "In corso",
+      "resolved": "Risolto",
+      "closed": "Chiuso",
+      "cancelled": "Annullato"
+    },
+    "priority": {
+      "low": "Bassa",
+      "medium": "Media",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "severity": {
+      "minor": "Lieve",
+      "major": "Grave",
+      "critical": "Critica"
+    },
+    "sla_status": {
+      "within": "Entro SLA",
+      "at_risk": "A rischio",
+      "breached": "Violato"
+    }
+  }
+}

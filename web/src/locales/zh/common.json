@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "dashboard": "仪表盘",
+    "tickets": "工单",
+    "knowledge": "知识库",
+    "customers": "客户",
+    "users": "用户",
+    "products": "产品",
+    "services": "服务",
+    "subscriptions": "订阅",
+    "sla": "SLA",
+    "data": "数据",
+    "access": "权限",
+    "ai_providers": "AI 提供商",
+    "settings": "设置",
+    "soon": "即将",
+    "coming_soon": "敬请期待",
+    "coming_soon_item": "{{label}}(敬请期待)"
+  },
+  "topbar": {
+    "sign_out": "退出登录",
+    "collapse_sidebar": "收起侧边栏",
+    "expand_sidebar": "展开侧边栏",
+    "meta": "v0.1 · 单租户"
+  },
+  "theme": {
+    "label": "主题",
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统",
+    "toggle": "切换主题"
+  },
+  "language": {
+    "label": "语言",
+    "toggle": "切换语言"
+  },
+  "notifications": {
+    "title": "通知",
+    "mark_all_read": "全部标为已读",
+    "loading": "加载中…",
+    "empty": "暂无通知",
+    "aria": "通知"
+  },
+  "actions": {
+    "save": "保存",
+    "cancel": "取消",
+    "remove": "移除",
+    "delete": "删除",
+    "upload": "上传",
+    "back_to_home": "返回首页"
+  },
+  "enums": {
+    "ticket_status": {
+      "open": "待处理",
+      "in_progress": "处理中",
+      "resolved": "已解决",
+      "closed": "已关闭",
+      "cancelled": "已取消"
+    },
+    "priority": {
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "urgent": "紧急"
+    },
+    "severity": {
+      "minor": "轻微",
+      "major": "严重",
+      "critical": "致命"
+    },
+    "sla_status": {
+      "within": "符合 SLA",
+      "at_risk": "存在风险",
+      "breached": "已违约"
+    }
+  }
+}

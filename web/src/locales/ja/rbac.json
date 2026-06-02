@@ -1,0 +1,112 @@
+{
+  "page": {
+    "eyebrow": "アクセス制御",
+    "title": "ロールと権限"
+  },
+  "roles": {
+    "heading": "ロール",
+    "empty": "ロールが定義されていません。",
+    "system_badge": "システム",
+    "more": "他 {{count}} 件",
+    "no_permissions": "権限なし",
+    "edit_title": "ロールを編集",
+    "delete_title": "ロールを削除",
+    "delete_system_hint": "システムロールは削除できません",
+    "permissions_button": "権限",
+    "confirm_delete": {
+      "title": "ロールを削除しますか？",
+      "description": "「{{name}}」ロールが完全に削除されます。このロールに割り当てられているユーザーは権限を失います。"
+    },
+    "toast": {
+      "deleted": "ロールを削除しました",
+      "delete_error": "ロールを削除できませんでした"
+    }
+  },
+  "permissions": {
+    "heading": "権限",
+    "empty": "権限が定義されていません。",
+    "edit_title": "権限を編集",
+    "delete_title": "権限を削除",
+    "delete_system_hint": "システム権限は削除できません",
+    "confirm_delete": {
+      "title": "権限を削除しますか？",
+      "description": "「{{name}}」権限がすべてのロールから完全に削除されます。"
+    },
+    "toast": {
+      "deleted": "権限を削除しました",
+      "delete_error": "権限を削除できませんでした"
+    }
+  },
+  "confirm_dialog": {
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "deleting": "削除中…"
+  },
+  "role_form": {
+    "title_new": "新しいロール",
+    "title_edit": "ロールを編集",
+    "description_new": "ユーザーに割り当てられる新しいロールを定義します。",
+    "description_edit": "このロールの詳細を更新します。",
+    "trigger_new": "新しいロール",
+    "field_name": "名前",
+    "field_description": "説明",
+    "placeholder_name": "support-lead",
+    "placeholder_description": "このロールに許可する操作…",
+    "name_locked_hint": "システムロールの名前は変更できません。",
+    "validation": {
+      "name_required": "名前は必須です"
+    },
+    "button_create": "ロールを作成",
+    "button_save": "変更を保存",
+    "button_creating": "作成中…",
+    "button_saving": "保存中…",
+    "toast": {
+      "created": "ロールを作成しました",
+      "updated": "ロールを更新しました",
+      "create_error": "ロールを作成できませんでした",
+      "update_error": "ロールを更新できませんでした"
+    }
+  },
+  "permission_form": {
+    "title_new": "新しい権限",
+    "title_edit": "権限を編集",
+    "description_new": "ロールに付与できる新しい権限を定義します。",
+    "description_edit": "この権限の詳細を更新します。",
+    "trigger_new": "新しい権限",
+    "field_code": "コード",
+    "field_category": "カテゴリ",
+    "field_name": "名前",
+    "field_description": "説明",
+    "placeholder_code": "ticket:write",
+    "placeholder_category": "ticket",
+    "placeholder_name": "チケットの書き込み",
+    "placeholder_description": "この権限が付与する能力…",
+    "code_locked_hint": "システム権限のコードは変更できません。",
+    "validation": {
+      "code_required": "コードは必須です",
+      "code_format": "resource:action の形式を使用してください（例：ticket:write）",
+      "name_required": "名前は必須です"
+    },
+    "button_create": "権限を作成",
+    "button_save": "変更を保存",
+    "button_creating": "作成中…",
+    "button_saving": "保存中…",
+    "toast": {
+      "created": "権限を作成しました",
+      "updated": "権限を更新しました",
+      "create_error": "権限を作成できませんでした",
+      "update_error": "権限を更新できませんでした"
+    }
+  },
+  "role_permissions": {
+    "title": "{{name}} の権限",
+    "description": "このロールに付与する権限を切り替えます。変更は即時保存されます。",
+    "empty": "まだ権限が定義されていません。",
+    "button_done": "完了",
+    "toast": {
+      "granted": "{{code}} を付与しました",
+      "revoked": "{{code}} を取り消しました",
+      "update_error": "権限を更新できませんでした"
+    }
+  }
+}

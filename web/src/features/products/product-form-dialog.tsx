@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   useCreateProduct,
   useUpdateProduct,
@@ -33,7 +34,7 @@ import {
 } from "@/components/ui/select";
 
 const schema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
+  name: z.string().min(1, "form.validation_name_required").max(255),
   code: z.string().max(100).optional(),
   category: z.string().max(100).optional(),
   version: z.string().max(100).optional(),
@@ -68,6 +69,7 @@ function stringToTags(value?: string): string[] {
 }
 
 export function ProductFormDialog({ product, trigger }: ProductFormDialogProps) {
+  const { t } = useTranslation("products");
   const [open, setOpen] = useState(false);
   const isEdit = product != null;
   const create = useCreateProduct();
@@ -121,15 +123,18 @@ export function ProductFormDialog({ product, trigger }: ProductFormDialogProps) 
     try {
       if (isEdit) {
         await update.mutateAsync(payload);
-        toast.success("Product updated");
+        toast.success(t("form.toast.updated"));
       } else {
         await create.mutateAsync(payload);
-        toast.success("Product created");
+        toast.success(t("form.toast.created"));
       }
       setOpen(false);
     } catch (err) {
       toast.error(
-        apiError(err, isEdit ? "Could not update product" : "Could not create product")
+        apiError(
+          err,
+          isEdit ? t("form.toast.error_update") : t("form.toast.error_create"),
+        ),
       );
     }
   }
@@ -139,85 +144,99 @@ export function ProductFormDialog({ product, trigger }: ProductFormDialogProps) 
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus /> New product
+            <Plus /> {t("form.new_trigger")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit product" : "New product"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? t("form.title_edit") : t("form.title_create")}
+          </DialogTitle>
           <DialogDescription>
-            {isEdit
-              ? "Update this product's catalog details."
-              : "Register a product in your service catalog."}
+            {isEdit ? t("form.desc_edit") : t("form.desc_create")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="p-name">Name</Label>
-            <Input id="p-name" placeholder="Gateway Pro" {...register("name")} />
+            <Label htmlFor="p-name">{t("form.label_name")}</Label>
+            <Input
+              id="p-name"
+              placeholder={t("form.placeholder_name")}
+              {...register("name")}
+            />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-destructive">
+                {t(errors.name.message ?? "form.validation_name_required")}
+              </p>
             )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="p-code">Code</Label>
-              <Input id="p-code" placeholder="GW-PRO" {...register("code")} />
+              <Label htmlFor="p-code">{t("form.label_code")}</Label>
+              <Input
+                id="p-code"
+                placeholder={t("form.placeholder_code")}
+                {...register("code")}
+              />
               {errors.code && (
                 <p className="text-xs text-destructive">{errors.code.message}</p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-category">Category</Label>
+              <Label htmlFor="p-category">{t("form.label_category")}</Label>
               <Input
                 id="p-category"
-                placeholder="Networking"
+                placeholder={t("form.placeholder_category")}
                 {...register("category")}
               />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="p-version">Version</Label>
-              <Input id="p-version" placeholder="2.4.0" {...register("version")} />
+              <Label htmlFor="p-version">{t("form.label_version")}</Label>
+              <Input
+                id="p-version"
+                placeholder={t("form.placeholder_version")}
+                {...register("version")}
+              />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-support">Support level</Label>
+              <Label htmlFor="p-support">{t("form.label_support_level")}</Label>
               <Input
                 id="p-support"
-                placeholder="standard"
+                placeholder={t("form.placeholder_support_level")}
                 {...register("support_level")}
               />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-tags">Tags</Label>
+            <Label htmlFor="p-tags">{t("form.label_tags")}</Label>
             <Input
               id="p-tags"
-              placeholder="comma, separated, tags"
+              placeholder={t("form.placeholder_tags")}
               {...register("tags")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-desc">Description</Label>
+            <Label htmlFor="p-desc">{t("form.label_description")}</Label>
             <Textarea
               id="p-desc"
-              placeholder="Notes about this product…"
+              placeholder={t("form.placeholder_description")}
               {...register("description")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-doc">Documentation</Label>
+            <Label htmlFor="p-doc">{t("form.label_documentation")}</Label>
             <Textarea
               id="p-doc"
-              placeholder="Links or documentation references…"
+              placeholder={t("form.placeholder_documentation")}
               {...register("documentation")}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Status</Label>
+              <Label>{t("form.label_status")}</Label>
               <Select
                 value={watch("status")}
                 onValueChange={(v) => setValue("status", v)}
@@ -226,13 +245,13 @@ export function ProductFormDialog({ product, trigger }: ProductFormDialogProps) 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ACTIVE}>Active</SelectItem>
-                  <SelectItem value={INACTIVE}>Inactive</SelectItem>
+                  <SelectItem value={ACTIVE}>{t("form.status_active")}</SelectItem>
+                  <SelectItem value={INACTIVE}>{t("form.status_inactive")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Managed</Label>
+              <Label>{t("form.label_managed")}</Label>
               <Select
                 value={watch("is_managed") ? "yes" : "no"}
                 onValueChange={(v) => setValue("is_managed", v === "yes")}
@@ -241,8 +260,8 @@ export function ProductFormDialog({ product, trigger }: ProductFormDialogProps) 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="yes">Managed</SelectItem>
-                  <SelectItem value="no">Unmanaged</SelectItem>
+                  <SelectItem value="yes">{t("form.managed_yes")}</SelectItem>
+                  <SelectItem value="no">{t("form.managed_no")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -250,17 +269,17 @@ export function ProductFormDialog({ product, trigger }: ProductFormDialogProps) 
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={pending}>
               {pending
                 ? isEdit
-                  ? "Saving…"
-                  : "Creating…"
+                  ? t("form.submit_saving")
+                  : t("form.submit_creating")
                 : isEdit
-                  ? "Save changes"
-                  : "Create product"}
+                  ? t("form.submit_save")
+                  : t("form.submit_create")}
             </Button>
           </DialogFooter>
         </form>

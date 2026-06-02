@@ -1,0 +1,103 @@
+{
+  "list": {
+    "queue_label": "대기열",
+    "heading": "티켓",
+    "search_placeholder": "제목, 요청자 검색…",
+    "filter_status_placeholder": "상태",
+    "filter_status_all": "모든 상태",
+    "filter_priority_placeholder": "우선순위",
+    "filter_priority_all": "모든 우선순위",
+    "col_ticket": "티켓",
+    "col_status": "상태",
+    "col_priority": "우선순위",
+    "col_customer": "고객",
+    "col_requester": "요청자",
+    "col_updated": "업데이트",
+    "empty": "필터 조건에 맞는 티켓이 없습니다.",
+    "pagination_info": "티켓 {{total}}개 · {{page}}/{{totalPages}} 페이지",
+    "pagination_syncing": " · 동기화 중…",
+    "btn_prev": "이전",
+    "btn_next": "다음"
+  },
+  "detail": {
+    "back_link": "티켓",
+    "not_found": "티켓을 찾을 수 없습니다.",
+    "btn_back_to_tickets": "티켓 목록으로",
+    "section_description": "설명",
+    "no_description": "설명이 없습니다.",
+    "section_conversation": "대화",
+    "no_messages": "메시지가 없습니다.",
+    "reply_placeholder": "답변 작성…",
+    "internal_note_label": "내부 메모",
+    "btn_send": "전송",
+    "btn_sending": "전송 중…",
+    "msg_sender_ai": "어시스턴트",
+    "msg_sender_user": "사용자 #{{userId}}",
+    "msg_role_customer": "고객",
+    "msg_role_team": "팀",
+    "msg_internal_badge": "내부",
+    "toast_updated_field": "{{field}} 업데이트됨",
+    "toast_post_error": "메시지를 전송할 수 없습니다",
+    "attachments": {
+      "label": "첨부 파일",
+      "btn_attach": "파일 첨부",
+      "btn_uploading": "업로드 중…",
+      "btn_download_aria": "{{name}} 다운로드",
+      "empty": "첨부 파일 없음",
+      "toast_uploaded": "첨부 파일이 업로드되었습니다",
+      "toast_upload_error": "업로드 실패",
+      "toast_download_error": "다운로드 실패"
+    },
+    "activity": {
+      "label": "활동",
+      "loading": "로드 중…",
+      "empty": "기록된 활동이 없습니다.",
+      "actor_system": "시스템"
+    },
+    "sla": {
+      "label": "SLA 정책",
+      "source_rule": "{{priority}}/{{severity}} 규칙 일치",
+      "source_default": "일치하는 규칙 없음 — 기본 목표 적용",
+      "business_hours": " · 업무 시간",
+      "meta_response": "응답 시간",
+      "meta_resolution": "해결 시간",
+      "meta_due": "마감일"
+    },
+    "meta": {
+      "label_status": "상태",
+      "label_priority": "우선순위",
+      "label_severity": "심각도",
+      "label_customer": "고객",
+      "label_requester": "요청자",
+      "label_email": "이메일",
+      "label_assignee": "담당자",
+      "label_created": "생성일",
+      "label_due": "마감일",
+      "unassigned": "미배정"
+    }
+  },
+  "create": {
+    "btn_new_ticket": "새 티켓",
+    "dialog_title": "새 티켓",
+    "dialog_description": "요청자를 대신하여 문제를 기록합니다.",
+    "label_title": "제목",
+    "placeholder_title": "간단한 요약",
+    "label_description": "설명",
+    "placeholder_description": "어떤 문제인가요?",
+    "label_priority": "우선순위",
+    "label_requester": "요청자",
+    "placeholder_requester": "홍길동",
+    "label_requester_email": "요청자 이메일",
+    "btn_cancel": "취소",
+    "btn_create": "티켓 생성",
+    "btn_creating": "생성 중…",
+    "toast_created": "티켓이 생성되었습니다",
+    "toast_create_error": "티켓을 생성할 수 없습니다",
+    "validation": {
+      "title_required": "제목은 필수입니다",
+      "description_required": "설명은 필수입니다",
+      "requester_name_required": "요청자 이름은 필수입니다",
+      "email_required": "유효한 이메일 주소가 필요합니다"
+    }
+  }
+}

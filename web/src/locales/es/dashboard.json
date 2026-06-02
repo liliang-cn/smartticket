@@ -1,0 +1,17 @@
+{
+  "overview": "resumen",
+  "greeting": "Hola, {{name}}.",
+  "subtitle": "Así se ve la cola en este momento.",
+  "cards": {
+    "open": "Abiertos",
+    "in_progress": "En curso",
+    "resolved": "Resueltos",
+    "overdue": "Vencidos"
+  },
+  "queue": {
+    "title": "Trabajar la cola",
+    "total": "{{count}} tickets en total · entra en la lista en vivo",
+    "total_loading": "— · entra en la lista en vivo",
+    "cta": "Abrir tickets"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "overview": "panoramica",
+  "greeting": "Ciao, {{name}}.",
+  "subtitle": "Ecco com'è la coda in questo momento.",
+  "cards": {
+    "open": "Aperti",
+    "in_progress": "In corso",
+    "resolved": "Risolti",
+    "overdue": "In ritardo"
+  },
+  "queue": {
+    "title": "Lavora la coda",
+    "total": "{{count}} ticket in totale · vai alla lista live",
+    "total_loading": "— · vai alla lista live",
+    "cta": "Apri ticket"
+  }
+}

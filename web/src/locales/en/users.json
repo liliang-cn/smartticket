@@ -1,0 +1,133 @@
+{
+  "page": {
+    "directory": "directory",
+    "title": "Users"
+  },
+  "filters": {
+    "search_placeholder": "Search name, email, username…",
+    "role_placeholder": "Role",
+    "all_roles": "All roles"
+  },
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "active": "Active",
+    "created": "Created"
+  },
+  "status": {
+    "active": "active",
+    "inactive": "inactive"
+  },
+  "actions": {
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "new_user": "New user",
+    "assign": "Assign",
+    "delete": "Delete",
+    "back_to_users": "Users"
+  },
+  "empty": {
+    "no_match": "No users match these filters."
+  },
+  "pagination": {
+    "summary": "{{total}} users · page {{page}}/{{totalPages}}",
+    "syncing": " · syncing…",
+    "prev": "Prev",
+    "next": "Next"
+  },
+  "detail": {
+    "not_found": "User not found.",
+    "back_to_users": "Back to users",
+    "profile": "Profile",
+    "meta": {
+      "first_name": "First name",
+      "last_name": "Last name",
+      "email": "Email",
+      "username": "Username",
+      "role": "Role",
+      "status": "Status",
+      "last_login": "Last login",
+      "created": "Created",
+      "never": "never"
+    }
+  },
+  "roles_card": {
+    "title": "Roles",
+    "no_roles": "No roles assigned.",
+    "remove_aria": "Remove {{name}}",
+    "select_placeholder": "Select a role to assign…",
+    "no_more_roles": "No more roles to assign.",
+    "remove_dialog": {
+      "title": "Remove role",
+      "description": "Remove the \"{{name}}\" role from this user?",
+      "confirm": "Remove"
+    }
+  },
+  "toasts": {
+    "role_assigned": "Role assigned",
+    "role_assign_error": "Could not assign role",
+    "role_removed": "Removed {{name}}",
+    "role_remove_error": "Could not remove role",
+    "toggle_activated": "User activated",
+    "toggle_deactivated": "User deactivated",
+    "toggle_error": "Could not update user",
+    "deleted": "User deleted",
+    "delete_error": "Could not delete user",
+    "created": "User created",
+    "create_error": "Could not create user"
+  },
+  "delete_dialog": {
+    "title": "Delete user",
+    "description": "Delete {{name}}? This soft-deletes the account.",
+    "confirm_pending": "Deleting…",
+    "confirm": "Delete user"
+  },
+  "form": {
+    "title": "New user",
+    "description": "Create an operator or a customer-side account.",
+    "fields": {
+      "first_name": "First name",
+      "last_name": "Last name",
+      "email": "Email",
+      "username": "Username",
+      "password": "Password",
+      "role": "Role",
+      "status": "Status",
+      "customer": "Customer"
+    },
+    "placeholders": {
+      "role": "Select a role",
+      "customer": "Select a customer organization"
+    },
+    "password_hint": "At least 8 characters, with an uppercase letter, a digit and a special character.",
+    "status_options": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "submit": "Create user",
+    "submit_pending": "Creating…",
+    "validation": {
+      "email_required": "Email is required",
+      "email_invalid": "Invalid email",
+      "username_min": "At least 3 characters",
+      "username_chars": "Letters, numbers, _ and - only",
+      "first_name_required": "First name is required",
+      "last_name_required": "Last name is required",
+      "password_min": "At least 8 characters",
+      "password_uppercase": "Needs an uppercase letter",
+      "password_lowercase": "Needs a lowercase letter",
+      "password_digit": "Needs a digit",
+      "password_special": "Needs a special character",
+      "role_required": "Role is required",
+      "customer_required": "Select a customer for the customer role"
+    }
+  },
+  "roles": {
+    "admin": "Admin",
+    "engineer": "Engineer",
+    "support": "Support",
+    "sales": "Sales",
+    "customer": "Customer"
+  }
+}

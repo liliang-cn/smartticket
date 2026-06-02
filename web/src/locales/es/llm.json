@@ -1,0 +1,80 @@
+{
+  "page": {
+    "eyebrow": "integración de IA",
+    "title": "Proveedores de IA"
+  },
+  "newProvider": "Nuevo proveedor",
+  "table": {
+    "name": "Nombre",
+    "type": "Tipo",
+    "tasks": "Tareas",
+    "model": "Modelo",
+    "endpoint": "Endpoint",
+    "dims": "Dims",
+    "key": "Clave",
+    "flags": "Indicadores"
+  },
+  "badges": {
+    "default": "predeterminado",
+    "enabled": "habilitado",
+    "disabled": "deshabilitado"
+  },
+  "taskLabels": {
+    "chat": "Chat",
+    "embedding": "Embedding"
+  },
+  "empty": "No hay proveedores de IA configurados aún.",
+  "actions": {
+    "test": "Probar",
+    "testTitle": "Probar conectividad",
+    "editTitle": "Editar proveedor",
+    "deleteTitle": "Eliminar proveedor"
+  },
+  "form": {
+    "titleCreate": "Nuevo proveedor",
+    "titleEdit": "Editar proveedor",
+    "description": "Configura un proveedor de chat o embedding. Chat y embedding son independientes — crea una fila para cada uno (p. ej. DeepSeek para chat, Aliyun Bailian para embedding).",
+    "name": "Nombre",
+    "providerType": "Tipo de proveedor",
+    "apiEndpoint": "Endpoint de API",
+    "model": "Modelo",
+    "apiKey": "Clave de API",
+    "apiKeyPlaceholderEdit": "Dejar en blanco para conservar la clave actual",
+    "taskTypes": "Tipos de tarea",
+    "dimensions": "Dimensiones",
+    "maxTokens": "Tokens máximos",
+    "temperature": "Temperatura",
+    "default": "Predeterminado",
+    "status": "Estado",
+    "optionDefault": "Predeterminado",
+    "optionNotDefault": "No predeterminado",
+    "optionEnabled": "Habilitado",
+    "optionDisabled": "Deshabilitado",
+    "submitCreate": "Crear proveedor",
+    "submitEdit": "Guardar cambios",
+    "creatingPending": "Creando…",
+    "savingPending": "Guardando…"
+  },
+  "validation": {
+    "nameRequired": "El nombre es obligatorio",
+    "typeRequired": "El tipo es obligatorio",
+    "endpointRequired": "El endpoint es obligatorio",
+    "modelRequired": "El modelo es obligatorio",
+    "atLeastOneTask": "Selecciona al menos un tipo de tarea (chat o embedding)"
+  },
+  "toast": {
+    "created": "Proveedor creado",
+    "updated": "Proveedor actualizado",
+    "deleted": "Proveedor eliminado",
+    "createFailed": "No se pudo crear el proveedor",
+    "updateFailed": "No se pudo actualizar el proveedor",
+    "deleteFailed": "No se pudo eliminar el proveedor",
+    "testFailed": "Error en la prueba"
+  },
+  "deleteDialog": {
+    "title": "¿Eliminar proveedor?",
+    "description": "Esto eliminará permanentemente la configuración del proveedor \"{{name}}\".",
+    "confirmPending": "Eliminando…",
+    "confirm": "Eliminar"
+  }
+}

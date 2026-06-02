@@ -7,6 +7,7 @@ import {
   Users as UsersIcon,
   MoreHorizontal,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useUsers, useSetUserActive, type UserFilters } from "@/features/users/api";
 import { UserFormDialog } from "@/features/users/user-form-dialog";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,7 @@ function fullName(u: { first_name: string; last_name: string; username: string }
 }
 
 function ActiveToggle({ id, isActive }: { id: number; isActive: boolean }) {
+  const { t } = useTranslation("users");
   const set = useSetUserActive(id);
   return (
     <DropdownMenu>
@@ -55,7 +57,7 @@ function ActiveToggle({ id, isActive }: { id: number; isActive: boolean }) {
           disabled={set.isPending}
           onSelect={() => set.mutate(!isActive)}
         >
-          {isActive ? "Deactivate" : "Activate"}
+          {isActive ? t("actions.deactivate") : t("actions.activate")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -63,6 +65,7 @@ function ActiveToggle({ id, isActive }: { id: number; isActive: boolean }) {
 }
 
 export function UsersListPage() {
+  const { t } = useTranslation("users");
   const navigate = useNavigate();
   const [filters, setFilters] = useState<UserFilters>({
     page: 1,
@@ -78,9 +81,9 @@ export function UsersListPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            directory
+            {t("page.directory")}
           </div>
-          <h1 className="mt-1 text-3xl">Users</h1>
+          <h1 className="mt-1 text-3xl">{t("page.title")}</h1>
         </div>
         <UserFormDialog />
       </div>
@@ -91,7 +94,7 @@ export function UsersListPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search name, email, username…"
+            placeholder={t("filters.search_placeholder")}
             value={filters.search ?? ""}
             onChange={(e) => set({ search: e.target.value })}
           />
@@ -101,13 +104,13 @@ export function UsersListPage() {
           onValueChange={(v) => set({ role: v === ALL ? undefined : v })}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Role" />
+            <SelectValue placeholder={t("filters.role_placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All roles</SelectItem>
+            <SelectItem value={ALL}>{t("filters.all_roles")}</SelectItem>
             {ROLE_OPTIONS.map((r) => (
-              <SelectItem key={r} value={r} className="capitalize">
-                {r}
+              <SelectItem key={r} value={r}>
+                {t(`roles.${r}`, r)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -118,11 +121,11 @@ export function UsersListPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Email</th>
-              <th className="px-4 py-3 font-medium">Role</th>
-              <th className="px-4 py-3 font-medium">Active</th>
-              <th className="px-4 py-3 font-medium">Created</th>
+              <th className="px-4 py-3 font-medium">{t("table.name")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.email")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.role")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.active")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.created")}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -156,13 +159,13 @@ export function UsersListPage() {
                     {u.email}
                   </td>
                   <td className="px-4 py-3.5">
-                    <Badge tone="neutral" className="capitalize">
-                      {u.role}
+                    <Badge tone="neutral">
+                      {t(`roles.${u.role}`, u.role)}
                     </Badge>
                   </td>
                   <td className="px-4 py-3.5">
                     <Badge tone={u.is_active ? "green" : "slate"}>
-                      {u.is_active ? "active" : "inactive"}
+                      {u.is_active ? t("status.active") : t("status.inactive")}
                     </Badge>
                   </td>
                   <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
@@ -178,7 +181,7 @@ export function UsersListPage() {
                 <td colSpan={6} className="px-4 py-16 text-center">
                   <UsersIcon className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No users match these filters.
+                    {t("empty.no_match")}
                   </p>
                 </td>
               </tr>
@@ -191,8 +194,8 @@ export function UsersListPage() {
       {data && data.total_pages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="font-mono text-xs text-muted-foreground">
-            {data.total} users · page {data.page}/{data.total_pages}
-            {isFetching && " · syncing…"}
+            {t("pagination.summary", { total: data.total, page: data.page, totalPages: data.total_pages })}
+            {isFetching && t("pagination.syncing")}
           </div>
           <div className="flex gap-2">
             <Button
@@ -201,7 +204,7 @@ export function UsersListPage() {
               disabled={filters.page <= 1}
               onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
             >
-              <ChevronLeft /> Prev
+              <ChevronLeft /> {t("pagination.prev")}
             </Button>
             <Button
               variant="secondary"
@@ -209,7 +212,7 @@ export function UsersListPage() {
               disabled={data.page >= data.total_pages}
               onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
             >
-              Next <ChevronRight />
+              {t("pagination.next")} <ChevronRight />
             </Button>
           </div>
         </div>

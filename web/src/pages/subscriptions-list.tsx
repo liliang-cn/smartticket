@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,6 +23,7 @@ import { useCustomers } from "@/features/customers/api";
 import { useProducts } from "@/features/products/api";
 import { useSLATemplates } from "@/features/sla/api";
 import { apiError } from "@/lib/api";
+import { formatDate } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -48,13 +50,6 @@ import {
 
 const ALL = "__all__";
 const NONE = "__none__";
-
-function shortDate(iso?: string | null): string {
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString();
-}
 
 function todayISODate(): string {
   return new Date().toISOString().slice(0, 10);
@@ -99,6 +94,8 @@ export const BILLING_PERIODS: { value: string; label: string }[] = [
   { value: "lifetime", label: "Lifetime (one-time)" },
 ];
 
+// Validation messages are resolved at submit-time via t(); the static schema
+// uses English fallbacks so Zod can construct without a hook context.
 const schema = z.object({
   customer_id: z.string().min(1, "Customer is required"),
   product_id: z.string().min(1, "Product is required"),
@@ -133,6 +130,7 @@ function defaults(): FormValues {
 }
 
 function SubscriptionFormDialog() {
+  const { t } = useTranslation("subscriptions");
   const [open, setOpen] = useState(false);
   const create = useCreateSubscription();
 
@@ -185,10 +183,10 @@ function SubscriptionFormDialog() {
 
     try {
       await create.mutateAsync(payload);
-      toast.success("Subscription created");
+      toast.success(t("toast.created"));
       setOpen(false);
     } catch (err) {
-      toast.error(apiError(err, "Could not create subscription"));
+      toast.error(apiError(err, t("toast.create_failed")));
     }
   }
 
@@ -196,27 +194,24 @@ function SubscriptionFormDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus /> New subscription
+          <Plus /> {t("actions.new")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>New subscription</DialogTitle>
-          <DialogDescription>
-            Record a customer's support subscription for a product. Per-node and
-            annual terms are the defaults.
-          </DialogDescription>
+          <DialogTitle>{t("form.title")}</DialogTitle>
+          <DialogDescription>{t("form.description")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Customer</Label>
+              <Label>{t("form.customer")}</Label>
               <Select
                 value={watch("customer_id")}
                 onValueChange={(v) => setValue("customer_id", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select customer" />
+                  <SelectValue placeholder={t("form.customer_placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {customers.data?.items.map((c) => (
@@ -228,18 +223,18 @@ function SubscriptionFormDialog() {
               </Select>
               {errors.customer_id && (
                 <p className="text-xs text-destructive">
-                  {errors.customer_id.message}
+                  {t("validation.customer_required")}
                 </p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label>Product</Label>
+              <Label>{t("form.product")}</Label>
               <Select
                 value={watch("product_id")}
                 onValueChange={(v) => setValue("product_id", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select product" />
+                  <SelectValue placeholder={t("form.product_placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
                   {products.data?.items.map((p) => (
@@ -251,7 +246,7 @@ function SubscriptionFormDialog() {
               </Select>
               {errors.product_id && (
                 <p className="text-xs text-destructive">
-                  {errors.product_id.message}
+                  {t("validation.product_required")}
                 </p>
               )}
             </div>
@@ -259,7 +254,7 @@ function SubscriptionFormDialog() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>SLA template</Label>
+              <Label>{t("form.sla_template")}</Label>
               <Select
                 value={watch("sla_template_id") || NONE}
                 onValueChange={(v) =>
@@ -267,27 +262,27 @@ function SubscriptionFormDialog() {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Optional" />
+                  <SelectValue placeholder={t("form.sla_placeholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE}>None</SelectItem>
-                  {slaTemplates.data?.items.map((t) => (
-                    <SelectItem key={t.id} value={String(t.id)}>
-                      {t.name}
+                  <SelectItem value={NONE}>{t("form.sla_none")}</SelectItem>
+                  {slaTemplates.data?.items.map((tmpl) => (
+                    <SelectItem key={tmpl.id} value={String(tmpl.id)}>
+                      {tmpl.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="s-plan">Plan</Label>
-              <Input id="s-plan" placeholder="e.g. Standard" {...register("plan")} />
+              <Label htmlFor="s-plan">{t("form.plan")}</Label>
+              <Input id="s-plan" placeholder={t("form.plan_placeholder")} {...register("plan")} />
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1.5">
-              <Label>Billing unit</Label>
+              <Label>{t("form.billing_unit")}</Label>
               <Select
                 value={watch("billing_unit")}
                 onValueChange={(v) =>
@@ -300,7 +295,7 @@ function SubscriptionFormDialog() {
                 <SelectContent>
                   {BILLING_UNITS.map((u) => (
                     <SelectItem key={u.value} value={u.value}>
-                      {u.label}
+                      {t(`billing_unit.${u.value}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -308,7 +303,7 @@ function SubscriptionFormDialog() {
             </div>
             {!SINGLE_UNITS.has(watch("billing_unit")) && (
               <div className="space-y-1.5">
-                <Label htmlFor="s-nodes">Quantity</Label>
+                <Label htmlFor="s-nodes">{t("form.quantity")}</Label>
                 <Input
                   id="s-nodes"
                   type="number"
@@ -318,7 +313,7 @@ function SubscriptionFormDialog() {
               </div>
             )}
             <div className="space-y-1.5">
-              <Label>Billing period</Label>
+              <Label>{t("form.billing_period")}</Label>
               <Select
                 value={watch("billing_period")}
                 onValueChange={(v) =>
@@ -331,7 +326,7 @@ function SubscriptionFormDialog() {
                 <SelectContent>
                   {BILLING_PERIODS.map((p) => (
                     <SelectItem key={p.value} value={p.value}>
-                      {p.label}
+                      {t(`billing_period.${p.value}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -341,20 +336,20 @@ function SubscriptionFormDialog() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="s-start">Starts at</Label>
+              <Label htmlFor="s-start">{t("form.starts_at")}</Label>
               <Input id="s-start" type="date" {...register("starts_at")} />
               {errors.starts_at && (
                 <p className="text-xs text-destructive">
-                  {errors.starts_at.message}
+                  {t("validation.starts_at_required")}
                 </p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="s-expire">Expires at</Label>
+              <Label htmlFor="s-expire">{t("form.expires_at")}</Label>
               <Input id="s-expire" type="date" {...register("expires_at")} />
               {errors.expires_at && (
                 <p className="text-xs text-destructive">
-                  {errors.expires_at.message}
+                  {t("validation.expires_at_required")}
                 </p>
               )}
             </div>
@@ -362,34 +357,34 @@ function SubscriptionFormDialog() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="s-price">Unit price</Label>
+              <Label htmlFor="s-price">{t("form.unit_price")}</Label>
               <Input
                 id="s-price"
                 type="number"
                 step="0.01"
-                placeholder="optional"
+                placeholder={t("form.unit_price_placeholder")}
                 {...register("unit_price")}
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="s-currency">Currency</Label>
+              <Label htmlFor="s-currency">{t("form.currency")}</Label>
               <Input id="s-currency" placeholder="USD" {...register("currency")} />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="s-notes">Notes</Label>
-            <Input id="s-notes" placeholder="optional" {...register("notes")} />
+            <Label htmlFor="s-notes">{t("notes.label")}</Label>
+            <Input id="s-notes" placeholder={t("notes.placeholder")} {...register("notes")} />
           </div>
 
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? "Creating…" : "Create subscription"}
+              {create.isPending ? t("actions.creating") : t("actions.create")}
             </Button>
           </DialogFooter>
         </form>
@@ -401,6 +396,7 @@ function SubscriptionFormDialog() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export function SubscriptionsPage() {
+  const { t } = useTranslation("subscriptions");
   const [filters, setFilters] = useState<SubscriptionFilters>({
     page: 1,
     page_size: 15,
@@ -419,10 +415,10 @@ export function SubscriptionsPage() {
     if (!toDelete) return;
     try {
       await deleteSubscription.mutateAsync(toDelete.id);
-      toast.success("Subscription deleted");
+      toast.success(t("toast.deleted"));
       setToDelete(null);
     } catch (err) {
-      toast.error(apiError(err, "Could not delete subscription"));
+      toast.error(apiError(err, t("toast.delete_failed")));
     }
   }
 
@@ -431,9 +427,9 @@ export function SubscriptionsPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            commercial
+            {t("page.section")}
           </div>
-          <h1 className="mt-1 text-3xl">Subscriptions</h1>
+          <h1 className="mt-1 text-3xl">{t("page.title")}</h1>
         </div>
         <SubscriptionFormDialog />
       </div>
@@ -445,7 +441,7 @@ export function SubscriptionsPage() {
           <Input
             className="pl-9"
             type="number"
-            placeholder="Filter by customer ID…"
+            placeholder={t("filter.customer_id_placeholder")}
             value={filters.customer_id ?? ""}
             onChange={(e) =>
               set({
@@ -461,13 +457,13 @@ export function SubscriptionsPage() {
           onValueChange={(v) => set({ status: v === ALL ? undefined : v })}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t("filter.status_placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value={ALL}>{t("filter.all_statuses")}</SelectItem>
+            <SelectItem value="active">{t("status.active")}</SelectItem>
+            <SelectItem value="expired">{t("status.expired")}</SelectItem>
+            <SelectItem value="cancelled">{t("status.cancelled")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -476,14 +472,14 @@ export function SubscriptionsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Customer</th>
-              <th className="px-4 py-3 font-medium">Product</th>
-              <th className="px-4 py-3 font-medium">Plan</th>
-              <th className="px-4 py-3 font-medium">Nodes</th>
-              <th className="px-4 py-3 font-medium">Term</th>
-              <th className="px-4 py-3 font-medium">Period</th>
-              <th className="px-4 py-3 font-medium">SLA</th>
-              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">{t("table.customer")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.product")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.plan")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.nodes")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.term")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.period")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.sla")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.status")}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -523,21 +519,21 @@ export function SubscriptionsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                      {s.billing_period}
+                      {t(`billing_period.${s.billing_period}`, { defaultValue: s.billing_period })}
                     </td>
                     <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                      {shortDate(s.starts_at)} → {shortDate(s.expires_at)}
+                      {formatDate(s.starts_at) || "—"} → {formatDate(s.expires_at) || "—"}
                     </td>
                     <td className="px-4 py-3.5 text-muted-foreground">
                       {s.sla_template_name || "—"}
                     </td>
                     <td className="px-4 py-3.5">
                       {s.status === "cancelled" ? (
-                        <Badge tone="slate">cancelled</Badge>
+                        <Badge tone="slate">{t("status.cancelled")}</Badge>
                       ) : expired ? (
-                        <Badge tone="red">expired</Badge>
+                        <Badge tone="red">{t("status.expired")}</Badge>
                       ) : (
-                        <Badge tone="green">active</Badge>
+                        <Badge tone="green">{t("status.active")}</Badge>
                       )}
                     </td>
                     <td className="px-2 py-3.5">
@@ -545,7 +541,7 @@ export function SubscriptionsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          title="Delete subscription"
+                          title={t("actions.delete")}
                           onClick={() =>
                             setToDelete({
                               id: s.id,
@@ -567,7 +563,7 @@ export function SubscriptionsPage() {
                 <td colSpan={9} className="px-4 py-16 text-center">
                   <CreditCard className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No subscriptions match these filters.
+                    {t("empty.message")}
                   </p>
                 </td>
               </tr>
@@ -580,8 +576,12 @@ export function SubscriptionsPage() {
       {data && data.total_pages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="font-mono text-xs text-muted-foreground">
-            {data.total} subscriptions · page {data.page}/{data.total_pages}
-            {isFetching && " · syncing…"}
+            {t("pagination.summary", {
+              total: data.total,
+              page: data.page,
+              totalPages: data.total_pages,
+            })}
+            {isFetching && t("pagination.syncing")}
           </div>
           <div className="flex gap-2">
             <Button
@@ -590,7 +590,7 @@ export function SubscriptionsPage() {
               disabled={filters.page <= 1}
               onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
             >
-              <ChevronLeft /> Prev
+              <ChevronLeft /> {t("pagination.prev")}
             </Button>
             <Button
               variant="secondary"
@@ -598,7 +598,7 @@ export function SubscriptionsPage() {
               disabled={data.page >= data.total_pages}
               onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
             >
-              Next <ChevronRight />
+              {t("pagination.next")} <ChevronRight />
             </Button>
           </div>
         </div>
@@ -610,15 +610,15 @@ export function SubscriptionsPage() {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete subscription?</DialogTitle>
+            <DialogTitle>{t("confirm_delete.title")}</DialogTitle>
             <DialogDescription>
-              This permanently removes the subscription for "{toDelete?.label}".
+              {t("confirm_delete.description", { label: toDelete?.label })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button
@@ -627,7 +627,9 @@ export function SubscriptionsPage() {
               disabled={deleteSubscription.isPending}
               onClick={confirmDelete}
             >
-              {deleteSubscription.isPending ? "Deleting…" : "Delete"}
+              {deleteSubscription.isPending
+                ? t("actions.deleting")
+                : t("actions.delete", { ns: "common" })}
             </Button>
           </DialogFooter>
         </DialogContent>

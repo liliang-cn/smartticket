@@ -1,0 +1,109 @@
+{
+  "page": {
+    "section": "상업",
+    "title": "구독 관리"
+  },
+  "actions": {
+    "new": "새 구독",
+    "delete": "구독 삭제",
+    "create": "구독 생성",
+    "creating": "생성 중…",
+    "deleting": "삭제 중…"
+  },
+  "toast": {
+    "created": "구독이 생성되었습니다",
+    "deleted": "구독이 삭제되었습니다",
+    "create_failed": "구독을 생성할 수 없습니다",
+    "delete_failed": "구독을 삭제할 수 없습니다"
+  },
+  "filter": {
+    "customer_id_placeholder": "고객 ID로 필터링…",
+    "status_placeholder": "상태",
+    "all_statuses": "모든 상태"
+  },
+  "table": {
+    "customer": "고객",
+    "product": "제품",
+    "plan": "플랜",
+    "nodes": "노드",
+    "term": "기간",
+    "period": "청구 주기",
+    "sla": "SLA",
+    "status": "상태"
+  },
+  "empty": {
+    "message": "조건에 맞는 구독이 없습니다."
+  },
+  "pagination": {
+    "summary": "{{total}}개 구독 · {{page}}/{{totalPages}} 페이지",
+    "syncing": " · 동기화 중…",
+    "prev": "이전",
+    "next": "다음"
+  },
+  "form": {
+    "title": "새 구독",
+    "description": "고객의 제품 지원 구독을 등록합니다. 기본값은 노드당 연간 청구입니다.",
+    "customer": "고객",
+    "customer_placeholder": "고객 선택",
+    "product": "제품",
+    "product_placeholder": "제품 선택",
+    "sla_template": "SLA 템플릿",
+    "sla_placeholder": "선택 사항",
+    "sla_none": "없음",
+    "plan": "플랜",
+    "plan_placeholder": "예: 스탠더드",
+    "billing_unit": "청구 단위",
+    "quantity": "수량",
+    "billing_period": "청구 주기",
+    "starts_at": "시작일",
+    "expires_at": "만료일",
+    "unit_price": "단가",
+    "unit_price_placeholder": "선택 사항",
+    "currency": "통화"
+  },
+  "notes": {
+    "label": "메모",
+    "placeholder": "선택 사항"
+  },
+  "validation": {
+    "customer_required": "고객을 선택하세요",
+    "product_required": "제품을 선택하세요",
+    "billing_unit_required": "청구 단위를 선택하세요",
+    "billing_period_required": "청구 주기를 선택하세요",
+    "starts_at_required": "시작일을 입력하세요",
+    "expires_at_required": "만료일을 입력하세요"
+  },
+  "confirm_delete": {
+    "title": "구독을 삭제하시겠습니까?",
+    "description": "\"{{label}}\"의 구독이 영구적으로 삭제됩니다."
+  },
+  "status": {
+    "active": "활성",
+    "expired": "만료됨",
+    "cancelled": "취소됨"
+  },
+  "billing_unit": {
+    "per_node": "노드당",
+    "per_cluster": "클러스터당",
+    "per_core": "코어당",
+    "per_instance": "인스턴스당",
+    "per_seat": "시트당",
+    "per_user": "사용자당",
+    "per_agent": "에이전트당",
+    "per_device": "디바이스당",
+    "per_site": "사이트당",
+    "per_gb": "GB당",
+    "per_request": "요청당",
+    "usage": "사용량 기반",
+    "per_subscriber": "구독자당 (앱)",
+    "per_install": "설치당",
+    "per_app": "앱당",
+    "flat": "정액제"
+  },
+  "billing_period": {
+    "weekly": "주간",
+    "monthly": "월간",
+    "annual": "연간",
+    "lifetime": "평생 (일회성)"
+  }
+}

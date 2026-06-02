@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   ChevronLeft,
@@ -56,12 +57,13 @@ function Pager({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const { t } = useTranslation("sla");
   if (totalPages <= 1) return null;
   return (
     <div className="mt-4 flex items-center justify-between">
       <div className="font-mono text-xs text-muted-foreground">
-        {total} {noun} · page {page}/{totalPages}
-        {isFetching && " · syncing…"}
+        {t("pager.summary", { total, noun, page, totalPages })}
+        {isFetching && ` ${t("pager.syncing")}`}
       </div>
       <div className="flex gap-2">
         <Button
@@ -70,7 +72,7 @@ function Pager({
           disabled={page <= 1}
           onClick={onPrev}
         >
-          <ChevronLeft /> Prev
+          <ChevronLeft /> {t("pager.prev")}
         </Button>
         <Button
           variant="secondary"
@@ -78,7 +80,7 @@ function Pager({
           disabled={page >= totalPages}
           onClick={onNext}
         >
-          Next <ChevronRight />
+          {t("pager.next")} <ChevronRight />
         </Button>
       </div>
     </div>
@@ -104,6 +106,7 @@ function TableSkeleton({ cols }: { cols: number }) {
 // ── Templates section ─────────────────────────────────────────────────────────
 
 function TemplateActions({ template }: { template: SLATemplate }) {
+  const { t } = useTranslation("sla");
   const setDefault = useSetDefaultSLATemplate();
   const setActive = useSetSLATemplateActive();
   const remove = useDeleteSLATemplate();
@@ -116,10 +119,10 @@ function TemplateActions({ template }: { template: SLATemplate }) {
     if (!toDelete) return;
     try {
       await remove.mutateAsync(toDelete.id);
-      toast.success("SLA template deleted");
+      toast.success(t("templates.toast.deleted"));
       setToDelete(null);
     } catch (err) {
-      toast.error(apiError(err, "Could not delete SLA template"));
+      toast.error(apiError(err, t("templates.toast.delete_error")));
     }
   }
 
@@ -136,7 +139,7 @@ function TemplateActions({ template }: { template: SLATemplate }) {
           template={template}
           trigger={
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Edit
+              {t("templates.actions.edit")}
             </DropdownMenuItem>
           }
         />
@@ -145,7 +148,7 @@ function TemplateActions({ template }: { template: SLATemplate }) {
             disabled={busy}
             onSelect={() => setDefault.mutate(template.id)}
           >
-            Set as default
+            {t("templates.actions.set_default")}
           </DropdownMenuItem>
         )}
         <DropdownMenuItem
@@ -154,7 +157,7 @@ function TemplateActions({ template }: { template: SLATemplate }) {
             setActive.mutate({ id: template.id, active: !template.is_active })
           }
         >
-          {template.is_active ? "Deactivate" : "Activate"}
+          {template.is_active ? t("templates.actions.deactivate") : t("templates.actions.activate")}
         </DropdownMenuItem>
         <DropdownMenuItem
           disabled={busy}
@@ -164,7 +167,7 @@ function TemplateActions({ template }: { template: SLATemplate }) {
             setToDelete({ id: template.id, label: template.name });
           }}
         >
-          Delete
+          {t("templates.actions.delete")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -172,10 +175,10 @@ function TemplateActions({ template }: { template: SLATemplate }) {
     <ConfirmDialog
       open={!!toDelete}
       onOpenChange={(o) => !o && setToDelete(null)}
-      title="Delete SLA template"
+      title={t("templates.confirm_delete.title")}
       description={
         toDelete
-          ? `Delete the "${toDelete.label}" SLA template? This cannot be undone.`
+          ? t("templates.confirm_delete.description", { name: toDelete.label })
           : undefined
       }
       pending={remove.isPending}
@@ -186,6 +189,7 @@ function TemplateActions({ template }: { template: SLATemplate }) {
 }
 
 function TemplatesSection() {
+  const { t } = useTranslation("sla");
   const [filters, setFilters] = useState<SLAFilters>({
     page: 1,
     page_size: 15,
@@ -202,7 +206,7 @@ function TemplatesSection() {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search templates…"
+            placeholder={t("templates.search_placeholder")}
             value={filters.search ?? ""}
             onChange={(e) => set({ search: e.target.value })}
           />
@@ -214,12 +218,12 @@ function TemplatesSection() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Default</th>
-              <th className="px-4 py-3 font-medium">Active</th>
-              <th className="px-4 py-3 font-medium">Levels</th>
-              <th className="px-4 py-3 font-medium">Holidays</th>
-              <th className="px-4 py-3 text-right font-medium">Updated</th>
+              <th className="px-4 py-3 font-medium">{t("templates.columns.name")}</th>
+              <th className="px-4 py-3 font-medium">{t("templates.columns.default")}</th>
+              <th className="px-4 py-3 font-medium">{t("templates.columns.active")}</th>
+              <th className="px-4 py-3 font-medium">{t("templates.columns.levels")}</th>
+              <th className="px-4 py-3 font-medium">{t("templates.columns.holidays")}</th>
+              <th className="px-4 py-3 text-right font-medium">{t("templates.columns.updated")}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -227,43 +231,45 @@ function TemplatesSection() {
             {isLoading ? (
               <TableSkeleton cols={7} />
             ) : data && data.items.length > 0 ? (
-              data.items.map((t) => (
+              data.items.map((tmpl) => (
                 <tr
-                  key={t.id}
+                  key={tmpl.id}
                   className="group border-b border-border/60 transition-colors last:border-0 hover:bg-accent/50"
                 >
                   <td className="px-4 py-3.5">
-                    <div className="font-medium text-foreground">{t.name}</div>
-                    {t.description && (
+                    <div className="font-medium text-foreground">{tmpl.name}</div>
+                    {tmpl.description && (
                       <div className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
-                        {t.description}
+                        {tmpl.description}
                       </div>
                     )}
                   </td>
                   <td className="px-4 py-3.5">
-                    {t.is_default ? (
-                      <Badge tone="amber">default</Badge>
+                    {tmpl.is_default ? (
+                      <Badge tone="amber">{t("templates.default_badge")}</Badge>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
                   </td>
                   <td className="px-4 py-3.5">
-                    <Badge tone={t.is_active ? "green" : "slate"}>
-                      {t.is_active ? "active" : "inactive"}
+                    <Badge tone={tmpl.is_active ? "green" : "slate"}>
+                      {tmpl.is_active ? t("templates.active_badge") : t("templates.inactive_badge")}
                     </Badge>
                   </td>
                   <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                    {(t.priority_levels?.length ?? 0)}p ·{" "}
-                    {(t.severity_levels?.length ?? 0)}s
+                    {t("templates.levels_summary", {
+                      priority: tmpl.priority_levels?.length ?? 0,
+                      severity: tmpl.severity_levels?.length ?? 0,
+                    })}
                   </td>
                   <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                    {t.holidays?.length ?? 0}
+                    {tmpl.holidays?.length ?? 0}
                   </td>
                   <td className="px-4 py-3.5 text-right font-mono text-xs text-muted-foreground">
-                    {relativeTime(t.updated_at)}
+                    {relativeTime(tmpl.updated_at)}
                   </td>
                   <td className="px-2 py-3.5 text-right">
-                    <TemplateActions template={t} />
+                    <TemplateActions template={tmpl} />
                   </td>
                 </tr>
               ))
@@ -272,7 +278,7 @@ function TemplatesSection() {
                 <td colSpan={7} className="px-4 py-16 text-center">
                   <Gauge className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No SLA templates yet.
+                    {t("templates.empty")}
                   </p>
                 </td>
               </tr>
@@ -286,7 +292,7 @@ function TemplatesSection() {
           page={data.page}
           totalPages={data.total_pages}
           total={data.total}
-          noun="templates"
+          noun={t("pager.noun_templates")}
           isFetching={isFetching}
           onPrev={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
           onNext={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
@@ -299,6 +305,7 @@ function TemplatesSection() {
 // ── Rules section ─────────────────────────────────────────────────────────────
 
 function RuleActions({ rule }: { rule: SLARule }) {
+  const { t } = useTranslation("sla");
   const setActive = useSetSLARuleActive();
   const remove = useDeleteSLARule();
   const [toDelete, setToDelete] = useState<{ id: number; label: string } | null>(
@@ -310,10 +317,10 @@ function RuleActions({ rule }: { rule: SLARule }) {
     if (!toDelete) return;
     try {
       await remove.mutateAsync(toDelete.id);
-      toast.success("SLA rule deleted");
+      toast.success(t("rules.toast.deleted"));
       setToDelete(null);
     } catch (err) {
-      toast.error(apiError(err, "Could not delete SLA rule"));
+      toast.error(apiError(err, t("rules.toast.delete_error")));
     }
   }
 
@@ -330,7 +337,7 @@ function RuleActions({ rule }: { rule: SLARule }) {
           rule={rule}
           trigger={
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              Edit
+              {t("rules.actions.edit")}
             </DropdownMenuItem>
           }
         />
@@ -340,7 +347,7 @@ function RuleActions({ rule }: { rule: SLARule }) {
             setActive.mutate({ id: rule.id, active: !rule.is_active })
           }
         >
-          {rule.is_active ? "Deactivate" : "Activate"}
+          {rule.is_active ? t("rules.actions.deactivate") : t("rules.actions.activate")}
         </DropdownMenuItem>
         <DropdownMenuItem
           disabled={busy}
@@ -349,13 +356,13 @@ function RuleActions({ rule }: { rule: SLARule }) {
             e.preventDefault();
             setToDelete({
               id: rule.id,
-              label: `${rule.priority || "any priority"} / ${
-                rule.severity || "any severity"
+              label: `${rule.priority || t("rules.any_priority")} / ${
+                rule.severity || t("rules.any_severity")
               }`,
             });
           }}
         >
-          Delete
+          {t("rules.actions.delete")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -363,10 +370,10 @@ function RuleActions({ rule }: { rule: SLARule }) {
     <ConfirmDialog
       open={!!toDelete}
       onOpenChange={(o) => !o && setToDelete(null)}
-      title="Delete SLA rule"
+      title={t("rules.confirm_delete.title")}
       description={
         toDelete
-          ? `Delete the SLA rule for ${toDelete.label}? This cannot be undone.`
+          ? t("rules.confirm_delete.description", { label: toDelete.label })
           : undefined
       }
       pending={remove.isPending}
@@ -377,6 +384,7 @@ function RuleActions({ rule }: { rule: SLARule }) {
 }
 
 function RulesSection() {
+  const { t } = useTranslation("sla");
   const [filters, setFilters] = useState<SLAFilters>({
     page: 1,
     page_size: 15,
@@ -393,7 +401,7 @@ function RulesSection() {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search rules…"
+            placeholder={t("rules.search_placeholder")}
             value={filters.search ?? ""}
             onChange={(e) => set({ search: e.target.value })}
           />
@@ -405,13 +413,13 @@ function RulesSection() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Template</th>
-              <th className="px-4 py-3 font-medium">Priority</th>
-              <th className="px-4 py-3 font-medium">Severity</th>
-              <th className="px-4 py-3 font-medium">Response</th>
-              <th className="px-4 py-3 font-medium">Resolution</th>
-              <th className="px-4 py-3 font-medium">Hours</th>
-              <th className="px-4 py-3 font-medium">Active</th>
+              <th className="px-4 py-3 font-medium">{t("rules.columns.template")}</th>
+              <th className="px-4 py-3 font-medium">{t("rules.columns.priority")}</th>
+              <th className="px-4 py-3 font-medium">{t("rules.columns.severity")}</th>
+              <th className="px-4 py-3 font-medium">{t("rules.columns.response")}</th>
+              <th className="px-4 py-3 font-medium">{t("rules.columns.resolution")}</th>
+              <th className="px-4 py-3 font-medium">{t("rules.columns.hours")}</th>
+              <th className="px-4 py-3 font-medium">{t("rules.columns.active")}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -444,11 +452,11 @@ function RulesSection() {
                     {r.resolution_time}m
                   </td>
                   <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">
-                    {r.business_only ? "business" : "calendar"}
+                    {r.business_only ? t("rules.hours_business") : t("rules.hours_calendar")}
                   </td>
                   <td className="px-4 py-3.5">
                     <Badge tone={r.is_active ? "green" : "slate"}>
-                      {r.is_active ? "active" : "inactive"}
+                      {r.is_active ? t("templates.active_badge") : t("templates.inactive_badge")}
                     </Badge>
                   </td>
                   <td className="px-2 py-3.5 text-right">
@@ -461,7 +469,7 @@ function RulesSection() {
                 <td colSpan={8} className="px-4 py-16 text-center">
                   <ListChecks className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No SLA rules yet.
+                    {t("rules.empty")}
                   </p>
                 </td>
               </tr>
@@ -475,7 +483,7 @@ function RulesSection() {
           page={data.page}
           totalPages={data.total_pages}
           total={data.total}
-          noun="rules"
+          noun={t("pager.noun_rules")}
           isFetching={isFetching}
           onPrev={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
           onNext={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
@@ -488,6 +496,7 @@ function RulesSection() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export function SLAPage() {
+  const { t } = useTranslation("sla");
   const [section, setSection] = useState<Section>("templates");
 
   return (
@@ -495,9 +504,9 @@ export function SLAPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            policy
+            {t("page.eyebrow")}
           </div>
-          <h1 className="mt-1 text-3xl">Service levels</h1>
+          <h1 className="mt-1 text-3xl">{t("page.heading")}</h1>
         </div>
         <div className="flex gap-2">
           <Button
@@ -505,14 +514,14 @@ export function SLAPage() {
             size="sm"
             onClick={() => setSection("templates")}
           >
-            <Gauge /> Templates
+            <Gauge /> {t("nav.templates")}
           </Button>
           <Button
             variant={section === "rules" ? "default" : "secondary"}
             size="sm"
             onClick={() => setSection("rules")}
           >
-            <ListChecks /> Rules
+            <ListChecks /> {t("nav.rules")}
           </Button>
         </div>
       </div>

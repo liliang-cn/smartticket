@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Inbox, Loader2, CheckCircle2, AlertTriangle, ArrowUpRight } from "lucide-react";
 import { useTicketStats } from "@/features/tickets/api";
 import { useReveal } from "@/lib/use-reveal";
@@ -8,28 +9,29 @@ import { CountUp } from "@/components/count-up";
 import { useAuth } from "@/lib/auth";
 
 const CARDS = [
-  { key: "open_tickets", label: "Open", icon: Inbox, tone: "text-primary" },
+  { key: "open_tickets", labelKey: "cards.open", icon: Inbox, tone: "text-primary" },
   {
     key: "in_progress_tickets",
-    label: "In progress",
+    labelKey: "cards.in_progress",
     icon: Loader2,
     tone: "text-sky-400",
   },
   {
     key: "resolved_tickets",
-    label: "Resolved",
+    labelKey: "cards.resolved",
     icon: CheckCircle2,
     tone: "text-emerald-400",
   },
   {
     key: "overdue_tickets",
-    label: "Overdue",
+    labelKey: "cards.overdue",
     icon: AlertTriangle,
     tone: "text-red-400",
   },
 ] as const;
 
 export function DashboardPage() {
+  const { t } = useTranslation("dashboard");
   const { user } = useAuth();
   const { data, isLoading } = useTicketStats();
   const ref = useReveal(isLoading ? "loading" : "ready");
@@ -38,13 +40,13 @@ export function DashboardPage() {
     <div ref={ref} className="w-full">
       <div data-reveal className="mb-8">
         <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-          overview
+          {t("overview")}
         </div>
         <h1 className="mt-1 text-3xl">
-          Hello, {user?.first_name || user?.username}.
+          {t("greeting", { name: user?.first_name || user?.username })}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Here&apos;s how the queue looks right now.
+          {t("subtitle")}
         </p>
       </div>
 
@@ -54,7 +56,7 @@ export function DashboardPage() {
             <div className="grid-texture pointer-events-none absolute inset-0 opacity-40" />
             <div className="relative flex items-start justify-between">
               <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                {c.label}
+                {t(c.labelKey)}
               </span>
               <c.icon className={`size-4 ${c.tone}`} />
             </div>
@@ -71,17 +73,18 @@ export function DashboardPage() {
 
       <Card data-reveal className="mt-6 flex items-center justify-between p-5">
         <div>
-          <div className="font-semibold">Work the queue</div>
+          <div className="font-semibold">{t("queue.title")}</div>
           <div className="text-sm text-muted-foreground">
-            {isLoading ? "—" : `${data?.total_tickets ?? 0} tickets total`} ·
-            jump into the live list
+            {isLoading
+              ? t("queue.total_loading")
+              : t("queue.total", { count: data?.total_tickets ?? 0 })}
           </div>
         </div>
         <Link
           to="/tickets"
           className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
         >
-          Open tickets <ArrowUpRight className="size-4" />
+          {t("queue.cta")} <ArrowUpRight className="size-4" />
         </Link>
       </Card>
     </div>

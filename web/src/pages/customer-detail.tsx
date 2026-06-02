@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation, Trans } from "react-i18next";
 import {
   useCustomer,
   useCustomerUsers,
@@ -59,6 +60,7 @@ function ContactRow({
   user: CustomerUser;
   customerId: number;
 }) {
+  const { t } = useTranslation("customers");
   const qc = useQueryClient();
   const setActive = useSetUserActive(user.id);
   const del = useDeleteUser();
@@ -75,7 +77,11 @@ function ContactRow({
     try {
       await setActive.mutateAsync(!user.is_active ? true : false);
       refreshContacts();
-      toast.success(user.is_active ? "Contact deactivated" : "Contact activated");
+      toast.success(
+        user.is_active
+          ? t("contact_row.toast.deactivated")
+          : t("contact_row.toast.activated"),
+      );
     } catch (err) {
       toast.error(apiError(err));
     }
@@ -86,9 +92,9 @@ function ContactRow({
       await del.mutateAsync(user.id);
       refreshContacts();
       setConfirmOpen(false);
-      toast.success("Contact removed");
+      toast.success(t("contact_row.toast.removed"));
     } catch (err) {
-      toast.error(apiError(err, "Could not remove contact"));
+      toast.error(apiError(err, t("contact_row.toast.remove_error")));
     }
   }
 
@@ -105,7 +111,7 @@ function ContactRow({
       </td>
       <td className="px-4 py-3">
         <Badge tone={user.is_active ? "green" : "slate"}>
-          {user.is_active ? "active" : "inactive"}
+          {user.is_active ? t("status.active") : t("status.inactive")}
         </Badge>
       </td>
       <td className="px-4 py-3">
@@ -118,11 +124,11 @@ function ContactRow({
           >
             {user.is_active ? (
               <>
-                <UserX /> Deactivate
+                <UserX /> {t("contact_row.deactivate")}
               </>
             ) : (
               <>
-                <UserCheck /> Activate
+                <UserCheck /> {t("contact_row.activate")}
               </>
             )}
           </Button>
@@ -131,7 +137,7 @@ function ContactRow({
             variant="ghost"
             className="text-destructive hover:text-destructive"
             onClick={() => setConfirmOpen(true)}
-            aria-label={`Remove ${displayName}`}
+            aria-label={t("contact_row.remove_aria", { name: displayName })}
           >
             <Trash2 />
           </Button>
@@ -140,19 +146,22 @@ function ContactRow({
         <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Remove contact</DialogTitle>
-              <DialogDescription>
-                Remove{" "}
-                <span className="font-medium text-foreground">
-                  {displayName}
-                </span>{" "}
-                from this customer? This deletes the account.
+              <DialogTitle>{t("contact_row.remove_dialog.title")}</DialogTitle>
+              <DialogDescription asChild>
+                <p>
+                  <Trans
+                    ns="customers"
+                    i18nKey="contact_row.remove_dialog.description"
+                    values={{ name: displayName }}
+                    components={{ bold: <span className="font-medium text-foreground" /> }}
+                  />
+                </p>
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="ghost">
-                  Cancel
+                  {t("actions.cancel", { ns: "common" })}
                 </Button>
               </DialogClose>
               <Button
@@ -160,7 +169,9 @@ function ContactRow({
                 onClick={onRemove}
                 disabled={del.isPending}
               >
-                {del.isPending ? "Removing…" : "Remove contact"}
+                {del.isPending
+                  ? t("contact_row.remove_dialog.removing")
+                  : t("contact_row.remove_dialog.confirm")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -174,6 +185,7 @@ function ContactRow({
  * are entitled to and the SLA template that governs them. This is where a
  * customer's products / services / SLA live. */
 function SubscriptionsSection({ customerId }: { customerId: number }) {
+  const { t } = useTranslation("customers");
   const { data, isLoading } = useSubscriptions({
     page: 1,
     page_size: 100,
@@ -186,7 +198,7 @@ function SubscriptionsSection({ customerId }: { customerId: number }) {
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-sm font-semibold">
           <CreditCard className="size-4 text-muted-foreground" />
-          Subscriptions{" "}
+          {t("subscriptions.heading")}{" "}
           <span className="font-mono text-xs text-muted-foreground">
             ({subs.length})
           </span>
@@ -196,12 +208,12 @@ function SubscriptionsSection({ customerId }: { customerId: number }) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Product</th>
-              <th className="px-4 py-3 font-medium">Plan</th>
-              <th className="px-4 py-3 font-medium">SLA</th>
-              <th className="px-4 py-3 font-medium">Nodes</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Expires</th>
+              <th className="px-4 py-3 font-medium">{t("subscriptions.col_product")}</th>
+              <th className="px-4 py-3 font-medium">{t("subscriptions.col_plan")}</th>
+              <th className="px-4 py-3 font-medium">{t("subscriptions.col_sla")}</th>
+              <th className="px-4 py-3 font-medium">{t("subscriptions.col_nodes")}</th>
+              <th className="px-4 py-3 font-medium">{t("subscriptions.col_status")}</th>
+              <th className="px-4 py-3 font-medium">{t("subscriptions.col_expires")}</th>
             </tr>
           </thead>
           <tbody>
@@ -236,7 +248,7 @@ function SubscriptionsSection({ customerId }: { customerId: number }) {
                     )}
                   </td>
                   <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                    {s.billing_unit === "per_node" ? s.node_count : "cluster"}
+                    {s.billing_unit === "per_node" ? s.node_count : t("subscriptions.cluster")}
                   </td>
                   <td className="px-4 py-3">
                     <Badge
@@ -263,8 +275,8 @@ function SubscriptionsSection({ customerId }: { customerId: number }) {
                   className="px-4 py-12 text-center text-sm text-muted-foreground"
                 >
                   {isLoading
-                    ? "Loading…"
-                    : "No subscriptions. This customer has no entitled products or SLA yet."}
+                    ? t("subscriptions.empty_loading")
+                    : t("subscriptions.empty")}
                 </td>
               </tr>
             )}
@@ -278,6 +290,7 @@ function SubscriptionsSection({ customerId }: { customerId: number }) {
 export function CustomerDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation("customers");
   const customerId = id ? Number(id) : undefined;
   const { data: customer, isLoading } = useCustomer(customerId);
   const { data: users } = useCustomerUsers(customerId);
@@ -289,11 +302,11 @@ export function CustomerDetailPage() {
     if (customerId == null) return;
     try {
       await del.mutateAsync(customerId);
-      toast.success("Customer deleted");
+      toast.success(t("detail.toast.deleted"));
       setConfirmOpen(false);
       navigate("/customers");
     } catch (err) {
-      toast.error(apiError(err, "Could not delete customer"));
+      toast.error(apiError(err, t("detail.toast.delete_error")));
     }
   }
 
@@ -309,11 +322,11 @@ export function CustomerDetailPage() {
   if (!customer) {
     return (
       <div className="w-full py-20 text-center text-muted-foreground">
-        Customer not found.
+        {t("detail.not_found")}
         <div className="mt-4">
           <Button variant="secondary" asChild>
             <Link to="/customers">
-              <ArrowLeft /> Back to customers
+              <ArrowLeft /> {t("detail.back_to_customers")}
             </Link>
           </Button>
         </div>
@@ -327,7 +340,7 @@ export function CustomerDetailPage() {
         to="/customers"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
-        <ArrowLeft className="size-4" /> Customers
+        <ArrowLeft className="size-4" /> {t("detail.back")}
       </Link>
 
       <div data-reveal className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -339,7 +352,7 @@ export function CustomerDetailPage() {
               </span>
             )}
             <Badge tone={customer.is_active ? "green" : "slate"}>
-              {customer.is_active ? "active" : "inactive"}
+              {customer.is_active ? t("status.active") : t("status.inactive")}
             </Badge>
           </div>
           <h1 className="mt-1 text-2xl">{customer.name}</h1>
@@ -349,7 +362,7 @@ export function CustomerDetailPage() {
             customer={customer}
             trigger={
               <Button variant="secondary" size="sm">
-                <Pencil /> Edit
+                <Pencil /> {t("detail.edit")}
               </Button>
             }
           />
@@ -358,7 +371,7 @@ export function CustomerDetailPage() {
             size="sm"
             onClick={() => setConfirmOpen(true)}
           >
-            <Trash2 /> Delete
+            <Trash2 /> {t("detail.delete")}
           </Button>
         </div>
       </div>
@@ -367,9 +380,9 @@ export function CustomerDetailPage() {
         {/* Main */}
         <div className="space-y-5">
           <Card data-reveal className="p-5">
-            <Label>Description</Label>
+            <Label>{t("detail.description_label")}</Label>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-              {customer.description || "No description provided."}
+              {customer.description || t("detail.no_description")}
             </p>
           </Card>
 
@@ -377,7 +390,7 @@ export function CustomerDetailPage() {
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="flex items-center gap-2 text-sm font-semibold">
                 <Users className="size-4 text-muted-foreground" />
-                Contacts{" "}
+                {t("detail.contacts_heading")}{" "}
                 <span className="font-mono text-xs text-muted-foreground">
                   ({users?.length ?? 0})
                 </span>
@@ -393,11 +406,11 @@ export function CustomerDetailPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <th className="px-4 py-3 font-medium">User</th>
-                    <th className="px-4 py-3 font-medium">Email</th>
-                    <th className="px-4 py-3 font-medium">Role</th>
-                    <th className="px-4 py-3 font-medium">Active</th>
-                    <th className="px-4 py-3 text-right font-medium">Actions</th>
+                    <th className="px-4 py-3 font-medium">{t("detail.col_user")}</th>
+                    <th className="px-4 py-3 font-medium">{t("detail.col_email")}</th>
+                    <th className="px-4 py-3 font-medium">{t("detail.col_role")}</th>
+                    <th className="px-4 py-3 font-medium">{t("detail.col_active")}</th>
+                    <th className="px-4 py-3 text-right font-medium">{t("detail.col_actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -411,7 +424,7 @@ export function CustomerDetailPage() {
                         colSpan={5}
                         className="px-4 py-12 text-center text-sm text-muted-foreground"
                       >
-                        No contacts linked to this customer.
+                        {t("detail.no_contacts")}
                       </td>
                     </tr>
                   )}
@@ -427,7 +440,7 @@ export function CustomerDetailPage() {
         <aside data-reveal className="space-y-4">
           <Card className="p-5">
             <MetaRow
-              label="Code"
+              label={t("detail.meta_code")}
               value={
                 customer.code ? (
                   <span className="font-mono text-xs">{customer.code}</span>
@@ -438,7 +451,7 @@ export function CustomerDetailPage() {
             />
             <Separator />
             <MetaRow
-              label="Domain"
+              label={t("detail.meta_domain")}
               value={
                 <span className="font-mono text-xs">
                   {customer.domain || "—"}
@@ -447,15 +460,15 @@ export function CustomerDetailPage() {
             />
             <Separator />
             <MetaRow
-              label="Status"
+              label={t("detail.meta_status")}
               value={
                 <Badge tone={customer.is_active ? "green" : "slate"}>
-                  {customer.is_active ? "active" : "inactive"}
+                  {customer.is_active ? t("status.active") : t("status.inactive")}
                 </Badge>
               }
             />
-            <MetaRow label="Created" value={relativeTime(customer.created_at)} />
-            <MetaRow label="Updated" value={relativeTime(customer.updated_at)} />
+            <MetaRow label={t("detail.meta_created")} value={relativeTime(customer.created_at)} />
+            <MetaRow label={t("detail.meta_updated")} value={relativeTime(customer.updated_at)} />
           </Card>
         </aside>
       </div>
@@ -464,17 +477,22 @@ export function CustomerDetailPage() {
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete customer</DialogTitle>
-            <DialogDescription>
-              Delete <span className="font-medium text-foreground">{customer.name}</span>?
-              This soft-deletes the organization. Their contacts and tickets are
-              not removed.
+            <DialogTitle>{t("detail.delete_dialog.title")}</DialogTitle>
+            <DialogDescription asChild>
+              <p>
+                <Trans
+                  ns="customers"
+                  i18nKey="detail.delete_dialog.description"
+                  values={{ name: customer.name }}
+                  components={{ bold: <span className="font-medium text-foreground" /> }}
+                />
+              </p>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button
@@ -482,7 +500,9 @@ export function CustomerDetailPage() {
               onClick={onDelete}
               disabled={del.isPending}
             >
-              {del.isPending ? "Deleting…" : "Delete customer"}
+              {del.isPending
+                ? t("detail.delete_dialog.deleting")
+                : t("detail.delete_dialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,0 +1,86 @@
+{
+  "page": {
+    "section_label": "데이터",
+    "title": "가져오기 / 내보내기"
+  },
+  "stats": {
+    "total_jobs": "전체 작업",
+    "completed": "완료",
+    "running": "실행 중",
+    "failed": "실패"
+  },
+  "filters": {
+    "all_types": "전체 유형",
+    "all_statuses": "전체 상태",
+    "type_placeholder": "유형",
+    "status_placeholder": "상태"
+  },
+  "table": {
+    "col_type": "유형",
+    "col_status": "상태",
+    "col_progress": "진행률",
+    "col_records": "레코드",
+    "col_created": "생성일",
+    "empty_heading": "이 필터 조건에 맞는 가져오기/내보내기 작업이 없습니다."
+  },
+  "records": {
+    "failed_count": "{{count}}건 실패"
+  },
+  "pagination": {
+    "summary": "{{total}}개 작업 · {{page}}/{{totalPages}} 페이지",
+    "syncing": " · 동기화 중…",
+    "prev": "이전",
+    "next": "다음"
+  },
+  "actions": {
+    "download": "다운로드",
+    "downloading": "다운로드 중…",
+    "cancel_job": "작업 취소",
+    "delete": "삭제",
+    "new_export": "새 내보내기"
+  },
+  "confirm_delete": {
+    "title": "작업 삭제",
+    "description": "작업 #{{id}}({{label}})을(를) 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
+  },
+  "toasts": {
+    "job_deleted": "작업이 삭제되었습니다",
+    "delete_failed": "작업을 삭제할 수 없습니다",
+    "export_created": "내보내기 작업이 생성되었습니다",
+    "export_create_failed": "내보내기 작업을 생성할 수 없습니다"
+  },
+  "status": {
+    "pending": "대기 중",
+    "running": "실행 중",
+    "completed": "완료",
+    "failed": "실패",
+    "cancelled": "취소됨"
+  },
+  "job_type": {
+    "import": "가져오기",
+    "export": "내보내기"
+  },
+  "format": {
+    "csv": "CSV",
+    "json": "JSON",
+    "xml": "XML",
+    "markdown": "Markdown",
+    "sqlite": "SQLite"
+  },
+  "export_dialog": {
+    "title": "새 내보내기 작업",
+    "description": "데이터셋 내보내기를 대기열에 추가합니다. 작업은 백그라운드에서 실행되며, 완료되면 결과를 다운로드할 수 있습니다.",
+    "dataset_label": "데이터셋",
+    "format_label": "형식",
+    "submit": "내보내기 생성",
+    "submitting": "생성 중…"
+  },
+  "entity": {
+    "tickets": "티켓",
+    "knowledge_articles": "지식 문서",
+    "users": "사용자",
+    "products": "제품",
+    "services": "서비스",
+    "complete": "전체 (전체 데이터베이스)"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "page": {
+    "eyebrow": "integrazione AI",
+    "title": "Provider AI"
+  },
+  "newProvider": "Nuovo provider",
+  "table": {
+    "name": "Nome",
+    "type": "Tipo",
+    "tasks": "Compiti",
+    "model": "Modello",
+    "endpoint": "Endpoint",
+    "dims": "Dims",
+    "key": "Chiave",
+    "flags": "Flag"
+  },
+  "badges": {
+    "default": "predefinito",
+    "enabled": "attivo",
+    "disabled": "disattivo"
+  },
+  "taskLabels": {
+    "chat": "Chat",
+    "embedding": "Embedding"
+  },
+  "empty": "Nessun provider AI configurato.",
+  "actions": {
+    "test": "Testa",
+    "testTitle": "Testa connettività",
+    "editTitle": "Modifica provider",
+    "deleteTitle": "Elimina provider"
+  },
+  "form": {
+    "titleCreate": "Nuovo provider",
+    "titleEdit": "Modifica provider",
+    "description": "Configura un provider di chat o embedding. Chat ed embedding sono indipendenti — crea una riga per ciascuno (es. DeepSeek per la chat, Aliyun Bailian per l'embedding).",
+    "name": "Nome",
+    "providerType": "Tipo di provider",
+    "apiEndpoint": "Endpoint API",
+    "model": "Modello",
+    "apiKey": "Chiave API",
+    "apiKeyPlaceholderEdit": "Lascia vuoto per conservare la chiave esistente",
+    "taskTypes": "Tipi di compito",
+    "dimensions": "Dimensioni",
+    "maxTokens": "Token massimi",
+    "temperature": "Temperatura",
+    "default": "Predefinito",
+    "status": "Stato",
+    "optionDefault": "Predefinito",
+    "optionNotDefault": "Non predefinito",
+    "optionEnabled": "Attivo",
+    "optionDisabled": "Disattivo",
+    "submitCreate": "Crea provider",
+    "submitEdit": "Salva modifiche",
+    "creatingPending": "Creazione in corso…",
+    "savingPending": "Salvataggio in corso…"
+  },
+  "validation": {
+    "nameRequired": "Il nome è obbligatorio",
+    "typeRequired": "Il tipo è obbligatorio",
+    "endpointRequired": "L'endpoint è obbligatorio",
+    "modelRequired": "Il modello è obbligatorio",
+    "atLeastOneTask": "Seleziona almeno un tipo di compito (chat o embedding)"
+  },
+  "toast": {
+    "created": "Provider creato",
+    "updated": "Provider aggiornato",
+    "deleted": "Provider eliminato",
+    "createFailed": "Impossibile creare il provider",
+    "updateFailed": "Impossibile aggiornare il provider",
+    "deleteFailed": "Impossibile eliminare il provider",
+    "testFailed": "Test non riuscito"
+  },
+  "deleteDialog": {
+    "title": "Eliminare il provider?",
+    "description": "La configurazione del provider \"{{name}}\" verrà rimossa in modo permanente.",
+    "confirmPending": "Eliminazione in corso…",
+    "confirm": "Elimina"
+  }
+}

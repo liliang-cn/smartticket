@@ -1,0 +1,112 @@
+{
+  "page": {
+    "eyebrow": "access control",
+    "title": "Roles & Permissions"
+  },
+  "roles": {
+    "heading": "Roles",
+    "empty": "No roles defined.",
+    "system_badge": "system",
+    "more": "+{{count}} more",
+    "no_permissions": "no permissions",
+    "edit_title": "Edit role",
+    "delete_title": "Delete role",
+    "delete_system_hint": "System roles cannot be deleted",
+    "permissions_button": "Permissions",
+    "confirm_delete": {
+      "title": "Delete role?",
+      "description": "This permanently removes the \"{{name}}\" role. Users assigned to it will lose its permissions."
+    },
+    "toast": {
+      "deleted": "Role deleted",
+      "delete_error": "Could not delete role"
+    }
+  },
+  "permissions": {
+    "heading": "Permissions",
+    "empty": "No permissions defined.",
+    "edit_title": "Edit permission",
+    "delete_title": "Delete permission",
+    "delete_system_hint": "System permissions cannot be deleted",
+    "confirm_delete": {
+      "title": "Delete permission?",
+      "description": "This permanently removes the \"{{name}}\" permission from every role that grants it."
+    },
+    "toast": {
+      "deleted": "Permission deleted",
+      "delete_error": "Could not delete permission"
+    }
+  },
+  "confirm_dialog": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting…"
+  },
+  "role_form": {
+    "title_new": "New role",
+    "title_edit": "Edit role",
+    "description_new": "Define a new role that can be assigned to users.",
+    "description_edit": "Update this role's details.",
+    "trigger_new": "New role",
+    "field_name": "Name",
+    "field_description": "Description",
+    "placeholder_name": "support-lead",
+    "placeholder_description": "What this role is allowed to do…",
+    "name_locked_hint": "System role names cannot be changed.",
+    "validation": {
+      "name_required": "Name is required"
+    },
+    "button_create": "Create role",
+    "button_save": "Save changes",
+    "button_creating": "Creating…",
+    "button_saving": "Saving…",
+    "toast": {
+      "created": "Role created",
+      "updated": "Role updated",
+      "create_error": "Could not create role",
+      "update_error": "Could not update role"
+    }
+  },
+  "permission_form": {
+    "title_new": "New permission",
+    "title_edit": "Edit permission",
+    "description_new": "Define a new permission that can be granted to roles.",
+    "description_edit": "Update this permission's details.",
+    "trigger_new": "New permission",
+    "field_code": "Code",
+    "field_category": "Category",
+    "field_name": "Name",
+    "field_description": "Description",
+    "placeholder_code": "ticket:write",
+    "placeholder_category": "ticket",
+    "placeholder_name": "Write tickets",
+    "placeholder_description": "What this permission grants…",
+    "code_locked_hint": "System permission codes cannot be changed.",
+    "validation": {
+      "code_required": "Code is required",
+      "code_format": "Use the form resource:action, e.g. ticket:write",
+      "name_required": "Name is required"
+    },
+    "button_create": "Create permission",
+    "button_save": "Save changes",
+    "button_creating": "Creating…",
+    "button_saving": "Saving…",
+    "toast": {
+      "created": "Permission created",
+      "updated": "Permission updated",
+      "create_error": "Could not create permission",
+      "update_error": "Could not update permission"
+    }
+  },
+  "role_permissions": {
+    "title": "Permissions for {{name}}",
+    "description": "Toggle the permissions granted to this role. Changes save immediately.",
+    "empty": "No permissions defined yet.",
+    "button_done": "Done",
+    "toast": {
+      "granted": "Granted {{code}}",
+      "revoked": "Revoked {{code}}",
+      "update_error": "Could not update permissions"
+    }
+  }
+}

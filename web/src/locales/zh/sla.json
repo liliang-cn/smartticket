@@ -1,0 +1,153 @@
+{
+  "page": {
+    "eyebrow": "策略",
+    "heading": "服务级别"
+  },
+  "nav": {
+    "templates": "模板",
+    "rules": "规则"
+  },
+  "pager": {
+    "summary": "{{total}} {{noun}} · 第 {{page}}/{{totalPages}} 页",
+    "syncing": "· 同步中…",
+    "prev": "上一页",
+    "next": "下一页",
+    "noun_templates": "个模板",
+    "noun_rules": "条规则"
+  },
+  "templates": {
+    "search_placeholder": "搜索模板…",
+    "columns": {
+      "name": "名称",
+      "default": "默认",
+      "active": "启用",
+      "levels": "等级",
+      "holidays": "假日",
+      "updated": "更新时间"
+    },
+    "default_badge": "默认",
+    "active_badge": "已启用",
+    "inactive_badge": "已停用",
+    "levels_summary": "{{priority}}优先 · {{severity}}严重",
+    "empty": "暂无 SLA 模板。",
+    "actions": {
+      "edit": "编辑",
+      "set_default": "设为默认",
+      "deactivate": "停用",
+      "activate": "启用",
+      "delete": "删除"
+    },
+    "confirm_delete": {
+      "title": "删除 SLA 模板",
+      "description": "确定删除「{{name}}」SLA 模板？此操作无法撤销。"
+    },
+    "toast": {
+      "deleted": "SLA 模板已删除",
+      "delete_error": "无法删除 SLA 模板"
+    }
+  },
+  "rules": {
+    "search_placeholder": "搜索规则…",
+    "columns": {
+      "template": "模板",
+      "priority": "优先级",
+      "severity": "严重性",
+      "response": "响应时间",
+      "resolution": "解决时间",
+      "hours": "时间类型",
+      "active": "启用"
+    },
+    "hours_business": "工作时间",
+    "hours_calendar": "日历时间",
+    "empty": "暂无 SLA 规则。",
+    "any_priority": "任意优先级",
+    "any_severity": "任意严重性",
+    "actions": {
+      "edit": "编辑",
+      "deactivate": "停用",
+      "activate": "启用",
+      "delete": "删除"
+    },
+    "confirm_delete": {
+      "title": "删除 SLA 规则",
+      "description": "确定删除 {{label}} 的 SLA 规则？此操作无法撤销。"
+    },
+    "toast": {
+      "deleted": "SLA 规则已删除",
+      "delete_error": "无法删除 SLA 规则"
+    }
+  },
+  "template_dialog": {
+    "title_new": "新建 SLA 模板",
+    "title_edit": "编辑 SLA 模板",
+    "description_new": "定义可复用的服务级别协议模板。",
+    "description_edit": "修改此 SLA 模板的基本信息。",
+    "trigger_new": "新建模板",
+    "fields": {
+      "name_label": "名称",
+      "name_placeholder": "标准支持",
+      "description_label": "描述",
+      "description_placeholder": "关于此 SLA 模板的备注…",
+      "default_label": "默认",
+      "status_label": "状态"
+    },
+    "options": {
+      "yes": "是",
+      "no": "否",
+      "active": "启用",
+      "inactive": "停用"
+    },
+    "submit_create": "创建模板",
+    "submit_edit": "保存更改",
+    "submitting_create": "创建中…",
+    "submitting_edit": "保存中…",
+    "toast": {
+      "created": "SLA 模板已创建",
+      "updated": "SLA 模板已更新",
+      "create_error": "无法创建模板",
+      "update_error": "无法更新模板"
+    },
+    "validation": {
+      "name_required": "名称不能为空"
+    }
+  },
+  "rule_dialog": {
+    "title_new": "新建 SLA 规则",
+    "title_edit": "编辑 SLA 规则",
+    "description_new": "将优先级/严重性映射到响应与解决目标。",
+    "description_edit": "修改此 SLA 规则的目标值。",
+    "trigger_new": "新建规则",
+    "fields": {
+      "template_id_label": "模板 ID",
+      "priority_label": "优先级",
+      "severity_label": "严重性",
+      "response_time_label": "响应时间（分钟）",
+      "resolution_time_label": "解决时间（分钟）",
+      "business_hours_label": "仅限工作时间",
+      "status_label": "状态"
+    },
+    "options": {
+      "yes": "是",
+      "no": "否",
+      "active": "启用",
+      "inactive": "停用"
+    },
+    "submit_create": "创建规则",
+    "submit_edit": "保存更改",
+    "submitting_create": "创建中…",
+    "submitting_edit": "保存中…",
+    "toast": {
+      "created": "SLA 规则已创建",
+      "updated": "SLA 规则已更新",
+      "create_error": "无法创建规则",
+      "update_error": "无法更新规则"
+    },
+    "validation": {
+      "template_id_required": "模板 ID 不能为空",
+      "template_id_positive": "模板 ID 必须为正整数",
+      "priority_required": "优先级不能为空",
+      "severity_required": "严重性不能为空",
+      "time_non_negative": "必须 ≥ 0"
+    }
+  }
+}

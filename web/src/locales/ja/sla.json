@@ -1,0 +1,153 @@
+{
+  "page": {
+    "eyebrow": "ポリシー",
+    "heading": "サービスレベル"
+  },
+  "nav": {
+    "templates": "テンプレート",
+    "rules": "ルール"
+  },
+  "pager": {
+    "summary": "{{total}} {{noun}} · {{page}}/{{totalPages}} ページ",
+    "syncing": "· 同期中…",
+    "prev": "前へ",
+    "next": "次へ",
+    "noun_templates": "件のテンプレート",
+    "noun_rules": "件のルール"
+  },
+  "templates": {
+    "search_placeholder": "テンプレートを検索…",
+    "columns": {
+      "name": "名前",
+      "default": "デフォルト",
+      "active": "有効",
+      "levels": "レベル",
+      "holidays": "祝日",
+      "updated": "更新日時"
+    },
+    "default_badge": "デフォルト",
+    "active_badge": "有効",
+    "inactive_badge": "無効",
+    "levels_summary": "{{priority}}優先 · {{severity}}重大度",
+    "empty": "SLA テンプレートがまだありません。",
+    "actions": {
+      "edit": "編集",
+      "set_default": "デフォルトに設定",
+      "deactivate": "無効化",
+      "activate": "有効化",
+      "delete": "削除"
+    },
+    "confirm_delete": {
+      "title": "SLA テンプレートを削除",
+      "description": "「{{name}}」SLA テンプレートを削除しますか？この操作は元に戻せません。"
+    },
+    "toast": {
+      "deleted": "SLA テンプレートを削除しました",
+      "delete_error": "SLA テンプレートを削除できませんでした"
+    }
+  },
+  "rules": {
+    "search_placeholder": "ルールを検索…",
+    "columns": {
+      "template": "テンプレート",
+      "priority": "優先度",
+      "severity": "重大度",
+      "response": "応答時間",
+      "resolution": "解決時間",
+      "hours": "時間種別",
+      "active": "有効"
+    },
+    "hours_business": "営業時間",
+    "hours_calendar": "暦時間",
+    "empty": "SLA ルールがまだありません。",
+    "any_priority": "任意の優先度",
+    "any_severity": "任意の重大度",
+    "actions": {
+      "edit": "編集",
+      "deactivate": "無効化",
+      "activate": "有効化",
+      "delete": "削除"
+    },
+    "confirm_delete": {
+      "title": "SLA ルールを削除",
+      "description": "{{label}} の SLA ルールを削除しますか？この操作は元に戻せません。"
+    },
+    "toast": {
+      "deleted": "SLA ルールを削除しました",
+      "delete_error": "SLA ルールを削除できませんでした"
+    }
+  },
+  "template_dialog": {
+    "title_new": "新しい SLA テンプレート",
+    "title_edit": "SLA テンプレートを編集",
+    "description_new": "再利用可能なサービスレベル合意テンプレートを定義します。",
+    "description_edit": "この SLA テンプレートの基本情報を更新します。",
+    "trigger_new": "新しいテンプレート",
+    "fields": {
+      "name_label": "名前",
+      "name_placeholder": "標準サポート",
+      "description_label": "説明",
+      "description_placeholder": "この SLA テンプレートに関するメモ…",
+      "default_label": "デフォルト",
+      "status_label": "ステータス"
+    },
+    "options": {
+      "yes": "はい",
+      "no": "いいえ",
+      "active": "有効",
+      "inactive": "無効"
+    },
+    "submit_create": "テンプレートを作成",
+    "submit_edit": "変更を保存",
+    "submitting_create": "作成中…",
+    "submitting_edit": "保存中…",
+    "toast": {
+      "created": "SLA テンプレートを作成しました",
+      "updated": "SLA テンプレートを更新しました",
+      "create_error": "テンプレートを作成できませんでした",
+      "update_error": "テンプレートを更新できませんでした"
+    },
+    "validation": {
+      "name_required": "名前は必須です"
+    }
+  },
+  "rule_dialog": {
+    "title_new": "新しい SLA ルール",
+    "title_edit": "SLA ルールを編集",
+    "description_new": "優先度・重大度を応答・解決目標にマッピングします。",
+    "description_edit": "この SLA ルールの目標値を更新します。",
+    "trigger_new": "新しいルール",
+    "fields": {
+      "template_id_label": "テンプレート ID",
+      "priority_label": "優先度",
+      "severity_label": "重大度",
+      "response_time_label": "応答時間（分）",
+      "resolution_time_label": "解決時間（分）",
+      "business_hours_label": "営業時間のみ",
+      "status_label": "ステータス"
+    },
+    "options": {
+      "yes": "はい",
+      "no": "いいえ",
+      "active": "有効",
+      "inactive": "無効"
+    },
+    "submit_create": "ルールを作成",
+    "submit_edit": "変更を保存",
+    "submitting_create": "作成中…",
+    "submitting_edit": "保存中…",
+    "toast": {
+      "created": "SLA ルールを作成しました",
+      "updated": "SLA ルールを更新しました",
+      "create_error": "ルールを作成できませんでした",
+      "update_error": "ルールを更新できませんでした"
+    },
+    "validation": {
+      "template_id_required": "テンプレート ID は必須です",
+      "template_id_positive": "テンプレート ID は正の整数でなければなりません",
+      "priority_required": "優先度は必須です",
+      "severity_required": "重大度は必須です",
+      "time_non_negative": "0 以上でなければなりません"
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useTranslation, Trans } from "react-i18next";
 import { Ticket, Upload, Trash2, RotateCcw, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useBranding, DEFAULT_BRANDING } from "@/lib/branding";
@@ -15,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/misc";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { LanguageToggle } from "@/components/language-toggle";
 import { useReveal } from "@/lib/use-reveal";
 
 // A small palette of tasteful accent presets to pick from.
@@ -65,6 +67,7 @@ function Field({
 }
 
 export function SettingsPage() {
+  const { t } = useTranslation("settings");
   const branding = useBranding();
   const update = useUpdateBranding();
   const uploadLogo = useUploadLogo();
@@ -103,14 +106,14 @@ export function SettingsPage() {
 
   async function onSave() {
     if (!validColor) {
-      toast.error("Enter a valid hex color, e.g. #f59e0b");
+      toast.error(t("toasts.invalid_hex"));
       return;
     }
     try {
       await update.mutateAsync(form);
-      toast.success("Branding saved");
+      toast.success(t("toasts.saved"));
     } catch (err) {
-      toast.error(apiError(err, "Could not save branding"));
+      toast.error(apiError(err, t("toasts.save_error")));
     }
   }
 
@@ -131,9 +134,9 @@ export function SettingsPage() {
     if (!file) return;
     try {
       await uploadLogo.mutateAsync(file);
-      toast.success("Logo updated");
+      toast.success(t("toasts.logo_updated"));
     } catch (err) {
-      toast.error(apiError(err, "Could not upload logo"));
+      toast.error(apiError(err, t("toasts.logo_upload_error")));
     }
   }
 
@@ -141,9 +144,9 @@ export function SettingsPage() {
     try {
       await deleteLogo.mutateAsync();
       setConfirmRemoveLogo(false);
-      toast.success("Logo removed");
+      toast.success(t("toasts.logo_removed"));
     } catch (err) {
-      toast.error(apiError(err, "Could not remove logo"));
+      toast.error(apiError(err, t("toasts.logo_remove_error")));
     }
   }
 
@@ -157,26 +160,32 @@ export function SettingsPage() {
   return (
     <div ref={ref} className="w-full">
       <div data-reveal className="mb-6">
-        <h1 className="text-2xl">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          White-label this deployment — the brand name, accent color and logo
-          apply to every user and the sign-in page.
-        </p>
+        <h1 className="text-2xl">{t("title")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         {/* Controls */}
         <div className="space-y-5">
+          {/* Language */}
+          <Card data-reveal className="flex items-center justify-between gap-4 p-5">
+            <div>
+              <h2 className="text-sm font-semibold">{t("language.heading")}</h2>
+              <p className="text-xs text-muted-foreground">{t("language.desc")}</p>
+            </div>
+            <LanguageToggle />
+          </Card>
+
           {/* Identity */}
           <Card data-reveal className="space-y-4 p-5">
             <div>
-              <h2 className="text-sm font-semibold">Identity</h2>
+              <h2 className="text-sm font-semibold">{t("identity.heading")}</h2>
               <p className="text-xs text-muted-foreground">
-                Names shown in the sidebar and workspace header.
+                {t("identity.desc")}
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="App name" hint="Shown beside the logo.">
+              <Field label={t("identity.app_name")} hint={t("identity.app_name_hint")}>
                 <Input
                   value={form.app_name}
                   maxLength={100}
@@ -184,7 +193,7 @@ export function SettingsPage() {
                   placeholder="SmartTicket"
                 />
               </Field>
-              <Field label="App subtitle" hint="Small label under the app name.">
+              <Field label={t("identity.app_subtitle")} hint={t("identity.app_subtitle_hint")}>
                 <Input
                   value={form.app_subtitle}
                   maxLength={100}
@@ -194,8 +203,8 @@ export function SettingsPage() {
               </Field>
             </div>
             <Field
-              label="Workspace name"
-              hint="The label in the top bar of every page."
+              label={t("identity.workspace_name")}
+              hint={t("identity.workspace_name_hint")}
             >
               <Input
                 value={form.workspace_name}
@@ -209,10 +218,9 @@ export function SettingsPage() {
           {/* Accent color */}
           <Card data-reveal className="space-y-4 p-5">
             <div>
-              <h2 className="text-sm font-semibold">Accent color</h2>
+              <h2 className="text-sm font-semibold">{t("accent.heading")}</h2>
               <p className="text-xs text-muted-foreground">
-                The signal color for buttons, active navigation, links and focus
-                rings — across light and dark themes.
+                {t("accent.desc")}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -221,7 +229,7 @@ export function SettingsPage() {
                   key={c}
                   type="button"
                   onClick={() => set("primary_color")(c)}
-                  aria-label={`Use ${c}`}
+                  aria-label={t("accent.use_color", { color: c })}
                   className="size-8 rounded-full border-2 transition-transform hover:scale-110"
                   style={{
                     backgroundColor: c,
@@ -239,7 +247,7 @@ export function SettingsPage() {
                 value={validColor ? form.primary_color : "#f59e0b"}
                 onChange={(e) => set("primary_color")(e.target.value)}
                 className="size-10 cursor-pointer rounded-md border border-border bg-transparent p-1"
-                aria-label="Pick a custom color"
+                aria-label={t("accent.custom_color")}
               />
               <div className="w-40">
                 <Input
@@ -252,7 +260,7 @@ export function SettingsPage() {
               </div>
               {!validColor && (
                 <span className="text-xs text-destructive">
-                  Use a hex like #f59e0b
+                  {t("accent.invalid_hex")}
                 </span>
               )}
             </div>
@@ -261,10 +269,9 @@ export function SettingsPage() {
           {/* Logo */}
           <Card data-reveal className="space-y-4 p-5">
             <div>
-              <h2 className="text-sm font-semibold">Logo</h2>
+              <h2 className="text-sm font-semibold">{t("logo.heading")}</h2>
               <p className="text-xs text-muted-foreground">
-                Replaces the default glyph. PNG, JPG, SVG, WEBP or GIF, up to
-                2 MB. A square image works best.
+                {t("logo.desc")}
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -272,7 +279,7 @@ export function SettingsPage() {
                 {branding.has_logo ? (
                   <img
                     src={branding.logo_url}
-                    alt="Current logo"
+                    alt={t("logo.current_alt")}
                     className="size-full object-contain"
                   />
                 ) : (
@@ -295,7 +302,7 @@ export function SettingsPage() {
                   onClick={() => fileInput.current?.click()}
                   disabled={uploadLogo.isPending}
                 >
-                  <Upload /> {uploadLogo.isPending ? "Uploading…" : "Upload logo"}
+                  <Upload /> {uploadLogo.isPending ? t("logo.uploading") : t("logo.upload")}
                 </Button>
                 {branding.has_logo && (
                   <Button
@@ -305,7 +312,7 @@ export function SettingsPage() {
                     onClick={() => setConfirmRemoveLogo(true)}
                     disabled={deleteLogo.isPending}
                   >
-                    <Trash2 /> Remove
+                    <Trash2 /> {t("logo.remove")}
                   </Button>
                 )}
               </div>
@@ -315,12 +322,12 @@ export function SettingsPage() {
           {/* Sign-in page */}
           <Card data-reveal className="space-y-4 p-5">
             <div>
-              <h2 className="text-sm font-semibold">Sign-in page</h2>
+              <h2 className="text-sm font-semibold">{t("signin.heading")}</h2>
               <p className="text-xs text-muted-foreground">
-                The headline and subtext on the right side of the login screen.
+                {t("signin.desc")}
               </p>
             </div>
-            <Field label="Tagline">
+            <Field label={t("signin.tagline")}>
               <Textarea
                 value={form.login_tagline}
                 maxLength={200}
@@ -329,7 +336,7 @@ export function SettingsPage() {
                 placeholder="Every ticket, SLA and customer — under one calm, fast surface."
               />
             </Field>
-            <Field label="Subtext">
+            <Field label={t("signin.subtext")}>
               <Textarea
                 value={form.login_subtext}
                 maxLength={300}
@@ -342,10 +349,10 @@ export function SettingsPage() {
 
           <div data-reveal className="flex items-center gap-2">
             <Button onClick={onSave} disabled={update.isPending || !validColor}>
-              <Save /> {update.isPending ? "Saving…" : "Save changes"}
+              <Save /> {update.isPending ? t("saving") : t("save_changes")}
             </Button>
             <Button variant="ghost" onClick={onResetDefaults} type="button">
-              <RotateCcw /> Reset to defaults
+              <RotateCcw /> {t("reset_defaults")}
             </Button>
           </div>
         </div>
@@ -354,7 +361,7 @@ export function SettingsPage() {
         <aside data-reveal className="space-y-4">
           <div className="sticky top-20 space-y-3">
             <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              Live preview
+              {t("preview.label")}
             </div>
             <Card className="overflow-hidden p-0" style={previewVars}>
               {/* Brand block */}
@@ -389,24 +396,23 @@ export function SettingsPage() {
               <div className="space-y-2 p-4">
                 <div className="relative flex items-center gap-2.5 rounded-md bg-primary/10 px-3 py-2 text-sm font-medium">
                   <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary" />
-                  <Ticket className="size-4" /> Active item
+                  <Ticket className="size-4" /> {t("preview.active_item")}
                 </div>
                 <div className="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground">
-                  <Ticket className="size-4" /> Inactive item
+                  <Ticket className="size-4" /> {t("preview.inactive_item")}
                 </div>
                 <Separator />
                 <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <Button size="sm">Primary</Button>
-                  <Badge tone="amber">accent</Badge>
+                  <Button size="sm">{t("preview.primary")}</Button>
+                  <Badge tone="amber">{t("preview.accent")}</Badge>
                   <a className="text-sm text-primary underline" href="#">
-                    link
+                    {t("preview.link")}
                   </a>
                 </div>
               </div>
             </Card>
             <p className="text-xs text-muted-foreground">
-              Color updates here instantly. Click <strong>Save changes</strong>{" "}
-              to apply across the app.
+              <Trans ns="settings" i18nKey="preview.note" components={[<strong key="0" />]} />
             </p>
           </div>
         </aside>
@@ -415,9 +421,9 @@ export function SettingsPage() {
       <ConfirmDialog
         open={confirmRemoveLogo}
         onOpenChange={setConfirmRemoveLogo}
-        title="Remove logo"
-        description="Revert to the default glyph? The uploaded image is deleted."
-        confirmLabel="Remove logo"
+        title={t("confirm_remove_logo.title")}
+        description={t("confirm_remove_logo.description")}
+        confirmLabel={t("confirm_remove_logo.confirm")}
         pending={deleteLogo.isPending}
         onConfirm={onRemoveLogo}
       />

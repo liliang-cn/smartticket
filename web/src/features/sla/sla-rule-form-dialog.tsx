@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   useCreateSLARule,
   useUpdateSLARule,
@@ -35,21 +36,22 @@ import {
 const PRIORITY_OPTIONS = ["low", "medium", "high", "critical"];
 const SEVERITY_OPTIONS = ["trivial", "minor", "major", "critical"];
 
+// Validation message keys are resolved via t() at render time.
 const schema = z.object({
   template_id: z
     .string()
-    .min(1, "Template ID is required")
+    .min(1, "template_id_required")
     .refine((v) => Number.isInteger(Number(v)) && Number(v) > 0, {
-      message: "Template ID must be a positive number",
+      message: "template_id_positive",
     }),
-  priority: z.string().min(1, "Priority is required"),
-  severity: z.string().min(1, "Severity is required"),
+  priority: z.string().min(1, "priority_required"),
+  severity: z.string().min(1, "severity_required"),
   response_time: z
     .string()
-    .refine((v) => v !== "" && Number(v) >= 0, { message: "Must be ≥ 0" }),
+    .refine((v) => v !== "" && Number(v) >= 0, { message: "time_non_negative" }),
   resolution_time: z
     .string()
-    .refine((v) => v !== "" && Number(v) >= 0, { message: "Must be ≥ 0" }),
+    .refine((v) => v !== "" && Number(v) >= 0, { message: "time_non_negative" }),
   business_only: z.boolean(),
   is_active: z.boolean(),
 });
@@ -66,6 +68,7 @@ const ACTIVE = "active";
 const INACTIVE = "inactive";
 
 export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
+  const { t } = useTranslation("sla");
   const [open, setOpen] = useState(false);
   const isEdit = rule != null;
   const create = useCreateSLARule();
@@ -121,17 +124,19 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
     try {
       if (isEdit) {
         await update.mutateAsync(payload);
-        toast.success("SLA rule updated");
+        toast.success(t("rule_dialog.toast.updated"));
       } else {
         await create.mutateAsync(payload);
-        toast.success("SLA rule created");
+        toast.success(t("rule_dialog.toast.created"));
       }
       setOpen(false);
     } catch (err) {
       toast.error(
         apiError(
           err,
-          isEdit ? "Could not update rule" : "Could not create rule"
+          isEdit
+            ? t("rule_dialog.toast.update_error")
+            : t("rule_dialog.toast.create_error")
         )
       );
     }
@@ -142,22 +147,22 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus /> New rule
+            <Plus /> {t("rule_dialog.trigger_new")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit SLA rule" : "New SLA rule"}</DialogTitle>
+          <DialogTitle>{isEdit ? t("rule_dialog.title_edit") : t("rule_dialog.title_new")}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Update this SLA rule's targets."
-              : "Map priority/severity to response & resolution targets."}
+              ? t("rule_dialog.description_edit")
+              : t("rule_dialog.description_new")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="r-template">Template ID</Label>
+            <Label htmlFor="r-template">{t("rule_dialog.fields.template_id_label")}</Label>
             <Input
               id="r-template"
               type="number"
@@ -166,13 +171,13 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
             />
             {errors.template_id && (
               <p className="text-xs text-destructive">
-                {errors.template_id.message}
+                {t(`rule_dialog.validation.${errors.template_id.message}`)}
               </p>
             )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Priority</Label>
+              <Label>{t("rule_dialog.fields.priority_label")}</Label>
               <Select
                 value={watch("priority")}
                 onValueChange={(v) => setValue("priority", v)}
@@ -190,12 +195,12 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
               </Select>
               {errors.priority && (
                 <p className="text-xs text-destructive">
-                  {errors.priority.message}
+                  {t("rule_dialog.validation.priority_required")}
                 </p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label>Severity</Label>
+              <Label>{t("rule_dialog.fields.severity_label")}</Label>
               <Select
                 value={watch("severity")}
                 onValueChange={(v) => setValue("severity", v)}
@@ -213,14 +218,14 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
               </Select>
               {errors.severity && (
                 <p className="text-xs text-destructive">
-                  {errors.severity.message}
+                  {t("rule_dialog.validation.severity_required")}
                 </p>
               )}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="r-response">Response time (min)</Label>
+              <Label htmlFor="r-response">{t("rule_dialog.fields.response_time_label")}</Label>
               <Input
                 id="r-response"
                 type="number"
@@ -229,12 +234,12 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
               />
               {errors.response_time && (
                 <p className="text-xs text-destructive">
-                  {errors.response_time.message}
+                  {t("rule_dialog.validation.time_non_negative")}
                 </p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="r-resolution">Resolution time (min)</Label>
+              <Label htmlFor="r-resolution">{t("rule_dialog.fields.resolution_time_label")}</Label>
               <Input
                 id="r-resolution"
                 type="number"
@@ -243,14 +248,14 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
               />
               {errors.resolution_time && (
                 <p className="text-xs text-destructive">
-                  {errors.resolution_time.message}
+                  {t("rule_dialog.validation.time_non_negative")}
                 </p>
               )}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Business hours only</Label>
+              <Label>{t("rule_dialog.fields.business_hours_label")}</Label>
               <Select
                 value={watch("business_only") ? "yes" : "no"}
                 onValueChange={(v) => setValue("business_only", v === "yes")}
@@ -259,13 +264,13 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="no">No</SelectItem>
-                  <SelectItem value="yes">Yes</SelectItem>
+                  <SelectItem value="no">{t("rule_dialog.options.no")}</SelectItem>
+                  <SelectItem value="yes">{t("rule_dialog.options.yes")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Status</Label>
+              <Label>{t("rule_dialog.fields.status_label")}</Label>
               <Select
                 value={watch("is_active") ? ACTIVE : INACTIVE}
                 onValueChange={(v) => setValue("is_active", v === ACTIVE)}
@@ -274,8 +279,8 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ACTIVE}>Active</SelectItem>
-                  <SelectItem value={INACTIVE}>Inactive</SelectItem>
+                  <SelectItem value={ACTIVE}>{t("rule_dialog.options.active")}</SelectItem>
+                  <SelectItem value={INACTIVE}>{t("rule_dialog.options.inactive")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -283,17 +288,17 @@ export function SLARuleFormDialog({ rule, trigger }: SLARuleFormDialogProps) {
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={pending}>
               {pending
                 ? isEdit
-                  ? "Saving…"
-                  : "Creating…"
+                  ? t("rule_dialog.submitting_edit")
+                  : t("rule_dialog.submitting_create")
                 : isEdit
-                  ? "Save changes"
-                  : "Create rule"}
+                  ? t("rule_dialog.submit_edit")
+                  : t("rule_dialog.submit_create")}
             </Button>
           </DialogFooter>
         </form>

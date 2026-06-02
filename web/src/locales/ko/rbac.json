@@ -1,0 +1,112 @@
+{
+  "page": {
+    "eyebrow": "접근 제어",
+    "title": "역할 및 권한"
+  },
+  "roles": {
+    "heading": "역할",
+    "empty": "정의된 역할이 없습니다.",
+    "system_badge": "시스템",
+    "more": "+{{count}}개 더",
+    "no_permissions": "권한 없음",
+    "edit_title": "역할 편집",
+    "delete_title": "역할 삭제",
+    "delete_system_hint": "시스템 역할은 삭제할 수 없습니다",
+    "permissions_button": "권한",
+    "confirm_delete": {
+      "title": "역할을 삭제하시겠습니까?",
+      "description": "「{{name}}」 역할이 영구적으로 제거됩니다. 이 역할이 할당된 사용자는 해당 권한을 잃게 됩니다."
+    },
+    "toast": {
+      "deleted": "역할이 삭제되었습니다",
+      "delete_error": "역할을 삭제할 수 없습니다"
+    }
+  },
+  "permissions": {
+    "heading": "권한",
+    "empty": "정의된 권한이 없습니다.",
+    "edit_title": "권한 편집",
+    "delete_title": "권한 삭제",
+    "delete_system_hint": "시스템 권한은 삭제할 수 없습니다",
+    "confirm_delete": {
+      "title": "권한을 삭제하시겠습니까?",
+      "description": "「{{name}}」 권한이 해당 권한을 부여하는 모든 역할에서 영구적으로 제거됩니다."
+    },
+    "toast": {
+      "deleted": "권한이 삭제되었습니다",
+      "delete_error": "권한을 삭제할 수 없습니다"
+    }
+  },
+  "confirm_dialog": {
+    "cancel": "취소",
+    "delete": "삭제",
+    "deleting": "삭제 중…"
+  },
+  "role_form": {
+    "title_new": "새 역할",
+    "title_edit": "역할 편집",
+    "description_new": "사용자에게 할당할 수 있는 새 역할을 정의합니다.",
+    "description_edit": "이 역할의 세부 정보를 업데이트합니다.",
+    "trigger_new": "새 역할",
+    "field_name": "이름",
+    "field_description": "설명",
+    "placeholder_name": "support-lead",
+    "placeholder_description": "이 역할이 수행할 수 있는 작업…",
+    "name_locked_hint": "시스템 역할 이름은 변경할 수 없습니다.",
+    "validation": {
+      "name_required": "이름은 필수입니다"
+    },
+    "button_create": "역할 만들기",
+    "button_save": "변경사항 저장",
+    "button_creating": "만드는 중…",
+    "button_saving": "저장 중…",
+    "toast": {
+      "created": "역할이 생성되었습니다",
+      "updated": "역할이 업데이트되었습니다",
+      "create_error": "역할을 생성할 수 없습니다",
+      "update_error": "역할을 업데이트할 수 없습니다"
+    }
+  },
+  "permission_form": {
+    "title_new": "새 권한",
+    "title_edit": "권한 편집",
+    "description_new": "역할에 부여할 수 있는 새 권한을 정의합니다.",
+    "description_edit": "이 권한의 세부 정보를 업데이트합니다.",
+    "trigger_new": "새 권한",
+    "field_code": "코드",
+    "field_category": "카테고리",
+    "field_name": "이름",
+    "field_description": "설명",
+    "placeholder_code": "ticket:write",
+    "placeholder_category": "ticket",
+    "placeholder_name": "티켓 작성",
+    "placeholder_description": "이 권한이 부여하는 기능…",
+    "code_locked_hint": "시스템 권한 코드는 변경할 수 없습니다.",
+    "validation": {
+      "code_required": "코드는 필수입니다",
+      "code_format": "resource:action 형식을 사용하세요 (예: ticket:write)",
+      "name_required": "이름은 필수입니다"
+    },
+    "button_create": "권한 만들기",
+    "button_save": "변경사항 저장",
+    "button_creating": "만드는 중…",
+    "button_saving": "저장 중…",
+    "toast": {
+      "created": "권한이 생성되었습니다",
+      "updated": "권한이 업데이트되었습니다",
+      "create_error": "권한을 생성할 수 없습니다",
+      "update_error": "권한을 업데이트할 수 없습니다"
+    }
+  },
+  "role_permissions": {
+    "title": "{{name}}의 권한",
+    "description": "이 역할에 부여된 권한을 전환합니다. 변경사항은 즉시 저장됩니다.",
+    "empty": "아직 정의된 권한이 없습니다.",
+    "button_done": "완료",
+    "toast": {
+      "granted": "{{code}} 부여됨",
+      "revoked": "{{code}} 취소됨",
+      "update_error": "권한을 업데이트할 수 없습니다"
+    }
+  }
+}

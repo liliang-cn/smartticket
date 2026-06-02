@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -25,17 +26,24 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 
-const schema = z.object({
-  code: z
-    .string()
-    .min(1, "Code is required")
-    .max(100)
-    .regex(/^[a-z0-9_]+:[a-z0-9_]+$/i, "Use the form resource:action, e.g. ticket:write"),
-  name: z.string().min(1, "Name is required").max(255),
-  description: z.string().max(500).optional(),
-  category: z.string().max(100).optional(),
-});
-type FormValues = z.infer<typeof schema>;
+function buildSchema(t: (key: string) => string) {
+  return z.object({
+    code: z
+      .string()
+      .min(1, t("permission_form.validation.code_required"))
+      .max(100)
+      .regex(/^[a-z0-9_]+:[a-z0-9_]+$/i, t("permission_form.validation.code_format")),
+    name: z.string().min(1, t("permission_form.validation.name_required")).max(255),
+    description: z.string().max(500).optional(),
+    category: z.string().max(100).optional(),
+  });
+}
+type FormValues = {
+  code: string;
+  name: string;
+  description?: string;
+  category?: string;
+};
 
 interface PermissionFormDialogProps {
   /** When provided, the dialog edits this permission instead of creating one. */
@@ -48,6 +56,7 @@ export function PermissionFormDialog({
   permission,
   trigger,
 }: PermissionFormDialogProps) {
+  const { t } = useTranslation("rbac");
   const [open, setOpen] = useState(false);
   const isEdit = permission != null;
   // System permission codes are immutable.
@@ -55,6 +64,8 @@ export function PermissionFormDialog({
   const create = useCreatePermission();
   const update = useUpdatePermission(permission?.id ?? 0);
   const pending = isEdit ? update.isPending : create.isPending;
+
+  const schema = buildSchema(t);
 
   const {
     register,
@@ -93,17 +104,19 @@ export function PermissionFormDialog({
     try {
       if (isEdit) {
         await update.mutateAsync(payload);
-        toast.success("Permission updated");
+        toast.success(t("permission_form.toast.updated"));
       } else {
         await create.mutateAsync(payload);
-        toast.success("Permission created");
+        toast.success(t("permission_form.toast.created"));
       }
       setOpen(false);
     } catch (err) {
       toast.error(
         apiError(
           err,
-          isEdit ? "Could not update permission" : "Could not create permission"
+          isEdit
+            ? t("permission_form.toast.update_error")
+            : t("permission_form.toast.create_error")
         )
       );
     }
@@ -114,34 +127,34 @@ export function PermissionFormDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus /> New permission
+            <Plus /> {t("permission_form.trigger_new")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Edit permission" : "New permission"}
+            {isEdit ? t("permission_form.title_edit") : t("permission_form.title_new")}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Update this permission's details."
-              : "Define a new permission that can be granted to roles."}
+              ? t("permission_form.description_edit")
+              : t("permission_form.description_new")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="p-code">Code</Label>
+              <Label htmlFor="p-code">{t("permission_form.field_code")}</Label>
               <Input
                 id="p-code"
-                placeholder="ticket:write"
+                placeholder={t("permission_form.placeholder_code")}
                 disabled={codeLocked}
                 {...register("code")}
               />
               {codeLocked && (
                 <p className="text-xs text-muted-foreground">
-                  System permission codes cannot be changed.
+                  {t("permission_form.code_locked_hint")}
                 </p>
               )}
               {errors.code && (
@@ -151,10 +164,10 @@ export function PermissionFormDialog({
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-category">Category</Label>
+              <Label htmlFor="p-category">{t("permission_form.field_category")}</Label>
               <Input
                 id="p-category"
-                placeholder="ticket"
+                placeholder={t("permission_form.placeholder_category")}
                 {...register("category")}
               />
               {errors.category && (
@@ -165,10 +178,10 @@ export function PermissionFormDialog({
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-name">Name</Label>
+            <Label htmlFor="p-name">{t("permission_form.field_name")}</Label>
             <Input
               id="p-name"
-              placeholder="Write tickets"
+              placeholder={t("permission_form.placeholder_name")}
               {...register("name")}
             />
             {errors.name && (
@@ -176,10 +189,10 @@ export function PermissionFormDialog({
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="p-desc">Description</Label>
+            <Label htmlFor="p-desc">{t("permission_form.field_description")}</Label>
             <Textarea
               id="p-desc"
-              placeholder="What this permission grants…"
+              placeholder={t("permission_form.placeholder_description")}
               {...register("description")}
             />
             {errors.description && (
@@ -191,17 +204,17 @@ export function PermissionFormDialog({
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={pending}>
               {pending
                 ? isEdit
-                  ? "Saving…"
-                  : "Creating…"
+                  ? t("permission_form.button_saving")
+                  : t("permission_form.button_creating")
                 : isEdit
-                  ? "Save changes"
-                  : "Create permission"}
+                  ? t("permission_form.button_save")
+                  : t("permission_form.button_create")}
             </Button>
           </DialogFooter>
         </form>

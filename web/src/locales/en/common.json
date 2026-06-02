@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "tickets": "Tickets",
+    "knowledge": "Knowledge",
+    "customers": "Customers",
+    "users": "Users",
+    "products": "Products",
+    "services": "Services",
+    "subscriptions": "Subscriptions",
+    "sla": "SLA",
+    "data": "Data",
+    "access": "Access",
+    "ai_providers": "AI Providers",
+    "settings": "Settings",
+    "soon": "soon",
+    "coming_soon": "Coming soon",
+    "coming_soon_item": "{{label}} (coming soon)"
+  },
+  "topbar": {
+    "sign_out": "Sign out",
+    "collapse_sidebar": "Collapse sidebar",
+    "expand_sidebar": "Expand sidebar",
+    "meta": "v0.1 · single-tenant"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Toggle theme"
+  },
+  "language": {
+    "label": "Language",
+    "toggle": "Change language"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "mark_all_read": "Mark all read",
+    "loading": "Loading…",
+    "empty": "No notifications",
+    "aria": "Notifications"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "delete": "Delete",
+    "upload": "Upload",
+    "back_to_home": "Back to home"
+  },
+  "enums": {
+    "ticket_status": {
+      "open": "Open",
+      "in_progress": "In progress",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "cancelled": "Cancelled"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "severity": {
+      "minor": "Minor",
+      "major": "Major",
+      "critical": "Critical"
+    },
+    "sla_status": {
+      "within": "Within SLA",
+      "at_risk": "At risk",
+      "breached": "Breached"
+    }
+  }
+}

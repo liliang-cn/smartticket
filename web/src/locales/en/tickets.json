@@ -1,0 +1,103 @@
+{
+  "list": {
+    "queue_label": "queue",
+    "heading": "Tickets",
+    "search_placeholder": "Search title, requester…",
+    "filter_status_placeholder": "Status",
+    "filter_status_all": "All statuses",
+    "filter_priority_placeholder": "Priority",
+    "filter_priority_all": "All priorities",
+    "col_ticket": "Ticket",
+    "col_status": "Status",
+    "col_priority": "Priority",
+    "col_customer": "Customer",
+    "col_requester": "Requester",
+    "col_updated": "Updated",
+    "empty": "No tickets match these filters.",
+    "pagination_info": "{{total}} tickets · page {{page}}/{{totalPages}}",
+    "pagination_syncing": " · syncing…",
+    "btn_prev": "Prev",
+    "btn_next": "Next"
+  },
+  "detail": {
+    "back_link": "Tickets",
+    "not_found": "Ticket not found.",
+    "btn_back_to_tickets": "Back to tickets",
+    "section_description": "Description",
+    "no_description": "No description provided.",
+    "section_conversation": "Conversation",
+    "no_messages": "No messages yet.",
+    "reply_placeholder": "Write a reply…",
+    "internal_note_label": "Internal note",
+    "btn_send": "Send",
+    "btn_sending": "Sending…",
+    "msg_sender_ai": "Assistant",
+    "msg_sender_user": "User #{{userId}}",
+    "msg_role_customer": "customer",
+    "msg_role_team": "team",
+    "msg_internal_badge": "internal",
+    "toast_updated_field": "Updated {{field}}",
+    "toast_post_error": "Could not post message",
+    "attachments": {
+      "label": "Attachments",
+      "btn_attach": "Attach file",
+      "btn_uploading": "Uploading…",
+      "btn_download_aria": "Download {{name}}",
+      "empty": "No attachments",
+      "toast_uploaded": "Attachment uploaded",
+      "toast_upload_error": "Upload failed",
+      "toast_download_error": "Download failed"
+    },
+    "activity": {
+      "label": "Activity",
+      "loading": "Loading…",
+      "empty": "No activity recorded yet.",
+      "actor_system": "System"
+    },
+    "sla": {
+      "label": "SLA policy",
+      "source_rule": "matched by {{priority}}/{{severity}}",
+      "source_default": "no rule matched — default targets",
+      "business_hours": " · business hours",
+      "meta_response": "Response",
+      "meta_resolution": "Resolution",
+      "meta_due": "Due"
+    },
+    "meta": {
+      "label_status": "Status",
+      "label_priority": "Priority",
+      "label_severity": "Severity",
+      "label_customer": "Customer",
+      "label_requester": "Requester",
+      "label_email": "Email",
+      "label_assignee": "Assignee",
+      "label_created": "Created",
+      "label_due": "Due",
+      "unassigned": "Unassigned"
+    }
+  },
+  "create": {
+    "btn_new_ticket": "New ticket",
+    "dialog_title": "New ticket",
+    "dialog_description": "Log an issue on behalf of a requester.",
+    "label_title": "Title",
+    "placeholder_title": "Short summary",
+    "label_description": "Description",
+    "placeholder_description": "What's going on?",
+    "label_priority": "Priority",
+    "label_requester": "Requester",
+    "placeholder_requester": "Jane Doe",
+    "label_requester_email": "Requester email",
+    "btn_cancel": "Cancel",
+    "btn_create": "Create ticket",
+    "btn_creating": "Creating…",
+    "toast_created": "Ticket created",
+    "toast_create_error": "Could not create ticket",
+    "validation": {
+      "title_required": "Title is required",
+      "description_required": "Description is required",
+      "requester_name_required": "Requester name is required",
+      "email_required": "Valid email required"
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "list": {
+    "queue_label": "warteschlange",
+    "heading": "Tickets",
+    "search_placeholder": "Titel, Anforderer suchen…",
+    "filter_status_placeholder": "Status",
+    "filter_status_all": "Alle Status",
+    "filter_priority_placeholder": "Priorität",
+    "filter_priority_all": "Alle Prioritäten",
+    "col_ticket": "Ticket",
+    "col_status": "Status",
+    "col_priority": "Priorität",
+    "col_customer": "Kunde",
+    "col_requester": "Anforderer",
+    "col_updated": "Aktualisiert",
+    "empty": "Keine Tickets entsprechen diesen Filtern.",
+    "pagination_info": "{{total}} Tickets · Seite {{page}}/{{totalPages}}",
+    "pagination_syncing": " · wird synchronisiert…",
+    "btn_prev": "Zurück",
+    "btn_next": "Weiter"
+  },
+  "detail": {
+    "back_link": "Tickets",
+    "not_found": "Ticket nicht gefunden.",
+    "btn_back_to_tickets": "Zurück zu Tickets",
+    "section_description": "Beschreibung",
+    "no_description": "Keine Beschreibung vorhanden.",
+    "section_conversation": "Konversation",
+    "no_messages": "Noch keine Nachrichten.",
+    "reply_placeholder": "Antwort verfassen…",
+    "internal_note_label": "Interne Notiz",
+    "btn_send": "Senden",
+    "btn_sending": "Wird gesendet…",
+    "msg_sender_ai": "Assistent",
+    "msg_sender_user": "Benutzer #{{userId}}",
+    "msg_role_customer": "Kunde",
+    "msg_role_team": "Team",
+    "msg_internal_badge": "intern",
+    "toast_updated_field": "{{field}} aktualisiert",
+    "toast_post_error": "Nachricht konnte nicht gesendet werden",
+    "attachments": {
+      "label": "Anhänge",
+      "btn_attach": "Datei anhängen",
+      "btn_uploading": "Wird hochgeladen…",
+      "btn_download_aria": "{{name}} herunterladen",
+      "empty": "Keine Anhänge",
+      "toast_uploaded": "Anhang hochgeladen",
+      "toast_upload_error": "Hochladen fehlgeschlagen",
+      "toast_download_error": "Herunterladen fehlgeschlagen"
+    },
+    "activity": {
+      "label": "Aktivität",
+      "loading": "Wird geladen…",
+      "empty": "Noch keine Aktivitäten aufgezeichnet.",
+      "actor_system": "System"
+    },
+    "sla": {
+      "label": "SLA-Richtlinie",
+      "source_rule": "übereinstimmend mit {{priority}}/{{severity}}",
+      "source_default": "keine Regel gefunden — Standardziele",
+      "business_hours": " · Geschäftszeiten",
+      "meta_response": "Reaktionszeit",
+      "meta_resolution": "Lösungszeit",
+      "meta_due": "Fällig"
+    },
+    "meta": {
+      "label_status": "Status",
+      "label_priority": "Priorität",
+      "label_severity": "Schweregrad",
+      "label_customer": "Kunde",
+      "label_requester": "Anforderer",
+      "label_email": "E-Mail",
+      "label_assignee": "Bearbeiter",
+      "label_created": "Erstellt",
+      "label_due": "Fällig",
+      "unassigned": "Nicht zugewiesen"
+    }
+  },
+  "create": {
+    "btn_new_ticket": "Neues Ticket",
+    "dialog_title": "Neues Ticket",
+    "dialog_description": "Ein Problem im Namen eines Anforderers erfassen.",
+    "label_title": "Titel",
+    "placeholder_title": "Kurze Zusammenfassung",
+    "label_description": "Beschreibung",
+    "placeholder_description": "Was ist das Problem?",
+    "label_priority": "Priorität",
+    "label_requester": "Anforderer",
+    "placeholder_requester": "Max Mustermann",
+    "label_requester_email": "E-Mail des Anforderers",
+    "btn_cancel": "Abbrechen",
+    "btn_create": "Ticket erstellen",
+    "btn_creating": "Wird erstellt…",
+    "toast_created": "Ticket erstellt",
+    "toast_create_error": "Ticket konnte nicht erstellt werden",
+    "validation": {
+      "title_required": "Titel ist erforderlich",
+      "description_required": "Beschreibung ist erforderlich",
+      "requester_name_required": "Name des Anforderers ist erforderlich",
+      "email_required": "Gültige E-Mail-Adresse erforderlich"
+    }
+  }
+}

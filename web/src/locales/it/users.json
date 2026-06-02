@@ -1,0 +1,133 @@
+{
+  "page": {
+    "directory": "directory",
+    "title": "Utenti"
+  },
+  "filters": {
+    "search_placeholder": "Cerca nome, email, username…",
+    "role_placeholder": "Ruolo",
+    "all_roles": "Tutti i ruoli"
+  },
+  "table": {
+    "name": "Nome",
+    "email": "Email",
+    "role": "Ruolo",
+    "active": "Attivo",
+    "created": "Creato"
+  },
+  "status": {
+    "active": "attivo",
+    "inactive": "inattivo"
+  },
+  "actions": {
+    "activate": "Attiva",
+    "deactivate": "Disattiva",
+    "new_user": "Nuovo utente",
+    "assign": "Assegna",
+    "delete": "Elimina",
+    "back_to_users": "Utenti"
+  },
+  "empty": {
+    "no_match": "Nessun utente corrisponde a questi filtri."
+  },
+  "pagination": {
+    "summary": "{{total}} utenti · pagina {{page}}/{{totalPages}}",
+    "syncing": " · sincronizzazione…",
+    "prev": "Precedente",
+    "next": "Successivo"
+  },
+  "detail": {
+    "not_found": "Utente non trovato.",
+    "back_to_users": "Torna agli utenti",
+    "profile": "Profilo",
+    "meta": {
+      "first_name": "Nome",
+      "last_name": "Cognome",
+      "email": "Email",
+      "username": "Username",
+      "role": "Ruolo",
+      "status": "Stato",
+      "last_login": "Ultimo accesso",
+      "created": "Creato",
+      "never": "mai"
+    }
+  },
+  "roles_card": {
+    "title": "Ruoli",
+    "no_roles": "Nessun ruolo assegnato.",
+    "remove_aria": "Rimuovi {{name}}",
+    "select_placeholder": "Seleziona un ruolo da assegnare…",
+    "no_more_roles": "Nessun altro ruolo da assegnare.",
+    "remove_dialog": {
+      "title": "Rimuovi ruolo",
+      "description": "Rimuovere il ruolo \"{{name}}\" da questo utente?",
+      "confirm": "Rimuovi"
+    }
+  },
+  "toasts": {
+    "role_assigned": "Ruolo assegnato",
+    "role_assign_error": "Impossibile assegnare il ruolo",
+    "role_removed": "{{name}} rimosso",
+    "role_remove_error": "Impossibile rimuovere il ruolo",
+    "toggle_activated": "Utente attivato",
+    "toggle_deactivated": "Utente disattivato",
+    "toggle_error": "Impossibile aggiornare l'utente",
+    "deleted": "Utente eliminato",
+    "delete_error": "Impossibile eliminare l'utente",
+    "created": "Utente creato",
+    "create_error": "Impossibile creare l'utente"
+  },
+  "delete_dialog": {
+    "title": "Elimina utente",
+    "description": "Eliminare {{name}}? L'account verrà eliminato in modo logico.",
+    "confirm_pending": "Eliminazione…",
+    "confirm": "Elimina utente"
+  },
+  "form": {
+    "title": "Nuovo utente",
+    "description": "Crea un account operatore o lato cliente.",
+    "fields": {
+      "first_name": "Nome",
+      "last_name": "Cognome",
+      "email": "Email",
+      "username": "Username",
+      "password": "Password",
+      "role": "Ruolo",
+      "status": "Stato",
+      "customer": "Cliente"
+    },
+    "placeholders": {
+      "role": "Seleziona un ruolo",
+      "customer": "Seleziona un'organizzazione cliente"
+    },
+    "password_hint": "Almeno 8 caratteri, con una lettera maiuscola, una cifra e un carattere speciale.",
+    "status_options": {
+      "active": "Attivo",
+      "inactive": "Inattivo"
+    },
+    "submit": "Crea utente",
+    "submit_pending": "Creazione…",
+    "validation": {
+      "email_required": "L'email è obbligatoria",
+      "email_invalid": "Email non valida",
+      "username_min": "Almeno 3 caratteri",
+      "username_chars": "Solo lettere, numeri, _ e -",
+      "first_name_required": "Il nome è obbligatorio",
+      "last_name_required": "Il cognome è obbligatorio",
+      "password_min": "Almeno 8 caratteri",
+      "password_uppercase": "Deve contenere una lettera maiuscola",
+      "password_lowercase": "Deve contenere una lettera minuscola",
+      "password_digit": "Deve contenere una cifra",
+      "password_special": "Deve contenere un carattere speciale",
+      "role_required": "Il ruolo è obbligatorio",
+      "customer_required": "Seleziona un cliente per il ruolo cliente"
+    }
+  },
+  "roles": {
+    "admin": "Amministratore",
+    "engineer": "Ingegnere",
+    "support": "Supporto",
+    "sales": "Vendite",
+    "customer": "Cliente"
+  }
+}

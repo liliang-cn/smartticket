@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   usePermissions,
@@ -44,6 +45,7 @@ export function RolePermissionsDialog({
   role,
   trigger,
 }: RolePermissionsDialogProps) {
+  const { t } = useTranslation("rbac");
   const [open, setOpen] = useState(false);
 
   const { data: allPerms, isLoading: permsLoading } = usePermissions();
@@ -67,13 +69,13 @@ export function RolePermissionsDialog({
     try {
       if (checked) {
         await assign.mutateAsync(perm.id);
-        toast.success(`Granted ${perm.code}`);
+        toast.success(t("role_permissions.toast.granted", { code: perm.code }));
       } else {
         await remove.mutateAsync(perm.id);
-        toast.success(`Revoked ${perm.code}`);
+        toast.success(t("role_permissions.toast.revoked", { code: perm.code }));
       }
     } catch (err) {
-      toast.error(apiError(err, "Could not update permissions"));
+      toast.error(apiError(err, t("role_permissions.toast.update_error")));
     } finally {
       setBusyId(null);
     }
@@ -87,11 +89,10 @@ export function RolePermissionsDialog({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            Permissions for <span className="capitalize">{role.name}</span>
+            {t("role_permissions.title", { name: role.name })}
           </DialogTitle>
           <DialogDescription>
-            Toggle the permissions granted to this role. Changes save
-            immediately.
+            {t("role_permissions.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -139,7 +140,7 @@ export function RolePermissionsDialog({
             ))
           ) : (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No permissions defined yet.
+              {t("role_permissions.empty")}
             </p>
           )}
         </div>
@@ -147,7 +148,7 @@ export function RolePermissionsDialog({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="ghost">
-              Done
+              {t("role_permissions.button_done")}
             </Button>
           </DialogClose>
         </DialogFooter>

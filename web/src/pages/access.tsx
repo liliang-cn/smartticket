@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ShieldCheck,
   KeyRound,
@@ -63,6 +64,7 @@ function ConfirmDeleteDialog({
   pending: boolean;
   onConfirm: () => void;
 }) {
+  const { t } = useTranslation("rbac");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -73,7 +75,7 @@ function ConfirmDeleteDialog({
         <DialogFooter>
           <DialogClose asChild>
             <Button type="button" variant="ghost">
-              Cancel
+              {t("confirm_dialog.cancel")}
             </Button>
           </DialogClose>
           <Button
@@ -82,7 +84,7 @@ function ConfirmDeleteDialog({
             disabled={pending}
             onClick={onConfirm}
           >
-            {pending ? "Deleting…" : "Delete"}
+            {pending ? t("confirm_dialog.deleting") : t("confirm_dialog.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -91,6 +93,7 @@ function ConfirmDeleteDialog({
 }
 
 export function AccessPage() {
+  const { t } = useTranslation("rbac");
   const { data: roles, isLoading: rolesLoading } = useRoles();
   const { data: permissions, isLoading: permsLoading } = usePermissions();
   const deleteRole = useDeleteRole();
@@ -113,10 +116,10 @@ export function AccessPage() {
     if (!roleToDelete) return;
     try {
       await deleteRole.mutateAsync(roleToDelete.id);
-      toast.success("Role deleted");
+      toast.success(t("roles.toast.deleted"));
       setRoleToDelete(null);
     } catch (err) {
-      toast.error(apiError(err, "Could not delete role"));
+      toast.error(apiError(err, t("roles.toast.delete_error")));
     }
   }
 
@@ -124,10 +127,10 @@ export function AccessPage() {
     if (!permToDelete) return;
     try {
       await deletePermission.mutateAsync(permToDelete.id);
-      toast.success("Permission deleted");
+      toast.success(t("permissions.toast.deleted"));
       setPermToDelete(null);
     } catch (err) {
-      toast.error(apiError(err, "Could not delete permission"));
+      toast.error(apiError(err, t("permissions.toast.delete_error")));
     }
   }
 
@@ -135,16 +138,16 @@ export function AccessPage() {
     <div ref={ref} className="w-full">
       <div data-reveal className="mb-6">
         <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-          access control
+          {t("page.eyebrow")}
         </div>
-        <h1 className="mt-1 text-3xl">Roles &amp; Permissions</h1>
+        <h1 className="mt-1 text-3xl">{t("page.title")}</h1>
       </div>
 
       {/* Roles */}
       <section data-reveal className="mb-10">
         <div className="mb-3 flex items-center gap-2">
           <ShieldCheck className="size-4 text-primary" />
-          <h2 className="text-sm font-medium">Roles</h2>
+          <h2 className="text-sm font-medium">{t("roles.heading")}</h2>
           {roles && (
             <span className="font-mono text-xs text-muted-foreground">
               {roles.length}
@@ -175,7 +178,7 @@ export function AccessPage() {
                   </h3>
                   {role.is_system && (
                     <Badge tone="amber">
-                      <Lock className="size-3" /> system
+                      <Lock className="size-3" /> {t("roles.system_badge")}
                     </Badge>
                   )}
                 </div>
@@ -198,13 +201,13 @@ export function AccessPage() {
                       ))}
                       {role.permissions.length > 8 && (
                         <span className="font-mono text-[10px] text-muted-foreground/70">
-                          +{role.permissions.length - 8} more
+                          {t("roles.more", { count: role.permissions.length - 8 })}
                         </span>
                       )}
                     </>
                   ) : (
                     <span className="font-mono text-[11px] text-muted-foreground/60">
-                      no permissions
+                      {t("roles.no_permissions")}
                     </span>
                   )}
                 </div>
@@ -214,14 +217,14 @@ export function AccessPage() {
                     role={role}
                     trigger={
                       <Button variant="outline" size="sm">
-                        <SlidersHorizontal /> Permissions
+                        <SlidersHorizontal /> {t("roles.permissions_button")}
                       </Button>
                     }
                   />
                   <RoleFormDialog
                     role={role}
                     trigger={
-                      <Button variant="ghost" size="icon" title="Edit role">
+                      <Button variant="ghost" size="icon" title={t("roles.edit_title")}>
                         <Pencil />
                       </Button>
                     }
@@ -231,8 +234,8 @@ export function AccessPage() {
                     size="icon"
                     title={
                       role.is_system
-                        ? "System roles cannot be deleted"
-                        : "Delete role"
+                        ? t("roles.delete_system_hint")
+                        : t("roles.delete_title")
                     }
                     disabled={role.is_system}
                     onClick={() =>
@@ -249,7 +252,7 @@ export function AccessPage() {
           <Card className="py-16 text-center">
             <ShieldCheck className="mx-auto size-8 text-muted-foreground/40" />
             <p className="mt-3 text-sm text-muted-foreground">
-              No roles defined.
+              {t("roles.empty")}
             </p>
           </Card>
         )}
@@ -259,7 +262,7 @@ export function AccessPage() {
       <section data-reveal>
         <div className="mb-3 flex items-center gap-2">
           <KeyRound className="size-4 text-primary" />
-          <h2 className="text-sm font-medium">Permissions</h2>
+          <h2 className="text-sm font-medium">{t("permissions.heading")}</h2>
           {permissions && (
             <span className="font-mono text-xs text-muted-foreground">
               {permissions.length}
@@ -315,7 +318,7 @@ export function AccessPage() {
                               variant="ghost"
                               size="icon"
                               className="size-7"
-                              title="Edit permission"
+                              title={t("permissions.edit_title")}
                             >
                               <Pencil />
                             </Button>
@@ -327,8 +330,8 @@ export function AccessPage() {
                           className="size-7"
                           title={
                             p.is_system
-                              ? "System permissions cannot be deleted"
-                              : "Delete permission"
+                              ? t("permissions.delete_system_hint")
+                              : t("permissions.delete_title")
                           }
                           disabled={p.is_system}
                           onClick={() =>
@@ -348,7 +351,7 @@ export function AccessPage() {
           <Card className="py-16 text-center">
             <KeyRound className="mx-auto size-8 text-muted-foreground/40" />
             <p className="mt-3 text-sm text-muted-foreground">
-              No permissions defined.
+              {t("permissions.empty")}
             </p>
           </Card>
         )}
@@ -358,16 +361,16 @@ export function AccessPage() {
       <ConfirmDeleteDialog
         open={roleToDelete != null}
         onOpenChange={(v) => !v && setRoleToDelete(null)}
-        title="Delete role?"
-        description={`This permanently removes the "${roleToDelete?.name}" role. Users assigned to it will lose its permissions.`}
+        title={t("roles.confirm_delete.title")}
+        description={t("roles.confirm_delete.description", { name: roleToDelete?.name ?? "" })}
         pending={deleteRole.isPending}
         onConfirm={confirmDeleteRole}
       />
       <ConfirmDeleteDialog
         open={permToDelete != null}
         onOpenChange={(v) => !v && setPermToDelete(null)}
-        title="Delete permission?"
-        description={`This permanently removes the "${permToDelete?.code}" permission from every role that grants it.`}
+        title={t("permissions.confirm_delete.title")}
+        description={t("permissions.confirm_delete.description", { name: permToDelete?.code ?? "" })}
         pending={deletePermission.isPending}
         onConfirm={confirmDeletePermission}
       />

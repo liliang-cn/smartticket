@@ -1,0 +1,133 @@
+{
+  "page": {
+    "directory": "Verzeichnis",
+    "title": "Benutzer"
+  },
+  "filters": {
+    "search_placeholder": "Name, E-Mail, Benutzername suchen…",
+    "role_placeholder": "Rolle",
+    "all_roles": "Alle Rollen"
+  },
+  "table": {
+    "name": "Name",
+    "email": "E-Mail",
+    "role": "Rolle",
+    "active": "Aktiv",
+    "created": "Erstellt"
+  },
+  "status": {
+    "active": "aktiv",
+    "inactive": "inaktiv"
+  },
+  "actions": {
+    "activate": "Aktivieren",
+    "deactivate": "Deaktivieren",
+    "new_user": "Neuer Benutzer",
+    "assign": "Zuweisen",
+    "delete": "Löschen",
+    "back_to_users": "Benutzer"
+  },
+  "empty": {
+    "no_match": "Keine Benutzer entsprechen diesen Filtern."
+  },
+  "pagination": {
+    "summary": "{{total}} Benutzer · Seite {{page}}/{{totalPages}}",
+    "syncing": " · wird synchronisiert…",
+    "prev": "Zurück",
+    "next": "Weiter"
+  },
+  "detail": {
+    "not_found": "Benutzer nicht gefunden.",
+    "back_to_users": "Zurück zu Benutzern",
+    "profile": "Profil",
+    "meta": {
+      "first_name": "Vorname",
+      "last_name": "Nachname",
+      "email": "E-Mail",
+      "username": "Benutzername",
+      "role": "Rolle",
+      "status": "Status",
+      "last_login": "Letzte Anmeldung",
+      "created": "Erstellt",
+      "never": "nie"
+    }
+  },
+  "roles_card": {
+    "title": "Rollen",
+    "no_roles": "Keine Rollen zugewiesen.",
+    "remove_aria": "{{name}} entfernen",
+    "select_placeholder": "Rolle zum Zuweisen auswählen…",
+    "no_more_roles": "Keine weiteren Rollen zum Zuweisen.",
+    "remove_dialog": {
+      "title": "Rolle entfernen",
+      "description": "Rolle \"{{name}}\" von diesem Benutzer entfernen?",
+      "confirm": "Entfernen"
+    }
+  },
+  "toasts": {
+    "role_assigned": "Rolle zugewiesen",
+    "role_assign_error": "Rolle konnte nicht zugewiesen werden",
+    "role_removed": "{{name}} entfernt",
+    "role_remove_error": "Rolle konnte nicht entfernt werden",
+    "toggle_activated": "Benutzer aktiviert",
+    "toggle_deactivated": "Benutzer deaktiviert",
+    "toggle_error": "Benutzer konnte nicht aktualisiert werden",
+    "deleted": "Benutzer gelöscht",
+    "delete_error": "Benutzer konnte nicht gelöscht werden",
+    "created": "Benutzer erstellt",
+    "create_error": "Benutzer konnte nicht erstellt werden"
+  },
+  "delete_dialog": {
+    "title": "Benutzer löschen",
+    "description": "{{name}} löschen? Das Konto wird dabei nur als gelöscht markiert.",
+    "confirm_pending": "Wird gelöscht…",
+    "confirm": "Benutzer löschen"
+  },
+  "form": {
+    "title": "Neuer Benutzer",
+    "description": "Erstelle ein Betreiber- oder Kundenkonto.",
+    "fields": {
+      "first_name": "Vorname",
+      "last_name": "Nachname",
+      "email": "E-Mail",
+      "username": "Benutzername",
+      "password": "Passwort",
+      "role": "Rolle",
+      "status": "Status",
+      "customer": "Kunde"
+    },
+    "placeholders": {
+      "role": "Rolle auswählen",
+      "customer": "Kundenorganisation auswählen"
+    },
+    "password_hint": "Mindestens 8 Zeichen, mit einem Großbuchstaben, einer Ziffer und einem Sonderzeichen.",
+    "status_options": {
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "submit": "Benutzer erstellen",
+    "submit_pending": "Wird erstellt…",
+    "validation": {
+      "email_required": "E-Mail ist erforderlich",
+      "email_invalid": "Ungültige E-Mail-Adresse",
+      "username_min": "Mindestens 3 Zeichen",
+      "username_chars": "Nur Buchstaben, Zahlen, _ und -",
+      "first_name_required": "Vorname ist erforderlich",
+      "last_name_required": "Nachname ist erforderlich",
+      "password_min": "Mindestens 8 Zeichen",
+      "password_uppercase": "Muss einen Großbuchstaben enthalten",
+      "password_lowercase": "Muss einen Kleinbuchstaben enthalten",
+      "password_digit": "Muss eine Ziffer enthalten",
+      "password_special": "Muss ein Sonderzeichen enthalten",
+      "role_required": "Rolle ist erforderlich",
+      "customer_required": "Für die Kundenrolle bitte eine Kundenorganisation auswählen"
+    }
+  },
+  "roles": {
+    "admin": "Administrator",
+    "engineer": "Ingenieur",
+    "support": "Support",
+    "sales": "Vertrieb",
+    "customer": "Kunde"
+  }
+}

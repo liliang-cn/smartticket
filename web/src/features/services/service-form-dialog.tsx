@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   useCreateService,
@@ -33,19 +34,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const schema = z.object({
-  product_id: z.number().int().positive("Product is required"),
-  name: z.string().min(1, "Name is required").max(255),
-  code: z.string().max(100).optional(),
-  type: z.string().max(100).optional(),
-  availability: z.string().max(100).optional(),
-  description: z.string().optional(),
-  support_channels: z.string().optional(),
-  tags: z.string().optional(),
-  status: z.string(),
-});
-type FormValues = z.infer<typeof schema>;
-
 interface ServiceFormDialogProps {
   /** When provided, the dialog edits this service instead of creating one. */
   service?: Service;
@@ -74,6 +62,7 @@ export function ServiceFormDialog({
   productId,
   trigger,
 }: ServiceFormDialogProps) {
+  const { t } = useTranslation("services");
   const [open, setOpen] = useState(false);
   const isEdit = service != null;
   const create = useCreateService();
@@ -82,6 +71,19 @@ export function ServiceFormDialog({
   // Parent product is fixed on edit / when supplied; otherwise pick from a list.
   const lockedProduct = service?.product_id ?? productId;
   const { data: products } = useProducts({ page: 1, page_size: 100 });
+
+  const schema = z.object({
+    product_id: z.number().int().positive(t("form.validation_product_required")),
+    name: z.string().min(1, t("form.validation_name_required")).max(255),
+    code: z.string().max(100).optional(),
+    type: z.string().max(100).optional(),
+    availability: z.string().max(100).optional(),
+    description: z.string().optional(),
+    support_channels: z.string().optional(),
+    tags: z.string().optional(),
+    status: z.string(),
+  });
+  type FormValues = z.infer<typeof schema>;
 
   const defaults = (): FormValues => ({
     product_id: service?.product_id ?? productId ?? 0,
@@ -128,15 +130,15 @@ export function ServiceFormDialog({
     try {
       if (isEdit) {
         await update.mutateAsync(payload);
-        toast.success("Service updated");
+        toast.success(t("form.toast_updated"));
       } else {
         await create.mutateAsync(payload);
-        toast.success("Service created");
+        toast.success(t("form.toast_created"));
       }
       setOpen(false);
     } catch (err) {
       toast.error(
-        apiError(err, isEdit ? "Could not update service" : "Could not create service")
+        apiError(err, isEdit ? t("form.error_update") : t("form.error_create"))
       );
     }
   }
@@ -148,29 +150,29 @@ export function ServiceFormDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus /> New service
+            <Plus /> {t("form.new_service")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit service" : "New service"}</DialogTitle>
+          <DialogTitle>{isEdit ? t("form.title_edit") : t("form.title_create")}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Update this service's catalog details."
-              : "Register a service offered under a product."}
+              ? t("form.description_edit")
+              : t("form.description_create")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Product</Label>
+            <Label>{t("form.label_product")}</Label>
             <Select
               value={productIdValue ? String(productIdValue) : undefined}
               onValueChange={(v) => setValue("product_id", Number(v))}
               disabled={lockedProduct != null}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a product" />
+                <SelectValue placeholder={t("form.placeholder_product")} />
               </SelectTrigger>
               <SelectContent>
                 {(products?.items ?? []).map((p) => (
@@ -185,59 +187,59 @@ export function ServiceFormDialog({
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="s-name">Name</Label>
-            <Input id="s-name" placeholder="24/7 Monitoring" {...register("name")} />
+            <Label htmlFor="s-name">{t("form.label_name")}</Label>
+            <Input id="s-name" placeholder={t("form.placeholder_name")} {...register("name")} />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
             )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="s-code">Code</Label>
-              <Input id="s-code" placeholder="MON-247" {...register("code")} />
+              <Label htmlFor="s-code">{t("form.label_code")}</Label>
+              <Input id="s-code" placeholder={t("form.placeholder_code")} {...register("code")} />
               {errors.code && (
                 <p className="text-xs text-destructive">{errors.code.message}</p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="s-type">Type</Label>
-              <Input id="s-type" placeholder="monitoring" {...register("type")} />
+              <Label htmlFor="s-type">{t("form.label_type")}</Label>
+              <Input id="s-type" placeholder={t("form.placeholder_type")} {...register("type")} />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="s-availability">Availability</Label>
+            <Label htmlFor="s-availability">{t("form.label_availability")}</Label>
             <Input
               id="s-availability"
-              placeholder="99.9%"
+              placeholder={t("form.placeholder_availability")}
               {...register("availability")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="s-channels">Support channels</Label>
+            <Label htmlFor="s-channels">{t("form.label_support_channels")}</Label>
             <Input
               id="s-channels"
-              placeholder="email, phone, chat"
+              placeholder={t("form.placeholder_channels")}
               {...register("support_channels")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="s-tags">Tags</Label>
+            <Label htmlFor="s-tags">{t("form.label_tags")}</Label>
             <Input
               id="s-tags"
-              placeholder="comma, separated, tags"
+              placeholder={t("form.placeholder_tags")}
               {...register("tags")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="s-desc">Description</Label>
+            <Label htmlFor="s-desc">{t("form.label_description")}</Label>
             <Textarea
               id="s-desc"
-              placeholder="Notes about this service…"
+              placeholder={t("form.placeholder_description")}
               {...register("description")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Status</Label>
+            <Label>{t("form.label_status")}</Label>
             <Select
               value={watch("status")}
               onValueChange={(v) => setValue("status", v)}
@@ -246,25 +248,25 @@ export function ServiceFormDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ACTIVE}>Active</SelectItem>
-                <SelectItem value={INACTIVE}>Inactive</SelectItem>
+                <SelectItem value={ACTIVE}>{t("form.status_active")}</SelectItem>
+                <SelectItem value={INACTIVE}>{t("form.status_inactive")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={pending}>
               {pending
                 ? isEdit
-                  ? "Saving…"
-                  : "Creating…"
+                  ? t("form.saving")
+                  : t("form.creating")
                 : isEdit
-                  ? "Save changes"
-                  : "Create service"}
+                  ? t("form.save_changes")
+                  : t("form.create_service")}
             </Button>
           </DialogFooter>
         </form>

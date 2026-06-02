@@ -1,0 +1,109 @@
+{
+  "page": {
+    "section": "商取引",
+    "title": "サブスクリプション"
+  },
+  "actions": {
+    "new": "新規サブスクリプション",
+    "delete": "サブスクリプションを削除",
+    "create": "サブスクリプションを作成",
+    "creating": "作成中…",
+    "deleting": "削除中…"
+  },
+  "toast": {
+    "created": "サブスクリプションを作成しました",
+    "deleted": "サブスクリプションを削除しました",
+    "create_failed": "サブスクリプションの作成に失敗しました",
+    "delete_failed": "サブスクリプションの削除に失敗しました"
+  },
+  "filter": {
+    "customer_id_placeholder": "顧客 ID で絞り込む…",
+    "status_placeholder": "ステータス",
+    "all_statuses": "すべてのステータス"
+  },
+  "table": {
+    "customer": "顧客",
+    "product": "製品",
+    "plan": "プラン",
+    "nodes": "ノード数",
+    "term": "期間",
+    "period": "課金周期",
+    "sla": "SLA",
+    "status": "ステータス"
+  },
+  "empty": {
+    "message": "条件に一致するサブスクリプションはありません。"
+  },
+  "pagination": {
+    "summary": "{{total}} 件 · {{page}}/{{totalPages}} ページ",
+    "syncing": " · 同期中…",
+    "prev": "前へ",
+    "next": "次へ"
+  },
+  "form": {
+    "title": "新規サブスクリプション",
+    "description": "顧客の製品サポートサブスクリプションを登録します。デフォルトはノード単位・年間契約です。",
+    "customer": "顧客",
+    "customer_placeholder": "顧客を選択",
+    "product": "製品",
+    "product_placeholder": "製品を選択",
+    "sla_template": "SLA テンプレート",
+    "sla_placeholder": "任意",
+    "sla_none": "なし",
+    "plan": "プラン",
+    "plan_placeholder": "例：スタンダード",
+    "billing_unit": "課金単位",
+    "quantity": "数量",
+    "billing_period": "課金周期",
+    "starts_at": "開始日",
+    "expires_at": "有効期限",
+    "unit_price": "単価",
+    "unit_price_placeholder": "任意",
+    "currency": "通貨"
+  },
+  "notes": {
+    "label": "メモ",
+    "placeholder": "任意"
+  },
+  "validation": {
+    "customer_required": "顧客を選択してください",
+    "product_required": "製品を選択してください",
+    "billing_unit_required": "課金単位を選択してください",
+    "billing_period_required": "課金周期を選択してください",
+    "starts_at_required": "開始日を入力してください",
+    "expires_at_required": "有効期限を入力してください"
+  },
+  "confirm_delete": {
+    "title": "サブスクリプションを削除しますか？",
+    "description": "「{{label}}」のサブスクリプションを完全に削除します。この操作は取り消せません。"
+  },
+  "status": {
+    "active": "有効",
+    "expired": "期限切れ",
+    "cancelled": "キャンセル済み"
+  },
+  "billing_unit": {
+    "per_node": "ノード単位",
+    "per_cluster": "クラスター単位",
+    "per_core": "コア単位",
+    "per_instance": "インスタンス単位",
+    "per_seat": "シート単位",
+    "per_user": "ユーザー単位",
+    "per_agent": "エージェント単位",
+    "per_device": "デバイス単位",
+    "per_site": "サイト単位",
+    "per_gb": "GB 単位",
+    "per_request": "リクエスト単位",
+    "usage": "使用量課金",
+    "per_subscriber": "サブスクライバー単位（アプリ）",
+    "per_install": "インストール単位",
+    "per_app": "アプリ単位",
+    "flat": "定額制"
+  },
+  "billing_period": {
+    "weekly": "週次",
+    "monthly": "月次",
+    "annual": "年次",
+    "lifetime": "永続（買い切り）"
+  }
+}

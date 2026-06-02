@@ -1,0 +1,112 @@
+{
+  "page": {
+    "eyebrow": "Zugriffskontrolle",
+    "title": "Rollen & Berechtigungen"
+  },
+  "roles": {
+    "heading": "Rollen",
+    "empty": "Keine Rollen definiert.",
+    "system_badge": "System",
+    "more": "+{{count}} weitere",
+    "no_permissions": "keine Berechtigungen",
+    "edit_title": "Rolle bearbeiten",
+    "delete_title": "Rolle löschen",
+    "delete_system_hint": "Systemrollen können nicht gelöscht werden",
+    "permissions_button": "Berechtigungen",
+    "confirm_delete": {
+      "title": "Rolle löschen?",
+      "description": "Die Rolle „{{name}}“ wird dauerhaft entfernt. Benutzer mit dieser Rolle verlieren ihre zugehörigen Berechtigungen."
+    },
+    "toast": {
+      "deleted": "Rolle gelöscht",
+      "delete_error": "Rolle konnte nicht gelöscht werden"
+    }
+  },
+  "permissions": {
+    "heading": "Berechtigungen",
+    "empty": "Keine Berechtigungen definiert.",
+    "edit_title": "Berechtigung bearbeiten",
+    "delete_title": "Berechtigung löschen",
+    "delete_system_hint": "Systemberechtigungen können nicht gelöscht werden",
+    "confirm_delete": {
+      "title": "Berechtigung löschen?",
+      "description": "Die Berechtigung „{{name}}“ wird dauerhaft aus allen Rollen entfernt, die sie gewähren."
+    },
+    "toast": {
+      "deleted": "Berechtigung gelöscht",
+      "delete_error": "Berechtigung konnte nicht gelöscht werden"
+    }
+  },
+  "confirm_dialog": {
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "deleting": "Wird gelöscht…"
+  },
+  "role_form": {
+    "title_new": "Neue Rolle",
+    "title_edit": "Rolle bearbeiten",
+    "description_new": "Definiere eine neue Rolle, die Benutzern zugewiesen werden kann.",
+    "description_edit": "Aktualisiere die Details dieser Rolle.",
+    "trigger_new": "Neue Rolle",
+    "field_name": "Name",
+    "field_description": "Beschreibung",
+    "placeholder_name": "support-lead",
+    "placeholder_description": "Was diese Rolle tun darf…",
+    "name_locked_hint": "Namen von Systemrollen können nicht geändert werden.",
+    "validation": {
+      "name_required": "Name ist erforderlich"
+    },
+    "button_create": "Rolle erstellen",
+    "button_save": "Änderungen speichern",
+    "button_creating": "Wird erstellt…",
+    "button_saving": "Wird gespeichert…",
+    "toast": {
+      "created": "Rolle erstellt",
+      "updated": "Rolle aktualisiert",
+      "create_error": "Rolle konnte nicht erstellt werden",
+      "update_error": "Rolle konnte nicht aktualisiert werden"
+    }
+  },
+  "permission_form": {
+    "title_new": "Neue Berechtigung",
+    "title_edit": "Berechtigung bearbeiten",
+    "description_new": "Definiere eine neue Berechtigung, die Rollen gewährt werden kann.",
+    "description_edit": "Aktualisiere die Details dieser Berechtigung.",
+    "trigger_new": "Neue Berechtigung",
+    "field_code": "Code",
+    "field_category": "Kategorie",
+    "field_name": "Name",
+    "field_description": "Beschreibung",
+    "placeholder_code": "ticket:write",
+    "placeholder_category": "ticket",
+    "placeholder_name": "Tickets schreiben",
+    "placeholder_description": "Was diese Berechtigung erlaubt…",
+    "code_locked_hint": "Codes von Systemberechtigungen können nicht geändert werden.",
+    "validation": {
+      "code_required": "Code ist erforderlich",
+      "code_format": "Verwende das Format Ressource:Aktion, z. B. ticket:write",
+      "name_required": "Name ist erforderlich"
+    },
+    "button_create": "Berechtigung erstellen",
+    "button_save": "Änderungen speichern",
+    "button_creating": "Wird erstellt…",
+    "button_saving": "Wird gespeichert…",
+    "toast": {
+      "created": "Berechtigung erstellt",
+      "updated": "Berechtigung aktualisiert",
+      "create_error": "Berechtigung konnte nicht erstellt werden",
+      "update_error": "Berechtigung konnte nicht aktualisiert werden"
+    }
+  },
+  "role_permissions": {
+    "title": "Berechtigungen für {{name}}",
+    "description": "Aktiviere oder deaktiviere die Berechtigungen dieser Rolle. Änderungen werden sofort gespeichert.",
+    "empty": "Noch keine Berechtigungen definiert.",
+    "button_done": "Fertig",
+    "toast": {
+      "granted": "{{code}} gewährt",
+      "revoked": "{{code}} entzogen",
+      "update_error": "Berechtigungen konnten nicht aktualisiert werden"
+    }
+  }
+}

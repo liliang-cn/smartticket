@@ -1,0 +1,142 @@
+{
+  "list": {
+    "directory_label": "ディレクトリ",
+    "title": "顧客",
+    "search_placeholder": "名前・コード・ドメインで検索…",
+    "status_placeholder": "ステータス",
+    "status_all": "すべてのステータス",
+    "status_active": "有効",
+    "status_inactive": "無効",
+    "col_name": "名前",
+    "col_code": "コード",
+    "col_domain": "ドメイン",
+    "col_active": "有効",
+    "col_created": "作成日",
+    "empty": "条件に一致する顧客はありません。",
+    "pagination": "全 {{total}} 件 · {{page}}/{{total_pages}} ページ",
+    "syncing": " · 同期中…",
+    "prev": "前へ",
+    "next": "次へ"
+  },
+  "status": {
+    "active": "有効",
+    "inactive": "無効"
+  },
+  "detail": {
+    "back": "顧客一覧",
+    "not_found": "顧客が見つかりません。",
+    "back_to_customers": "顧客一覧に戻る",
+    "edit": "編集",
+    "delete": "削除",
+    "description_label": "説明",
+    "no_description": "説明はありません。",
+    "contacts_heading": "担当者",
+    "col_user": "ユーザー",
+    "col_email": "メール",
+    "col_role": "ロール",
+    "col_active": "有効",
+    "col_actions": "操作",
+    "no_contacts": "この顧客に紐づく担当者はいません。",
+    "meta_code": "コード",
+    "meta_domain": "ドメイン",
+    "meta_status": "ステータス",
+    "meta_created": "作成日",
+    "meta_updated": "更新日",
+    "delete_dialog": {
+      "title": "顧客を削除",
+      "description": "<bold>{{name}}</bold> を削除しますか？組織は論理削除されます。担当者とチケットは削除されません。",
+      "deleting": "削除中…",
+      "confirm": "顧客を削除"
+    },
+    "toast": {
+      "deleted": "顧客を削除しました",
+      "delete_error": "顧客を削除できませんでした"
+    }
+  },
+  "contact_row": {
+    "deactivate": "無効化",
+    "activate": "有効化",
+    "remove_aria": "{{name}} を削除",
+    "remove_dialog": {
+      "title": "担当者を削除",
+      "description": "<bold>{{name}}</bold> をこの顧客から削除しますか？アカウントも削除されます。",
+      "removing": "削除中…",
+      "confirm": "担当者を削除"
+    },
+    "toast": {
+      "deactivated": "担当者を無効化しました",
+      "activated": "担当者を有効化しました",
+      "removed": "担当者を削除しました",
+      "remove_error": "担当者を削除できませんでした"
+    }
+  },
+  "subscriptions": {
+    "heading": "サブスクリプション",
+    "col_product": "製品",
+    "col_plan": "プラン",
+    "col_sla": "SLA",
+    "col_nodes": "ノード数",
+    "col_status": "ステータス",
+    "col_expires": "有効期限",
+    "empty_loading": "読み込み中…",
+    "empty": "サブスクリプションはありません。この顧客にはまだ製品または SLA が割り当てられていません。",
+    "cluster": "クラスター"
+  },
+  "add_contact": {
+    "trigger": "担当者を追加",
+    "title": "担当者を追加",
+    "description_no_customer": "顧客側アカウントを作成します。ログインして自社のチケットを閲覧・作成できます。",
+    "description_with_customer": "{{customerName}} の顧客側アカウントを作成します。ログインして自社のチケットを閲覧・作成できます。",
+    "field_first_name": "名",
+    "field_last_name": "姓",
+    "field_email": "メール",
+    "field_username": "ユーザー名",
+    "field_password": "パスワード",
+    "password_hint": "8文字以上、大文字・数字・特殊文字を含めてください。",
+    "adding": "追加中…",
+    "submit": "担当者を追加",
+    "toast": {
+      "added": "担当者を追加しました",
+      "add_error": "担当者を追加できませんでした"
+    },
+    "validation": {
+      "first_name_required": "名は必須です",
+      "last_name_required": "姓は必須です",
+      "email_required": "メールアドレスは必須です",
+      "email_invalid": "メールアドレスが無効です",
+      "username_min": "3文字以上必要です",
+      "username_pattern": "英数字・_・- のみ使用できます",
+      "password_min": "8文字以上必要です",
+      "password_uppercase": "大文字が必要です",
+      "password_lowercase": "小文字が必要です",
+      "password_digit": "数字が必要です",
+      "password_special": "特殊文字が必要です"
+    }
+  },
+  "form": {
+    "title_new": "新規顧客",
+    "title_edit": "顧客を編集",
+    "description_new": "サポートを提供するクライアント組織を登録します。",
+    "description_edit": "この顧客組織の詳細を更新します。",
+    "field_name": "名前",
+    "field_code": "コード",
+    "field_domain": "ドメイン",
+    "field_description": "説明",
+    "description_placeholder": "この顧客に関するメモ…",
+    "field_status": "ステータス",
+    "trigger_new": "新規顧客",
+    "saving": "保存中…",
+    "creating": "作成中…",
+    "save_changes": "変更を保存",
+    "create": "顧客を作成",
+    "toast": {
+      "updated": "顧客を更新しました",
+      "created": "顧客を作成しました",
+      "update_error": "顧客を更新できませんでした",
+      "create_error": "顧客を作成できませんでした"
+    },
+    "validation": {
+      "name_required": "名前は必須です"
+    }
+  }
+}

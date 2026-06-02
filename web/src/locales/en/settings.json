@@ -1,0 +1,65 @@
+{
+  "title": "Settings",
+  "subtitle": "White-label this deployment — the brand name, accent color and logo apply to every user and the sign-in page.",
+  "language": {
+    "heading": "Language",
+    "desc": "The display language for your account. Stored in this browser."
+  },
+  "identity": {
+    "heading": "Identity",
+    "desc": "Names shown in the sidebar and workspace header.",
+    "app_name": "App name",
+    "app_name_hint": "Shown beside the logo.",
+    "app_subtitle": "App subtitle",
+    "app_subtitle_hint": "Small label under the app name.",
+    "workspace_name": "Workspace name",
+    "workspace_name_hint": "The label in the top bar of every page."
+  },
+  "accent": {
+    "heading": "Accent color",
+    "desc": "The signal color for buttons, active navigation, links and focus rings — across light and dark themes.",
+    "use_color": "Use {{color}}",
+    "custom_color": "Pick a custom color",
+    "invalid_hex": "Use a hex like #f59e0b"
+  },
+  "logo": {
+    "heading": "Logo",
+    "desc": "Replaces the default glyph. PNG, JPG, SVG, WEBP or GIF, up to 2 MB. A square image works best.",
+    "current_alt": "Current logo",
+    "upload": "Upload logo",
+    "uploading": "Uploading…",
+    "remove": "Remove"
+  },
+  "signin": {
+    "heading": "Sign-in page",
+    "desc": "The headline and subtext on the right side of the login screen.",
+    "tagline": "Tagline",
+    "subtext": "Subtext"
+  },
+  "preview": {
+    "label": "Live preview",
+    "active_item": "Active item",
+    "inactive_item": "Inactive item",
+    "primary": "Primary",
+    "accent": "accent",
+    "link": "link",
+    "note": "Color updates here instantly. Click <0>Save changes</0> to apply across the app."
+  },
+  "save_changes": "Save changes",
+  "saving": "Saving…",
+  "reset_defaults": "Reset to defaults",
+  "toasts": {
+    "invalid_hex": "Enter a valid hex color, e.g. #f59e0b",
+    "saved": "Branding saved",
+    "save_error": "Could not save branding",
+    "logo_updated": "Logo updated",
+    "logo_upload_error": "Could not upload logo",
+    "logo_removed": "Logo removed",
+    "logo_remove_error": "Could not remove logo"
+  },
+  "confirm_remove_logo": {
+    "title": "Remove logo",
+    "description": "Revert to the default glyph? The uploaded image is deleted.",
+    "confirm": "Remove logo"
+  }
+}

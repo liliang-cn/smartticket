@@ -1,0 +1,65 @@
+{
+  "title": "设置",
+  "subtitle": "为本部署做白标定制 —— 品牌名称、强调色与 Logo 将应用于所有用户和登录页。",
+  "language": {
+    "heading": "语言",
+    "desc": "你账户的显示语言。保存在当前浏览器。"
+  },
+  "identity": {
+    "heading": "标识",
+    "desc": "显示在侧边栏和工作台顶栏的名称。",
+    "app_name": "应用名称",
+    "app_name_hint": "显示在 Logo 旁边。",
+    "app_subtitle": "应用副标题",
+    "app_subtitle_hint": "应用名称下方的小标签。",
+    "workspace_name": "工作区名称",
+    "workspace_name_hint": "每个页面顶栏中的标签。"
+  },
+  "accent": {
+    "heading": "强调色",
+    "desc": "用于按钮、激活导航、链接和焦点环的标志色 —— 在浅色和深色主题下均生效。",
+    "use_color": "使用 {{color}}",
+    "custom_color": "选择自定义颜色",
+    "invalid_hex": "请使用十六进制色值，如 #f59e0b"
+  },
+  "logo": {
+    "heading": "Logo",
+    "desc": "替换默认图标。支持 PNG、JPG、SVG、WEBP 或 GIF，最大 2 MB。方形图片效果最佳。",
+    "current_alt": "当前 Logo",
+    "upload": "上传 Logo",
+    "uploading": "上传中…",
+    "remove": "移除"
+  },
+  "signin": {
+    "heading": "登录页",
+    "desc": "登录页右侧的标题和副文案。",
+    "tagline": "标语",
+    "subtext": "副文案"
+  },
+  "preview": {
+    "label": "实时预览",
+    "active_item": "激活项",
+    "inactive_item": "未激活项",
+    "primary": "主按钮",
+    "accent": "强调",
+    "link": "链接",
+    "note": "颜色在此即时更新。点击 <0>保存更改</0> 以应用到整个应用。"
+  },
+  "save_changes": "保存更改",
+  "saving": "保存中…",
+  "reset_defaults": "恢复默认",
+  "toasts": {
+    "invalid_hex": "请输入有效的十六进制色值，如 #f59e0b",
+    "saved": "品牌设置已保存",
+    "save_error": "无法保存品牌设置",
+    "logo_updated": "Logo 已更新",
+    "logo_upload_error": "无法上传 Logo",
+    "logo_removed": "Logo 已移除",
+    "logo_remove_error": "无法移除 Logo"
+  },
+  "confirm_remove_logo": {
+    "title": "移除 Logo",
+    "description": "恢复为默认图标？已上传的图片将被删除。",
+    "confirm": "移除 Logo"
+  }
+}

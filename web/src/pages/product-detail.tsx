@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Pencil, Trash2, Layers, Power, PowerOff } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation, Trans } from "react-i18next";
 import {
   useProduct,
   useDeleteProduct,
@@ -60,6 +61,7 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export function ProductDetailPage() {
+  const { t } = useTranslation("products");
   const { id } = useParams();
   const navigate = useNavigate();
   const productId = id ? Number(id) : undefined;
@@ -77,11 +79,11 @@ export function ProductDetailPage() {
     if (productId == null) return;
     try {
       await del.mutateAsync(productId);
-      toast.success("Product deleted");
+      toast.success(t("detail.toast.deleted"));
       setConfirmOpen(false);
       navigate("/products");
     } catch (err) {
-      toast.error(apiError(err, "Could not delete product"));
+      toast.error(apiError(err, t("detail.toast.error_delete")));
     }
   }
 
@@ -90,13 +92,13 @@ export function ProductDetailPage() {
     try {
       if (isActive) {
         await deactivate.mutateAsync(productId);
-        toast.success("Product deactivated");
+        toast.success(t("detail.toast.deactivated"));
       } else {
         await activate.mutateAsync(productId);
-        toast.success("Product activated");
+        toast.success(t("detail.toast.activated"));
       }
     } catch (err) {
-      toast.error(apiError(err, "Could not update product status"));
+      toast.error(apiError(err, t("detail.toast.error_toggle")));
     }
   }
 
@@ -112,11 +114,11 @@ export function ProductDetailPage() {
   if (!product) {
     return (
       <div className="w-full py-20 text-center text-muted-foreground">
-        Product not found.
+        {t("detail.not_found")}
         <div className="mt-4">
           <Button variant="secondary" asChild>
             <Link to="/products">
-              <ArrowLeft /> Back to products
+              <ArrowLeft /> {t("detail.back_to_products")}
             </Link>
           </Button>
         </div>
@@ -132,7 +134,7 @@ export function ProductDetailPage() {
         to="/products"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
-        <ArrowLeft className="size-4" /> Products
+        <ArrowLeft className="size-4" /> {t("detail.back")}
       </Link>
 
       <div data-reveal className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -146,7 +148,9 @@ export function ProductDetailPage() {
             <Badge tone={isActive ? "green" : "slate"}>
               {product.status || "—"}
             </Badge>
-            {product.is_managed && <Badge tone="blue">managed</Badge>}
+            {product.is_managed && (
+              <Badge tone="blue">{t("detail.badge_managed")}</Badge>
+            )}
           </div>
           <h1 className="mt-1 text-2xl">{product.name}</h1>
         </div>
@@ -155,7 +159,7 @@ export function ProductDetailPage() {
             product={product}
             trigger={
               <Button variant="secondary" size="sm">
-                <Pencil /> Edit
+                <Pencil /> {t("detail.edit")}
               </Button>
             }
           />
@@ -167,11 +171,11 @@ export function ProductDetailPage() {
           >
             {isActive ? (
               <>
-                <PowerOff /> Deactivate
+                <PowerOff /> {t("detail.deactivate")}
               </>
             ) : (
               <>
-                <Power /> Activate
+                <Power /> {t("detail.activate")}
               </>
             )}
           </Button>
@@ -180,7 +184,7 @@ export function ProductDetailPage() {
             size="sm"
             onClick={() => setConfirmOpen(true)}
           >
-            <Trash2 /> Delete
+            <Trash2 /> {t("detail.delete")}
           </Button>
         </div>
       </div>
@@ -189,15 +193,15 @@ export function ProductDetailPage() {
         {/* Main */}
         <div className="space-y-5">
           <Card data-reveal className="p-5">
-            <Label>Description</Label>
+            <Label>{t("detail.section_description")}</Label>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-              {product.description || "No description provided."}
+              {product.description || t("detail.no_description")}
             </p>
           </Card>
 
           {product.documentation && (
             <Card data-reveal className="p-5">
-              <Label>Documentation</Label>
+              <Label>{t("detail.section_documentation")}</Label>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                 {product.documentation}
               </p>
@@ -208,7 +212,7 @@ export function ProductDetailPage() {
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-2 text-sm font-semibold">
                 <Layers className="size-4 text-muted-foreground" />
-                Services{" "}
+                {t("detail.section_services")}{" "}
                 <span className="font-mono text-xs text-muted-foreground">
                   ({services.length})
                 </span>
@@ -217,7 +221,7 @@ export function ProductDetailPage() {
                 productId={product.id}
                 trigger={
                   <Button variant="secondary" size="sm">
-                    Add service
+                    {t("detail.add_service")}
                   </Button>
                 }
               />
@@ -226,10 +230,10 @@ export function ProductDetailPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <th className="px-4 py-3 font-medium">Name</th>
-                    <th className="px-4 py-3 font-medium">Code</th>
-                    <th className="px-4 py-3 font-medium">Type</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
+                    <th className="px-4 py-3 font-medium">{t("detail.services_col_name")}</th>
+                    <th className="px-4 py-3 font-medium">{t("detail.services_col_code")}</th>
+                    <th className="px-4 py-3 font-medium">{t("detail.services_col_type")}</th>
+                    <th className="px-4 py-3 font-medium">{t("detail.services_col_status")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -262,7 +266,7 @@ export function ProductDetailPage() {
                         colSpan={4}
                         className="px-4 py-12 text-center text-sm text-muted-foreground"
                       >
-                        No services defined for this product.
+                        {t("detail.no_services")}
                       </td>
                     </tr>
                   )}
@@ -276,7 +280,7 @@ export function ProductDetailPage() {
         <aside data-reveal className="space-y-4">
           <Card className="p-5">
             <MetaRow
-              label="Code"
+              label={t("detail.meta_code")}
               value={
                 product.code ? (
                   <span className="font-mono text-xs">{product.code}</span>
@@ -286,45 +290,47 @@ export function ProductDetailPage() {
               }
             />
             <Separator />
-            <MetaRow label="Category" value={product.category || "—"} />
+            <MetaRow label={t("detail.meta_category")} value={product.category || "—"} />
             <Separator />
             <MetaRow
-              label="Version"
+              label={t("detail.meta_version")}
               value={
                 <span className="font-mono text-xs">{product.version || "—"}</span>
               }
             />
             <Separator />
-            <MetaRow label="Support level" value={product.support_level || "—"} />
+            <MetaRow label={t("detail.meta_support_level")} value={product.support_level || "—"} />
             <Separator />
             <MetaRow
-              label="Managed"
+              label={t("detail.meta_managed")}
               value={
                 <Badge tone={product.is_managed ? "blue" : "slate"}>
-                  {product.is_managed ? "managed" : "unmanaged"}
+                  {product.is_managed
+                    ? t("detail.badge_managed")
+                    : t("detail.badge_unmanaged")}
                 </Badge>
               }
             />
             <Separator />
             <MetaRow
-              label="Status"
+              label={t("detail.meta_status")}
               value={
                 <Badge tone={isActive ? "green" : "slate"}>
                   {product.status || "—"}
                 </Badge>
               }
             />
-            <MetaRow label="Created" value={relativeTime(product.created_at)} />
-            <MetaRow label="Updated" value={relativeTime(product.updated_at)} />
+            <MetaRow label={t("detail.meta_created")} value={relativeTime(product.created_at)} />
+            <MetaRow label={t("detail.meta_updated")} value={relativeTime(product.updated_at)} />
           </Card>
 
           {toList(product.tags).length > 0 && (
             <Card className="p-5">
-              <Label>Tags</Label>
+              <Label>{t("detail.section_tags")}</Label>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {toList(product.tags).map((t) => (
-                  <Badge key={t} tone="neutral">
-                    {t}
+                {toList(product.tags).map((tag) => (
+                  <Badge key={tag} tone="neutral">
+                    {tag}
                   </Badge>
                 ))}
               </div>
@@ -337,17 +343,20 @@ export function ProductDetailPage() {
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete product</DialogTitle>
+            <DialogTitle>{t("detail.delete_dialog.title")}</DialogTitle>
             <DialogDescription>
-              Delete{" "}
-              <span className="font-medium text-foreground">{product.name}</span>?
-              This removes the product from the catalog.
+              <Trans
+                ns="products"
+                i18nKey="detail.delete_dialog.description"
+                values={{ name: product.name }}
+                components={{ 1: <span className="font-medium text-foreground" /> }}
+              />
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button
@@ -355,7 +364,9 @@ export function ProductDetailPage() {
               onClick={onDelete}
               disabled={del.isPending}
             >
-              {del.isPending ? "Deleting…" : "Delete product"}
+              {del.isPending
+                ? t("detail.delete_dialog.deleting")
+                : t("detail.delete_dialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

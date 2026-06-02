@@ -1,0 +1,65 @@
+{
+  "title": "Impostazioni",
+  "subtitle": "Personalizza il marchio di questa installazione: nome, colore d'accento e logo si applicano a tutti gli utenti e alla schermata di accesso.",
+  "language": {
+    "heading": "Lingua",
+    "desc": "La lingua di visualizzazione del tuo account. Salvata in questo browser."
+  },
+  "identity": {
+    "heading": "Identità",
+    "desc": "Nomi mostrati nella barra laterale e nell'intestazione dello spazio di lavoro.",
+    "app_name": "Nome dell'app",
+    "app_name_hint": "Mostrato accanto al logo.",
+    "app_subtitle": "Sottotitolo dell'app",
+    "app_subtitle_hint": "Piccola etichetta sotto il nome dell'app.",
+    "workspace_name": "Nome dello spazio di lavoro",
+    "workspace_name_hint": "L'etichetta nella barra superiore di ogni pagina."
+  },
+  "accent": {
+    "heading": "Colore d'accento",
+    "desc": "Il colore distintivo per pulsanti, navigazione attiva, link e anelli di focus, nei temi chiaro e scuro.",
+    "use_color": "Usa {{color}}",
+    "custom_color": "Scegli un colore personalizzato",
+    "invalid_hex": "Usa un valore hex come #f59e0b"
+  },
+  "logo": {
+    "heading": "Logo",
+    "desc": "Sostituisce l'icona predefinita. PNG, JPG, SVG, WEBP o GIF, fino a 2 MB. Un'immagine quadrata funziona meglio.",
+    "current_alt": "Logo attuale",
+    "upload": "Carica logo",
+    "uploading": "Caricamento…",
+    "remove": "Rimuovi"
+  },
+  "signin": {
+    "heading": "Schermata di accesso",
+    "desc": "Il titolo e il testo secondario sul lato destro della schermata di accesso.",
+    "tagline": "Slogan",
+    "subtext": "Testo secondario"
+  },
+  "preview": {
+    "label": "Anteprima live",
+    "active_item": "Elemento attivo",
+    "inactive_item": "Elemento inattivo",
+    "primary": "Primario",
+    "accent": "accento",
+    "link": "link",
+    "note": "Il colore si aggiorna qui all'istante. Fai clic su <0>Salva modifiche</0> per applicarlo in tutta l'app."
+  },
+  "save_changes": "Salva modifiche",
+  "saving": "Salvataggio…",
+  "reset_defaults": "Ripristina predefiniti",
+  "toasts": {
+    "invalid_hex": "Inserisci un colore hex valido, es. #f59e0b",
+    "saved": "Branding salvato",
+    "save_error": "Impossibile salvare il branding",
+    "logo_updated": "Logo aggiornato",
+    "logo_upload_error": "Impossibile caricare il logo",
+    "logo_removed": "Logo rimosso",
+    "logo_remove_error": "Impossibile rimuovere il logo"
+  },
+  "confirm_remove_logo": {
+    "title": "Rimuovi logo",
+    "description": "Tornare all'icona predefinita? L'immagine caricata verrà eliminata.",
+    "confirm": "Rimuovi logo"
+  }
+}

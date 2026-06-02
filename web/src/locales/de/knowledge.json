@@ -1,0 +1,63 @@
+{
+  "status": {
+    "draft": "Entwurf",
+    "published": "Veröffentlicht",
+    "archived": "Archiviert",
+    "unknown": "Unbekannt"
+  },
+  "list": {
+    "library_label": "bibliothek",
+    "heading": "Wissen",
+    "semantic_placeholder": "Semantische Suche — in natürlicher Sprache fragen…",
+    "search_button": "Suchen",
+    "searching": "Suche läuft…",
+    "clear_search_aria": "Suche löschen",
+    "ask_ai": "Ask AI",
+    "filter_placeholder": "Nach Titel, Inhalt filtern…",
+    "category_placeholder": "Kategorie",
+    "status_placeholder": "Status",
+    "all_statuses": "Alle Status",
+    "col_title": "Titel",
+    "col_category": "Kategorie",
+    "col_status": "Status",
+    "col_views": "Aufrufe",
+    "col_updated": "Aktualisiert",
+    "no_matches": "Keine Treffer für «{{query}}».",
+    "no_articles": "Keine Artikel entsprechen diesen Filtern.",
+    "pagination_info": "{{total}} Artikel · Seite {{page}}/{{totalPages}}",
+    "syncing": "· Synchronisierung…",
+    "prev": "Zurück",
+    "next": "Weiter",
+    "search_error": "KI-Suche ist nicht konfiguriert"
+  },
+  "detail": {
+    "not_found": "Artikel nicht gefunden.",
+    "back_to_knowledge": "Zurück zur Wissensdatenbank",
+    "breadcrumb": "Wissen",
+    "summary_label": "Zusammenfassung",
+    "content_label": "Inhalt",
+    "no_content": "Kein Inhalt.",
+    "meta_status": "Status",
+    "meta_category": "Kategorie",
+    "meta_views": "Aufrufe",
+    "meta_version": "Version",
+    "meta_author": "Autor",
+    "meta_created": "Erstellt",
+    "meta_updated": "Aktualisiert",
+    "tags_label": "Tags",
+    "version_value": "v{{version}}"
+  },
+  "ask_ai": {
+    "trigger": "Ask AI",
+    "dialog_title": "Wissensdatenbank befragen",
+    "dialog_description": "Stell eine Frage und erhalte eine KI-Antwort aus deinen Artikeln.",
+    "question_placeholder": "z. B. Wie setze ich das Passwort eines Kunden zurück?",
+    "shortcut_hint": "⌘/Strg + Enter zum Absenden",
+    "ask_button": "Fragen",
+    "thinking": "Wird verarbeitet…",
+    "searching_message": "Wissensdatenbank wird durchsucht und eine Antwort wird erstellt…",
+    "answer_label": "Antwort",
+    "sources_label": "Quellen",
+    "error_default": "KI-Anfrage fehlgeschlagen"
+  }
+}

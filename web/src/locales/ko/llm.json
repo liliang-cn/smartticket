@@ -1,0 +1,80 @@
+{
+  "page": {
+    "eyebrow": "AI 통합",
+    "title": "AI 공급자"
+  },
+  "newProvider": "새 공급자",
+  "table": {
+    "name": "이름",
+    "type": "유형",
+    "tasks": "작업",
+    "model": "모델",
+    "endpoint": "엔드포인트",
+    "dims": "차원",
+    "key": "키",
+    "flags": "플래그"
+  },
+  "badges": {
+    "default": "기본",
+    "enabled": "활성화",
+    "disabled": "비활성화"
+  },
+  "taskLabels": {
+    "chat": "채팅",
+    "embedding": "임베딩"
+  },
+  "empty": "아직 구성된 AI 공급자가 없습니다.",
+  "actions": {
+    "test": "테스트",
+    "testTitle": "연결 테스트",
+    "editTitle": "공급자 편집",
+    "deleteTitle": "공급자 삭제"
+  },
+  "form": {
+    "titleCreate": "새 공급자",
+    "titleEdit": "공급자 편집",
+    "description": "채팅 또는 임베딩 공급자를 구성합니다. 채팅과 임베딩은 독립적이므로 각각 별도로 생성하세요 (예: 채팅에는 DeepSeek, 임베딩에는 Aliyun Bailian).",
+    "name": "이름",
+    "providerType": "공급자 유형",
+    "apiEndpoint": "API 엔드포인트",
+    "model": "모델",
+    "apiKey": "API 키",
+    "apiKeyPlaceholderEdit": "비워두면 기존 키를 유지합니다",
+    "taskTypes": "작업 유형",
+    "dimensions": "차원",
+    "maxTokens": "최대 토큰 수",
+    "temperature": "온도",
+    "default": "기본값",
+    "status": "상태",
+    "optionDefault": "기본",
+    "optionNotDefault": "기본 아님",
+    "optionEnabled": "활성화",
+    "optionDisabled": "비활성화",
+    "submitCreate": "공급자 생성",
+    "submitEdit": "변경사항 저장",
+    "creatingPending": "생성 중…",
+    "savingPending": "저장 중…"
+  },
+  "validation": {
+    "nameRequired": "이름은 필수입니다",
+    "typeRequired": "유형은 필수입니다",
+    "endpointRequired": "엔드포인트는 필수입니다",
+    "modelRequired": "모델은 필수입니다",
+    "atLeastOneTask": "작업 유형을 하나 이상 선택하세요 (채팅 또는 임베딩)"
+  },
+  "toast": {
+    "created": "공급자가 생성되었습니다",
+    "updated": "공급자가 업데이트되었습니다",
+    "deleted": "공급자가 삭제되었습니다",
+    "createFailed": "공급자를 생성할 수 없습니다",
+    "updateFailed": "공급자를 업데이트할 수 없습니다",
+    "deleteFailed": "공급자를 삭제할 수 없습니다",
+    "testFailed": "테스트에 실패했습니다"
+  },
+  "deleteDialog": {
+    "title": "공급자를 삭제하시겠습니까?",
+    "description": "\"{{name}}\" 공급자 구성이 영구적으로 제거됩니다.",
+    "confirmPending": "삭제 중…",
+    "confirm": "삭제"
+  }
+}

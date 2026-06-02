@@ -1,0 +1,86 @@
+{
+  "page": {
+    "section_label": "データ",
+    "title": "インポート / エクスポート"
+  },
+  "stats": {
+    "total_jobs": "ジョブ総数",
+    "completed": "完了",
+    "running": "実行中",
+    "failed": "失敗"
+  },
+  "filters": {
+    "all_types": "すべての種類",
+    "all_statuses": "すべてのステータス",
+    "type_placeholder": "種類",
+    "status_placeholder": "ステータス"
+  },
+  "table": {
+    "col_type": "種類",
+    "col_status": "ステータス",
+    "col_progress": "進捗",
+    "col_records": "レコード数",
+    "col_created": "作成日時",
+    "empty_heading": "このフィルター条件に一致するインポート/エクスポートジョブはありません。"
+  },
+  "records": {
+    "failed_count": "{{count}} 件失敗"
+  },
+  "pagination": {
+    "summary": "{{total}} 件 · {{page}}/{{totalPages}} ページ",
+    "syncing": " · 同期中…",
+    "prev": "前へ",
+    "next": "次へ"
+  },
+  "actions": {
+    "download": "ダウンロード",
+    "downloading": "ダウンロード中…",
+    "cancel_job": "ジョブをキャンセル",
+    "delete": "削除",
+    "new_export": "新規エクスポート"
+  },
+  "confirm_delete": {
+    "title": "ジョブを削除",
+    "description": "ジョブ #{{id}}（{{label}}）を削除しますか？この操作は元に戻せません。"
+  },
+  "toasts": {
+    "job_deleted": "ジョブを削除しました",
+    "delete_failed": "ジョブを削除できませんでした",
+    "export_created": "エクスポートジョブを作成しました",
+    "export_create_failed": "エクスポートジョブを作成できませんでした"
+  },
+  "status": {
+    "pending": "待機中",
+    "running": "実行中",
+    "completed": "完了",
+    "failed": "失敗",
+    "cancelled": "キャンセル済み"
+  },
+  "job_type": {
+    "import": "インポート",
+    "export": "エクスポート"
+  },
+  "format": {
+    "csv": "CSV",
+    "json": "JSON",
+    "xml": "XML",
+    "markdown": "Markdown",
+    "sqlite": "SQLite"
+  },
+  "export_dialog": {
+    "title": "新規エクスポートジョブ",
+    "description": "データセットのエクスポートをキューに追加します。ジョブはバックグラウンドで実行され、完了後に結果をダウンロードできます。",
+    "dataset_label": "データセット",
+    "format_label": "形式",
+    "submit": "エクスポート作成",
+    "submitting": "作成中…"
+  },
+  "entity": {
+    "tickets": "チケット",
+    "knowledge_articles": "ナレッジ記事",
+    "users": "ユーザー",
+    "products": "製品",
+    "services": "サービス",
+    "complete": "完全（データベース全体）"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "page": {
+    "eyebrow": "정책",
+    "heading": "서비스 수준"
+  },
+  "nav": {
+    "templates": "템플릿",
+    "rules": "규칙"
+  },
+  "pager": {
+    "summary": "{{total}} {{noun}} · {{page}}/{{totalPages}} 페이지",
+    "syncing": "· 동기화 중…",
+    "prev": "이전",
+    "next": "다음",
+    "noun_templates": "개 템플릿",
+    "noun_rules": "개 규칙"
+  },
+  "templates": {
+    "search_placeholder": "템플릿 검색…",
+    "columns": {
+      "name": "이름",
+      "default": "기본값",
+      "active": "활성",
+      "levels": "수준",
+      "holidays": "휴일",
+      "updated": "업데이트"
+    },
+    "default_badge": "기본값",
+    "active_badge": "활성",
+    "inactive_badge": "비활성",
+    "levels_summary": "{{priority}}우선 · {{severity}}심각도",
+    "empty": "SLA 템플릿이 아직 없습니다.",
+    "actions": {
+      "edit": "편집",
+      "set_default": "기본값으로 설정",
+      "deactivate": "비활성화",
+      "activate": "활성화",
+      "delete": "삭제"
+    },
+    "confirm_delete": {
+      "title": "SLA 템플릿 삭제",
+      "description": "「{{name}}」 SLA 템플릿을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
+    },
+    "toast": {
+      "deleted": "SLA 템플릿이 삭제되었습니다",
+      "delete_error": "SLA 템플릿을 삭제할 수 없습니다"
+    }
+  },
+  "rules": {
+    "search_placeholder": "규칙 검색…",
+    "columns": {
+      "template": "템플릿",
+      "priority": "우선순위",
+      "severity": "심각도",
+      "response": "응답 시간",
+      "resolution": "해결 시간",
+      "hours": "시간 유형",
+      "active": "활성"
+    },
+    "hours_business": "업무 시간",
+    "hours_calendar": "달력 시간",
+    "empty": "SLA 규칙이 아직 없습니다.",
+    "any_priority": "모든 우선순위",
+    "any_severity": "모든 심각도",
+    "actions": {
+      "edit": "편집",
+      "deactivate": "비활성화",
+      "activate": "활성화",
+      "delete": "삭제"
+    },
+    "confirm_delete": {
+      "title": "SLA 규칙 삭제",
+      "description": "{{label}}에 대한 SLA 규칙을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
+    },
+    "toast": {
+      "deleted": "SLA 규칙이 삭제되었습니다",
+      "delete_error": "SLA 규칙을 삭제할 수 없습니다"
+    }
+  },
+  "template_dialog": {
+    "title_new": "새 SLA 템플릿",
+    "title_edit": "SLA 템플릿 편집",
+    "description_new": "재사용 가능한 서비스 수준 계약 템플릿을 정의합니다.",
+    "description_edit": "이 SLA 템플릿의 기본 정보를 업데이트합니다.",
+    "trigger_new": "새 템플릿",
+    "fields": {
+      "name_label": "이름",
+      "name_placeholder": "표준 지원",
+      "description_label": "설명",
+      "description_placeholder": "이 SLA 템플릿에 대한 메모…",
+      "default_label": "기본값",
+      "status_label": "상태"
+    },
+    "options": {
+      "yes": "예",
+      "no": "아니요",
+      "active": "활성",
+      "inactive": "비활성"
+    },
+    "submit_create": "템플릿 생성",
+    "submit_edit": "변경 사항 저장",
+    "submitting_create": "생성 중…",
+    "submitting_edit": "저장 중…",
+    "toast": {
+      "created": "SLA 템플릿이 생성되었습니다",
+      "updated": "SLA 템플릿이 업데이트되었습니다",
+      "create_error": "템플릿을 생성할 수 없습니다",
+      "update_error": "템플릿을 업데이트할 수 없습니다"
+    },
+    "validation": {
+      "name_required": "이름은 필수입니다"
+    }
+  },
+  "rule_dialog": {
+    "title_new": "새 SLA 규칙",
+    "title_edit": "SLA 규칙 편집",
+    "description_new": "우선순위/심각도를 응답 및 해결 목표에 매핑합니다.",
+    "description_edit": "이 SLA 규칙의 목표값을 업데이트합니다.",
+    "trigger_new": "새 규칙",
+    "fields": {
+      "template_id_label": "템플릿 ID",
+      "priority_label": "우선순위",
+      "severity_label": "심각도",
+      "response_time_label": "응답 시간 (분)",
+      "resolution_time_label": "해결 시간 (분)",
+      "business_hours_label": "업무 시간만",
+      "status_label": "상태"
+    },
+    "options": {
+      "yes": "예",
+      "no": "아니요",
+      "active": "활성",
+      "inactive": "비활성"
+    },
+    "submit_create": "규칙 생성",
+    "submit_edit": "변경 사항 저장",
+    "submitting_create": "생성 중…",
+    "submitting_edit": "저장 중…",
+    "toast": {
+      "created": "SLA 규칙이 생성되었습니다",
+      "updated": "SLA 규칙이 업데이트되었습니다",
+      "create_error": "규칙을 생성할 수 없습니다",
+      "update_error": "규칙을 업데이트할 수 없습니다"
+    },
+    "validation": {
+      "template_id_required": "템플릿 ID는 필수입니다",
+      "template_id_positive": "템플릿 ID는 양의 정수여야 합니다",
+      "priority_required": "우선순위는 필수입니다",
+      "severity_required": "심각도는 필수입니다",
+      "time_non_negative": "0 이상이어야 합니다"
+    }
+  }
+}

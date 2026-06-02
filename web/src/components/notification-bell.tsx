@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Bell } from "lucide-react";
 import {
   DropdownMenu,
@@ -8,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, formatShortDateTime } from "@/lib/utils";
 import {
   useMarkAllRead,
   useMarkRead,
@@ -17,21 +18,8 @@ import {
   type Notification,
 } from "@/features/notifications/api";
 
-/** Format a unix-seconds number or RFC3339 string into a short, safe label. */
-function formatTime(value: number | string): string {
-  if (value == null || value === 0 || value === "") return "";
-  const date =
-    typeof value === "number" ? new Date(value * 1000) : new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 export function NotificationBell() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -54,7 +42,7 @@ export function NotificationBell() {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger
-        aria-label="Notifications"
+        aria-label={t("notifications.aria")}
         className="relative grid size-9 place-items-center rounded-full border border-border bg-card/60 text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-foreground"
       >
         <Bell className="size-4" />
@@ -66,7 +54,7 @@ export function NotificationBell() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between px-3 py-2">
-          <DropdownMenuLabel className="p-0">Notifications</DropdownMenuLabel>
+          <DropdownMenuLabel className="p-0">{t("notifications.title")}</DropdownMenuLabel>
           {hasUnread && (
             <button
               type="button"
@@ -74,7 +62,7 @@ export function NotificationBell() {
               disabled={markAllRead.isPending}
               className="text-xs font-medium text-primary outline-none transition-colors hover:text-primary/80 disabled:opacity-50"
             >
-              Mark all read
+              {t("notifications.mark_all_read")}
             </button>
           )}
         </div>
@@ -82,15 +70,15 @@ export function NotificationBell() {
         <div className="max-h-96 overflow-auto">
           {isLoading ? (
             <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-              Loading…
+              {t("notifications.loading")}
             </div>
           ) : notifications.length === 0 ? (
             <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-              No notifications
+              {t("notifications.empty")}
             </div>
           ) : (
             notifications.map((n) => {
-              const time = formatTime(n.created_at);
+              const time = formatShortDateTime(n.created_at);
               return (
                 <button
                   key={n.id}

@@ -1,0 +1,103 @@
+{
+  "list": {
+    "queue_label": "cola",
+    "heading": "Tickets",
+    "search_placeholder": "Buscar título, solicitante…",
+    "filter_status_placeholder": "Estado",
+    "filter_status_all": "Todos los estados",
+    "filter_priority_placeholder": "Prioridad",
+    "filter_priority_all": "Todas las prioridades",
+    "col_ticket": "Ticket",
+    "col_status": "Estado",
+    "col_priority": "Prioridad",
+    "col_customer": "Cliente",
+    "col_requester": "Solicitante",
+    "col_updated": "Actualizado",
+    "empty": "Ningún ticket coincide con estos filtros.",
+    "pagination_info": "{{total}} tickets · página {{page}}/{{totalPages}}",
+    "pagination_syncing": " · sincronizando…",
+    "btn_prev": "Anterior",
+    "btn_next": "Siguiente"
+  },
+  "detail": {
+    "back_link": "Tickets",
+    "not_found": "Ticket no encontrado.",
+    "btn_back_to_tickets": "Volver a tickets",
+    "section_description": "Descripción",
+    "no_description": "Sin descripción.",
+    "section_conversation": "Conversación",
+    "no_messages": "Sin mensajes aún.",
+    "reply_placeholder": "Escribe una respuesta…",
+    "internal_note_label": "Nota interna",
+    "btn_send": "Enviar",
+    "btn_sending": "Enviando…",
+    "msg_sender_ai": "Asistente",
+    "msg_sender_user": "Usuario #{{userId}}",
+    "msg_role_customer": "cliente",
+    "msg_role_team": "equipo",
+    "msg_internal_badge": "interno",
+    "toast_updated_field": "{{field}} actualizado",
+    "toast_post_error": "No se pudo enviar el mensaje",
+    "attachments": {
+      "label": "Adjuntos",
+      "btn_attach": "Adjuntar archivo",
+      "btn_uploading": "Subiendo…",
+      "btn_download_aria": "Descargar {{name}}",
+      "empty": "Sin adjuntos",
+      "toast_uploaded": "Adjunto subido",
+      "toast_upload_error": "Error al subir",
+      "toast_download_error": "Error al descargar"
+    },
+    "activity": {
+      "label": "Actividad",
+      "loading": "Cargando…",
+      "empty": "Sin actividad registrada aún.",
+      "actor_system": "Sistema"
+    },
+    "sla": {
+      "label": "Política SLA",
+      "source_rule": "coincide con {{priority}}/{{severity}}",
+      "source_default": "sin regla coincidente — objetivos predeterminados",
+      "business_hours": " · horario laboral",
+      "meta_response": "Respuesta",
+      "meta_resolution": "Resolución",
+      "meta_due": "Vencimiento"
+    },
+    "meta": {
+      "label_status": "Estado",
+      "label_priority": "Prioridad",
+      "label_severity": "Gravedad",
+      "label_customer": "Cliente",
+      "label_requester": "Solicitante",
+      "label_email": "Correo",
+      "label_assignee": "Asignado",
+      "label_created": "Creado",
+      "label_due": "Vencimiento",
+      "unassigned": "Sin asignar"
+    }
+  },
+  "create": {
+    "btn_new_ticket": "Nuevo ticket",
+    "dialog_title": "Nuevo ticket",
+    "dialog_description": "Registra un problema en nombre de un solicitante.",
+    "label_title": "Título",
+    "placeholder_title": "Resumen breve",
+    "label_description": "Descripción",
+    "placeholder_description": "¿Qué está ocurriendo?",
+    "label_priority": "Prioridad",
+    "label_requester": "Solicitante",
+    "placeholder_requester": "Juan Pérez",
+    "label_requester_email": "Correo del solicitante",
+    "btn_cancel": "Cancelar",
+    "btn_create": "Crear ticket",
+    "btn_creating": "Creando…",
+    "toast_created": "Ticket creado",
+    "toast_create_error": "No se pudo crear el ticket",
+    "validation": {
+      "title_required": "El título es obligatorio",
+      "description_required": "La descripción es obligatoria",
+      "requester_name_required": "El nombre del solicitante es obligatorio",
+      "email_required": "Introduce un correo electrónico válido"
+    }
+  }
+}

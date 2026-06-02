@@ -1,0 +1,63 @@
+{
+  "status": {
+    "draft": "下書き",
+    "published": "公開済み",
+    "archived": "アーカイブ済み",
+    "unknown": "不明"
+  },
+  "list": {
+    "library_label": "ライブラリ",
+    "heading": "ナレッジ",
+    "semantic_placeholder": "セマンティック検索 — 自然言語で質問…",
+    "search_button": "検索",
+    "searching": "検索中…",
+    "clear_search_aria": "検索をクリア",
+    "ask_ai": "Ask AI",
+    "filter_placeholder": "タイトル・内容でフィルター…",
+    "category_placeholder": "カテゴリ",
+    "status_placeholder": "ステータス",
+    "all_statuses": "すべてのステータス",
+    "col_title": "タイトル",
+    "col_category": "カテゴリ",
+    "col_status": "ステータス",
+    "col_views": "閲覧数",
+    "col_updated": "更新日",
+    "no_matches": "「{{query}}」に一致する結果はありません。",
+    "no_articles": "フィルター条件に一致する記事はありません。",
+    "pagination_info": "{{total}} 件 · {{page}}/{{totalPages}} ページ",
+    "syncing": "· 同期中…",
+    "prev": "前へ",
+    "next": "次へ",
+    "search_error": "AI 検索が設定されていません"
+  },
+  "detail": {
+    "not_found": "記事が見つかりません。",
+    "back_to_knowledge": "ナレッジに戻る",
+    "breadcrumb": "ナレッジ",
+    "summary_label": "概要",
+    "content_label": "内容",
+    "no_content": "内容がありません。",
+    "meta_status": "ステータス",
+    "meta_category": "カテゴリ",
+    "meta_views": "閲覧数",
+    "meta_version": "バージョン",
+    "meta_author": "作成者",
+    "meta_created": "作成日",
+    "meta_updated": "更新日",
+    "tags_label": "タグ",
+    "version_value": "v{{version}}"
+  },
+  "ask_ai": {
+    "trigger": "Ask AI",
+    "dialog_title": "ナレッジベースに質問する",
+    "dialog_description": "質問を入力すると、記事に基づいた AI の回答が得られます。",
+    "question_placeholder": "例：顧客のパスワードをリセットするには？",
+    "shortcut_hint": "⌘/Ctrl + Enter で送信",
+    "ask_button": "質問する",
+    "thinking": "考え中…",
+    "searching_message": "ナレッジベースを検索して回答を作成しています…",
+    "answer_label": "回答",
+    "sources_label": "参照元",
+    "error_default": "AI への問い合わせに失敗しました"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "list": {
+    "directory_label": "elenco",
+    "title": "Clienti",
+    "search_placeholder": "Cerca nome, codice, dominio…",
+    "status_placeholder": "Stato",
+    "status_all": "Tutti gli stati",
+    "status_active": "Attivo",
+    "status_inactive": "Inattivo",
+    "col_name": "Nome",
+    "col_code": "Codice",
+    "col_domain": "Dominio",
+    "col_active": "Attivo",
+    "col_created": "Creato",
+    "empty": "Nessun cliente corrisponde ai filtri selezionati.",
+    "pagination": "{{total}} clienti · pagina {{page}}/{{total_pages}}",
+    "syncing": " · sincronizzazione…",
+    "prev": "Precedente",
+    "next": "Successivo"
+  },
+  "status": {
+    "active": "attivo",
+    "inactive": "inattivo"
+  },
+  "detail": {
+    "back": "Clienti",
+    "not_found": "Cliente non trovato.",
+    "back_to_customers": "Torna ai clienti",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "description_label": "Descrizione",
+    "no_description": "Nessuna descrizione fornita.",
+    "contacts_heading": "Contatti",
+    "col_user": "Utente",
+    "col_email": "Email",
+    "col_role": "Ruolo",
+    "col_active": "Attivo",
+    "col_actions": "Azioni",
+    "no_contacts": "Nessun contatto associato a questo cliente.",
+    "meta_code": "Codice",
+    "meta_domain": "Dominio",
+    "meta_status": "Stato",
+    "meta_created": "Creato",
+    "meta_updated": "Aggiornato",
+    "delete_dialog": {
+      "title": "Elimina cliente",
+      "description": "Eliminare <bold>{{name}}</bold>? L'organizzazione sarà eliminata in modo logico. I contatti e i ticket non saranno rimossi.",
+      "deleting": "Eliminazione…",
+      "confirm": "Elimina cliente"
+    },
+    "toast": {
+      "deleted": "Cliente eliminato",
+      "delete_error": "Impossibile eliminare il cliente"
+    }
+  },
+  "contact_row": {
+    "deactivate": "Disattiva",
+    "activate": "Attiva",
+    "remove_aria": "Rimuovi {{name}}",
+    "remove_dialog": {
+      "title": "Rimuovi contatto",
+      "description": "Rimuovere <bold>{{name}}</bold> da questo cliente? L'account verrà eliminato.",
+      "removing": "Rimozione…",
+      "confirm": "Rimuovi contatto"
+    },
+    "toast": {
+      "deactivated": "Contatto disattivato",
+      "activated": "Contatto attivato",
+      "removed": "Contatto rimosso",
+      "remove_error": "Impossibile rimuovere il contatto"
+    }
+  },
+  "subscriptions": {
+    "heading": "Abbonamenti",
+    "col_product": "Prodotto",
+    "col_plan": "Piano",
+    "col_sla": "SLA",
+    "col_nodes": "Nodi",
+    "col_status": "Stato",
+    "col_expires": "Scadenza",
+    "empty_loading": "Caricamento…",
+    "empty": "Nessun abbonamento. Questo cliente non ha ancora prodotti o SLA assegnati.",
+    "cluster": "cluster"
+  },
+  "add_contact": {
+    "trigger": "Aggiungi contatto",
+    "title": "Aggiungi contatto",
+    "description_no_customer": "Crea un account lato cliente. Potrà accedere per visualizzare e creare i ticket della propria azienda.",
+    "description_with_customer": "Crea un account lato cliente per {{customerName}}. Potrà accedere per visualizzare e creare i ticket della propria azienda.",
+    "field_first_name": "Nome",
+    "field_last_name": "Cognome",
+    "field_email": "Email",
+    "field_username": "Nome utente",
+    "field_password": "Password",
+    "password_hint": "Almeno 8 caratteri, con una lettera maiuscola, una cifra e un carattere speciale.",
+    "adding": "Aggiunta…",
+    "submit": "Aggiungi contatto",
+    "toast": {
+      "added": "Contatto aggiunto",
+      "add_error": "Impossibile aggiungere il contatto"
+    },
+    "validation": {
+      "first_name_required": "Il nome è obbligatorio",
+      "last_name_required": "Il cognome è obbligatorio",
+      "email_required": "L'email è obbligatoria",
+      "email_invalid": "Email non valida",
+      "username_min": "Almeno 3 caratteri",
+      "username_pattern": "Solo lettere, numeri, _ e -",
+      "password_min": "Almeno 8 caratteri",
+      "password_uppercase": "Necessaria una lettera maiuscola",
+      "password_lowercase": "Necessaria una lettera minuscola",
+      "password_digit": "Necessaria una cifra",
+      "password_special": "Necessario un carattere speciale"
+    }
+  },
+  "form": {
+    "title_new": "Nuovo cliente",
+    "title_edit": "Modifica cliente",
+    "description_new": "Registra un'organizzazione cliente a cui fornisci supporto.",
+    "description_edit": "Aggiorna i dettagli di questa organizzazione cliente.",
+    "field_name": "Nome",
+    "field_code": "Codice",
+    "field_domain": "Dominio",
+    "field_description": "Descrizione",
+    "description_placeholder": "Note su questo cliente…",
+    "field_status": "Stato",
+    "trigger_new": "Nuovo cliente",
+    "saving": "Salvataggio…",
+    "creating": "Creazione…",
+    "save_changes": "Salva modifiche",
+    "create": "Crea cliente",
+    "toast": {
+      "updated": "Cliente aggiornato",
+      "created": "Cliente creato",
+      "update_error": "Impossibile aggiornare il cliente",
+      "create_error": "Impossibile creare il cliente"
+    },
+    "validation": {
+      "name_required": "Il nome è obbligatorio"
+    }
+  }
+}

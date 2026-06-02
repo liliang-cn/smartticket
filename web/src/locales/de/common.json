@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "tickets": "Tickets",
+    "knowledge": "Wissen",
+    "customers": "Kunden",
+    "users": "Benutzer",
+    "products": "Produkte",
+    "services": "Dienste",
+    "subscriptions": "Abonnements",
+    "sla": "SLA",
+    "data": "Daten",
+    "access": "Zugriff",
+    "ai_providers": "KI-Anbieter",
+    "settings": "Einstellungen",
+    "soon": "bald",
+    "coming_soon": "Demnächst",
+    "coming_soon_item": "{{label}} (demnächst)"
+  },
+  "topbar": {
+    "sign_out": "Abmelden",
+    "collapse_sidebar": "Seitenleiste einklappen",
+    "expand_sidebar": "Seitenleiste ausklappen",
+    "meta": "v0.1 · Einzelmandant"
+  },
+  "theme": {
+    "label": "Design",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System",
+    "toggle": "Design wechseln"
+  },
+  "language": {
+    "label": "Sprache",
+    "toggle": "Sprache ändern"
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "mark_all_read": "Alle als gelesen markieren",
+    "loading": "Wird geladen…",
+    "empty": "Keine Benachrichtigungen",
+    "aria": "Benachrichtigungen"
+  },
+  "actions": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "remove": "Entfernen",
+    "delete": "Löschen",
+    "upload": "Hochladen",
+    "back_to_home": "Zurück zur Startseite"
+  },
+  "enums": {
+    "ticket_status": {
+      "open": "Offen",
+      "in_progress": "In Bearbeitung",
+      "resolved": "Gelöst",
+      "closed": "Geschlossen",
+      "cancelled": "Storniert"
+    },
+    "priority": {
+      "low": "Niedrig",
+      "medium": "Mittel",
+      "high": "Hoch",
+      "urgent": "Dringend"
+    },
+    "severity": {
+      "minor": "Gering",
+      "major": "Hoch",
+      "critical": "Kritisch"
+    },
+    "sla_status": {
+      "within": "Innerhalb SLA",
+      "at_risk": "Gefährdet",
+      "breached": "Verletzt"
+    }
+  }
+}

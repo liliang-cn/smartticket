@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   useCreateCustomer,
   useUpdateCustomer,
@@ -32,15 +33,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const schema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  code: z.string().max(100).optional(),
-  domain: z.string().max(255).optional(),
-  description: z.string().optional(),
-  is_active: z.boolean(),
-});
-type FormValues = z.infer<typeof schema>;
-
 interface CustomerFormDialogProps {
   /** When provided, the dialog edits this customer instead of creating one. */
   customer?: Customer;
@@ -52,11 +44,21 @@ const ACTIVE = "active";
 const INACTIVE = "inactive";
 
 export function CustomerFormDialog({ customer, trigger }: CustomerFormDialogProps) {
+  const { t } = useTranslation("customers");
   const [open, setOpen] = useState(false);
   const isEdit = customer != null;
   const create = useCreateCustomer();
   const update = useUpdateCustomer(customer?.id ?? 0);
   const pending = isEdit ? update.isPending : create.isPending;
+
+  const schema = z.object({
+    name: z.string().min(1, t("form.validation.name_required")).max(255),
+    code: z.string().max(100).optional(),
+    domain: z.string().max(255).optional(),
+    description: z.string().optional(),
+    is_active: z.boolean(),
+  });
+  type FormValues = z.infer<typeof schema>;
 
   const {
     register,
@@ -101,15 +103,15 @@ export function CustomerFormDialog({ customer, trigger }: CustomerFormDialogProp
     try {
       if (isEdit) {
         await update.mutateAsync(payload);
-        toast.success("Customer updated");
+        toast.success(t("form.toast.updated"));
       } else {
         await create.mutateAsync(payload);
-        toast.success("Customer created");
+        toast.success(t("form.toast.created"));
       }
       setOpen(false);
     } catch (err) {
       toast.error(
-        apiError(err, isEdit ? "Could not update customer" : "Could not create customer")
+        apiError(err, isEdit ? t("form.toast.update_error") : t("form.toast.create_error")),
       );
     }
   }
@@ -119,22 +121,24 @@ export function CustomerFormDialog({ customer, trigger }: CustomerFormDialogProp
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus /> New customer
+            <Plus /> {t("form.trigger_new")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit customer" : "New customer"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? t("form.title_edit") : t("form.title_new")}
+          </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Update this customer organization's details."
-              : "Register a client organization you provide support to."}
+              ? t("form.description_edit")
+              : t("form.description_new")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="c-name">Name</Label>
+            <Label htmlFor="c-name">{t("form.field_name")}</Label>
             <Input id="c-name" placeholder="Acme Inc." {...register("name")} />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
@@ -142,14 +146,14 @@ export function CustomerFormDialog({ customer, trigger }: CustomerFormDialogProp
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="c-code">Code</Label>
+              <Label htmlFor="c-code">{t("form.field_code")}</Label>
               <Input id="c-code" placeholder="ACME" {...register("code")} />
               {errors.code && (
                 <p className="text-xs text-destructive">{errors.code.message}</p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="c-domain">Domain</Label>
+              <Label htmlFor="c-domain">{t("form.field_domain")}</Label>
               <Input id="c-domain" placeholder="acme.com" {...register("domain")} />
               {errors.domain && (
                 <p className="text-xs text-destructive">{errors.domain.message}</p>
@@ -157,15 +161,15 @@ export function CustomerFormDialog({ customer, trigger }: CustomerFormDialogProp
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="c-desc">Description</Label>
+            <Label htmlFor="c-desc">{t("form.field_description")}</Label>
             <Textarea
               id="c-desc"
-              placeholder="Notes about this customer…"
+              placeholder={t("form.description_placeholder")}
               {...register("description")}
             />
           </div>
           <div className="space-y-1.5">
-            <Label>Status</Label>
+            <Label>{t("form.field_status")}</Label>
             <Select
               value={watch("is_active") ? ACTIVE : INACTIVE}
               onValueChange={(v) => setValue("is_active", v === ACTIVE)}
@@ -174,25 +178,25 @@ export function CustomerFormDialog({ customer, trigger }: CustomerFormDialogProp
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ACTIVE}>Active</SelectItem>
-                <SelectItem value={INACTIVE}>Inactive</SelectItem>
+                <SelectItem value={ACTIVE}>{t("list.status_active")}</SelectItem>
+                <SelectItem value={INACTIVE}>{t("list.status_inactive")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={pending}>
               {pending
                 ? isEdit
-                  ? "Saving…"
-                  : "Creating…"
+                  ? t("form.saving")
+                  : t("form.creating")
                 : isEdit
-                  ? "Save changes"
-                  : "Create customer"}
+                  ? t("form.save_changes")
+                  : t("form.create")}
             </Button>
           </DialogFooter>
         </form>

@@ -1,0 +1,153 @@
+{
+  "page": {
+    "eyebrow": "política",
+    "heading": "Niveles de servicio"
+  },
+  "nav": {
+    "templates": "Plantillas",
+    "rules": "Reglas"
+  },
+  "pager": {
+    "summary": "{{total}} {{noun}} · página {{page}}/{{totalPages}}",
+    "syncing": "· sincronizando…",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "noun_templates": "plantillas",
+    "noun_rules": "reglas"
+  },
+  "templates": {
+    "search_placeholder": "Buscar plantillas…",
+    "columns": {
+      "name": "Nombre",
+      "default": "Predeterminada",
+      "active": "Activa",
+      "levels": "Niveles",
+      "holidays": "Festivos",
+      "updated": "Actualizada"
+    },
+    "default_badge": "predeterminada",
+    "active_badge": "activa",
+    "inactive_badge": "inactiva",
+    "levels_summary": "{{priority}}p · {{severity}}s",
+    "empty": "No hay plantillas de SLA todavía.",
+    "actions": {
+      "edit": "Editar",
+      "set_default": "Establecer como predeterminada",
+      "deactivate": "Desactivar",
+      "activate": "Activar",
+      "delete": "Eliminar"
+    },
+    "confirm_delete": {
+      "title": "Eliminar plantilla de SLA",
+      "description": "¿Eliminar la plantilla de SLA «{{name}}»? Esta acción no se puede deshacer."
+    },
+    "toast": {
+      "deleted": "Plantilla de SLA eliminada",
+      "delete_error": "No se pudo eliminar la plantilla de SLA"
+    }
+  },
+  "rules": {
+    "search_placeholder": "Buscar reglas…",
+    "columns": {
+      "template": "Plantilla",
+      "priority": "Prioridad",
+      "severity": "Gravedad",
+      "response": "Respuesta",
+      "resolution": "Resolución",
+      "hours": "Horas",
+      "active": "Activa"
+    },
+    "hours_business": "laborables",
+    "hours_calendar": "calendario",
+    "empty": "No hay reglas de SLA todavía.",
+    "any_priority": "cualquier prioridad",
+    "any_severity": "cualquier gravedad",
+    "actions": {
+      "edit": "Editar",
+      "deactivate": "Desactivar",
+      "activate": "Activar",
+      "delete": "Eliminar"
+    },
+    "confirm_delete": {
+      "title": "Eliminar regla de SLA",
+      "description": "¿Eliminar la regla de SLA para {{label}}? Esta acción no se puede deshacer."
+    },
+    "toast": {
+      "deleted": "Regla de SLA eliminada",
+      "delete_error": "No se pudo eliminar la regla de SLA"
+    }
+  },
+  "template_dialog": {
+    "title_new": "Nueva plantilla de SLA",
+    "title_edit": "Editar plantilla de SLA",
+    "description_new": "Define una plantilla de acuerdo de nivel de servicio reutilizable.",
+    "description_edit": "Actualiza los detalles básicos de esta plantilla de SLA.",
+    "trigger_new": "Nueva plantilla",
+    "fields": {
+      "name_label": "Nombre",
+      "name_placeholder": "Soporte estándar",
+      "description_label": "Descripción",
+      "description_placeholder": "Notas sobre esta plantilla de SLA…",
+      "default_label": "Predeterminada",
+      "status_label": "Estado"
+    },
+    "options": {
+      "yes": "Sí",
+      "no": "No",
+      "active": "Activa",
+      "inactive": "Inactiva"
+    },
+    "submit_create": "Crear plantilla",
+    "submit_edit": "Guardar cambios",
+    "submitting_create": "Creando…",
+    "submitting_edit": "Guardando…",
+    "toast": {
+      "created": "Plantilla de SLA creada",
+      "updated": "Plantilla de SLA actualizada",
+      "create_error": "No se pudo crear la plantilla",
+      "update_error": "No se pudo actualizar la plantilla"
+    },
+    "validation": {
+      "name_required": "El nombre es obligatorio"
+    }
+  },
+  "rule_dialog": {
+    "title_new": "Nueva regla de SLA",
+    "title_edit": "Editar regla de SLA",
+    "description_new": "Asigna prioridad/gravedad a los objetivos de respuesta y resolución.",
+    "description_edit": "Actualiza los objetivos de esta regla de SLA.",
+    "trigger_new": "Nueva regla",
+    "fields": {
+      "template_id_label": "ID de plantilla",
+      "priority_label": "Prioridad",
+      "severity_label": "Gravedad",
+      "response_time_label": "Tiempo de respuesta (min)",
+      "resolution_time_label": "Tiempo de resolución (min)",
+      "business_hours_label": "Solo horas laborables",
+      "status_label": "Estado"
+    },
+    "options": {
+      "yes": "Sí",
+      "no": "No",
+      "active": "Activa",
+      "inactive": "Inactiva"
+    },
+    "submit_create": "Crear regla",
+    "submit_edit": "Guardar cambios",
+    "submitting_create": "Creando…",
+    "submitting_edit": "Guardando…",
+    "toast": {
+      "created": "Regla de SLA creada",
+      "updated": "Regla de SLA actualizada",
+      "create_error": "No se pudo crear la regla",
+      "update_error": "No se pudo actualizar la regla"
+    },
+    "validation": {
+      "template_id_required": "El ID de plantilla es obligatorio",
+      "template_id_positive": "El ID de plantilla debe ser un número positivo",
+      "priority_required": "La prioridad es obligatoria",
+      "severity_required": "La gravedad es obligatoria",
+      "time_non_negative": "Debe ser ≥ 0"
+    }
+  }
+}

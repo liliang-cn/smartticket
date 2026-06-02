@@ -1,0 +1,142 @@
+{
+  "list": {
+    "directory_label": "디렉토리",
+    "title": "고객사",
+    "search_placeholder": "이름, 코드, 도메인 검색…",
+    "status_placeholder": "상태",
+    "status_all": "전체 상태",
+    "status_active": "활성",
+    "status_inactive": "비활성",
+    "col_name": "이름",
+    "col_code": "코드",
+    "col_domain": "도메인",
+    "col_active": "활성",
+    "col_created": "생성일",
+    "empty": "필터 조건에 맞는 고객사가 없습니다.",
+    "pagination": "총 {{total}}개 · {{page}}/{{total_pages}} 페이지",
+    "syncing": " · 동기화 중…",
+    "prev": "이전",
+    "next": "다음"
+  },
+  "status": {
+    "active": "활성",
+    "inactive": "비활성"
+  },
+  "detail": {
+    "back": "고객사 목록",
+    "not_found": "고객사를 찾을 수 없습니다.",
+    "back_to_customers": "고객사 목록으로 돌아가기",
+    "edit": "편집",
+    "delete": "삭제",
+    "description_label": "설명",
+    "no_description": "설명이 없습니다.",
+    "contacts_heading": "담당자",
+    "col_user": "사용자",
+    "col_email": "이메일",
+    "col_role": "역할",
+    "col_active": "활성",
+    "col_actions": "작업",
+    "no_contacts": "이 고객사에 연결된 담당자가 없습니다.",
+    "meta_code": "코드",
+    "meta_domain": "도메인",
+    "meta_status": "상태",
+    "meta_created": "생성일",
+    "meta_updated": "수정일",
+    "delete_dialog": {
+      "title": "고객사 삭제",
+      "description": "<bold>{{name}}</bold>을(를) 삭제하시겠습니까? 조직은 소프트 삭제됩니다. 담당자와 티켓은 삭제되지 않습니다.",
+      "deleting": "삭제 중…",
+      "confirm": "고객사 삭제"
+    },
+    "toast": {
+      "deleted": "고객사가 삭제되었습니다",
+      "delete_error": "고객사를 삭제할 수 없습니다"
+    }
+  },
+  "contact_row": {
+    "deactivate": "비활성화",
+    "activate": "활성화",
+    "remove_aria": "{{name}} 제거",
+    "remove_dialog": {
+      "title": "담당자 제거",
+      "description": "<bold>{{name}}</bold>을(를) 이 고객사에서 제거하시겠습니까? 계정이 삭제됩니다.",
+      "removing": "제거 중…",
+      "confirm": "담당자 제거"
+    },
+    "toast": {
+      "deactivated": "담당자가 비활성화되었습니다",
+      "activated": "담당자가 활성화되었습니다",
+      "removed": "담당자가 제거되었습니다",
+      "remove_error": "담당자를 제거할 수 없습니다"
+    }
+  },
+  "subscriptions": {
+    "heading": "구독",
+    "col_product": "제품",
+    "col_plan": "플랜",
+    "col_sla": "SLA",
+    "col_nodes": "노드 수",
+    "col_status": "상태",
+    "col_expires": "만료일",
+    "empty_loading": "로딩 중…",
+    "empty": "구독이 없습니다. 이 고객사에 할당된 제품이나 SLA가 아직 없습니다.",
+    "cluster": "클러스터"
+  },
+  "add_contact": {
+    "trigger": "담당자 추가",
+    "title": "담당자 추가",
+    "description_no_customer": "고객 계정을 생성합니다. 로그인하여 자사 티켓을 조회하고 생성할 수 있습니다.",
+    "description_with_customer": "{{customerName}}의 고객 계정을 생성합니다. 로그인하여 자사 티켓을 조회하고 생성할 수 있습니다.",
+    "field_first_name": "이름",
+    "field_last_name": "성",
+    "field_email": "이메일",
+    "field_username": "사용자명",
+    "field_password": "비밀번호",
+    "password_hint": "대문자, 숫자, 특수문자를 포함한 8자 이상이어야 합니다.",
+    "adding": "추가 중…",
+    "submit": "담당자 추가",
+    "toast": {
+      "added": "담당자가 추가되었습니다",
+      "add_error": "담당자를 추가할 수 없습니다"
+    },
+    "validation": {
+      "first_name_required": "이름은 필수입니다",
+      "last_name_required": "성은 필수입니다",
+      "email_required": "이메일은 필수입니다",
+      "email_invalid": "유효하지 않은 이메일입니다",
+      "username_min": "3자 이상이어야 합니다",
+      "username_pattern": "영문자, 숫자, _, - 만 사용 가능합니다",
+      "password_min": "8자 이상이어야 합니다",
+      "password_uppercase": "대문자가 필요합니다",
+      "password_lowercase": "소문자가 필요합니다",
+      "password_digit": "숫자가 필요합니다",
+      "password_special": "특수문자가 필요합니다"
+    }
+  },
+  "form": {
+    "title_new": "새 고객사",
+    "title_edit": "고객사 편집",
+    "description_new": "지원을 제공하는 클라이언트 조직을 등록합니다.",
+    "description_edit": "이 고객사 조직의 세부 정보를 업데이트합니다.",
+    "field_name": "이름",
+    "field_code": "코드",
+    "field_domain": "도메인",
+    "field_description": "설명",
+    "description_placeholder": "이 고객사에 대한 메모…",
+    "field_status": "상태",
+    "trigger_new": "새 고객사",
+    "saving": "저장 중…",
+    "creating": "생성 중…",
+    "save_changes": "변경 사항 저장",
+    "create": "고객사 생성",
+    "toast": {
+      "updated": "고객사가 업데이트되었습니다",
+      "created": "고객사가 생성되었습니다",
+      "update_error": "고객사를 업데이트할 수 없습니다",
+      "create_error": "고객사를 생성할 수 없습니다"
+    },
+    "validation": {
+      "name_required": "이름은 필수입니다"
+    }
+  }
+}

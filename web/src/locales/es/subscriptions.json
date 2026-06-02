@@ -1,0 +1,109 @@
+{
+  "page": {
+    "section": "comercial",
+    "title": "Suscripciones"
+  },
+  "actions": {
+    "new": "Nueva suscripción",
+    "delete": "Eliminar suscripción",
+    "create": "Crear suscripción",
+    "creating": "Creando…",
+    "deleting": "Eliminando…"
+  },
+  "toast": {
+    "created": "Suscripción creada",
+    "deleted": "Suscripción eliminada",
+    "create_failed": "No se pudo crear la suscripción",
+    "delete_failed": "No se pudo eliminar la suscripción"
+  },
+  "filter": {
+    "customer_id_placeholder": "Filtrar por ID de cliente…",
+    "status_placeholder": "Estado",
+    "all_statuses": "Todos los estados"
+  },
+  "table": {
+    "customer": "Cliente",
+    "product": "Producto",
+    "plan": "Plan",
+    "nodes": "Nodos",
+    "term": "Vigencia",
+    "period": "Período",
+    "sla": "SLA",
+    "status": "Estado"
+  },
+  "empty": {
+    "message": "Ninguna suscripción coincide con estos filtros."
+  },
+  "pagination": {
+    "summary": "{{total}} suscripciones · página {{page}}/{{totalPages}}",
+    "syncing": " · sincronizando…",
+    "prev": "Anterior",
+    "next": "Siguiente"
+  },
+  "form": {
+    "title": "Nueva suscripción",
+    "description": "Registra la suscripción de soporte de un cliente para un producto. Los términos predeterminados son por nodo y anuales.",
+    "customer": "Cliente",
+    "customer_placeholder": "Seleccionar cliente",
+    "product": "Producto",
+    "product_placeholder": "Seleccionar producto",
+    "sla_template": "Plantilla SLA",
+    "sla_placeholder": "Opcional",
+    "sla_none": "Ninguna",
+    "plan": "Plan",
+    "plan_placeholder": "p. ej. Estándar",
+    "billing_unit": "Unidad de facturación",
+    "quantity": "Cantidad",
+    "billing_period": "Período de facturación",
+    "starts_at": "Fecha de inicio",
+    "expires_at": "Fecha de vencimiento",
+    "unit_price": "Precio unitario",
+    "unit_price_placeholder": "opcional",
+    "currency": "Moneda"
+  },
+  "notes": {
+    "label": "Notas",
+    "placeholder": "opcional"
+  },
+  "validation": {
+    "customer_required": "El cliente es obligatorio",
+    "product_required": "El producto es obligatorio",
+    "billing_unit_required": "La unidad de facturación es obligatoria",
+    "billing_period_required": "El período de facturación es obligatorio",
+    "starts_at_required": "La fecha de inicio es obligatoria",
+    "expires_at_required": "La fecha de vencimiento es obligatoria"
+  },
+  "confirm_delete": {
+    "title": "¿Eliminar suscripción?",
+    "description": "Esta acción elimina permanentemente la suscripción de \"{{label}}\"."
+  },
+  "status": {
+    "active": "activa",
+    "expired": "vencida",
+    "cancelled": "cancelada"
+  },
+  "billing_unit": {
+    "per_node": "Por nodo",
+    "per_cluster": "Por clúster",
+    "per_core": "Por núcleo",
+    "per_instance": "Por instancia",
+    "per_seat": "Por puesto",
+    "per_user": "Por usuario",
+    "per_agent": "Por agente",
+    "per_device": "Por dispositivo",
+    "per_site": "Por sitio",
+    "per_gb": "Por GB",
+    "per_request": "Por solicitud",
+    "usage": "Por uso / medido",
+    "per_subscriber": "Por suscriptor (app)",
+    "per_install": "Por instalación",
+    "per_app": "Por aplicación",
+    "flat": "Tarifa fija"
+  },
+  "billing_period": {
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "annual": "Anual",
+    "lifetime": "De por vida (pago único)"
+  }
+}

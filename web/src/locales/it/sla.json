@@ -1,0 +1,153 @@
+{
+  "page": {
+    "eyebrow": "politica",
+    "heading": "Livelli di servizio"
+  },
+  "nav": {
+    "templates": "Modelli",
+    "rules": "Regole"
+  },
+  "pager": {
+    "summary": "{{total}} {{noun}} · pagina {{page}}/{{totalPages}}",
+    "syncing": "· sincronizzazione…",
+    "prev": "Precedente",
+    "next": "Successivo",
+    "noun_templates": "modelli",
+    "noun_rules": "regole"
+  },
+  "templates": {
+    "search_placeholder": "Cerca modelli…",
+    "columns": {
+      "name": "Nome",
+      "default": "Predefinito",
+      "active": "Attivo",
+      "levels": "Livelli",
+      "holidays": "Festività",
+      "updated": "Aggiornato"
+    },
+    "default_badge": "predefinito",
+    "active_badge": "attivo",
+    "inactive_badge": "inattivo",
+    "levels_summary": "{{priority}}p · {{severity}}s",
+    "empty": "Nessun modello SLA ancora.",
+    "actions": {
+      "edit": "Modifica",
+      "set_default": "Imposta come predefinito",
+      "deactivate": "Disattiva",
+      "activate": "Attiva",
+      "delete": "Elimina"
+    },
+    "confirm_delete": {
+      "title": "Elimina modello SLA",
+      "description": "Eliminare il modello SLA «{{name}}»? Questa azione non può essere annullata."
+    },
+    "toast": {
+      "deleted": "Modello SLA eliminato",
+      "delete_error": "Impossibile eliminare il modello SLA"
+    }
+  },
+  "rules": {
+    "search_placeholder": "Cerca regole…",
+    "columns": {
+      "template": "Modello",
+      "priority": "Priorità",
+      "severity": "Gravità",
+      "response": "Risposta",
+      "resolution": "Risoluzione",
+      "hours": "Ore",
+      "active": "Attivo"
+    },
+    "hours_business": "lavorative",
+    "hours_calendar": "calendario",
+    "empty": "Nessuna regola SLA ancora.",
+    "any_priority": "qualsiasi priorità",
+    "any_severity": "qualsiasi gravità",
+    "actions": {
+      "edit": "Modifica",
+      "deactivate": "Disattiva",
+      "activate": "Attiva",
+      "delete": "Elimina"
+    },
+    "confirm_delete": {
+      "title": "Elimina regola SLA",
+      "description": "Eliminare la regola SLA per {{label}}? Questa azione non può essere annullata."
+    },
+    "toast": {
+      "deleted": "Regola SLA eliminata",
+      "delete_error": "Impossibile eliminare la regola SLA"
+    }
+  },
+  "template_dialog": {
+    "title_new": "Nuovo modello SLA",
+    "title_edit": "Modifica modello SLA",
+    "description_new": "Definisci un modello di accordo sul livello di servizio riutilizzabile.",
+    "description_edit": "Aggiorna i dettagli di base di questo modello SLA.",
+    "trigger_new": "Nuovo modello",
+    "fields": {
+      "name_label": "Nome",
+      "name_placeholder": "Supporto standard",
+      "description_label": "Descrizione",
+      "description_placeholder": "Note su questo modello SLA…",
+      "default_label": "Predefinito",
+      "status_label": "Stato"
+    },
+    "options": {
+      "yes": "Sì",
+      "no": "No",
+      "active": "Attivo",
+      "inactive": "Inattivo"
+    },
+    "submit_create": "Crea modello",
+    "submit_edit": "Salva modifiche",
+    "submitting_create": "Creazione…",
+    "submitting_edit": "Salvataggio…",
+    "toast": {
+      "created": "Modello SLA creato",
+      "updated": "Modello SLA aggiornato",
+      "create_error": "Impossibile creare il modello",
+      "update_error": "Impossibile aggiornare il modello"
+    },
+    "validation": {
+      "name_required": "Il nome è obbligatorio"
+    }
+  },
+  "rule_dialog": {
+    "title_new": "Nuova regola SLA",
+    "title_edit": "Modifica regola SLA",
+    "description_new": "Associa priorità/gravità agli obiettivi di risposta e risoluzione.",
+    "description_edit": "Aggiorna gli obiettivi di questa regola SLA.",
+    "trigger_new": "Nuova regola",
+    "fields": {
+      "template_id_label": "ID modello",
+      "priority_label": "Priorità",
+      "severity_label": "Gravità",
+      "response_time_label": "Tempo di risposta (min)",
+      "resolution_time_label": "Tempo di risoluzione (min)",
+      "business_hours_label": "Solo ore lavorative",
+      "status_label": "Stato"
+    },
+    "options": {
+      "yes": "Sì",
+      "no": "No",
+      "active": "Attivo",
+      "inactive": "Inattivo"
+    },
+    "submit_create": "Crea regola",
+    "submit_edit": "Salva modifiche",
+    "submitting_create": "Creazione…",
+    "submitting_edit": "Salvataggio…",
+    "toast": {
+      "created": "Regola SLA creata",
+      "updated": "Regola SLA aggiornata",
+      "create_error": "Impossibile creare la regola",
+      "update_error": "Impossibile aggiornare la regola"
+    },
+    "validation": {
+      "template_id_required": "L'ID modello è obbligatorio",
+      "template_id_positive": "L'ID modello deve essere un numero positivo",
+      "priority_required": "La priorità è obbligatoria",
+      "severity_required": "La gravità è obbligatoria",
+      "time_non_negative": "Deve essere ≥ 0"
+    }
+  }
+}

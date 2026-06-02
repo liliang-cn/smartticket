@@ -1,0 +1,86 @@
+{
+  "page": {
+    "section_label": "dati",
+    "title": "Importa / Esporta"
+  },
+  "stats": {
+    "total_jobs": "Lavori totali",
+    "completed": "Completati",
+    "running": "In esecuzione",
+    "failed": "Falliti"
+  },
+  "filters": {
+    "all_types": "Tutti i tipi",
+    "all_statuses": "Tutti gli stati",
+    "type_placeholder": "Tipo",
+    "status_placeholder": "Stato"
+  },
+  "table": {
+    "col_type": "Tipo",
+    "col_status": "Stato",
+    "col_progress": "Avanzamento",
+    "col_records": "Record",
+    "col_created": "Creato",
+    "empty_heading": "Nessun lavoro di importazione/esportazione corrisponde a questi filtri."
+  },
+  "records": {
+    "failed_count": "{{count}} falliti"
+  },
+  "pagination": {
+    "summary": "{{total}} lavori · pagina {{page}}/{{totalPages}}",
+    "syncing": " · sincronizzazione…",
+    "prev": "Precedente",
+    "next": "Successivo"
+  },
+  "actions": {
+    "download": "Scarica",
+    "downloading": "Download in corso…",
+    "cancel_job": "Annulla lavoro",
+    "delete": "Elimina",
+    "new_export": "Nuova esportazione"
+  },
+  "confirm_delete": {
+    "title": "Elimina lavoro",
+    "description": "Eliminare il lavoro #{{id}} ({{label}})? Questa operazione non può essere annullata."
+  },
+  "toasts": {
+    "job_deleted": "Lavoro eliminato",
+    "delete_failed": "Impossibile eliminare il lavoro",
+    "export_created": "Lavoro di esportazione creato",
+    "export_create_failed": "Impossibile creare il lavoro di esportazione"
+  },
+  "status": {
+    "pending": "In attesa",
+    "running": "In esecuzione",
+    "completed": "Completato",
+    "failed": "Fallito",
+    "cancelled": "Annullato"
+  },
+  "job_type": {
+    "import": "Importazione",
+    "export": "Esportazione"
+  },
+  "format": {
+    "csv": "CSV",
+    "json": "JSON",
+    "xml": "XML",
+    "markdown": "Markdown",
+    "sqlite": "SQLite"
+  },
+  "export_dialog": {
+    "title": "Nuovo lavoro di esportazione",
+    "description": "Accoda l'esportazione di un set di dati. Il lavoro viene eseguito in background; puoi scaricare il risultato al termine.",
+    "dataset_label": "Set di dati",
+    "format_label": "Formato",
+    "submit": "Crea esportazione",
+    "submitting": "Creazione in corso…"
+  },
+  "entity": {
+    "tickets": "Ticket",
+    "knowledge_articles": "Articoli della knowledge base",
+    "users": "Utenti",
+    "products": "Prodotti",
+    "services": "Servizi",
+    "complete": "Completo (intero database)"
+  }
+}

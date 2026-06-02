@@ -1,0 +1,17 @@
+{
+  "overview": "overview",
+  "greeting": "Hello, {{name}}.",
+  "subtitle": "Here's how the queue looks right now.",
+  "cards": {
+    "open": "Open",
+    "in_progress": "In progress",
+    "resolved": "Resolved",
+    "overdue": "Overdue"
+  },
+  "queue": {
+    "title": "Work the queue",
+    "total": "{{count}} tickets total · jump into the live list",
+    "total_loading": "— · jump into the live list",
+    "cta": "Open tickets"
+  }
+}

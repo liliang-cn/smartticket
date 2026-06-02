@@ -1,0 +1,112 @@
+{
+  "page": {
+    "eyebrow": "control de acceso",
+    "title": "Roles y permisos"
+  },
+  "roles": {
+    "heading": "Roles",
+    "empty": "No hay roles definidos.",
+    "system_badge": "sistema",
+    "more": "+{{count}} más",
+    "no_permissions": "sin permisos",
+    "edit_title": "Editar rol",
+    "delete_title": "Eliminar rol",
+    "delete_system_hint": "Los roles del sistema no se pueden eliminar",
+    "permissions_button": "Permisos",
+    "confirm_delete": {
+      "title": "¿Eliminar rol?",
+      "description": "Esto elimina permanentemente el rol «{{name}}». Los usuarios asignados a él perderán sus permisos."
+    },
+    "toast": {
+      "deleted": "Rol eliminado",
+      "delete_error": "No se pudo eliminar el rol"
+    }
+  },
+  "permissions": {
+    "heading": "Permisos",
+    "empty": "No hay permisos definidos.",
+    "edit_title": "Editar permiso",
+    "delete_title": "Eliminar permiso",
+    "delete_system_hint": "Los permisos del sistema no se pueden eliminar",
+    "confirm_delete": {
+      "title": "¿Eliminar permiso?",
+      "description": "Esto elimina permanentemente el permiso «{{name}}» de todos los roles que lo otorgan."
+    },
+    "toast": {
+      "deleted": "Permiso eliminado",
+      "delete_error": "No se pudo eliminar el permiso"
+    }
+  },
+  "confirm_dialog": {
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "deleting": "Eliminando…"
+  },
+  "role_form": {
+    "title_new": "Nuevo rol",
+    "title_edit": "Editar rol",
+    "description_new": "Define un nuevo rol que puede asignarse a los usuarios.",
+    "description_edit": "Actualiza los detalles de este rol.",
+    "trigger_new": "Nuevo rol",
+    "field_name": "Nombre",
+    "field_description": "Descripción",
+    "placeholder_name": "support-lead",
+    "placeholder_description": "Lo que este rol puede hacer…",
+    "name_locked_hint": "Los nombres de los roles del sistema no se pueden cambiar.",
+    "validation": {
+      "name_required": "El nombre es obligatorio"
+    },
+    "button_create": "Crear rol",
+    "button_save": "Guardar cambios",
+    "button_creating": "Creando…",
+    "button_saving": "Guardando…",
+    "toast": {
+      "created": "Rol creado",
+      "updated": "Rol actualizado",
+      "create_error": "No se pudo crear el rol",
+      "update_error": "No se pudo actualizar el rol"
+    }
+  },
+  "permission_form": {
+    "title_new": "Nuevo permiso",
+    "title_edit": "Editar permiso",
+    "description_new": "Define un nuevo permiso que puede otorgarse a los roles.",
+    "description_edit": "Actualiza los detalles de este permiso.",
+    "trigger_new": "Nuevo permiso",
+    "field_code": "Código",
+    "field_category": "Categoría",
+    "field_name": "Nombre",
+    "field_description": "Descripción",
+    "placeholder_code": "ticket:write",
+    "placeholder_category": "ticket",
+    "placeholder_name": "Escribir tickets",
+    "placeholder_description": "Lo que otorga este permiso…",
+    "code_locked_hint": "Los códigos de los permisos del sistema no se pueden cambiar.",
+    "validation": {
+      "code_required": "El código es obligatorio",
+      "code_format": "Usa el formato recurso:acción, p. ej. ticket:write",
+      "name_required": "El nombre es obligatorio"
+    },
+    "button_create": "Crear permiso",
+    "button_save": "Guardar cambios",
+    "button_creating": "Creando…",
+    "button_saving": "Guardando…",
+    "toast": {
+      "created": "Permiso creado",
+      "updated": "Permiso actualizado",
+      "create_error": "No se pudo crear el permiso",
+      "update_error": "No se pudo actualizar el permiso"
+    }
+  },
+  "role_permissions": {
+    "title": "Permisos de {{name}}",
+    "description": "Activa o desactiva los permisos otorgados a este rol. Los cambios se guardan de inmediato.",
+    "empty": "Aún no hay permisos definidos.",
+    "button_done": "Listo",
+    "toast": {
+      "granted": "Otorgado {{code}}",
+      "revoked": "Revocado {{code}}",
+      "update_error": "No se pudieron actualizar los permisos"
+    }
+  }
+}

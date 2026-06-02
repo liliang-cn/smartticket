@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCustomers, type CustomerFilters } from "@/features/customers/api";
 import { CustomerFormDialog } from "@/features/customers/customer-form-dialog";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ const ALL = "__all__";
 
 export function CustomersListPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("customers");
   const [filters, setFilters] = useState<CustomerFilters>({
     page: 1,
     page_size: 15,
@@ -35,9 +37,9 @@ export function CustomersListPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            directory
+            {t("list.directory_label")}
           </div>
-          <h1 className="mt-1 text-3xl">Customers</h1>
+          <h1 className="mt-1 text-3xl">{t("list.title")}</h1>
         </div>
         <CustomerFormDialog />
       </div>
@@ -48,7 +50,7 @@ export function CustomersListPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search name, code, domain…"
+            placeholder={t("list.search_placeholder")}
             value={filters.search ?? ""}
             onChange={(e) => set({ search: e.target.value })}
           />
@@ -66,12 +68,12 @@ export function CustomersListPage() {
           }
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t("list.status_placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value={ALL}>{t("list.status_all")}</SelectItem>
+            <SelectItem value="active">{t("list.status_active")}</SelectItem>
+            <SelectItem value="inactive">{t("list.status_inactive")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -80,11 +82,11 @@ export function CustomersListPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Code</th>
-              <th className="px-4 py-3 font-medium">Domain</th>
-              <th className="px-4 py-3 font-medium">Active</th>
-              <th className="px-4 py-3 text-right font-medium">Created</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_name")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_code")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_domain")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_active")}</th>
+              <th className="px-4 py-3 text-right font-medium">{t("list.col_created")}</th>
             </tr>
           </thead>
           <tbody>
@@ -124,7 +126,7 @@ export function CustomersListPage() {
                   </td>
                   <td className="px-4 py-3.5">
                     <Badge tone={c.is_active ? "green" : "slate"}>
-                      {c.is_active ? "active" : "inactive"}
+                      {c.is_active ? t("status.active") : t("status.inactive")}
                     </Badge>
                   </td>
                   <td className="px-4 py-3.5 text-right font-mono text-xs text-muted-foreground">
@@ -137,7 +139,7 @@ export function CustomersListPage() {
                 <td colSpan={5} className="px-4 py-16 text-center">
                   <Building2 className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No customers match these filters.
+                    {t("list.empty")}
                   </p>
                 </td>
               </tr>
@@ -150,8 +152,12 @@ export function CustomersListPage() {
       {data && data.total_pages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="font-mono text-xs text-muted-foreground">
-            {data.total} customers · page {data.page}/{data.total_pages}
-            {isFetching && " · syncing…"}
+            {t("list.pagination", {
+              total: data.total,
+              page: data.page,
+              total_pages: data.total_pages,
+            })}
+            {isFetching && t("list.syncing")}
           </div>
           <div className="flex gap-2">
             <Button
@@ -160,7 +166,7 @@ export function CustomersListPage() {
               disabled={filters.page <= 1}
               onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
             >
-              <ChevronLeft /> Prev
+              <ChevronLeft /> {t("list.prev")}
             </Button>
             <Button
               variant="secondary"
@@ -168,7 +174,7 @@ export function CustomersListPage() {
               disabled={data.page >= data.total_pages}
               onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
             >
-              Next <ChevronRight />
+              {t("list.next")} <ChevronRight />
             </Button>
           </div>
         </div>

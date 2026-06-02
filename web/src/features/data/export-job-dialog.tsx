@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -29,22 +30,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const ENTITIES = [
-  { value: "tickets", label: "Tickets" },
-  { value: "knowledge_articles", label: "Knowledge articles" },
-  { value: "users", label: "Users" },
-  { value: "products", label: "Products" },
-  { value: "services", label: "Services" },
-  { value: "complete", label: "Complete (full database)" },
+const ENTITY_VALUES = [
+  "tickets",
+  "knowledge_articles",
+  "users",
+  "products",
+  "services",
+  "complete",
 ] as const;
 
-const FORMATS = [
-  { value: "csv", label: "CSV" },
-  { value: "json", label: "JSON" },
-  { value: "xml", label: "XML" },
-  { value: "markdown", label: "Markdown" },
-  { value: "sqlite", label: "SQLite" },
-] as const;
+const FORMAT_VALUES = ["csv", "json", "xml", "markdown", "sqlite"] as const;
 
 const schema = z.object({
   type: z.enum([
@@ -65,6 +60,7 @@ interface ExportJobDialogProps {
 }
 
 export function ExportJobDialog({ trigger }: ExportJobDialogProps) {
+  const { t } = useTranslation("data");
   const [open, setOpen] = useState(false);
   const create = useCreateExportJob();
 
@@ -91,10 +87,10 @@ export function ExportJobDialog({ trigger }: ExportJobDialogProps) {
     };
     try {
       await create.mutateAsync(payload);
-      toast.success("Export job created");
+      toast.success(t("toasts.export_created"));
       setOpen(false);
     } catch (err) {
-      toast.error(apiError(err, "Could not create export job"));
+      toast.error(apiError(err, t("toasts.export_create_failed")));
     }
   }
 
@@ -103,21 +99,20 @@ export function ExportJobDialog({ trigger }: ExportJobDialogProps) {
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Download /> New export
+            <Download /> {t("actions.new_export")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New export job</DialogTitle>
+          <DialogTitle>{t("export_dialog.title")}</DialogTitle>
           <DialogDescription>
-            Queue an export of a data set. The job runs in the background; you
-            can download the result once it completes.
+            {t("export_dialog.description")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label>Data set</Label>
+            <Label>{t("export_dialog.dataset_label")}</Label>
             <Select
               value={watch("type")}
               onValueChange={(v) =>
@@ -128,9 +123,9 @@ export function ExportJobDialog({ trigger }: ExportJobDialogProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {ENTITIES.map((e) => (
-                  <SelectItem key={e.value} value={e.value}>
-                    {e.label}
+                {ENTITY_VALUES.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {t(`entity.${value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -140,7 +135,7 @@ export function ExportJobDialog({ trigger }: ExportJobDialogProps) {
             )}
           </div>
           <div className="space-y-1.5">
-            <Label>Format</Label>
+            <Label>{t("export_dialog.format_label")}</Label>
             <Select
               value={watch("target_format")}
               onValueChange={(v) =>
@@ -151,9 +146,9 @@ export function ExportJobDialog({ trigger }: ExportJobDialogProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {FORMATS.map((f) => (
-                  <SelectItem key={f.value} value={f.value}>
-                    {f.label}
+                {FORMAT_VALUES.map((value) => (
+                  <SelectItem key={value} value={value}>
+                    {t(`format.${value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -167,11 +162,11 @@ export function ExportJobDialog({ trigger }: ExportJobDialogProps) {
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? "Creating…" : "Create export"}
+              {create.isPending ? t("export_dialog.submitting") : t("export_dialog.submit")}
             </Button>
           </DialogFooter>
         </form>

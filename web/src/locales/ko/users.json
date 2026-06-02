@@ -1,0 +1,133 @@
+{
+  "page": {
+    "directory": "디렉토리",
+    "title": "사용자"
+  },
+  "filters": {
+    "search_placeholder": "이름, 이메일, 사용자명 검색…",
+    "role_placeholder": "역할",
+    "all_roles": "전체 역할"
+  },
+  "table": {
+    "name": "이름",
+    "email": "이메일",
+    "role": "역할",
+    "active": "활성",
+    "created": "생성일"
+  },
+  "status": {
+    "active": "활성",
+    "inactive": "비활성"
+  },
+  "actions": {
+    "activate": "활성화",
+    "deactivate": "비활성화",
+    "new_user": "새 사용자",
+    "assign": "지정",
+    "delete": "삭제",
+    "back_to_users": "사용자"
+  },
+  "empty": {
+    "no_match": "조건에 맞는 사용자가 없습니다."
+  },
+  "pagination": {
+    "summary": "총 {{total}}명 · {{page}}/{{totalPages}} 페이지",
+    "syncing": " · 동기화 중…",
+    "prev": "이전",
+    "next": "다음"
+  },
+  "detail": {
+    "not_found": "사용자를 찾을 수 없습니다.",
+    "back_to_users": "사용자 목록으로",
+    "profile": "프로필",
+    "meta": {
+      "first_name": "이름",
+      "last_name": "성",
+      "email": "이메일",
+      "username": "사용자명",
+      "role": "역할",
+      "status": "상태",
+      "last_login": "최근 로그인",
+      "created": "생성일",
+      "never": "없음"
+    }
+  },
+  "roles_card": {
+    "title": "역할",
+    "no_roles": "지정된 역할이 없습니다.",
+    "remove_aria": "{{name}} 제거",
+    "select_placeholder": "지정할 역할 선택…",
+    "no_more_roles": "지정 가능한 역할이 없습니다.",
+    "remove_dialog": {
+      "title": "역할 제거",
+      "description": "이 사용자에서 \"{{name}}\" 역할을 제거하시겠습니까?",
+      "confirm": "제거"
+    }
+  },
+  "toasts": {
+    "role_assigned": "역할이 지정되었습니다",
+    "role_assign_error": "역할을 지정할 수 없습니다",
+    "role_removed": "{{name}} 역할을 제거했습니다",
+    "role_remove_error": "역할을 제거할 수 없습니다",
+    "toggle_activated": "사용자가 활성화되었습니다",
+    "toggle_deactivated": "사용자가 비활성화되었습니다",
+    "toggle_error": "사용자를 업데이트할 수 없습니다",
+    "deleted": "사용자가 삭제되었습니다",
+    "delete_error": "사용자를 삭제할 수 없습니다",
+    "created": "사용자가 생성되었습니다",
+    "create_error": "사용자를 생성할 수 없습니다"
+  },
+  "delete_dialog": {
+    "title": "사용자 삭제",
+    "description": "{{name}}을(를) 삭제하시겠습니까? 계정은 소프트 삭제됩니다.",
+    "confirm_pending": "삭제 중…",
+    "confirm": "사용자 삭제"
+  },
+  "form": {
+    "title": "새 사용자",
+    "description": "운영자 또는 고객 측 계정을 생성합니다.",
+    "fields": {
+      "first_name": "이름",
+      "last_name": "성",
+      "email": "이메일",
+      "username": "사용자명",
+      "password": "비밀번호",
+      "role": "역할",
+      "status": "상태",
+      "customer": "고객"
+    },
+    "placeholders": {
+      "role": "역할 선택",
+      "customer": "고객 조직 선택"
+    },
+    "password_hint": "8자 이상, 대문자·숫자·특수문자를 포함해야 합니다.",
+    "status_options": {
+      "active": "활성",
+      "inactive": "비활성"
+    },
+    "submit": "사용자 생성",
+    "submit_pending": "생성 중…",
+    "validation": {
+      "email_required": "이메일은 필수입니다",
+      "email_invalid": "유효하지 않은 이메일입니다",
+      "username_min": "3자 이상 입력하세요",
+      "username_chars": "영문자, 숫자, _, - 만 사용할 수 있습니다",
+      "first_name_required": "이름은 필수입니다",
+      "last_name_required": "성은 필수입니다",
+      "password_min": "8자 이상 입력하세요",
+      "password_uppercase": "대문자가 포함되어야 합니다",
+      "password_lowercase": "소문자가 포함되어야 합니다",
+      "password_digit": "숫자가 포함되어야 합니다",
+      "password_special": "특수문자가 포함되어야 합니다",
+      "role_required": "역할은 필수입니다",
+      "customer_required": "고객 역할에는 고객 조직을 선택해야 합니다"
+    }
+  },
+  "roles": {
+    "admin": "관리자",
+    "engineer": "엔지니어",
+    "support": "지원",
+    "sales": "영업",
+    "customer": "고객"
+  }
+}

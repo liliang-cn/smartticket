@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Search, ChevronLeft, ChevronRight, Inbox } from "lucide-react";
 import { useTickets, type TicketFilters } from "@/features/tickets/api";
 import { CreateTicketDialog } from "@/features/tickets/create-ticket-dialog";
@@ -27,6 +28,8 @@ const ALL = "__all__";
 
 export function TicketsListPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("tickets");
+  const { t: tCommon } = useTranslation("common");
   const { user } = useAuth();
   // Customers see only their own org's tickets, so the customer column is
   // redundant for them; show it to team users who triage across customers.
@@ -46,9 +49,9 @@ export function TicketsListPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            queue
+            {t("list.queue_label")}
           </div>
-          <h1 className="mt-1 text-3xl">Tickets</h1>
+          <h1 className="mt-1 text-3xl">{t("list.heading")}</h1>
         </div>
         <CreateTicketDialog />
       </div>
@@ -59,7 +62,7 @@ export function TicketsListPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search title, requester…"
+            placeholder={t("list.search_placeholder")}
             value={filters.search ?? ""}
             onChange={(e) => set({ search: e.target.value })}
           />
@@ -69,13 +72,13 @@ export function TicketsListPage() {
           onValueChange={(v) => set({ status: v === ALL ? undefined : v })}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t("list.filter_status_placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All statuses</SelectItem>
+            <SelectItem value={ALL}>{t("list.filter_status_all")}</SelectItem>
             {STATUS_OPTIONS.map((s) => (
-              <SelectItem key={s} value={s} className="capitalize">
-                {s.replace("_", " ")}
+              <SelectItem key={s} value={s}>
+                {tCommon(`enums.ticket_status.${s}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -85,13 +88,13 @@ export function TicketsListPage() {
           onValueChange={(v) => set({ priority: v === ALL ? undefined : v })}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Priority" />
+            <SelectValue placeholder={t("list.filter_priority_placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All priorities</SelectItem>
+            <SelectItem value={ALL}>{t("list.filter_priority_all")}</SelectItem>
             {PRIORITY_OPTIONS.map((p) => (
-              <SelectItem key={p} value={p} className="capitalize">
-                {p}
+              <SelectItem key={p} value={p}>
+                {tCommon(`enums.priority.${p}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -102,12 +105,12 @@ export function TicketsListPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Ticket</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Priority</th>
-              {isTeam && <th className="px-4 py-3 font-medium">Customer</th>}
-              <th className="px-4 py-3 font-medium">Requester</th>
-              <th className="px-4 py-3 text-right font-medium">Updated</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_ticket")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_status")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_priority")}</th>
+              {isTeam && <th className="px-4 py-3 font-medium">{t("list.col_customer")}</th>}
+              <th className="px-4 py-3 font-medium">{t("list.col_requester")}</th>
+              <th className="px-4 py-3 text-right font-medium">{t("list.col_updated")}</th>
             </tr>
           </thead>
           <tbody>
@@ -122,38 +125,38 @@ export function TicketsListPage() {
                 </tr>
               ))
             ) : data && data.items.length > 0 ? (
-              data.items.map((t) => (
+              data.items.map((ticket) => (
                 <tr
-                  key={t.id}
-                  onClick={() => navigate(`/tickets/${t.id}`)}
+                  key={ticket.id}
+                  onClick={() => navigate(`/tickets/${ticket.id}`)}
                   className="group cursor-pointer border-b border-border/60 transition-colors last:border-0 hover:bg-accent/50"
                 >
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-xs text-primary/80">
-                        {t.ticket_number}
+                        {ticket.ticket_number}
                       </span>
                     </div>
                     <div className="mt-0.5 font-medium text-foreground group-hover:text-primary">
-                      {t.title}
+                      {ticket.title}
                     </div>
                   </td>
                   <td className="px-4 py-3.5">
-                    <StatusBadge status={t.status} />
+                    <StatusBadge status={ticket.status} />
                   </td>
                   <td className="px-4 py-3.5">
-                    <PriorityBadge priority={t.priority} />
+                    <PriorityBadge priority={ticket.priority} />
                   </td>
                   {isTeam && (
                     <td className="px-4 py-3.5 text-muted-foreground">
-                      {t.customer_name || "—"}
+                      {ticket.customer_name || "—"}
                     </td>
                   )}
                   <td className="px-4 py-3.5 text-muted-foreground">
-                    {t.requester_name || "—"}
+                    {ticket.requester_name || "—"}
                   </td>
                   <td className="px-4 py-3.5 text-right font-mono text-xs text-muted-foreground">
-                    {relativeTime(t.updated_at)}
+                    {relativeTime(ticket.updated_at)}
                   </td>
                 </tr>
               ))
@@ -162,7 +165,7 @@ export function TicketsListPage() {
                 <td colSpan={colCount} className="px-4 py-16 text-center">
                   <Inbox className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No tickets match these filters.
+                    {t("list.empty")}
                   </p>
                 </td>
               </tr>
@@ -175,8 +178,8 @@ export function TicketsListPage() {
       {data && data.total_pages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="font-mono text-xs text-muted-foreground">
-            {data.total} tickets · page {data.page}/{data.total_pages}
-            {isFetching && " · syncing…"}
+            {t("list.pagination_info", { total: data.total, page: data.page, totalPages: data.total_pages })}
+            {isFetching && t("list.pagination_syncing")}
           </div>
           <div className="flex gap-2">
             <Button
@@ -185,7 +188,7 @@ export function TicketsListPage() {
               disabled={filters.page <= 1}
               onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
             >
-              <ChevronLeft /> Prev
+              <ChevronLeft /> {t("list.btn_prev")}
             </Button>
             <Button
               variant="secondary"
@@ -193,7 +196,7 @@ export function TicketsListPage() {
               disabled={data.page >= data.total_pages}
               onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
             >
-              Next <ChevronRight />
+              {t("list.btn_next")} <ChevronRight />
             </Button>
           </div>
         </div>

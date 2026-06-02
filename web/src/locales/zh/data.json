@@ -1,0 +1,86 @@
+{
+  "page": {
+    "section_label": "数据",
+    "title": "导入 / 导出"
+  },
+  "stats": {
+    "total_jobs": "任务总数",
+    "completed": "已完成",
+    "running": "运行中",
+    "failed": "失败"
+  },
+  "filters": {
+    "all_types": "全部类型",
+    "all_statuses": "全部状态",
+    "type_placeholder": "类型",
+    "status_placeholder": "状态"
+  },
+  "table": {
+    "col_type": "类型",
+    "col_status": "状态",
+    "col_progress": "进度",
+    "col_records": "记录数",
+    "col_created": "创建时间",
+    "empty_heading": "没有符合筛选条件的导入/导出任务。"
+  },
+  "records": {
+    "failed_count": "{{count}} 条失败"
+  },
+  "pagination": {
+    "summary": "共 {{total}} 个任务 · 第 {{page}}/{{totalPages}} 页",
+    "syncing": " · 同步中…",
+    "prev": "上一页",
+    "next": "下一页"
+  },
+  "actions": {
+    "download": "下载",
+    "downloading": "下载中…",
+    "cancel_job": "取消任务",
+    "delete": "删除",
+    "new_export": "新建导出"
+  },
+  "confirm_delete": {
+    "title": "删除任务",
+    "description": "删除任务 #{{id}}（{{label}}）？此操作无法撤销。"
+  },
+  "toasts": {
+    "job_deleted": "任务已删除",
+    "delete_failed": "无法删除任务",
+    "export_created": "导出任务已创建",
+    "export_create_failed": "无法创建导出任务"
+  },
+  "status": {
+    "pending": "待处理",
+    "running": "运行中",
+    "completed": "已完成",
+    "failed": "失败",
+    "cancelled": "已取消"
+  },
+  "job_type": {
+    "import": "导入",
+    "export": "导出"
+  },
+  "format": {
+    "csv": "CSV",
+    "json": "JSON",
+    "xml": "XML",
+    "markdown": "Markdown",
+    "sqlite": "SQLite"
+  },
+  "export_dialog": {
+    "title": "新建导出任务",
+    "description": "将数据集加入导出队列。任务在后台运行，完成后即可下载结果文件。",
+    "dataset_label": "数据集",
+    "format_label": "格式",
+    "submit": "创建导出",
+    "submitting": "创建中…"
+  },
+  "entity": {
+    "tickets": "工单",
+    "knowledge_articles": "知识库文章",
+    "users": "用户",
+    "products": "产品",
+    "services": "服务",
+    "complete": "完整数据（全库）"
+  }
+}

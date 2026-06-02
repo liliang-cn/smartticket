@@ -1,0 +1,80 @@
+{
+  "page": {
+    "eyebrow": "KI-Integration",
+    "title": "KI-Anbieter"
+  },
+  "newProvider": "Neuer Anbieter",
+  "table": {
+    "name": "Name",
+    "type": "Typ",
+    "tasks": "Aufgaben",
+    "model": "Modell",
+    "endpoint": "Endpoint",
+    "dims": "Dims",
+    "key": "Schlüssel",
+    "flags": "Flags"
+  },
+  "badges": {
+    "default": "Standard",
+    "enabled": "aktiviert",
+    "disabled": "deaktiviert"
+  },
+  "taskLabels": {
+    "chat": "Chat",
+    "embedding": "Embedding"
+  },
+  "empty": "Noch keine KI-Anbieter konfiguriert.",
+  "actions": {
+    "test": "Testen",
+    "testTitle": "Verbindung testen",
+    "editTitle": "Anbieter bearbeiten",
+    "deleteTitle": "Anbieter löschen"
+  },
+  "form": {
+    "titleCreate": "Neuer Anbieter",
+    "titleEdit": "Anbieter bearbeiten",
+    "description": "Konfiguriere einen Chat- oder Embedding-Anbieter. Chat und Embedding sind unabhängig — lege jeweils eine Zeile an (z. B. DeepSeek für Chat, Aliyun Bailian für Embedding).",
+    "name": "Name",
+    "providerType": "Anbietertyp",
+    "apiEndpoint": "API-Endpoint",
+    "model": "Modell",
+    "apiKey": "API-Schlüssel",
+    "apiKeyPlaceholderEdit": "Leer lassen, um den vorhandenen Schlüssel beizubehalten",
+    "taskTypes": "Aufgabentypen",
+    "dimensions": "Dimensionen",
+    "maxTokens": "Max. Token",
+    "temperature": "Temperatur",
+    "default": "Standard",
+    "status": "Status",
+    "optionDefault": "Standard",
+    "optionNotDefault": "Kein Standard",
+    "optionEnabled": "Aktiviert",
+    "optionDisabled": "Deaktiviert",
+    "submitCreate": "Anbieter erstellen",
+    "submitEdit": "Änderungen speichern",
+    "creatingPending": "Wird erstellt…",
+    "savingPending": "Wird gespeichert…"
+  },
+  "validation": {
+    "nameRequired": "Name ist erforderlich",
+    "typeRequired": "Typ ist erforderlich",
+    "endpointRequired": "Endpoint ist erforderlich",
+    "modelRequired": "Modell ist erforderlich",
+    "atLeastOneTask": "Wähle mindestens einen Aufgabentyp aus (Chat oder Embedding)"
+  },
+  "toast": {
+    "created": "Anbieter erstellt",
+    "updated": "Anbieter aktualisiert",
+    "deleted": "Anbieter gelöscht",
+    "createFailed": "Anbieter konnte nicht erstellt werden",
+    "updateFailed": "Anbieter konnte nicht aktualisiert werden",
+    "deleteFailed": "Anbieter konnte nicht gelöscht werden",
+    "testFailed": "Test fehlgeschlagen"
+  },
+  "deleteDialog": {
+    "title": "Anbieter löschen?",
+    "description": "Die Konfiguration des Anbieters „{{name}}“ wird dauerhaft entfernt.",
+    "confirmPending": "Wird gelöscht…",
+    "confirm": "Löschen"
+  }
+}

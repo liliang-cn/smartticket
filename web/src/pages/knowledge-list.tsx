@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Search,
   ChevronLeft,
@@ -35,14 +36,9 @@ import { relativeTime } from "@/lib/utils";
 
 const ALL = "__all__";
 
-const STATUS_OPTIONS = [
-  { value: "draft", label: "Draft" },
-  { value: "published", label: "Published" },
-  { value: "archived", label: "Archived" },
-];
-
 export function KnowledgeListPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("knowledge");
   const [filters, setFilters] = useState<ArticleFilters>({
     page: 1,
     page_size: 15,
@@ -66,7 +62,7 @@ export function KnowledgeListPage() {
       { query: q },
       {
         onError: (err) => {
-          toast.error(apiError(err, "AI search is not configured"));
+          toast.error(apiError(err, t("list.search_error")));
         },
       }
     );
@@ -86,9 +82,9 @@ export function KnowledgeListPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            library
+            {t("list.library_label")}
           </div>
-          <h1 className="mt-1 text-3xl">Knowledge</h1>
+          <h1 className="mt-1 text-3xl">{t("list.heading")}</h1>
         </div>
       </div>
 
@@ -98,7 +94,7 @@ export function KnowledgeListPage() {
           <Sparkles className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-primary" />
           <Input
             className="pl-9 pr-9"
-            placeholder="Semantic search — ask in natural language…"
+            placeholder={t("list.semantic_placeholder")}
             value={semanticInput}
             onChange={(e) => setSemanticInput(e.target.value)}
             onKeyDown={(e) => {
@@ -113,7 +109,7 @@ export function KnowledgeListPage() {
               type="button"
               onClick={clearSearch}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              aria-label="Clear search"
+              aria-label={t("list.clear_search_aria")}
             >
               <X className="size-4" />
             </button>
@@ -122,11 +118,11 @@ export function KnowledgeListPage() {
         <Button onClick={runSearch} disabled={search.isPending || !semanticInput.trim()}>
           {search.isPending ? (
             <>
-              <Loader2 className="size-4 animate-spin" /> Searching…
+              <Loader2 className="size-4 animate-spin" /> {t("list.searching")}
             </>
           ) : (
             <>
-              <Search className="size-4" /> Search
+              <Search className="size-4" /> {t("list.search_button")}
             </>
           )}
         </Button>
@@ -140,14 +136,14 @@ export function KnowledgeListPage() {
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               className="pl-9"
-              placeholder="Filter by title, content…"
+              placeholder={t("list.filter_placeholder")}
               value={filters.search ?? ""}
               onChange={(e) => set({ search: e.target.value })}
             />
           </div>
           <Input
             className="w-44"
-            placeholder="Category"
+            placeholder={t("list.category_placeholder")}
             value={filters.category ?? ""}
             onChange={(e) => set({ category: e.target.value })}
           />
@@ -156,13 +152,13 @@ export function KnowledgeListPage() {
             onValueChange={(v) => set({ status: v === ALL ? undefined : v })}
           >
             <SelectTrigger className="w-40">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder={t("list.status_placeholder")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL}>All statuses</SelectItem>
-              {STATUS_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
+              <SelectItem value={ALL}>{t("list.all_statuses")}</SelectItem>
+              {(["draft", "published", "archived"] as const).map((s) => (
+                <SelectItem key={s} value={s}>
+                  {t(`status.${s}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -212,7 +208,7 @@ export function KnowledgeListPage() {
             <div className="px-4 py-16 text-center">
               <Sparkles className="mx-auto size-8 text-muted-foreground/40" />
               <p className="mt-3 text-sm text-muted-foreground">
-                No matches for “{activeQuery}”.
+                {t("list.no_matches", { query: activeQuery })}
               </p>
             </div>
           )}
@@ -222,11 +218,11 @@ export function KnowledgeListPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Title</th>
-              <th className="px-4 py-3 font-medium">Category</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 text-right font-medium">Views</th>
-              <th className="px-4 py-3 text-right font-medium">Updated</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_title")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_category")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_status")}</th>
+              <th className="px-4 py-3 text-right font-medium">{t("list.col_views")}</th>
+              <th className="px-4 py-3 text-right font-medium">{t("list.col_updated")}</th>
             </tr>
           </thead>
           <tbody>
@@ -277,7 +273,7 @@ export function KnowledgeListPage() {
                 <td colSpan={5} className="px-4 py-16 text-center">
                   <BookOpen className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No articles match these filters.
+                    {t("list.no_articles")}
                   </p>
                 </td>
               </tr>
@@ -291,8 +287,8 @@ export function KnowledgeListPage() {
       {!semanticActive && data && data.total_pages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="font-mono text-xs text-muted-foreground">
-            {data.total} articles · page {data.page}/{data.total_pages}
-            {isFetching && " · syncing…"}
+            {t("list.pagination_info", { total: data.total, page: data.page, totalPages: data.total_pages })}
+            {isFetching && " " + t("list.syncing")}
           </div>
           <div className="flex gap-2">
             <Button
@@ -301,7 +297,7 @@ export function KnowledgeListPage() {
               disabled={filters.page <= 1}
               onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
             >
-              <ChevronLeft /> Prev
+              <ChevronLeft /> {t("list.prev")}
             </Button>
             <Button
               variant="secondary"
@@ -309,7 +305,7 @@ export function KnowledgeListPage() {
               disabled={data.page >= data.total_pages}
               onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
             >
-              Next <ChevronRight />
+              {t("list.next")} <ChevronRight />
             </Button>
           </div>
         </div>

@@ -1,0 +1,80 @@
+{
+  "page": {
+    "eyebrow": "AI インテグレーション",
+    "title": "AIプロバイダー"
+  },
+  "newProvider": "プロバイダーを追加",
+  "table": {
+    "name": "名前",
+    "type": "タイプ",
+    "tasks": "タスク",
+    "model": "モデル",
+    "endpoint": "エンドポイント",
+    "dims": "次元数",
+    "key": "APIキー",
+    "flags": "フラグ"
+  },
+  "badges": {
+    "default": "デフォルト",
+    "enabled": "有効",
+    "disabled": "無効"
+  },
+  "taskLabels": {
+    "chat": "チャット",
+    "embedding": "エンベディング"
+  },
+  "empty": "AIプロバイダーがまだ設定されていません。",
+  "actions": {
+    "test": "テスト",
+    "testTitle": "接続テスト",
+    "editTitle": "プロバイダーを編集",
+    "deleteTitle": "プロバイダーを削除"
+  },
+  "form": {
+    "titleCreate": "プロバイダーを追加",
+    "titleEdit": "プロバイダーを編集",
+    "description": "チャットまたはエンベディングプロバイダーを設定します。チャットとエンベディングは独立しているため、それぞれ別の行を作成してください（例：DeepSeek をチャット用、Aliyun Bailian をエンベディング用）。",
+    "name": "名前",
+    "providerType": "プロバイダータイプ",
+    "apiEndpoint": "APIエンドポイント",
+    "model": "モデル",
+    "apiKey": "APIキー",
+    "apiKeyPlaceholderEdit": "空欄のままにすると既存のキーを保持します",
+    "taskTypes": "タスクタイプ",
+    "dimensions": "次元数",
+    "maxTokens": "最大トークン数",
+    "temperature": "温度",
+    "default": "デフォルト",
+    "status": "ステータス",
+    "optionDefault": "デフォルト",
+    "optionNotDefault": "デフォルトでない",
+    "optionEnabled": "有効",
+    "optionDisabled": "無効",
+    "submitCreate": "プロバイダーを作成",
+    "submitEdit": "変更を保存",
+    "creatingPending": "作成中…",
+    "savingPending": "保存中…"
+  },
+  "validation": {
+    "nameRequired": "名前は必須です",
+    "typeRequired": "タイプは必須です",
+    "endpointRequired": "エンドポイントは必須です",
+    "modelRequired": "モデルは必須です",
+    "atLeastOneTask": "タスクタイプを少なくとも1つ選択してください（チャットまたはエンベディング）"
+  },
+  "toast": {
+    "created": "プロバイダーを作成しました",
+    "updated": "プロバイダーを更新しました",
+    "deleted": "プロバイダーを削除しました",
+    "createFailed": "プロバイダーを作成できませんでした",
+    "updateFailed": "プロバイダーを更新できませんでした",
+    "deleteFailed": "プロバイダーを削除できませんでした",
+    "testFailed": "テストに失敗しました"
+  },
+  "deleteDialog": {
+    "title": "プロバイダーを削除しますか？",
+    "description": "「{{name}}」プロバイダーの設定が完全に削除されます。",
+    "confirmPending": "削除中…",
+    "confirm": "削除"
+  }
+}

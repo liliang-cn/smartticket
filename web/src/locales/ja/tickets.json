@@ -1,0 +1,103 @@
+{
+  "list": {
+    "queue_label": "キュー",
+    "heading": "チケット",
+    "search_placeholder": "タイトル、依頼者を検索…",
+    "filter_status_placeholder": "ステータス",
+    "filter_status_all": "すべてのステータス",
+    "filter_priority_placeholder": "優先度",
+    "filter_priority_all": "すべての優先度",
+    "col_ticket": "チケット",
+    "col_status": "ステータス",
+    "col_priority": "優先度",
+    "col_customer": "顧客",
+    "col_requester": "依頼者",
+    "col_updated": "更新日時",
+    "empty": "条件に一致するチケットはありません。",
+    "pagination_info": "{{total}} 件 · {{page}}/{{totalPages}} ページ",
+    "pagination_syncing": " · 同期中…",
+    "btn_prev": "前へ",
+    "btn_next": "次へ"
+  },
+  "detail": {
+    "back_link": "チケット",
+    "not_found": "チケットが見つかりません。",
+    "btn_back_to_tickets": "チケット一覧に戻る",
+    "section_description": "説明",
+    "no_description": "説明はありません。",
+    "section_conversation": "会話",
+    "no_messages": "メッセージはまだありません。",
+    "reply_placeholder": "返信を入力…",
+    "internal_note_label": "内部メモ",
+    "btn_send": "送信",
+    "btn_sending": "送信中…",
+    "msg_sender_ai": "アシスタント",
+    "msg_sender_user": "ユーザー #{{userId}}",
+    "msg_role_customer": "顧客",
+    "msg_role_team": "チーム",
+    "msg_internal_badge": "内部",
+    "toast_updated_field": "{{field}}を更新しました",
+    "toast_post_error": "メッセージを送信できませんでした",
+    "attachments": {
+      "label": "添付ファイル",
+      "btn_attach": "ファイルを添付",
+      "btn_uploading": "アップロード中…",
+      "btn_download_aria": "{{name}} をダウンロード",
+      "empty": "添付ファイルなし",
+      "toast_uploaded": "添付ファイルをアップロードしました",
+      "toast_upload_error": "アップロードに失敗しました",
+      "toast_download_error": "ダウンロードに失敗しました"
+    },
+    "activity": {
+      "label": "アクティビティ",
+      "loading": "読み込み中…",
+      "empty": "アクティビティはまだ記録されていません。",
+      "actor_system": "システム"
+    },
+    "sla": {
+      "label": "SLA ポリシー",
+      "source_rule": "{{priority}}/{{severity}} で一致",
+      "source_default": "一致するルールなし — デフォルト目標を使用",
+      "business_hours": " · 営業時間",
+      "meta_response": "応答時間",
+      "meta_resolution": "解決時間",
+      "meta_due": "期限"
+    },
+    "meta": {
+      "label_status": "ステータス",
+      "label_priority": "優先度",
+      "label_severity": "重大度",
+      "label_customer": "顧客",
+      "label_requester": "依頼者",
+      "label_email": "メール",
+      "label_assignee": "担当者",
+      "label_created": "作成日時",
+      "label_due": "期限",
+      "unassigned": "未割り当て"
+    }
+  },
+  "create": {
+    "btn_new_ticket": "新規チケット",
+    "dialog_title": "新規チケット",
+    "dialog_description": "依頼者の代わりに問題を記録します。",
+    "label_title": "タイトル",
+    "placeholder_title": "簡単な概要",
+    "label_description": "説明",
+    "placeholder_description": "どのような問題ですか？",
+    "label_priority": "優先度",
+    "label_requester": "依頼者",
+    "placeholder_requester": "山田 太郎",
+    "label_requester_email": "依頼者のメールアドレス",
+    "btn_cancel": "キャンセル",
+    "btn_create": "チケットを作成",
+    "btn_creating": "作成中…",
+    "toast_created": "チケットを作成しました",
+    "toast_create_error": "チケットを作成できませんでした",
+    "validation": {
+      "title_required": "タイトルは必須です",
+      "description_required": "説明は必須です",
+      "requester_name_required": "依頼者名は必須です",
+      "email_required": "有効なメールアドレスが必要です"
+    }
+  }
+}

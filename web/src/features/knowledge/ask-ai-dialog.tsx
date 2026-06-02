@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, Sparkles, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useKnowledgeAsk, type AskResult } from "@/features/knowledge/api";
 import { apiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 
 export function AskAiDialog() {
+  const { t } = useTranslation("knowledge");
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [result, setResult] = useState<AskResult | null>(null);
@@ -34,7 +36,7 @@ export function AskAiDialog() {
           setResult(data);
         },
         onError: (err) => {
-          const msg = apiError(err, "Ask AI failed");
+          const msg = apiError(err, t("ask_ai.error_default"));
           setErrorMsg(msg);
           toast.error(msg);
         },
@@ -46,22 +48,22 @@ export function AskAiDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="secondary">
-          <Sparkles className="size-4" /> Ask AI
+          <Sparkles className="size-4" /> {t("ask_ai.trigger")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="size-4 text-primary" /> Ask the knowledge base
+            <Sparkles className="size-4 text-primary" /> {t("ask_ai.dialog_title")}
           </DialogTitle>
           <DialogDescription>
-            Ask a question and get an AI answer grounded in your articles.
+            {t("ask_ai.dialog_description")}
           </DialogDescription>
         </DialogHeader>
 
         <Textarea
           rows={3}
-          placeholder="e.g. How do I reset a customer's password?"
+          placeholder={t("ask_ai.question_placeholder")}
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => {
@@ -74,16 +76,16 @@ export function AskAiDialog() {
 
         <div className="flex items-center justify-between">
           <span className="font-mono text-[11px] text-muted-foreground">
-            ⌘/Ctrl + Enter to ask
+            {t("ask_ai.shortcut_hint")}
           </span>
           <Button onClick={submit} disabled={ask.isPending || !question.trim()}>
             {ask.isPending ? (
               <>
-                <Loader2 className="size-4 animate-spin" /> Thinking…
+                <Loader2 className="size-4 animate-spin" /> {t("ask_ai.thinking")}
               </>
             ) : (
               <>
-                <Sparkles className="size-4" /> Ask
+                <Sparkles className="size-4" /> {t("ask_ai.ask_button")}
               </>
             )}
           </Button>
@@ -92,8 +94,7 @@ export function AskAiDialog() {
         {/* Results */}
         {ask.isPending && (
           <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" /> Searching the knowledge
-            base and composing an answer…
+            <Loader2 className="size-4 animate-spin" /> {t("ask_ai.searching_message")}
           </div>
         )}
 
@@ -107,7 +108,7 @@ export function AskAiDialog() {
           <div className="max-h-[50vh] space-y-4 overflow-y-auto">
             <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
               <div className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-                Answer
+                {t("ask_ai.answer_label")}
               </div>
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                 {result.answer}
@@ -117,7 +118,7 @@ export function AskAiDialog() {
             {result.citations.length > 0 && (
               <div>
                 <div className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-                  Sources
+                  {t("ask_ai.sources_label")}
                 </div>
                 <ul className="space-y-1.5">
                   {result.citations.map((c, i) => (

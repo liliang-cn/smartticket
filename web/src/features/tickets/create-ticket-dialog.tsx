@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useCreateTicket } from "@/features/tickets/api";
 import { apiError } from "@/lib/api";
 import {
@@ -30,18 +31,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const schema = z.object({
-  title: z.string().min(1, "Title is required").max(255),
-  description: z.string().min(1, "Description is required"),
-  priority: z.enum(["low", "medium", "high", "critical"]),
-  requester_name: z.string().min(1, "Requester name is required"),
-  requester_email: z.string().email("Valid email required"),
-});
-type FormValues = z.infer<typeof schema>;
+type FormValues = {
+  title: string;
+  description: string;
+  priority: "low" | "medium" | "high" | "critical";
+  requester_name: string;
+  requester_email: string;
+};
 
 export function CreateTicketDialog() {
+  const { t } = useTranslation("tickets");
+  const { t: tCommon } = useTranslation("common");
   const [open, setOpen] = useState(false);
   const create = useCreateTicket();
+
+  const schema = z.object({
+    title: z.string().min(1, t("create.validation.title_required")).max(255),
+    description: z.string().min(1, t("create.validation.description_required")),
+    priority: z.enum(["low", "medium", "high", "critical"]),
+    requester_name: z.string().min(1, t("create.validation.requester_name_required")),
+    requester_email: z.string().email(t("create.validation.email_required")),
+  });
+
   const {
     register,
     handleSubmit,
@@ -57,11 +68,11 @@ export function CreateTicketDialog() {
   async function onSubmit(values: FormValues) {
     try {
       await create.mutateAsync({ ...values, severity: "minor" });
-      toast.success("Ticket created");
+      toast.success(t("create.toast_created"));
       reset({ priority: "medium" });
       setOpen(false);
     } catch (err) {
-      toast.error(apiError(err, "Could not create ticket"));
+      toast.error(apiError(err, t("create.toast_create_error")));
     }
   }
 
@@ -69,29 +80,29 @@ export function CreateTicketDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus /> New ticket
+          <Plus /> {t("create.btn_new_ticket")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New ticket</DialogTitle>
+          <DialogTitle>{t("create.dialog_title")}</DialogTitle>
           <DialogDescription>
-            Log an issue on behalf of a requester.
+            {t("create.dialog_description")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="t-title">Title</Label>
-            <Input id="t-title" placeholder="Short summary" {...register("title")} />
+            <Label htmlFor="t-title">{t("create.label_title")}</Label>
+            <Input id="t-title" placeholder={t("create.placeholder_title")} {...register("title")} />
             {errors.title && (
               <p className="text-xs text-destructive">{errors.title.message}</p>
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-desc">Description</Label>
+            <Label htmlFor="t-desc">{t("create.label_description")}</Label>
             <Textarea
               id="t-desc"
-              placeholder="What's going on?"
+              placeholder={t("create.placeholder_description")}
               {...register("description")}
             />
             {errors.description && (
@@ -102,7 +113,7 @@ export function CreateTicketDialog() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Priority</Label>
+              <Label>{t("create.label_priority")}</Label>
               <Select
                 value={watch("priority")}
                 onValueChange={(v) =>
@@ -114,24 +125,24 @@ export function CreateTicketDialog() {
                 </SelectTrigger>
                 <SelectContent>
                   {PRIORITY_OPTIONS.map((p) => (
-                    <SelectItem key={p} value={p} className="capitalize">
-                      {p}
+                    <SelectItem key={p} value={p}>
+                      {tCommon(`enums.priority.${p}`)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="t-rname">Requester</Label>
+              <Label htmlFor="t-rname">{t("create.label_requester")}</Label>
               <Input
                 id="t-rname"
-                placeholder="Jane Doe"
+                placeholder={t("create.placeholder_requester")}
                 {...register("requester_name")}
               />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-remail">Requester email</Label>
+            <Label htmlFor="t-remail">{t("create.label_requester_email")}</Label>
             <Input
               id="t-remail"
               type="email"
@@ -147,11 +158,11 @@ export function CreateTicketDialog() {
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("create.btn_cancel")}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? "Creating…" : "Create ticket"}
+              {create.isPending ? t("create.btn_creating") : t("create.btn_create")}
             </Button>
           </DialogFooter>
         </form>

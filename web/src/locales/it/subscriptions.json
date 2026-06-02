@@ -1,0 +1,109 @@
+{
+  "page": {
+    "section": "commerciale",
+    "title": "Abbonamenti"
+  },
+  "actions": {
+    "new": "Nuovo abbonamento",
+    "delete": "Elimina abbonamento",
+    "create": "Crea abbonamento",
+    "creating": "Creazione in corso…",
+    "deleting": "Eliminazione in corso…"
+  },
+  "toast": {
+    "created": "Abbonamento creato",
+    "deleted": "Abbonamento eliminato",
+    "create_failed": "Impossibile creare l'abbonamento",
+    "delete_failed": "Impossibile eliminare l'abbonamento"
+  },
+  "filter": {
+    "customer_id_placeholder": "Filtra per ID cliente…",
+    "status_placeholder": "Stato",
+    "all_statuses": "Tutti gli stati"
+  },
+  "table": {
+    "customer": "Cliente",
+    "product": "Prodotto",
+    "plan": "Piano",
+    "nodes": "Nodi",
+    "term": "Durata",
+    "period": "Periodo",
+    "sla": "SLA",
+    "status": "Stato"
+  },
+  "empty": {
+    "message": "Nessun abbonamento corrisponde a questi filtri."
+  },
+  "pagination": {
+    "summary": "{{total}} abbonamenti · pagina {{page}}/{{totalPages}}",
+    "syncing": " · sincronizzazione in corso…",
+    "prev": "Precedente",
+    "next": "Successivo"
+  },
+  "form": {
+    "title": "Nuovo abbonamento",
+    "description": "Registra l'abbonamento di supporto di un cliente per un prodotto. I termini predefiniti sono per nodo e annuali.",
+    "customer": "Cliente",
+    "customer_placeholder": "Seleziona cliente",
+    "product": "Prodotto",
+    "product_placeholder": "Seleziona prodotto",
+    "sla_template": "Modello SLA",
+    "sla_placeholder": "Facoltativo",
+    "sla_none": "Nessuno",
+    "plan": "Piano",
+    "plan_placeholder": "es. Standard",
+    "billing_unit": "Unità di fatturazione",
+    "quantity": "Quantità",
+    "billing_period": "Periodo di fatturazione",
+    "starts_at": "Data di inizio",
+    "expires_at": "Data di scadenza",
+    "unit_price": "Prezzo unitario",
+    "unit_price_placeholder": "facoltativo",
+    "currency": "Valuta"
+  },
+  "notes": {
+    "label": "Note",
+    "placeholder": "facoltativo"
+  },
+  "validation": {
+    "customer_required": "Il cliente è obbligatorio",
+    "product_required": "Il prodotto è obbligatorio",
+    "billing_unit_required": "L'unità di fatturazione è obbligatoria",
+    "billing_period_required": "Il periodo di fatturazione è obbligatorio",
+    "starts_at_required": "La data di inizio è obbligatoria",
+    "expires_at_required": "La data di scadenza è obbligatoria"
+  },
+  "confirm_delete": {
+    "title": "Eliminare l'abbonamento?",
+    "description": "Questa operazione rimuove definitivamente l'abbonamento per \"{{label}}\"."
+  },
+  "status": {
+    "active": "attivo",
+    "expired": "scaduto",
+    "cancelled": "annullato"
+  },
+  "billing_unit": {
+    "per_node": "Per nodo",
+    "per_cluster": "Per cluster",
+    "per_core": "Per core",
+    "per_instance": "Per istanza",
+    "per_seat": "Per postazione",
+    "per_user": "Per utente",
+    "per_agent": "Per agente",
+    "per_device": "Per dispositivo",
+    "per_site": "Per sito",
+    "per_gb": "Per GB",
+    "per_request": "Per richiesta",
+    "usage": "A consumo",
+    "per_subscriber": "Per abbonato (app)",
+    "per_install": "Per installazione",
+    "per_app": "Per app",
+    "flat": "Canone fisso"
+  },
+  "billing_period": {
+    "weekly": "Settimanale",
+    "monthly": "Mensile",
+    "annual": "Annuale",
+    "lifetime": "A vita (pagamento unico)"
+  }
+}

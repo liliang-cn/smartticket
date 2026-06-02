@@ -1,0 +1,17 @@
+{
+  "overview": "概要",
+  "greeting": "こんにちは、{{name}} さん。",
+  "subtitle": "現在のキューの状況です。",
+  "cards": {
+    "open": "未対応",
+    "in_progress": "対応中",
+    "resolved": "解決済み",
+    "overdue": "期限超過"
+  },
+  "queue": {
+    "title": "キューを処理",
+    "total": "合計 {{count}} 件のチケット · ライブ一覧へ",
+    "total_loading": "— · ライブ一覧へ",
+    "cta": "チケットを開く"
+  }
+}

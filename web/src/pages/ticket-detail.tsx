@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Send,
@@ -56,6 +57,7 @@ function formatBytes(n: number): string {
 }
 
 function AttachmentsCard({ ticketId }: { ticketId: number }) {
+  const { t } = useTranslation("tickets");
   const { data: attachments, isLoading } = useTicketAttachments(ticketId);
   const upload = useUploadAttachment(ticketId);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -67,9 +69,9 @@ function AttachmentsCard({ ticketId }: { ticketId: number }) {
     if (!file) return;
     try {
       await upload.mutateAsync(file);
-      toast.success("Attachment uploaded");
+      toast.success(t("detail.attachments.toast_uploaded"));
     } catch (err) {
-      toast.error(apiError(err, "Upload failed"));
+      toast.error(apiError(err, t("detail.attachments.toast_upload_error")));
     }
   }
 
@@ -78,7 +80,7 @@ function AttachmentsCard({ ticketId }: { ticketId: number }) {
     try {
       await downloadAttachment(att);
     } catch (err) {
-      toast.error(apiError(err, "Download failed"));
+      toast.error(apiError(err, t("detail.attachments.toast_download_error")));
     } finally {
       setDownloading(null);
     }
@@ -87,7 +89,7 @@ function AttachmentsCard({ ticketId }: { ticketId: number }) {
   return (
     <Card className="p-5">
       <div className="mb-3 flex items-center justify-between">
-        <Label>Attachments</Label>
+        <Label>{t("detail.attachments.label")}</Label>
         <input
           ref={fileInput}
           type="file"
@@ -105,7 +107,9 @@ function AttachmentsCard({ ticketId }: { ticketId: number }) {
           ) : (
             <Paperclip />
           )}
-          {upload.isPending ? "Uploading…" : "Attach file"}
+          {upload.isPending
+            ? t("detail.attachments.btn_uploading")
+            : t("detail.attachments.btn_attach")}
         </Button>
       </div>
       {isLoading ? (
@@ -128,7 +132,7 @@ function AttachmentsCard({ ticketId }: { ticketId: number }) {
                 variant="ghost"
                 onClick={() => onDownload(att)}
                 disabled={downloading === att.id}
-                aria-label={`Download ${att.original_name}`}
+                aria-label={t("detail.attachments.btn_download_aria", { name: att.original_name })}
               >
                 {downloading === att.id ? (
                   <Loader2 className="animate-spin" />
@@ -140,7 +144,7 @@ function AttachmentsCard({ ticketId }: { ticketId: number }) {
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-muted-foreground">No attachments</p>
+        <p className="text-sm text-muted-foreground">{t("detail.attachments.empty")}</p>
       )}
     </Card>
   );
@@ -151,6 +155,7 @@ function userDisplayName(u: Pick<UserInfo, "first_name" | "last_name" | "usernam
 }
 
 function AssigneeControl({ ticket }: { ticket: Ticket }) {
+  const { t } = useTranslation("tickets");
   const assign = useAssignTicket(ticket.id);
   // Assignable users are non-customer roles (the support team).
   const { data: usersPage } = useUsers({ page: 1, page_size: 100 });
@@ -170,7 +175,11 @@ function AssigneeControl({ ticket }: { ticket: Ticket }) {
     const picked = options.find((u) => u.id === userId);
     try {
       await assign.mutateAsync(userId);
-      toast.success(`Assigned to ${picked ? userDisplayName(picked) : `#${userId}`}`);
+      toast.success(
+        t("detail.toast_updated_field", {
+          field: picked ? userDisplayName(picked) : `#${userId}`,
+        })
+      );
     } catch (err) {
       toast.error(apiError(err));
     }
@@ -183,7 +192,7 @@ function AssigneeControl({ ticket }: { ticket: Ticket }) {
       disabled={assign.isPending}
     >
       <SelectTrigger className="h-8 w-44">
-        <SelectValue placeholder="Unassigned" />
+        <SelectValue placeholder={t("detail.meta.unassigned")} />
       </SelectTrigger>
       <SelectContent>
         {options.map((u) => (
@@ -225,6 +234,7 @@ const SLA_STATUS_STYLE: Record<string, string> = {
 /** SlaCard shows which SLA policy governs the ticket — the matched rule/template,
  *  its response & resolution targets, and the current SLA status. */
 function SlaCard({ ticketId }: { ticketId: number }) {
+  const { t } = useTranslation("tickets");
   const { data: sla, isLoading } = useTicketSLA(ticketId);
   if (isLoading || !sla) return null;
   const statusClass =
@@ -233,7 +243,7 @@ function SlaCard({ ticketId }: { ticketId: number }) {
   return (
     <Card className="p-5">
       <div className="mb-3 flex items-center justify-between">
-        <Label>SLA policy</Label>
+        <Label>{t("detail.sla.label")}</Label>
         <span
           className={`rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${statusClass}`}
         >
@@ -246,15 +256,15 @@ function SlaCard({ ticketId }: { ticketId: number }) {
       </div>
       <p className="mt-1 font-mono text-[11px] text-muted-foreground">
         {sla.source === "rule"
-          ? `matched by ${sla.priority}/${sla.severity}`
-          : "no rule matched — default targets"}
-        {sla.business_only ? " · business hours" : ""}
+          ? t("detail.sla.source_rule", { priority: sla.priority, severity: sla.severity })
+          : t("detail.sla.source_default")}
+        {sla.business_only ? t("detail.sla.business_hours") : ""}
       </p>
       <Separator className="my-3" />
-      <MetaRow label="Response" value={fmtMinutes(sla.response_minutes)} />
-      <MetaRow label="Resolution" value={fmtMinutes(sla.resolution_minutes)} />
+      <MetaRow label={t("detail.sla.meta_response")} value={fmtMinutes(sla.response_minutes)} />
+      <MetaRow label={t("detail.sla.meta_resolution")} value={fmtMinutes(sla.resolution_minutes)} />
       <MetaRow
-        label="Due"
+        label={t("detail.sla.meta_due")}
         value={sla.due_date ? relativeTime(sla.due_date) : "—"}
       />
     </Card>
@@ -263,25 +273,26 @@ function SlaCard({ ticketId }: { ticketId: number }) {
 
 // ActivityCard renders the ticket's operation history as a timeline.
 function ActivityCard({ ticketId }: { ticketId: number }) {
+  const { t } = useTranslation("tickets");
   const { data: events, isLoading } = useTicketEvents(ticketId);
   return (
     <Card className="p-5">
       <div className="mb-3 flex items-center gap-2">
         <History className="size-4 text-muted-foreground" />
-        <Label>Activity</Label>
+        <Label>{t("detail.activity.label")}</Label>
         <span className="font-mono text-xs text-muted-foreground">
           ({events?.length ?? 0})
         </span>
       </div>
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">{t("detail.activity.loading")}</p>
       ) : events && events.length > 0 ? (
         <ol className="relative space-y-3 border-l border-border pl-5">
           {events.map((e) => (
             <li key={e.id} className="relative">
               <CircleDot className="absolute -left-[1.42rem] top-0.5 size-3.5 text-primary/70" />
               <div className="text-sm">
-                <span className="font-medium">{e.actor_name || "System"}</span>{" "}
+                <span className="font-medium">{e.actor_name || t("detail.activity.actor_system")}</span>{" "}
                 <span className="text-muted-foreground">{e.summary}</span>
               </div>
               <div className="font-mono text-[11px] text-muted-foreground/70">
@@ -292,7 +303,7 @@ function ActivityCard({ ticketId }: { ticketId: number }) {
           ))}
         </ol>
       ) : (
-        <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
+        <p className="text-sm text-muted-foreground">{t("detail.activity.empty")}</p>
       )}
     </Card>
   );
@@ -301,6 +312,8 @@ function ActivityCard({ ticketId }: { ticketId: number }) {
 export function TicketDetailPage() {
   const { id } = useParams();
   const ticketId = id ? Number(id) : undefined;
+  const { t } = useTranslation("tickets");
+  const { t: tCommon } = useTranslation("common");
   const { user } = useAuth();
   const { data: ticket, isLoading } = useTicket(ticketId);
   const { data: messages } = useTicketMessages(ticketId);
@@ -313,7 +326,7 @@ export function TicketDetailPage() {
   async function patch(field: "status" | "priority", value: string) {
     try {
       await update.mutateAsync({ [field]: value });
-      toast.success(`Updated ${field}`);
+      toast.success(t("detail.toast_updated_field", { field }));
     } catch (err) {
       toast.error(apiError(err));
     }
@@ -325,7 +338,7 @@ export function TicketDetailPage() {
       await addMessage.mutateAsync({ content: draft.trim(), is_internal: internal });
       setDraft("");
     } catch (err) {
-      toast.error(apiError(err, "Could not post message"));
+      toast.error(apiError(err, t("detail.toast_post_error")));
     }
   }
 
@@ -341,11 +354,11 @@ export function TicketDetailPage() {
   if (!ticket) {
     return (
       <div className="w-full py-20 text-center text-muted-foreground">
-        Ticket not found.
+        {t("detail.not_found")}
         <div className="mt-4">
           <Button variant="secondary" asChild>
             <Link to="/tickets">
-              <ArrowLeft /> Back to tickets
+              <ArrowLeft /> {t("detail.btn_back_to_tickets")}
             </Link>
           </Button>
         </div>
@@ -359,7 +372,7 @@ export function TicketDetailPage() {
         to="/tickets"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
-        <ArrowLeft className="size-4" /> Tickets
+        <ArrowLeft className="size-4" /> {t("detail.back_link")}
       </Link>
 
       <div data-reveal className="mb-6 flex items-start gap-3">
@@ -375,15 +388,15 @@ export function TicketDetailPage() {
         {/* Conversation */}
         <div className="space-y-5">
           <Card data-reveal className="p-5">
-            <Label>Description</Label>
+            <Label>{t("detail.section_description")}</Label>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-              {ticket.description || "No description provided."}
+              {ticket.description || t("detail.no_description")}
             </p>
           </Card>
 
           <div data-reveal>
             <h2 className="mb-3 text-sm font-semibold">
-              Conversation{" "}
+              {t("detail.section_conversation")}{" "}
               <span className="font-mono text-xs text-muted-foreground">
                 ({messages?.length ?? 0})
               </span>
@@ -416,18 +429,20 @@ export function TicketDetailPage() {
                       </Avatar>
                       <span className="font-medium text-foreground/80">
                         {m.is_from_ai
-                          ? "Assistant"
-                          : m.author_name || `User #${m.user_id}`}
+                          ? t("detail.msg_sender_ai")
+                          : m.author_name || t("detail.msg_sender_user", { userId: m.user_id })}
                       </span>
                       {!m.is_from_ai && m.author_role && (
                         <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/70">
-                          {m.author_role === "customer" ? "customer" : "team"}
+                          {m.author_role === "customer"
+                            ? t("detail.msg_role_customer")
+                            : t("detail.msg_role_team")}
                         </span>
                       )}
                       {m.is_from_ai && <Bot className="size-3" />}
                       {m.is_internal && (
                         <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-primary">
-                          <Lock className="size-3" /> internal
+                          <Lock className="size-3" /> {t("detail.msg_internal_badge")}
                         </span>
                       )}
                       <span className="ml-auto font-mono">
@@ -440,7 +455,7 @@ export function TicketDetailPage() {
                   </Card>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">No messages yet.</p>
+                <p className="text-sm text-muted-foreground">{t("detail.no_messages")}</p>
               )}
             </div>
 
@@ -449,7 +464,7 @@ export function TicketDetailPage() {
               <Textarea
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder="Write a reply…"
+                placeholder={t("detail.reply_placeholder")}
                 className="min-h-24 border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
               />
               <Separator className="my-3" />
@@ -461,14 +476,14 @@ export function TicketDetailPage() {
                     onChange={(e) => setInternal(e.target.checked)}
                     className="accent-[var(--color-primary)]"
                   />
-                  Internal note
+                  {t("detail.internal_note_label")}
                 </label>
                 <Button
                   size="sm"
                   onClick={send}
                   disabled={addMessage.isPending || !draft.trim()}
                 >
-                  <Send /> {addMessage.isPending ? "Sending…" : "Send"}
+                  <Send /> {addMessage.isPending ? t("detail.btn_sending") : t("detail.btn_send")}
                 </Button>
               </div>
             </Card>
@@ -484,7 +499,7 @@ export function TicketDetailPage() {
           <Card className="p-5">
             <div className="space-y-3">
               <div>
-                <Label>Status</Label>
+                <Label>{t("detail.meta.label_status")}</Label>
                 <Select
                   value={ticket.status}
                   onValueChange={(v) => patch("status", v)}
@@ -494,15 +509,15 @@ export function TicketDetailPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {STATUS_OPTIONS.map((s) => (
-                      <SelectItem key={s} value={s} className="capitalize">
-                        {s.replace("_", " ")}
+                      <SelectItem key={s} value={s}>
+                        {tCommon(`enums.ticket_status.${s}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>Priority</Label>
+                <Label>{t("detail.meta.label_priority")}</Label>
                 <Select
                   value={ticket.priority}
                   onValueChange={(v) => patch("priority", v)}
@@ -512,8 +527,8 @@ export function TicketDetailPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {PRIORITY_OPTIONS.map((p) => (
-                      <SelectItem key={p} value={p} className="capitalize">
-                        {p}
+                      <SelectItem key={p} value={p}>
+                        {tCommon(`enums.priority.${p}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -524,17 +539,17 @@ export function TicketDetailPage() {
 
           <Card className="p-5">
             <MetaRow
-              label="Severity"
+              label={t("detail.meta.label_severity")}
               value={<PriorityBadge priority={ticket.severity as never} />}
             />
             <Separator />
             <MetaRow
-              label="Customer"
+              label={t("detail.meta.label_customer")}
               value={ticket.customer_name || (ticket.customer_id ? `#${ticket.customer_id}` : "—")}
             />
-            <MetaRow label="Requester" value={ticket.requester_name || "—"} />
+            <MetaRow label={t("detail.meta.label_requester")} value={ticket.requester_name || "—"} />
             <MetaRow
-              label="Email"
+              label={t("detail.meta.label_email")}
               value={
                 <span className="font-mono text-xs">
                   {ticket.requester_email || "—"}
@@ -543,7 +558,7 @@ export function TicketDetailPage() {
             />
             <Separator />
             <MetaRow
-              label="Assignee"
+              label={t("detail.meta.label_assignee")}
               value={
                 user?.role !== "customer" ? (
                   <AssigneeControl ticket={ticket} />
@@ -553,12 +568,12 @@ export function TicketDetailPage() {
                 ) : ticket.assigned_to ? (
                   `#${ticket.assigned_to}`
                 ) : (
-                  "Unassigned"
+                  t("detail.meta.unassigned")
                 )
               }
             />
-            <MetaRow label="Created" value={relativeTime(ticket.created_at)} />
-            <MetaRow label="Due" value={relativeTime(ticket.due_date)} />
+            <MetaRow label={t("detail.meta.label_created")} value={relativeTime(ticket.created_at)} />
+            <MetaRow label={t("detail.meta.label_due")} value={relativeTime(ticket.due_date)} />
           </Card>
 
           <SlaCard ticketId={ticket.id} />

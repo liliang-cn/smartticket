@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, ChevronLeft, ChevronRight, Package } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useProducts, type ProductFilters } from "@/features/products/api";
 import { ProductFormDialog } from "@/features/products/product-form-dialog";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import { relativeTime } from "@/lib/utils";
 const ALL = "__all__";
 
 export function ProductsListPage() {
+  const { t } = useTranslation("products");
   const navigate = useNavigate();
   const [filters, setFilters] = useState<ProductFilters>({
     page: 1,
@@ -35,9 +37,9 @@ export function ProductsListPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            catalog
+            {t("list.eyebrow")}
           </div>
-          <h1 className="mt-1 text-3xl">Products</h1>
+          <h1 className="mt-1 text-3xl">{t("list.title")}</h1>
         </div>
         <ProductFormDialog />
       </div>
@@ -48,7 +50,7 @@ export function ProductsListPage() {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search name, code, category…"
+            placeholder={t("list.search_placeholder")}
             value={filters.search ?? ""}
             onChange={(e) => set({ search: e.target.value })}
           />
@@ -58,12 +60,12 @@ export function ProductsListPage() {
           onValueChange={(v) => set({ status: v === ALL ? undefined : v })}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t("list.status_placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value={ALL}>{t("list.all_statuses")}</SelectItem>
+            <SelectItem value="active">{t("list.status_active")}</SelectItem>
+            <SelectItem value="inactive">{t("list.status_inactive")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -72,12 +74,12 @@ export function ProductsListPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Code</th>
-              <th className="px-4 py-3 font-medium">Category</th>
-              <th className="px-4 py-3 font-medium">Version</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 text-right font-medium">Created</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_name")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_code")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_category")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_version")}</th>
+              <th className="px-4 py-3 font-medium">{t("list.col_status")}</th>
+              <th className="px-4 py-3 text-right font-medium">{t("list.col_created")}</th>
             </tr>
           </thead>
           <tbody>
@@ -133,7 +135,7 @@ export function ProductsListPage() {
                 <td colSpan={6} className="px-4 py-16 text-center">
                   <Package className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No products match these filters.
+                    {t("list.empty")}
                   </p>
                 </td>
               </tr>
@@ -146,8 +148,12 @@ export function ProductsListPage() {
       {data && data.total_pages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="font-mono text-xs text-muted-foreground">
-            {data.total} products · page {data.page}/{data.total_pages}
-            {isFetching && " · syncing…"}
+            {t("list.pagination.summary", {
+              total: data.total,
+              page: data.page,
+              total_pages: data.total_pages,
+            })}
+            {isFetching && t("list.pagination.syncing")}
           </div>
           <div className="flex gap-2">
             <Button
@@ -156,7 +162,7 @@ export function ProductsListPage() {
               disabled={filters.page <= 1}
               onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
             >
-              <ChevronLeft /> Prev
+              <ChevronLeft /> {t("list.pagination.prev")}
             </Button>
             <Button
               variant="secondary"
@@ -164,7 +170,7 @@ export function ProductsListPage() {
               disabled={data.page >= data.total_pages}
               onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
             >
-              Next <ChevronRight />
+              {t("list.pagination.next")} <ChevronRight />
             </Button>
           </div>
         </div>

@@ -1,0 +1,142 @@
+{
+  "list": {
+    "directory_label": "directorio",
+    "title": "Clientes",
+    "search_placeholder": "Buscar nombre, código, dominio…",
+    "status_placeholder": "Estado",
+    "status_all": "Todos los estados",
+    "status_active": "Activo",
+    "status_inactive": "Inactivo",
+    "col_name": "Nombre",
+    "col_code": "Código",
+    "col_domain": "Dominio",
+    "col_active": "Activo",
+    "col_created": "Creado",
+    "empty": "Ningún cliente coincide con estos filtros.",
+    "pagination": "{{total}} clientes · página {{page}}/{{total_pages}}",
+    "syncing": " · sincronizando…",
+    "prev": "Anterior",
+    "next": "Siguiente"
+  },
+  "status": {
+    "active": "activo",
+    "inactive": "inactivo"
+  },
+  "detail": {
+    "back": "Clientes",
+    "not_found": "Cliente no encontrado.",
+    "back_to_customers": "Volver a clientes",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "description_label": "Descripción",
+    "no_description": "Sin descripción.",
+    "contacts_heading": "Contactos",
+    "col_user": "Usuario",
+    "col_email": "Correo",
+    "col_role": "Rol",
+    "col_active": "Activo",
+    "col_actions": "Acciones",
+    "no_contacts": "No hay contactos vinculados a este cliente.",
+    "meta_code": "Código",
+    "meta_domain": "Dominio",
+    "meta_status": "Estado",
+    "meta_created": "Creado",
+    "meta_updated": "Actualizado",
+    "delete_dialog": {
+      "title": "Eliminar cliente",
+      "description": "¿Eliminar <bold>{{name}}</bold>? Se realizará una eliminación lógica de la organización. Sus contactos y tickets no serán eliminados.",
+      "deleting": "Eliminando…",
+      "confirm": "Eliminar cliente"
+    },
+    "toast": {
+      "deleted": "Cliente eliminado",
+      "delete_error": "No se pudo eliminar el cliente"
+    }
+  },
+  "contact_row": {
+    "deactivate": "Desactivar",
+    "activate": "Activar",
+    "remove_aria": "Eliminar {{name}}",
+    "remove_dialog": {
+      "title": "Eliminar contacto",
+      "description": "¿Eliminar a <bold>{{name}}</bold> de este cliente? Esto elimina la cuenta.",
+      "removing": "Eliminando…",
+      "confirm": "Eliminar contacto"
+    },
+    "toast": {
+      "deactivated": "Contacto desactivado",
+      "activated": "Contacto activado",
+      "removed": "Contacto eliminado",
+      "remove_error": "No se pudo eliminar el contacto"
+    }
+  },
+  "subscriptions": {
+    "heading": "Suscripciones",
+    "col_product": "Producto",
+    "col_plan": "Plan",
+    "col_sla": "SLA",
+    "col_nodes": "Nodos",
+    "col_status": "Estado",
+    "col_expires": "Vencimiento",
+    "empty_loading": "Cargando…",
+    "empty": "Sin suscripciones. Este cliente aún no tiene productos ni SLA asignados.",
+    "cluster": "clúster"
+  },
+  "add_contact": {
+    "trigger": "Añadir contacto",
+    "title": "Añadir contacto",
+    "description_no_customer": "Crea una cuenta de cliente. Podrá iniciar sesión para ver y crear tickets de su empresa.",
+    "description_with_customer": "Crea una cuenta de cliente para {{customerName}}. Podrá iniciar sesión para ver y crear tickets de su empresa.",
+    "field_first_name": "Nombre",
+    "field_last_name": "Apellido",
+    "field_email": "Correo",
+    "field_username": "Usuario",
+    "field_password": "Contraseña",
+    "password_hint": "Mínimo 8 caracteres, con una letra mayúscula, un dígito y un carácter especial.",
+    "adding": "Añadiendo…",
+    "submit": "Añadir contacto",
+    "toast": {
+      "added": "Contacto añadido",
+      "add_error": "No se pudo añadir el contacto"
+    },
+    "validation": {
+      "first_name_required": "El nombre es obligatorio",
+      "last_name_required": "El apellido es obligatorio",
+      "email_required": "El correo es obligatorio",
+      "email_invalid": "Correo no válido",
+      "username_min": "Mínimo 3 caracteres",
+      "username_pattern": "Solo letras, números, _ y -",
+      "password_min": "Mínimo 8 caracteres",
+      "password_uppercase": "Necesita una letra mayúscula",
+      "password_lowercase": "Necesita una letra minúscula",
+      "password_digit": "Necesita un dígito",
+      "password_special": "Necesita un carácter especial"
+    }
+  },
+  "form": {
+    "title_new": "Nuevo cliente",
+    "title_edit": "Editar cliente",
+    "description_new": "Registra una organización cliente a la que brindas soporte.",
+    "description_edit": "Actualiza los detalles de esta organización cliente.",
+    "field_name": "Nombre",
+    "field_code": "Código",
+    "field_domain": "Dominio",
+    "field_description": "Descripción",
+    "description_placeholder": "Notas sobre este cliente…",
+    "field_status": "Estado",
+    "trigger_new": "Nuevo cliente",
+    "saving": "Guardando…",
+    "creating": "Creando…",
+    "save_changes": "Guardar cambios",
+    "create": "Crear cliente",
+    "toast": {
+      "updated": "Cliente actualizado",
+      "created": "Cliente creado",
+      "update_error": "No se pudo actualizar el cliente",
+      "create_error": "No se pudo crear el cliente"
+    },
+    "validation": {
+      "name_required": "El nombre es obligatorio"
+    }
+  }
+}

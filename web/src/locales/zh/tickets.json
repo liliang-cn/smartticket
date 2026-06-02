@@ -1,0 +1,103 @@
+{
+  "list": {
+    "queue_label": "队列",
+    "heading": "工单",
+    "search_placeholder": "搜索标题、请求人…",
+    "filter_status_placeholder": "状态",
+    "filter_status_all": "全部状态",
+    "filter_priority_placeholder": "优先级",
+    "filter_priority_all": "全部优先级",
+    "col_ticket": "工单",
+    "col_status": "状态",
+    "col_priority": "优先级",
+    "col_customer": "客户",
+    "col_requester": "请求人",
+    "col_updated": "更新时间",
+    "empty": "没有符合条件的工单。",
+    "pagination_info": "{{total}} 条工单 · 第 {{page}}/{{totalPages}} 页",
+    "pagination_syncing": " · 同步中…",
+    "btn_prev": "上一页",
+    "btn_next": "下一页"
+  },
+  "detail": {
+    "back_link": "工单",
+    "not_found": "工单不存在。",
+    "btn_back_to_tickets": "返回工单列表",
+    "section_description": "描述",
+    "no_description": "暂无描述。",
+    "section_conversation": "对话",
+    "no_messages": "暂无消息。",
+    "reply_placeholder": "撰写回复…",
+    "internal_note_label": "内部备注",
+    "btn_send": "发送",
+    "btn_sending": "发送中…",
+    "msg_sender_ai": "助手",
+    "msg_sender_user": "用户 #{{userId}}",
+    "msg_role_customer": "客户",
+    "msg_role_team": "团队",
+    "msg_internal_badge": "内部",
+    "toast_updated_field": "已更新{{field}}",
+    "toast_post_error": "消息发送失败",
+    "attachments": {
+      "label": "附件",
+      "btn_attach": "添加附件",
+      "btn_uploading": "上传中…",
+      "btn_download_aria": "下载 {{name}}",
+      "empty": "暂无附件",
+      "toast_uploaded": "附件上传成功",
+      "toast_upload_error": "上传失败",
+      "toast_download_error": "下载失败"
+    },
+    "activity": {
+      "label": "操作记录",
+      "loading": "加载中…",
+      "empty": "暂无操作记录。",
+      "actor_system": "系统"
+    },
+    "sla": {
+      "label": "SLA 策略",
+      "source_rule": "匹配规则：{{priority}}/{{severity}}",
+      "source_default": "无匹配规则 — 使用默认目标",
+      "business_hours": " · 工作时间",
+      "meta_response": "响应时限",
+      "meta_resolution": "解决时限",
+      "meta_due": "截止时间"
+    },
+    "meta": {
+      "label_status": "状态",
+      "label_priority": "优先级",
+      "label_severity": "严重程度",
+      "label_customer": "客户",
+      "label_requester": "请求人",
+      "label_email": "邮箱",
+      "label_assignee": "负责人",
+      "label_created": "创建时间",
+      "label_due": "截止时间",
+      "unassigned": "未分配"
+    }
+  },
+  "create": {
+    "btn_new_ticket": "新建工单",
+    "dialog_title": "新建工单",
+    "dialog_description": "代表请求人记录问题。",
+    "label_title": "标题",
+    "placeholder_title": "简短概述",
+    "label_description": "描述",
+    "placeholder_description": "请描述问题详情",
+    "label_priority": "优先级",
+    "label_requester": "请求人",
+    "placeholder_requester": "张三",
+    "label_requester_email": "请求人邮箱",
+    "btn_cancel": "取消",
+    "btn_create": "创建工单",
+    "btn_creating": "创建中…",
+    "toast_created": "工单已创建",
+    "toast_create_error": "工单创建失败",
+    "validation": {
+      "title_required": "标题不能为空",
+      "description_required": "描述不能为空",
+      "requester_name_required": "请求人姓名不能为空",
+      "email_required": "请填写有效的邮箱地址"
+    }
+  }
+}

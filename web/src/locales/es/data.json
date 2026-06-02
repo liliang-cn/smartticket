@@ -1,0 +1,86 @@
+{
+  "page": {
+    "section_label": "datos",
+    "title": "Importar / Exportar"
+  },
+  "stats": {
+    "total_jobs": "Total de tareas",
+    "completed": "Completadas",
+    "running": "En ejecución",
+    "failed": "Fallidas"
+  },
+  "filters": {
+    "all_types": "Todos los tipos",
+    "all_statuses": "Todos los estados",
+    "type_placeholder": "Tipo",
+    "status_placeholder": "Estado"
+  },
+  "table": {
+    "col_type": "Tipo",
+    "col_status": "Estado",
+    "col_progress": "Progreso",
+    "col_records": "Registros",
+    "col_created": "Creado",
+    "empty_heading": "Ninguna tarea de importación/exportación coincide con estos filtros."
+  },
+  "records": {
+    "failed_count": "{{count}} fallidos"
+  },
+  "pagination": {
+    "summary": "{{total}} tareas · página {{page}}/{{totalPages}}",
+    "syncing": " · sincronizando…",
+    "prev": "Anterior",
+    "next": "Siguiente"
+  },
+  "actions": {
+    "download": "Descargar",
+    "downloading": "Descargando…",
+    "cancel_job": "Cancelar tarea",
+    "delete": "Eliminar",
+    "new_export": "Nueva exportación"
+  },
+  "confirm_delete": {
+    "title": "Eliminar tarea",
+    "description": "¿Eliminar la tarea #{{id}} ({{label}})? Esta acción no se puede deshacer."
+  },
+  "toasts": {
+    "job_deleted": "Tarea eliminada",
+    "delete_failed": "No se pudo eliminar la tarea",
+    "export_created": "Tarea de exportación creada",
+    "export_create_failed": "No se pudo crear la tarea de exportación"
+  },
+  "status": {
+    "pending": "Pendiente",
+    "running": "En ejecución",
+    "completed": "Completada",
+    "failed": "Fallida",
+    "cancelled": "Cancelada"
+  },
+  "job_type": {
+    "import": "Importación",
+    "export": "Exportación"
+  },
+  "format": {
+    "csv": "CSV",
+    "json": "JSON",
+    "xml": "XML",
+    "markdown": "Markdown",
+    "sqlite": "SQLite"
+  },
+  "export_dialog": {
+    "title": "Nueva tarea de exportación",
+    "description": "Pone en cola la exportación de un conjunto de datos. La tarea se ejecuta en segundo plano; podrás descargar el resultado una vez finalizada.",
+    "dataset_label": "Conjunto de datos",
+    "format_label": "Formato",
+    "submit": "Crear exportación",
+    "submitting": "Creando…"
+  },
+  "entity": {
+    "tickets": "Tickets",
+    "knowledge_articles": "Artículos de conocimiento",
+    "users": "Usuarios",
+    "products": "Productos",
+    "services": "Servicios",
+    "complete": "Completo (base de datos completa)"
+  }
+}

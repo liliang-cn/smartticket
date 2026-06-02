@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Eye } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useArticle } from "@/features/knowledge/api";
 import {
   ArticleStatusBadge,
@@ -25,6 +26,7 @@ function MetaRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 export function KnowledgeDetailPage() {
+  const { t } = useTranslation("knowledge");
   const { id } = useParams();
   const articleId = id ? Number(id) : undefined;
   const { data: article, isLoading } = useArticle(articleId);
@@ -42,11 +44,11 @@ export function KnowledgeDetailPage() {
   if (!article) {
     return (
       <div className="w-full py-20 text-center text-muted-foreground">
-        Article not found.
+        {t("detail.not_found")}
         <div className="mt-4">
           <Button variant="secondary" asChild>
             <Link to="/knowledge">
-              <ArrowLeft /> Back to knowledge
+              <ArrowLeft /> {t("detail.back_to_knowledge")}
             </Link>
           </Button>
         </div>
@@ -62,7 +64,7 @@ export function KnowledgeDetailPage() {
         to="/knowledge"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
-        <ArrowLeft className="size-4" /> Knowledge
+        <ArrowLeft className="size-4" /> {t("detail.breadcrumb")}
       </Link>
 
       <div data-reveal className="mb-6">
@@ -85,7 +87,7 @@ export function KnowledgeDetailPage() {
         <div className="space-y-5">
           {article.summary && (
             <Card data-reveal className="p-5">
-              <Label>Summary</Label>
+              <Label>{t("detail.summary_label")}</Label>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                 {article.summary}
               </p>
@@ -93,9 +95,9 @@ export function KnowledgeDetailPage() {
           )}
 
           <Card data-reveal className="p-5">
-            <Label>Content</Label>
+            <Label>{t("detail.content_label")}</Label>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-              {article.content || "No content."}
+              {article.content || t("detail.no_content")}
             </p>
           </Card>
         </div>
@@ -104,12 +106,12 @@ export function KnowledgeDetailPage() {
         <aside data-reveal className="space-y-4">
           <Card className="p-5">
             <MetaRow
-              label="Status"
+              label={t("detail.meta_status")}
               value={<ArticleStatusBadge status={article.status} />}
             />
             <Separator />
             <MetaRow
-              label="Category"
+              label={t("detail.meta_category")}
               value={
                 article.category ? (
                   <span className="font-mono text-xs">{article.category}</span>
@@ -119,24 +121,24 @@ export function KnowledgeDetailPage() {
               }
             />
             <Separator />
-            <MetaRow label="Views" value={article.view_count} />
-            <MetaRow label="Version" value={`v${article.version}`} />
+            <MetaRow label={t("detail.meta_views")} value={article.view_count} />
+            <MetaRow label={t("detail.meta_version")} value={t("detail.version_value", { version: article.version })} />
             <Separator />
             <MetaRow
-              label="Author"
+              label={t("detail.meta_author")}
               value={
                 <span className="font-mono text-xs">
                   {article.created_by || "—"}
                 </span>
               }
             />
-            <MetaRow label="Created" value={relativeTime(article.created_at)} />
-            <MetaRow label="Updated" value={relativeTime(article.updated_at)} />
+            <MetaRow label={t("detail.meta_created")} value={relativeTime(article.created_at)} />
+            <MetaRow label={t("detail.meta_updated")} value={relativeTime(article.updated_at)} />
           </Card>
 
           {tags.length > 0 && (
             <Card className="p-5">
-              <Label>Tags</Label>
+              <Label>{t("detail.tags_label")}</Label>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {tags.map((t) => (
                   <Badge key={t} tone="neutral">

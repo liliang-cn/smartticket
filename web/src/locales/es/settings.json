@@ -1,0 +1,65 @@
+{
+  "title": "Ajustes",
+  "subtitle": "Personaliza la marca de este despliegue: el nombre, el color de acento y el logo se aplican a todos los usuarios y a la pantalla de inicio de sesión.",
+  "language": {
+    "heading": "Idioma",
+    "desc": "El idioma de tu cuenta. Se guarda en este navegador."
+  },
+  "identity": {
+    "heading": "Identidad",
+    "desc": "Nombres que se muestran en la barra lateral y el encabezado del espacio.",
+    "app_name": "Nombre de la app",
+    "app_name_hint": "Se muestra junto al logo.",
+    "app_subtitle": "Subtítulo de la app",
+    "app_subtitle_hint": "Etiqueta pequeña bajo el nombre de la app.",
+    "workspace_name": "Nombre del espacio",
+    "workspace_name_hint": "La etiqueta en la barra superior de cada página."
+  },
+  "accent": {
+    "heading": "Color de acento",
+    "desc": "El color distintivo para botones, navegación activa, enlaces y anillos de foco, en temas claro y oscuro.",
+    "use_color": "Usar {{color}}",
+    "custom_color": "Elegir un color personalizado",
+    "invalid_hex": "Usa un valor hex como #f59e0b"
+  },
+  "logo": {
+    "heading": "Logo",
+    "desc": "Reemplaza el icono predeterminado. PNG, JPG, SVG, WEBP o GIF, hasta 2 MB. Una imagen cuadrada funciona mejor.",
+    "current_alt": "Logo actual",
+    "upload": "Subir logo",
+    "uploading": "Subiendo…",
+    "remove": "Quitar"
+  },
+  "signin": {
+    "heading": "Pantalla de inicio de sesión",
+    "desc": "El titular y el texto secundario en el lado derecho de la pantalla de inicio de sesión.",
+    "tagline": "Eslogan",
+    "subtext": "Texto secundario"
+  },
+  "preview": {
+    "label": "Vista previa en vivo",
+    "active_item": "Elemento activo",
+    "inactive_item": "Elemento inactivo",
+    "primary": "Primario",
+    "accent": "acento",
+    "link": "enlace",
+    "note": "El color se actualiza aquí al instante. Haz clic en <0>Guardar cambios</0> para aplicarlo en toda la app."
+  },
+  "save_changes": "Guardar cambios",
+  "saving": "Guardando…",
+  "reset_defaults": "Restablecer valores",
+  "toasts": {
+    "invalid_hex": "Introduce un color hex válido, p. ej. #f59e0b",
+    "saved": "Marca guardada",
+    "save_error": "No se pudo guardar la marca",
+    "logo_updated": "Logo actualizado",
+    "logo_upload_error": "No se pudo subir el logo",
+    "logo_removed": "Logo eliminado",
+    "logo_remove_error": "No se pudo eliminar el logo"
+  },
+  "confirm_remove_logo": {
+    "title": "Quitar logo",
+    "description": "¿Volver al icono predeterminado? La imagen subida se eliminará.",
+    "confirm": "Quitar logo"
+  }
+}

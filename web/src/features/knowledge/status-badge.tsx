@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 
 const STATUS_TONE: Record<string, Parameters<typeof Badge>[0]["tone"]> = {
@@ -7,9 +8,13 @@ const STATUS_TONE: Record<string, Parameters<typeof Badge>[0]["tone"]> = {
 };
 
 export function ArticleStatusBadge({ status }: { status: string }) {
+  const { t } = useTranslation("knowledge");
+  const label = status
+    ? t(`status.${status}`, { defaultValue: status })
+    : t("status.unknown");
   return (
     <Badge tone={STATUS_TONE[status] ?? "neutral"} className="uppercase">
-      {status || "unknown"}
+      {label}
     </Badge>
   );
 }

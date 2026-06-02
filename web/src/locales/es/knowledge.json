@@ -1,0 +1,63 @@
+{
+  "status": {
+    "draft": "Borrador",
+    "published": "Publicado",
+    "archived": "Archivado",
+    "unknown": "Desconocido"
+  },
+  "list": {
+    "library_label": "biblioteca",
+    "heading": "Conocimiento",
+    "semantic_placeholder": "Búsqueda semántica — pregunta en lenguaje natural…",
+    "search_button": "Buscar",
+    "searching": "Buscando…",
+    "clear_search_aria": "Borrar búsqueda",
+    "ask_ai": "Ask AI",
+    "filter_placeholder": "Filtrar por título, contenido…",
+    "category_placeholder": "Categoría",
+    "status_placeholder": "Estado",
+    "all_statuses": "Todos los estados",
+    "col_title": "Título",
+    "col_category": "Categoría",
+    "col_status": "Estado",
+    "col_views": "Vistas",
+    "col_updated": "Actualizado",
+    "no_matches": "Sin resultados para «{{query}}».",
+    "no_articles": "Ningún artículo coincide con estos filtros.",
+    "pagination_info": "{{total}} artículos · página {{page}}/{{totalPages}}",
+    "syncing": "· sincronizando…",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "search_error": "La búsqueda con IA no está configurada"
+  },
+  "detail": {
+    "not_found": "Artículo no encontrado.",
+    "back_to_knowledge": "Volver a la base de conocimiento",
+    "breadcrumb": "Conocimiento",
+    "summary_label": "Resumen",
+    "content_label": "Contenido",
+    "no_content": "Sin contenido.",
+    "meta_status": "Estado",
+    "meta_category": "Categoría",
+    "meta_views": "Vistas",
+    "meta_version": "Versión",
+    "meta_author": "Autor",
+    "meta_created": "Creado",
+    "meta_updated": "Actualizado",
+    "tags_label": "Etiquetas",
+    "version_value": "v{{version}}"
+  },
+  "ask_ai": {
+    "trigger": "Ask AI",
+    "dialog_title": "Consultar la base de conocimiento",
+    "dialog_description": "Haz una pregunta y obtén una respuesta de IA basada en tus artículos.",
+    "question_placeholder": "Ej. ¿Cómo restablezco la contraseña de un cliente?",
+    "shortcut_hint": "⌘/Ctrl + Enter para preguntar",
+    "ask_button": "Preguntar",
+    "thinking": "Pensando…",
+    "searching_message": "Buscando en la base de conocimiento y elaborando una respuesta…",
+    "answer_label": "Respuesta",
+    "sources_label": "Fuentes",
+    "error_default": "La consulta a la IA falló"
+  }
+}

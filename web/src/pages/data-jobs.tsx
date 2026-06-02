@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ChevronLeft,
   ChevronRight,
@@ -91,6 +92,7 @@ function StatCard({ label, value }: { label: string; value: number | string }) {
 }
 
 function RowActions({ job }: { job: Job }) {
+  const { t } = useTranslation("data");
   const cancel = useCancelJob();
   const remove = useDeleteJob();
   const download = useDownloadJob();
@@ -107,10 +109,10 @@ function RowActions({ job }: { job: Job }) {
     if (!toDelete) return;
     try {
       await remove.mutateAsync(toDelete.id);
-      toast.success("Job deleted");
+      toast.success(t("toasts.job_deleted"));
       setToDelete(null);
     } catch (err) {
-      toast.error(apiError(err, "Could not delete job"));
+      toast.error(apiError(err, t("toasts.delete_failed")));
     }
   }
 
@@ -127,7 +129,7 @@ function RowActions({ job }: { job: Job }) {
           }}
         >
           <Download className="size-4" />
-          {download.isPending ? "Downloading…" : "Download"}
+          {download.isPending ? t("actions.downloading") : t("actions.download")}
         </Button>
       )}
       <DropdownMenu>
@@ -146,7 +148,7 @@ function RowActions({ job }: { job: Job }) {
               disabled={cancel.isPending}
               onSelect={() => cancel.mutate(job.id)}
             >
-              Cancel job
+              {t("actions.cancel_job")}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem
@@ -157,7 +159,7 @@ function RowActions({ job }: { job: Job }) {
               setToDelete({ id: job.id, label: job.type });
             }}
           >
-            Delete
+            {t("actions.delete")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -165,10 +167,13 @@ function RowActions({ job }: { job: Job }) {
       <ConfirmDialog
         open={!!toDelete}
         onOpenChange={(o) => !o && setToDelete(null)}
-        title="Delete job"
+        title={t("confirm_delete.title")}
         description={
           toDelete
-            ? `Delete job #${toDelete.id} (${toDelete.label})? This cannot be undone.`
+            ? t("confirm_delete.description", {
+                id: toDelete.id,
+                label: toDelete.label,
+              })
             : undefined
         }
         pending={remove.isPending}
@@ -179,6 +184,7 @@ function RowActions({ job }: { job: Job }) {
 }
 
 export function DataJobsPage() {
+  const { t } = useTranslation("data");
   const [filters, setFilters] = useState<JobFilters>({
     page: 1,
     page_size: 15,
@@ -202,9 +208,9 @@ export function DataJobsPage() {
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            data
+            {t("page.section_label")}
           </div>
-          <h1 className="mt-1 text-3xl">Import / Export</h1>
+          <h1 className="mt-1 text-3xl">{t("page.title")}</h1>
         </div>
         <ExportJobDialog />
       </div>
@@ -220,10 +226,10 @@ export function DataJobsPage() {
           ))
         ) : (
           <>
-            <StatCard label="Total jobs" value={totalJobs ?? "—"} />
-            <StatCard label="Completed" value={completed} />
-            <StatCard label="Running" value={running} />
-            <StatCard label="Failed" value={failed} />
+            <StatCard label={t("stats.total_jobs")} value={totalJobs ?? "—"} />
+            <StatCard label={t("stats.completed")} value={completed} />
+            <StatCard label={t("stats.running")} value={running} />
+            <StatCard label={t("stats.failed")} value={failed} />
           </>
         )}
       </div>
@@ -237,13 +243,13 @@ export function DataJobsPage() {
           }
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Type" />
+            <SelectValue placeholder={t("filters.type_placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All types</SelectItem>
-            {TYPE_OPTIONS.map((t) => (
-              <SelectItem key={t} value={t} className="capitalize">
-                {t}
+            <SelectItem value={ALL}>{t("filters.all_types")}</SelectItem>
+            {TYPE_OPTIONS.map((type) => (
+              <SelectItem key={type} value={type}>
+                {t(`job_type.${type}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -255,13 +261,13 @@ export function DataJobsPage() {
           }
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder={t("filters.status_placeholder")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All statuses</SelectItem>
+            <SelectItem value={ALL}>{t("filters.all_statuses")}</SelectItem>
             {STATUS_OPTIONS.map((s) => (
-              <SelectItem key={s} value={s} className="capitalize">
-                {s}
+              <SelectItem key={s} value={s}>
+                {t(`status.${s}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -272,11 +278,11 @@ export function DataJobsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Progress</th>
-              <th className="px-4 py-3 font-medium">Records</th>
-              <th className="px-4 py-3 font-medium">Created</th>
+              <th className="px-4 py-3 font-medium">{t("table.col_type")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.col_status")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.col_progress")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.col_records")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.col_created")}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -301,7 +307,7 @@ export function DataJobsPage() {
                     <div className="flex items-center gap-2">
                       <Layers className="size-4 text-muted-foreground/70" />
                       <span className="font-medium capitalize text-foreground">
-                        {j.type}
+                        {t(`job_type.${j.type}`, { defaultValue: j.type })}
                       </span>
                     </div>
                     <div className="mt-0.5 font-mono text-[11px] text-muted-foreground">
@@ -310,7 +316,7 @@ export function DataJobsPage() {
                   </td>
                   <td className="px-4 py-3.5">
                     <Badge tone={STATUS_TONE[j.status] ?? "slate"}>
-                      {j.status}
+                      {t(`status.${j.status}`, { defaultValue: j.status })}
                     </Badge>
                     {j.status === "failed" && j.error && (
                       <div
@@ -329,7 +335,7 @@ export function DataJobsPage() {
                     {j.failed_records > 0 && (
                       <span className="text-destructive">
                         {" "}
-                        · {j.failed_records} failed
+                        · {t("records.failed_count", { count: j.failed_records })}
                       </span>
                     )}
                   </td>
@@ -346,7 +352,7 @@ export function DataJobsPage() {
                 <td colSpan={6} className="px-4 py-16 text-center">
                   <Database className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No import/export jobs match these filters.
+                    {t("table.empty_heading")}
                   </p>
                 </td>
               </tr>
@@ -359,8 +365,12 @@ export function DataJobsPage() {
       {data && data.total_pages > 1 && (
         <div className="mt-4 flex items-center justify-between">
           <div className="font-mono text-xs text-muted-foreground">
-            {data.total} jobs · page {data.page}/{data.total_pages}
-            {isFetching && " · syncing…"}
+            {t("pagination.summary", {
+              total: data.total,
+              page: data.page,
+              totalPages: data.total_pages,
+            })}
+            {isFetching && t("pagination.syncing")}
           </div>
           <div className="flex gap-2">
             <Button
@@ -369,7 +379,7 @@ export function DataJobsPage() {
               disabled={filters.page <= 1}
               onClick={() => setFilters((f) => ({ ...f, page: f.page - 1 }))}
             >
-              <ChevronLeft /> Prev
+              <ChevronLeft /> {t("pagination.prev")}
             </Button>
             <Button
               variant="secondary"
@@ -377,7 +387,7 @@ export function DataJobsPage() {
               disabled={data.page >= data.total_pages}
               onClick={() => setFilters((f) => ({ ...f, page: f.page + 1 }))}
             >
-              Next <ChevronRight />
+              {t("pagination.next")} <ChevronRight />
             </Button>
           </div>
         </div>

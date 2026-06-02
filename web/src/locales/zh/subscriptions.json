@@ -1,0 +1,109 @@
+{
+  "page": {
+    "section": "商务",
+    "title": "订阅管理"
+  },
+  "actions": {
+    "new": "新建订阅",
+    "delete": "删除订阅",
+    "create": "创建订阅",
+    "creating": "创建中…",
+    "deleting": "删除中…"
+  },
+  "toast": {
+    "created": "订阅已创建",
+    "deleted": "订阅已删除",
+    "create_failed": "无法创建订阅",
+    "delete_failed": "无法删除订阅"
+  },
+  "filter": {
+    "customer_id_placeholder": "按客户 ID 筛选…",
+    "status_placeholder": "状态",
+    "all_statuses": "全部状态"
+  },
+  "table": {
+    "customer": "客户",
+    "product": "产品",
+    "plan": "套餐",
+    "nodes": "数量",
+    "term": "期限",
+    "period": "周期",
+    "sla": "SLA",
+    "status": "状态"
+  },
+  "empty": {
+    "message": "没有符合条件的订阅。"
+  },
+  "pagination": {
+    "summary": "共 {{total}} 条订阅 · 第 {{page}}/{{totalPages}} 页",
+    "syncing": " · 同步中…",
+    "prev": "上一页",
+    "next": "下一页"
+  },
+  "form": {
+    "title": "新建订阅",
+    "description": "为客户的产品创建支持订阅。默认按节点计费，年度结算。",
+    "customer": "客户",
+    "customer_placeholder": "选择客户",
+    "product": "产品",
+    "product_placeholder": "选择产品",
+    "sla_template": "SLA 模板",
+    "sla_placeholder": "可选",
+    "sla_none": "无",
+    "plan": "套餐名称",
+    "plan_placeholder": "例如：标准版",
+    "billing_unit": "计费单位",
+    "quantity": "数量",
+    "billing_period": "计费周期",
+    "starts_at": "开始日期",
+    "expires_at": "到期日期",
+    "unit_price": "单价",
+    "unit_price_placeholder": "可选",
+    "currency": "货币"
+  },
+  "notes": {
+    "label": "备注",
+    "placeholder": "可选"
+  },
+  "validation": {
+    "customer_required": "请选择客户",
+    "product_required": "请选择产品",
+    "billing_unit_required": "请选择计费单位",
+    "billing_period_required": "请选择计费周期",
+    "starts_at_required": "请填写开始日期",
+    "expires_at_required": "请填写到期日期"
+  },
+  "confirm_delete": {
+    "title": "确认删除订阅？",
+    "description": "此操作将永久删除「{{label}}」的订阅，且不可恢复。"
+  },
+  "status": {
+    "active": "有效",
+    "expired": "已过期",
+    "cancelled": "已取消"
+  },
+  "billing_unit": {
+    "per_node": "按节点",
+    "per_cluster": "按集群",
+    "per_core": "按核心",
+    "per_instance": "按实例",
+    "per_seat": "按席位",
+    "per_user": "按用户",
+    "per_agent": "按坐席",
+    "per_device": "按设备",
+    "per_site": "按站点",
+    "per_gb": "按 GB",
+    "per_request": "按请求",
+    "usage": "按用量（计量）",
+    "per_subscriber": "按订阅用户（应用）",
+    "per_install": "按安装次数",
+    "per_app": "按应用",
+    "flat": "固定费用"
+  },
+  "billing_period": {
+    "weekly": "按周",
+    "monthly": "按月",
+    "annual": "按年",
+    "lifetime": "永久（一次性）"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "page": {
+    "eyebrow": "Richtlinie",
+    "heading": "Service-Level"
+  },
+  "nav": {
+    "templates": "Vorlagen",
+    "rules": "Regeln"
+  },
+  "pager": {
+    "summary": "{{total}} {{noun}} · Seite {{page}}/{{totalPages}}",
+    "syncing": "· wird synchronisiert…",
+    "prev": "Zurück",
+    "next": "Weiter",
+    "noun_templates": "Vorlagen",
+    "noun_rules": "Regeln"
+  },
+  "templates": {
+    "search_placeholder": "Vorlagen suchen…",
+    "columns": {
+      "name": "Name",
+      "default": "Standard",
+      "active": "Aktiv",
+      "levels": "Ebenen",
+      "holidays": "Feiertage",
+      "updated": "Aktualisiert"
+    },
+    "default_badge": "Standard",
+    "active_badge": "aktiv",
+    "inactive_badge": "inaktiv",
+    "levels_summary": "{{priority}}P · {{severity}}S",
+    "empty": "Noch keine SLA-Vorlagen vorhanden.",
+    "actions": {
+      "edit": "Bearbeiten",
+      "set_default": "Als Standard festlegen",
+      "deactivate": "Deaktivieren",
+      "activate": "Aktivieren",
+      "delete": "Löschen"
+    },
+    "confirm_delete": {
+      "title": "SLA-Vorlage löschen",
+      "description": "SLA-Vorlage „{{name}}“ löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "toast": {
+      "deleted": "SLA-Vorlage gelöscht",
+      "delete_error": "SLA-Vorlage konnte nicht gelöscht werden"
+    }
+  },
+  "rules": {
+    "search_placeholder": "Regeln suchen…",
+    "columns": {
+      "template": "Vorlage",
+      "priority": "Priorität",
+      "severity": "Schweregrad",
+      "response": "Reaktionszeit",
+      "resolution": "Lösungszeit",
+      "hours": "Stunden",
+      "active": "Aktiv"
+    },
+    "hours_business": "Geschäftszeiten",
+    "hours_calendar": "Kalenderzeit",
+    "empty": "Noch keine SLA-Regeln vorhanden.",
+    "any_priority": "beliebige Priorität",
+    "any_severity": "beliebiger Schweregrad",
+    "actions": {
+      "edit": "Bearbeiten",
+      "deactivate": "Deaktivieren",
+      "activate": "Aktivieren",
+      "delete": "Löschen"
+    },
+    "confirm_delete": {
+      "title": "SLA-Regel löschen",
+      "description": "SLA-Regel für {{label}} löschen? Diese Aktion kann nicht rückgängig gemacht werden."
+    },
+    "toast": {
+      "deleted": "SLA-Regel gelöscht",
+      "delete_error": "SLA-Regel konnte nicht gelöscht werden"
+    }
+  },
+  "template_dialog": {
+    "title_new": "Neue SLA-Vorlage",
+    "title_edit": "SLA-Vorlage bearbeiten",
+    "description_new": "Erstellen Sie eine wiederverwendbare Service-Level-Vereinbarungsvorlage.",
+    "description_edit": "Grundlegende Details dieser SLA-Vorlage aktualisieren.",
+    "trigger_new": "Neue Vorlage",
+    "fields": {
+      "name_label": "Name",
+      "name_placeholder": "Standard-Support",
+      "description_label": "Beschreibung",
+      "description_placeholder": "Hinweise zu dieser SLA-Vorlage…",
+      "default_label": "Standard",
+      "status_label": "Status"
+    },
+    "options": {
+      "yes": "Ja",
+      "no": "Nein",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "submit_create": "Vorlage erstellen",
+    "submit_edit": "Änderungen speichern",
+    "submitting_create": "Wird erstellt…",
+    "submitting_edit": "Wird gespeichert…",
+    "toast": {
+      "created": "SLA-Vorlage erstellt",
+      "updated": "SLA-Vorlage aktualisiert",
+      "create_error": "Vorlage konnte nicht erstellt werden",
+      "update_error": "Vorlage konnte nicht aktualisiert werden"
+    },
+    "validation": {
+      "name_required": "Name ist erforderlich"
+    }
+  },
+  "rule_dialog": {
+    "title_new": "Neue SLA-Regel",
+    "title_edit": "SLA-Regel bearbeiten",
+    "description_new": "Priorität/Schweregrad den Reaktions- und Lösungszielen zuordnen.",
+    "description_edit": "Ziele dieser SLA-Regel aktualisieren.",
+    "trigger_new": "Neue Regel",
+    "fields": {
+      "template_id_label": "Vorlagen-ID",
+      "priority_label": "Priorität",
+      "severity_label": "Schweregrad",
+      "response_time_label": "Reaktionszeit (Min.)",
+      "resolution_time_label": "Lösungszeit (Min.)",
+      "business_hours_label": "Nur Geschäftszeiten",
+      "status_label": "Status"
+    },
+    "options": {
+      "yes": "Ja",
+      "no": "Nein",
+      "active": "Aktiv",
+      "inactive": "Inaktiv"
+    },
+    "submit_create": "Regel erstellen",
+    "submit_edit": "Änderungen speichern",
+    "submitting_create": "Wird erstellt…",
+    "submitting_edit": "Wird gespeichert…",
+    "toast": {
+      "created": "SLA-Regel erstellt",
+      "updated": "SLA-Regel aktualisiert",
+      "create_error": "Regel konnte nicht erstellt werden",
+      "update_error": "Regel konnte nicht aktualisiert werden"
+    },
+    "validation": {
+      "template_id_required": "Vorlagen-ID ist erforderlich",
+      "template_id_positive": "Vorlagen-ID muss eine positive Zahl sein",
+      "priority_required": "Priorität ist erforderlich",
+      "severity_required": "Schweregrad ist erforderlich",
+      "time_non_negative": "Muss ≥ 0 sein"
+    }
+  }
+}

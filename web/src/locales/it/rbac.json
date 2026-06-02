@@ -1,0 +1,112 @@
+{
+  "page": {
+    "eyebrow": "controllo degli accessi",
+    "title": "Ruoli e permessi"
+  },
+  "roles": {
+    "heading": "Ruoli",
+    "empty": "Nessun ruolo definito.",
+    "system_badge": "sistema",
+    "more": "+{{count}} altri",
+    "no_permissions": "nessun permesso",
+    "edit_title": "Modifica ruolo",
+    "delete_title": "Elimina ruolo",
+    "delete_system_hint": "I ruoli di sistema non possono essere eliminati",
+    "permissions_button": "Permessi",
+    "confirm_delete": {
+      "title": "Eliminare il ruolo?",
+      "description": "Il ruolo «{{name}}» verrà rimosso definitivamente. Gli utenti assegnati a esso perderanno i relativi permessi."
+    },
+    "toast": {
+      "deleted": "Ruolo eliminato",
+      "delete_error": "Impossibile eliminare il ruolo"
+    }
+  },
+  "permissions": {
+    "heading": "Permessi",
+    "empty": "Nessun permesso definito.",
+    "edit_title": "Modifica permesso",
+    "delete_title": "Elimina permesso",
+    "delete_system_hint": "I permessi di sistema non possono essere eliminati",
+    "confirm_delete": {
+      "title": "Eliminare il permesso?",
+      "description": "Il permesso «{{name}}» verrà rimosso definitivamente da tutti i ruoli che lo concedono."
+    },
+    "toast": {
+      "deleted": "Permesso eliminato",
+      "delete_error": "Impossibile eliminare il permesso"
+    }
+  },
+  "confirm_dialog": {
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "deleting": "Eliminazione…"
+  },
+  "role_form": {
+    "title_new": "Nuovo ruolo",
+    "title_edit": "Modifica ruolo",
+    "description_new": "Definisci un nuovo ruolo da assegnare agli utenti.",
+    "description_edit": "Aggiorna i dettagli di questo ruolo.",
+    "trigger_new": "Nuovo ruolo",
+    "field_name": "Nome",
+    "field_description": "Descrizione",
+    "placeholder_name": "support-lead",
+    "placeholder_description": "Cosa è autorizzato a fare questo ruolo…",
+    "name_locked_hint": "I nomi dei ruoli di sistema non possono essere modificati.",
+    "validation": {
+      "name_required": "Il nome è obbligatorio"
+    },
+    "button_create": "Crea ruolo",
+    "button_save": "Salva modifiche",
+    "button_creating": "Creazione…",
+    "button_saving": "Salvataggio…",
+    "toast": {
+      "created": "Ruolo creato",
+      "updated": "Ruolo aggiornato",
+      "create_error": "Impossibile creare il ruolo",
+      "update_error": "Impossibile aggiornare il ruolo"
+    }
+  },
+  "permission_form": {
+    "title_new": "Nuovo permesso",
+    "title_edit": "Modifica permesso",
+    "description_new": "Definisci un nuovo permesso che può essere concesso ai ruoli.",
+    "description_edit": "Aggiorna i dettagli di questo permesso.",
+    "trigger_new": "Nuovo permesso",
+    "field_code": "Codice",
+    "field_category": "Categoria",
+    "field_name": "Nome",
+    "field_description": "Descrizione",
+    "placeholder_code": "ticket:write",
+    "placeholder_category": "ticket",
+    "placeholder_name": "Scrittura ticket",
+    "placeholder_description": "Cosa consente questo permesso…",
+    "code_locked_hint": "I codici dei permessi di sistema non possono essere modificati.",
+    "validation": {
+      "code_required": "Il codice è obbligatorio",
+      "code_format": "Usa il formato risorsa:azione, es. ticket:write",
+      "name_required": "Il nome è obbligatorio"
+    },
+    "button_create": "Crea permesso",
+    "button_save": "Salva modifiche",
+    "button_creating": "Creazione…",
+    "button_saving": "Salvataggio…",
+    "toast": {
+      "created": "Permesso creato",
+      "updated": "Permesso aggiornato",
+      "create_error": "Impossibile creare il permesso",
+      "update_error": "Impossibile aggiornare il permesso"
+    }
+  },
+  "role_permissions": {
+    "title": "Permessi per {{name}}",
+    "description": "Attiva o disattiva i permessi concessi a questo ruolo. Le modifiche vengono salvate immediatamente.",
+    "empty": "Nessun permesso ancora definito.",
+    "button_done": "Fine",
+    "toast": {
+      "granted": "Concesso {{code}}",
+      "revoked": "Revocato {{code}}",
+      "update_error": "Impossibile aggiornare i permessi"
+    }
+  }
+}

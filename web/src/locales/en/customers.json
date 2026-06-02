@@ -1,0 +1,142 @@
+{
+  "list": {
+    "directory_label": "directory",
+    "title": "Customers",
+    "search_placeholder": "Search name, code, domain…",
+    "status_placeholder": "Status",
+    "status_all": "All statuses",
+    "status_active": "Active",
+    "status_inactive": "Inactive",
+    "col_name": "Name",
+    "col_code": "Code",
+    "col_domain": "Domain",
+    "col_active": "Active",
+    "col_created": "Created",
+    "empty": "No customers match these filters.",
+    "pagination": "{{total}} customers · page {{page}}/{{total_pages}}",
+    "syncing": " · syncing…",
+    "prev": "Prev",
+    "next": "Next"
+  },
+  "status": {
+    "active": "active",
+    "inactive": "inactive"
+  },
+  "detail": {
+    "back": "Customers",
+    "not_found": "Customer not found.",
+    "back_to_customers": "Back to customers",
+    "edit": "Edit",
+    "delete": "Delete",
+    "description_label": "Description",
+    "no_description": "No description provided.",
+    "contacts_heading": "Contacts",
+    "col_user": "User",
+    "col_email": "Email",
+    "col_role": "Role",
+    "col_active": "Active",
+    "col_actions": "Actions",
+    "no_contacts": "No contacts linked to this customer.",
+    "meta_code": "Code",
+    "meta_domain": "Domain",
+    "meta_status": "Status",
+    "meta_created": "Created",
+    "meta_updated": "Updated",
+    "delete_dialog": {
+      "title": "Delete customer",
+      "description": "Delete <bold>{{name}}</bold>? This soft-deletes the organization. Their contacts and tickets are not removed.",
+      "deleting": "Deleting…",
+      "confirm": "Delete customer"
+    },
+    "toast": {
+      "deleted": "Customer deleted",
+      "delete_error": "Could not delete customer"
+    }
+  },
+  "contact_row": {
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "remove_aria": "Remove {{name}}",
+    "remove_dialog": {
+      "title": "Remove contact",
+      "description": "Remove <bold>{{name}}</bold> from this customer? This deletes the account.",
+      "removing": "Removing…",
+      "confirm": "Remove contact"
+    },
+    "toast": {
+      "deactivated": "Contact deactivated",
+      "activated": "Contact activated",
+      "removed": "Contact removed",
+      "remove_error": "Could not remove contact"
+    }
+  },
+  "subscriptions": {
+    "heading": "Subscriptions",
+    "col_product": "Product",
+    "col_plan": "Plan",
+    "col_sla": "SLA",
+    "col_nodes": "Nodes",
+    "col_status": "Status",
+    "col_expires": "Expires",
+    "empty_loading": "Loading…",
+    "empty": "No subscriptions. This customer has no entitled products or SLA yet.",
+    "cluster": "cluster"
+  },
+  "add_contact": {
+    "trigger": "Add contact",
+    "title": "Add contact",
+    "description_no_customer": "Create a customer-side account. They can log in to view and create their company's tickets.",
+    "description_with_customer": "Create a customer-side account for {{customerName}}. They can log in to view and create their company's tickets.",
+    "field_first_name": "First name",
+    "field_last_name": "Last name",
+    "field_email": "Email",
+    "field_username": "Username",
+    "field_password": "Password",
+    "password_hint": "At least 8 characters, with an uppercase letter, a digit and a special character.",
+    "adding": "Adding…",
+    "submit": "Add contact",
+    "toast": {
+      "added": "Contact added",
+      "add_error": "Could not add contact"
+    },
+    "validation": {
+      "first_name_required": "First name is required",
+      "last_name_required": "Last name is required",
+      "email_required": "Email is required",
+      "email_invalid": "Invalid email",
+      "username_min": "At least 3 characters",
+      "username_pattern": "Letters, numbers, _ and - only",
+      "password_min": "At least 8 characters",
+      "password_uppercase": "Needs an uppercase letter",
+      "password_lowercase": "Needs a lowercase letter",
+      "password_digit": "Needs a digit",
+      "password_special": "Needs a special character"
+    }
+  },
+  "form": {
+    "title_new": "New customer",
+    "title_edit": "Edit customer",
+    "description_new": "Register a client organization you provide support to.",
+    "description_edit": "Update this customer organization's details.",
+    "field_name": "Name",
+    "field_code": "Code",
+    "field_domain": "Domain",
+    "field_description": "Description",
+    "description_placeholder": "Notes about this customer…",
+    "field_status": "Status",
+    "trigger_new": "New customer",
+    "saving": "Saving…",
+    "creating": "Creating…",
+    "save_changes": "Save changes",
+    "create": "Create customer",
+    "toast": {
+      "updated": "Customer updated",
+      "created": "Customer created",
+      "update_error": "Could not update customer",
+      "create_error": "Could not create customer"
+    },
+    "validation": {
+      "name_required": "Name is required"
+    }
+  }
+}

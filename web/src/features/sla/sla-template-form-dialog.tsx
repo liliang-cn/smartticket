@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   useCreateSLATemplate,
   useUpdateSLATemplate,
@@ -32,8 +33,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Validation messages are resolved at submit time via t(); keep static keys here.
 const schema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
+  name: z.string().min(1, "name_required").max(255),
   description: z.string().optional(),
   is_default: z.boolean(),
   is_active: z.boolean(),
@@ -54,6 +56,7 @@ export function SLATemplateFormDialog({
   template,
   trigger,
 }: SLATemplateFormDialogProps) {
+  const { t } = useTranslation("sla");
   const [open, setOpen] = useState(false);
   const isEdit = template != null;
   const create = useCreateSLATemplate();
@@ -100,17 +103,19 @@ export function SLATemplateFormDialog({
     try {
       if (isEdit) {
         await update.mutateAsync(payload);
-        toast.success("SLA template updated");
+        toast.success(t("template_dialog.toast.updated"));
       } else {
         await create.mutateAsync(payload);
-        toast.success("SLA template created");
+        toast.success(t("template_dialog.toast.created"));
       }
       setOpen(false);
     } catch (err) {
       toast.error(
         apiError(
           err,
-          isEdit ? "Could not update template" : "Could not create template"
+          isEdit
+            ? t("template_dialog.toast.update_error")
+            : t("template_dialog.toast.create_error")
         )
       );
     }
@@ -121,44 +126,46 @@ export function SLATemplateFormDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus /> New template
+            <Plus /> {t("template_dialog.trigger_new")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Edit SLA template" : "New SLA template"}
+            {isEdit ? t("template_dialog.title_edit") : t("template_dialog.title_new")}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Update this SLA template's basic details."
-              : "Define a reusable service-level agreement template."}
+              ? t("template_dialog.description_edit")
+              : t("template_dialog.description_new")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="t-name">Name</Label>
+            <Label htmlFor="t-name">{t("template_dialog.fields.name_label")}</Label>
             <Input
               id="t-name"
-              placeholder="Standard support"
+              placeholder={t("template_dialog.fields.name_placeholder")}
               {...register("name")}
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-destructive">
+                {t("template_dialog.validation.name_required")}
+              </p>
             )}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="t-desc">Description</Label>
+            <Label htmlFor="t-desc">{t("template_dialog.fields.description_label")}</Label>
             <Textarea
               id="t-desc"
-              placeholder="Notes about this SLA template…"
+              placeholder={t("template_dialog.fields.description_placeholder")}
               {...register("description")}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Default</Label>
+              <Label>{t("template_dialog.fields.default_label")}</Label>
               <Select
                 value={watch("is_default") ? "yes" : "no"}
                 onValueChange={(v) => setValue("is_default", v === "yes")}
@@ -167,13 +174,13 @@ export function SLATemplateFormDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="no">No</SelectItem>
-                  <SelectItem value="yes">Yes</SelectItem>
+                  <SelectItem value="no">{t("template_dialog.options.no")}</SelectItem>
+                  <SelectItem value="yes">{t("template_dialog.options.yes")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Status</Label>
+              <Label>{t("template_dialog.fields.status_label")}</Label>
               <Select
                 value={watch("is_active") ? ACTIVE : INACTIVE}
                 onValueChange={(v) => setValue("is_active", v === ACTIVE)}
@@ -182,8 +189,8 @@ export function SLATemplateFormDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ACTIVE}>Active</SelectItem>
-                  <SelectItem value={INACTIVE}>Inactive</SelectItem>
+                  <SelectItem value={ACTIVE}>{t("template_dialog.options.active")}</SelectItem>
+                  <SelectItem value={INACTIVE}>{t("template_dialog.options.inactive")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -191,17 +198,17 @@ export function SLATemplateFormDialog({
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={pending}>
               {pending
                 ? isEdit
-                  ? "Saving…"
-                  : "Creating…"
+                  ? t("template_dialog.submitting_edit")
+                  : t("template_dialog.submitting_create")
                 : isEdit
-                  ? "Save changes"
-                  : "Create template"}
+                  ? t("template_dialog.submit_edit")
+                  : t("template_dialog.submit_create")}
             </Button>
           </DialogFooter>
         </form>

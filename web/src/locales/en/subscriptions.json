@@ -1,0 +1,109 @@
+{
+  "page": {
+    "section": "commercial",
+    "title": "Subscriptions"
+  },
+  "actions": {
+    "new": "New subscription",
+    "delete": "Delete subscription",
+    "create": "Create subscription",
+    "creating": "Creating…",
+    "deleting": "Deleting…"
+  },
+  "toast": {
+    "created": "Subscription created",
+    "deleted": "Subscription deleted",
+    "create_failed": "Could not create subscription",
+    "delete_failed": "Could not delete subscription"
+  },
+  "filter": {
+    "customer_id_placeholder": "Filter by customer ID…",
+    "status_placeholder": "Status",
+    "all_statuses": "All statuses"
+  },
+  "table": {
+    "customer": "Customer",
+    "product": "Product",
+    "plan": "Plan",
+    "nodes": "Nodes",
+    "term": "Term",
+    "period": "Period",
+    "sla": "SLA",
+    "status": "Status"
+  },
+  "empty": {
+    "message": "No subscriptions match these filters."
+  },
+  "pagination": {
+    "summary": "{{total}} subscriptions · page {{page}}/{{totalPages}}",
+    "syncing": " · syncing…",
+    "prev": "Prev",
+    "next": "Next"
+  },
+  "form": {
+    "title": "New subscription",
+    "description": "Record a customer's support subscription for a product. Per-node and annual terms are the defaults.",
+    "customer": "Customer",
+    "customer_placeholder": "Select customer",
+    "product": "Product",
+    "product_placeholder": "Select product",
+    "sla_template": "SLA template",
+    "sla_placeholder": "Optional",
+    "sla_none": "None",
+    "plan": "Plan",
+    "plan_placeholder": "e.g. Standard",
+    "billing_unit": "Billing unit",
+    "quantity": "Quantity",
+    "billing_period": "Billing period",
+    "starts_at": "Starts at",
+    "expires_at": "Expires at",
+    "unit_price": "Unit price",
+    "unit_price_placeholder": "optional",
+    "currency": "Currency"
+  },
+  "notes": {
+    "label": "Notes",
+    "placeholder": "optional"
+  },
+  "validation": {
+    "customer_required": "Customer is required",
+    "product_required": "Product is required",
+    "billing_unit_required": "Billing unit is required",
+    "billing_period_required": "Billing period is required",
+    "starts_at_required": "Start date is required",
+    "expires_at_required": "Expiry date is required"
+  },
+  "confirm_delete": {
+    "title": "Delete subscription?",
+    "description": "This permanently removes the subscription for \"{{label}}\"."
+  },
+  "status": {
+    "active": "active",
+    "expired": "expired",
+    "cancelled": "cancelled"
+  },
+  "billing_unit": {
+    "per_node": "Per node",
+    "per_cluster": "Per cluster",
+    "per_core": "Per core",
+    "per_instance": "Per instance",
+    "per_seat": "Per seat",
+    "per_user": "Per user",
+    "per_agent": "Per agent",
+    "per_device": "Per device",
+    "per_site": "Per site",
+    "per_gb": "Per GB",
+    "per_request": "Per request",
+    "usage": "Usage / metered",
+    "per_subscriber": "Per subscriber (app)",
+    "per_install": "Per install",
+    "per_app": "Per app",
+    "flat": "Flat fee"
+  },
+  "billing_period": {
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "lifetime": "Lifetime (one-time)"
+  }
+}

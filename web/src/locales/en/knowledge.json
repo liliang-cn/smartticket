@@ -1,0 +1,63 @@
+{
+  "status": {
+    "draft": "Draft",
+    "published": "Published",
+    "archived": "Archived",
+    "unknown": "Unknown"
+  },
+  "list": {
+    "library_label": "library",
+    "heading": "Knowledge",
+    "semantic_placeholder": "Semantic search — ask in natural language…",
+    "search_button": "Search",
+    "searching": "Searching…",
+    "clear_search_aria": "Clear search",
+    "ask_ai": "Ask AI",
+    "filter_placeholder": "Filter by title, content…",
+    "category_placeholder": "Category",
+    "status_placeholder": "Status",
+    "all_statuses": "All statuses",
+    "col_title": "Title",
+    "col_category": "Category",
+    "col_status": "Status",
+    "col_views": "Views",
+    "col_updated": "Updated",
+    "no_matches": "No matches for “{{query}}”.",
+    "no_articles": "No articles match these filters.",
+    "pagination_info": "{{total}} articles · page {{page}}/{{totalPages}}",
+    "syncing": "· syncing…",
+    "prev": "Prev",
+    "next": "Next",
+    "search_error": "AI search is not configured"
+  },
+  "detail": {
+    "not_found": "Article not found.",
+    "back_to_knowledge": "Back to knowledge",
+    "breadcrumb": "Knowledge",
+    "summary_label": "Summary",
+    "content_label": "Content",
+    "no_content": "No content.",
+    "meta_status": "Status",
+    "meta_category": "Category",
+    "meta_views": "Views",
+    "meta_version": "Version",
+    "meta_author": "Author",
+    "meta_created": "Created",
+    "meta_updated": "Updated",
+    "tags_label": "Tags",
+    "version_value": "v{{version}}"
+  },
+  "ask_ai": {
+    "trigger": "Ask AI",
+    "dialog_title": "Ask the knowledge base",
+    "dialog_description": "Ask a question and get an AI answer grounded in your articles.",
+    "question_placeholder": "e.g. How do I reset a customer's password?",
+    "shortcut_hint": "⌘/Ctrl + Enter to ask",
+    "ask_button": "Ask",
+    "thinking": "Thinking…",
+    "searching_message": "Searching the knowledge base and composing an answer…",
+    "answer_label": "Answer",
+    "sources_label": "Sources",
+    "error_default": "Ask AI failed"
+  }
+}

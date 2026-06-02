@@ -1,0 +1,112 @@
+{
+  "page": {
+    "eyebrow": "访问控制",
+    "title": "角色与权限"
+  },
+  "roles": {
+    "heading": "角色",
+    "empty": "尚未定义任何角色。",
+    "system_badge": "系统",
+    "more": "+{{count}} 个",
+    "no_permissions": "无权限",
+    "edit_title": "编辑角色",
+    "delete_title": "删除角色",
+    "delete_system_hint": "系统角色无法删除",
+    "permissions_button": "权限",
+    "confirm_delete": {
+      "title": "删除角色？",
+      "description": "此操作将永久移除「{{name}}」角色。已分配该角色的用户将失去其所有权限。"
+    },
+    "toast": {
+      "deleted": "角色已删除",
+      "delete_error": "无法删除角色"
+    }
+  },
+  "permissions": {
+    "heading": "权限",
+    "empty": "尚未定义任何权限。",
+    "edit_title": "编辑权限",
+    "delete_title": "删除权限",
+    "delete_system_hint": "系统权限无法删除",
+    "confirm_delete": {
+      "title": "删除权限？",
+      "description": "此操作将永久移除「{{name}}」权限，并从所有授予该权限的角色中撤销。"
+    },
+    "toast": {
+      "deleted": "权限已删除",
+      "delete_error": "无法删除权限"
+    }
+  },
+  "confirm_dialog": {
+    "cancel": "取消",
+    "delete": "删除",
+    "deleting": "删除中…"
+  },
+  "role_form": {
+    "title_new": "新建角色",
+    "title_edit": "编辑角色",
+    "description_new": "定义一个可分配给用户的新角色。",
+    "description_edit": "更新此角色的详细信息。",
+    "trigger_new": "新建角色",
+    "field_name": "名称",
+    "field_description": "描述",
+    "placeholder_name": "support-lead",
+    "placeholder_description": "此角色被允许执行的操作…",
+    "name_locked_hint": "系统角色名称不可更改。",
+    "validation": {
+      "name_required": "名称为必填项"
+    },
+    "button_create": "创建角色",
+    "button_save": "保存更改",
+    "button_creating": "创建中…",
+    "button_saving": "保存中…",
+    "toast": {
+      "created": "角色已创建",
+      "updated": "角色已更新",
+      "create_error": "无法创建角色",
+      "update_error": "无法更新角色"
+    }
+  },
+  "permission_form": {
+    "title_new": "新建权限",
+    "title_edit": "编辑权限",
+    "description_new": "定义一个可授予角色的新权限。",
+    "description_edit": "更新此权限的详细信息。",
+    "trigger_new": "新建权限",
+    "field_code": "代码",
+    "field_category": "分类",
+    "field_name": "名称",
+    "field_description": "描述",
+    "placeholder_code": "ticket:write",
+    "placeholder_category": "ticket",
+    "placeholder_name": "写入工单",
+    "placeholder_description": "此权限授予的能力…",
+    "code_locked_hint": "系统权限代码不可更改。",
+    "validation": {
+      "code_required": "代码为必填项",
+      "code_format": "请使用 resource:action 格式，例如 ticket:write",
+      "name_required": "名称为必填项"
+    },
+    "button_create": "创建权限",
+    "button_save": "保存更改",
+    "button_creating": "创建中…",
+    "button_saving": "保存中…",
+    "toast": {
+      "created": "权限已创建",
+      "updated": "权限已更新",
+      "create_error": "无法创建权限",
+      "update_error": "无法更新权限"
+    }
+  },
+  "role_permissions": {
+    "title": "{{name}} 的权限",
+    "description": "勾选或取消勾选授予此角色的权限，更改即时生效。",
+    "empty": "尚未定义任何权限。",
+    "button_done": "完成",
+    "toast": {
+      "granted": "已授予 {{code}}",
+      "revoked": "已撤销 {{code}}",
+      "update_error": "无法更新权限"
+    }
+  }
+}

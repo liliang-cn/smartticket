@@ -11,6 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   useProviders,
   useCreateProvider,
@@ -64,11 +65,11 @@ function parseTaskTypes(raw: string | undefined): LLMTaskType[] {
 // --- Provider form ----------------------------------------------------------
 
 const schema = z.object({
-  name: z.string().min(1, "Name is required").max(100),
-  provider_type: z.string().min(1, "Type is required").max(100),
-  api_endpoint: z.string().min(1, "Endpoint is required").max(500),
+  name: z.string().min(1).max(100),
+  provider_type: z.string().min(1).max(100),
+  api_endpoint: z.string().min(1).max(500),
   api_key: z.string().optional(),
-  model: z.string().min(1, "Model is required").max(200),
+  model: z.string().min(1).max(200),
   task_chat: z.boolean(),
   task_embedding: z.boolean(),
   dimensions: z.string().optional(),
@@ -109,6 +110,7 @@ function ProviderFormDialog({
   provider?: LLMProvider;
   trigger?: React.ReactNode;
 }) {
+  const { t } = useTranslation("llm");
   const [open, setOpen] = useState(false);
   const isEdit = provider != null;
   const create = useCreateProvider();
@@ -140,7 +142,7 @@ function ProviderFormDialog({
     if (values.task_chat) task_types.push("chat");
     if (values.task_embedding) task_types.push("embedding");
     if (task_types.length === 0) {
-      toast.error("Select at least one task type (chat or embedding)");
+      toast.error(t("validation.atLeastOneTask"));
       return;
     }
 
@@ -166,24 +168,24 @@ function ProviderFormDialog({
       if (!Number.isNaN(m)) payload.max_tokens = m;
     }
     if (values.temperature) {
-      const t = Number(values.temperature);
-      if (!Number.isNaN(t)) payload.temperature = t;
+      const temp = Number(values.temperature);
+      if (!Number.isNaN(temp)) payload.temperature = temp;
     }
 
     try {
       if (isEdit) {
         await update.mutateAsync(payload);
-        toast.success("Provider updated");
+        toast.success(t("toast.updated"));
       } else {
         await create.mutateAsync(payload);
-        toast.success("Provider created");
+        toast.success(t("toast.created"));
       }
       setOpen(false);
     } catch (err) {
       toast.error(
         apiError(
           err,
-          isEdit ? "Could not update provider" : "Could not create provider"
+          isEdit ? t("toast.updateFailed") : t("toast.createFailed")
         )
       );
     }
@@ -194,30 +196,30 @@ function ProviderFormDialog({
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus /> New provider
+            <Plus /> {t("newProvider")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit provider" : "New provider"}</DialogTitle>
-          <DialogDescription>
-            Configure a chat or embedding provider. Chat and embedding are
-            independent — create one row each (e.g. DeepSeek for chat, Aliyun
-            Bailian for embedding).
-          </DialogDescription>
+          <DialogTitle>
+            {isEdit ? t("form.titleEdit") : t("form.titleCreate")}
+          </DialogTitle>
+          <DialogDescription>{t("form.description")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="p-name">Name</Label>
+              <Label htmlFor="p-name">{t("form.name")}</Label>
               <Input id="p-name" placeholder="DeepSeek chat" {...register("name")} />
               {errors.name && (
-                <p className="text-xs text-destructive">{errors.name.message}</p>
+                <p className="text-xs text-destructive">
+                  {t("validation.nameRequired")}
+                </p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-type">Provider type</Label>
+              <Label htmlFor="p-type">{t("form.providerType")}</Label>
               <Input
                 id="p-type"
                 placeholder="openai-compatible"
@@ -225,14 +227,14 @@ function ProviderFormDialog({
               />
               {errors.provider_type && (
                 <p className="text-xs text-destructive">
-                  {errors.provider_type.message}
+                  {t("validation.typeRequired")}
                 </p>
               )}
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="p-endpoint">API endpoint</Label>
+            <Label htmlFor="p-endpoint">{t("form.apiEndpoint")}</Label>
             <Input
               id="p-endpoint"
               placeholder="https://api.deepseek.com/v1"
@@ -240,26 +242,28 @@ function ProviderFormDialog({
             />
             {errors.api_endpoint && (
               <p className="text-xs text-destructive">
-                {errors.api_endpoint.message}
+                {t("validation.endpointRequired")}
               </p>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="p-model">Model</Label>
+              <Label htmlFor="p-model">{t("form.model")}</Label>
               <Input id="p-model" placeholder="deepseek-chat" {...register("model")} />
               {errors.model && (
-                <p className="text-xs text-destructive">{errors.model.message}</p>
+                <p className="text-xs text-destructive">
+                  {t("validation.modelRequired")}
+                </p>
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-key">API key</Label>
+              <Label htmlFor="p-key">{t("form.apiKey")}</Label>
               <Input
                 id="p-key"
                 type="password"
                 placeholder={
-                  isEdit ? "Leave blank to keep existing" : "sk-…"
+                  isEdit ? t("form.apiKeyPlaceholderEdit") : "sk-…"
                 }
                 {...register("api_key")}
               />
@@ -267,7 +271,7 @@ function ProviderFormDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label>Task types</Label>
+            <Label>{t("form.taskTypes")}</Label>
             <div className="flex flex-wrap gap-4 rounded-md border border-input bg-background/60 px-3 py-2.5">
               <label className="flex cursor-pointer items-center gap-2 text-sm">
                 <input
@@ -276,7 +280,7 @@ function ProviderFormDialog({
                   checked={taskChat}
                   onChange={(e) => setValue("task_chat", e.target.checked)}
                 />
-                Chat
+                {t("taskLabels.chat")}
               </label>
               <label className="flex cursor-pointer items-center gap-2 text-sm">
                 <input
@@ -285,7 +289,7 @@ function ProviderFormDialog({
                   checked={taskEmbedding}
                   onChange={(e) => setValue("task_embedding", e.target.checked)}
                 />
-                Embedding
+                {t("taskLabels.embedding")}
               </label>
             </div>
           </div>
@@ -293,7 +297,7 @@ function ProviderFormDialog({
           <div className="grid grid-cols-3 gap-4">
             {taskEmbedding && (
               <div className="space-y-1.5">
-                <Label htmlFor="p-dims">Dimensions</Label>
+                <Label htmlFor="p-dims">{t("form.dimensions")}</Label>
                 <Input
                   id="p-dims"
                   type="number"
@@ -303,7 +307,7 @@ function ProviderFormDialog({
               </div>
             )}
             <div className="space-y-1.5">
-              <Label htmlFor="p-maxtok">Max tokens</Label>
+              <Label htmlFor="p-maxtok">{t("form.maxTokens")}</Label>
               <Input
                 id="p-maxtok"
                 type="number"
@@ -312,7 +316,7 @@ function ProviderFormDialog({
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="p-temp">Temperature</Label>
+              <Label htmlFor="p-temp">{t("form.temperature")}</Label>
               <Input
                 id="p-temp"
                 type="number"
@@ -325,7 +329,7 @@ function ProviderFormDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Default</Label>
+              <Label>{t("form.default")}</Label>
               <Select
                 value={watch("is_default") ? YES : NO}
                 onValueChange={(v) => setValue("is_default", v === YES)}
@@ -334,13 +338,13 @@ function ProviderFormDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={YES}>Default</SelectItem>
-                  <SelectItem value={NO}>Not default</SelectItem>
+                  <SelectItem value={YES}>{t("form.optionDefault")}</SelectItem>
+                  <SelectItem value={NO}>{t("form.optionNotDefault")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Status</Label>
+              <Label>{t("form.status")}</Label>
               <Select
                 value={watch("is_enabled") ? YES : NO}
                 onValueChange={(v) => setValue("is_enabled", v === YES)}
@@ -349,8 +353,8 @@ function ProviderFormDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={YES}>Enabled</SelectItem>
-                  <SelectItem value={NO}>Disabled</SelectItem>
+                  <SelectItem value={YES}>{t("form.optionEnabled")}</SelectItem>
+                  <SelectItem value={NO}>{t("form.optionDisabled")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -359,17 +363,17 @@ function ProviderFormDialog({
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={pending}>
               {pending
                 ? isEdit
-                  ? "Saving…"
-                  : "Creating…"
+                  ? t("form.savingPending")
+                  : t("form.creatingPending")
                 : isEdit
-                  ? "Save changes"
-                  : "Create provider"}
+                  ? t("form.submitEdit")
+                  : t("form.submitCreate")}
             </Button>
           </DialogFooter>
         </form>
@@ -381,6 +385,7 @@ function ProviderFormDialog({
 // --- Page -------------------------------------------------------------------
 
 export function LLMProvidersPage() {
+  const { t } = useTranslation("llm");
   const { data: providers, isLoading } = useProviders();
   const deleteProvider = useDeleteProvider();
   const test = useTestProvider();
@@ -396,10 +401,10 @@ export function LLMProvidersPage() {
     if (!toDelete) return;
     try {
       await deleteProvider.mutateAsync(toDelete.id);
-      toast.success("Provider deleted");
+      toast.success(t("toast.deleted"));
       setToDelete(null);
     } catch (err) {
-      toast.error(apiError(err, "Could not delete provider"));
+      toast.error(apiError(err, t("toast.deleteFailed")));
     }
   }
 
@@ -414,7 +419,7 @@ export function LLMProvidersPage() {
         toast.success(summary);
       }
     } catch (err) {
-      toast.error(apiError(err, "Test failed"));
+      toast.error(apiError(err, t("toast.testFailed")));
     } finally {
       setTestingId(null);
     }
@@ -425,9 +430,9 @@ export function LLMProvidersPage() {
       <div data-reveal className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            ai integration
+            {t("page.eyebrow")}
           </div>
-          <h1 className="mt-1 text-3xl">AI Providers</h1>
+          <h1 className="mt-1 text-3xl">{t("page.title")}</h1>
         </div>
         <ProviderFormDialog />
       </div>
@@ -436,14 +441,14 @@ export function LLMProvidersPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Tasks</th>
-              <th className="px-4 py-3 font-medium">Model</th>
-              <th className="px-4 py-3 font-medium">Endpoint</th>
-              <th className="px-4 py-3 font-medium">Dims</th>
-              <th className="px-4 py-3 font-medium">Key</th>
-              <th className="px-4 py-3 font-medium">Flags</th>
+              <th className="px-4 py-3 font-medium">{t("table.name")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.type")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.tasks")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.model")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.endpoint")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.dims")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.key")}</th>
+              <th className="px-4 py-3 font-medium">{t("table.flags")}</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -476,12 +481,12 @@ export function LLMProvidersPage() {
                     <td className="px-4 py-3.5">
                       <div className="flex flex-wrap gap-1">
                         {tasks.length > 0 ? (
-                          tasks.map((t) => (
+                          tasks.map((taskType) => (
                             <Badge
-                              key={t}
-                              tone={t === "chat" ? "blue" : "amber"}
+                              key={taskType}
+                              tone={taskType === "chat" ? "blue" : "amber"}
                             >
-                              {t}
+                              {t(`taskLabels.${taskType}`)}
                             </Badge>
                           ))
                         ) : (
@@ -505,9 +510,13 @@ export function LLMProvidersPage() {
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex flex-wrap gap-1">
-                        {p.is_default && <Badge tone="amber">default</Badge>}
+                        {p.is_default && (
+                          <Badge tone="amber">{t("badges.default")}</Badge>
+                        )}
                         <Badge tone={p.is_enabled ? "green" : "slate"}>
-                          {p.is_enabled ? "enabled" : "disabled"}
+                          {p.is_enabled
+                            ? t("badges.enabled")
+                            : t("badges.disabled")}
                         </Badge>
                       </div>
                     </td>
@@ -518,14 +527,14 @@ export function LLMProvidersPage() {
                           size="sm"
                           disabled={isTesting}
                           onClick={() => runTest(p.id)}
-                          title="Test connectivity"
+                          title={t("actions.testTitle")}
                         >
                           {isTesting ? (
                             <Loader2 className="animate-spin" />
                           ) : (
                             <FlaskConical />
                           )}
-                          Test
+                          {t("actions.test")}
                         </Button>
                         <ProviderFormDialog
                           provider={p}
@@ -533,7 +542,7 @@ export function LLMProvidersPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              title="Edit provider"
+                              title={t("actions.editTitle")}
                             >
                               <Pencil />
                             </Button>
@@ -542,7 +551,7 @@ export function LLMProvidersPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          title="Delete provider"
+                          title={t("actions.deleteTitle")}
                           onClick={() =>
                             setToDelete({ id: p.id, name: p.name })
                           }
@@ -559,7 +568,7 @@ export function LLMProvidersPage() {
                 <td colSpan={9} className="px-4 py-16 text-center">
                   <Sparkles className="mx-auto size-8 text-muted-foreground/40" />
                   <p className="mt-3 text-sm text-muted-foreground">
-                    No AI providers configured yet.
+                    {t("empty")}
                   </p>
                 </td>
               </tr>
@@ -574,16 +583,15 @@ export function LLMProvidersPage() {
       >
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete provider?</DialogTitle>
+            <DialogTitle>{t("deleteDialog.title")}</DialogTitle>
             <DialogDescription>
-              This permanently removes the "{toDelete?.name}" provider
-              configuration.
+              {t("deleteDialog.description", { name: toDelete?.name })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button
@@ -592,7 +600,9 @@ export function LLMProvidersPage() {
               disabled={deleteProvider.isPending}
               onClick={confirmDelete}
             >
-              {deleteProvider.isPending ? "Deleting…" : "Delete"}
+              {deleteProvider.isPending
+                ? t("deleteDialog.confirmPending")
+                : t("deleteDialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

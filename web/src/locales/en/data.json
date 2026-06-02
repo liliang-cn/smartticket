@@ -1,0 +1,86 @@
+{
+  "page": {
+    "section_label": "data",
+    "title": "Import / Export"
+  },
+  "stats": {
+    "total_jobs": "Total jobs",
+    "completed": "Completed",
+    "running": "Running",
+    "failed": "Failed"
+  },
+  "filters": {
+    "all_types": "All types",
+    "all_statuses": "All statuses",
+    "type_placeholder": "Type",
+    "status_placeholder": "Status"
+  },
+  "table": {
+    "col_type": "Type",
+    "col_status": "Status",
+    "col_progress": "Progress",
+    "col_records": "Records",
+    "col_created": "Created",
+    "empty_heading": "No import/export jobs match these filters."
+  },
+  "records": {
+    "failed_count": "{{count}} failed"
+  },
+  "pagination": {
+    "summary": "{{total}} jobs · page {{page}}/{{totalPages}}",
+    "syncing": " · syncing…",
+    "prev": "Prev",
+    "next": "Next"
+  },
+  "actions": {
+    "download": "Download",
+    "downloading": "Downloading…",
+    "cancel_job": "Cancel job",
+    "delete": "Delete",
+    "new_export": "New export"
+  },
+  "confirm_delete": {
+    "title": "Delete job",
+    "description": "Delete job #{{id}} ({{label}})? This cannot be undone."
+  },
+  "toasts": {
+    "job_deleted": "Job deleted",
+    "delete_failed": "Could not delete job",
+    "export_created": "Export job created",
+    "export_create_failed": "Could not create export job"
+  },
+  "status": {
+    "pending": "Pending",
+    "running": "Running",
+    "completed": "Completed",
+    "failed": "Failed",
+    "cancelled": "Cancelled"
+  },
+  "job_type": {
+    "import": "Import",
+    "export": "Export"
+  },
+  "format": {
+    "csv": "CSV",
+    "json": "JSON",
+    "xml": "XML",
+    "markdown": "Markdown",
+    "sqlite": "SQLite"
+  },
+  "export_dialog": {
+    "title": "New export job",
+    "description": "Queue an export of a data set. The job runs in the background; you can download the result once it completes.",
+    "dataset_label": "Data set",
+    "format_label": "Format",
+    "submit": "Create export",
+    "submitting": "Creating…"
+  },
+  "entity": {
+    "tickets": "Tickets",
+    "knowledge_articles": "Knowledge articles",
+    "users": "Users",
+    "products": "Products",
+    "services": "Services",
+    "complete": "Complete (full database)"
+  }
+}

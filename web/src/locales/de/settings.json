@@ -1,0 +1,65 @@
+{
+  "title": "Einstellungen",
+  "subtitle": "White-Label für diese Installation — Markenname, Akzentfarbe und Logo gelten für alle Benutzer und die Anmeldeseite.",
+  "language": {
+    "heading": "Sprache",
+    "desc": "Die Anzeigesprache für dein Konto. In diesem Browser gespeichert."
+  },
+  "identity": {
+    "heading": "Identität",
+    "desc": "Namen in der Seitenleiste und der Arbeitsbereich-Kopfzeile.",
+    "app_name": "App-Name",
+    "app_name_hint": "Wird neben dem Logo angezeigt.",
+    "app_subtitle": "App-Untertitel",
+    "app_subtitle_hint": "Kleines Label unter dem App-Namen.",
+    "workspace_name": "Arbeitsbereich-Name",
+    "workspace_name_hint": "Das Label in der oberen Leiste jeder Seite."
+  },
+  "accent": {
+    "heading": "Akzentfarbe",
+    "desc": "Die Signalfarbe für Buttons, aktive Navigation, Links und Fokusringe — in hellem und dunklem Design.",
+    "use_color": "{{color}} verwenden",
+    "custom_color": "Eigene Farbe wählen",
+    "invalid_hex": "Verwende einen Hex-Wert wie #f59e0b"
+  },
+  "logo": {
+    "heading": "Logo",
+    "desc": "Ersetzt das Standardsymbol. PNG, JPG, SVG, WEBP oder GIF, bis zu 2 MB. Ein quadratisches Bild eignet sich am besten.",
+    "current_alt": "Aktuelles Logo",
+    "upload": "Logo hochladen",
+    "uploading": "Wird hochgeladen…",
+    "remove": "Entfernen"
+  },
+  "signin": {
+    "heading": "Anmeldeseite",
+    "desc": "Überschrift und Untertext auf der rechten Seite des Anmeldebildschirms.",
+    "tagline": "Slogan",
+    "subtext": "Untertext"
+  },
+  "preview": {
+    "label": "Live-Vorschau",
+    "active_item": "Aktives Element",
+    "inactive_item": "Inaktives Element",
+    "primary": "Primär",
+    "accent": "Akzent",
+    "link": "Link",
+    "note": "Die Farbe wird hier sofort aktualisiert. Klicke auf <0>Änderungen speichern</0>, um sie in der gesamten App anzuwenden."
+  },
+  "save_changes": "Änderungen speichern",
+  "saving": "Wird gespeichert…",
+  "reset_defaults": "Auf Standard zurücksetzen",
+  "toasts": {
+    "invalid_hex": "Gib eine gültige Hex-Farbe ein, z. B. #f59e0b",
+    "saved": "Branding gespeichert",
+    "save_error": "Branding konnte nicht gespeichert werden",
+    "logo_updated": "Logo aktualisiert",
+    "logo_upload_error": "Logo konnte nicht hochgeladen werden",
+    "logo_removed": "Logo entfernt",
+    "logo_remove_error": "Logo konnte nicht entfernt werden"
+  },
+  "confirm_remove_logo": {
+    "title": "Logo entfernen",
+    "description": "Zum Standardsymbol zurückkehren? Das hochgeladene Bild wird gelöscht.",
+    "confirm": "Logo entfernen"
+  }
+}

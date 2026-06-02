@@ -1,0 +1,153 @@
+{
+  "page": {
+    "eyebrow": "policy",
+    "heading": "Service levels"
+  },
+  "nav": {
+    "templates": "Templates",
+    "rules": "Rules"
+  },
+  "pager": {
+    "summary": "{{total}} {{noun}} · page {{page}}/{{totalPages}}",
+    "syncing": "· syncing…",
+    "prev": "Prev",
+    "next": "Next",
+    "noun_templates": "templates",
+    "noun_rules": "rules"
+  },
+  "templates": {
+    "search_placeholder": "Search templates…",
+    "columns": {
+      "name": "Name",
+      "default": "Default",
+      "active": "Active",
+      "levels": "Levels",
+      "holidays": "Holidays",
+      "updated": "Updated"
+    },
+    "default_badge": "default",
+    "active_badge": "active",
+    "inactive_badge": "inactive",
+    "levels_summary": "{{priority}}p · {{severity}}s",
+    "empty": "No SLA templates yet.",
+    "actions": {
+      "edit": "Edit",
+      "set_default": "Set as default",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "delete": "Delete"
+    },
+    "confirm_delete": {
+      "title": "Delete SLA template",
+      "description": "Delete the \"{{name}}\" SLA template? This cannot be undone."
+    },
+    "toast": {
+      "deleted": "SLA template deleted",
+      "delete_error": "Could not delete SLA template"
+    }
+  },
+  "rules": {
+    "search_placeholder": "Search rules…",
+    "columns": {
+      "template": "Template",
+      "priority": "Priority",
+      "severity": "Severity",
+      "response": "Response",
+      "resolution": "Resolution",
+      "hours": "Hours",
+      "active": "Active"
+    },
+    "hours_business": "business",
+    "hours_calendar": "calendar",
+    "empty": "No SLA rules yet.",
+    "any_priority": "any priority",
+    "any_severity": "any severity",
+    "actions": {
+      "edit": "Edit",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "delete": "Delete"
+    },
+    "confirm_delete": {
+      "title": "Delete SLA rule",
+      "description": "Delete the SLA rule for {{label}}? This cannot be undone."
+    },
+    "toast": {
+      "deleted": "SLA rule deleted",
+      "delete_error": "Could not delete SLA rule"
+    }
+  },
+  "template_dialog": {
+    "title_new": "New SLA template",
+    "title_edit": "Edit SLA template",
+    "description_new": "Define a reusable service-level agreement template.",
+    "description_edit": "Update this SLA template's basic details.",
+    "trigger_new": "New template",
+    "fields": {
+      "name_label": "Name",
+      "name_placeholder": "Standard support",
+      "description_label": "Description",
+      "description_placeholder": "Notes about this SLA template…",
+      "default_label": "Default",
+      "status_label": "Status"
+    },
+    "options": {
+      "yes": "Yes",
+      "no": "No",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "submit_create": "Create template",
+    "submit_edit": "Save changes",
+    "submitting_create": "Creating…",
+    "submitting_edit": "Saving…",
+    "toast": {
+      "created": "SLA template created",
+      "updated": "SLA template updated",
+      "create_error": "Could not create template",
+      "update_error": "Could not update template"
+    },
+    "validation": {
+      "name_required": "Name is required"
+    }
+  },
+  "rule_dialog": {
+    "title_new": "New SLA rule",
+    "title_edit": "Edit SLA rule",
+    "description_new": "Map priority/severity to response & resolution targets.",
+    "description_edit": "Update this SLA rule's targets.",
+    "trigger_new": "New rule",
+    "fields": {
+      "template_id_label": "Template ID",
+      "priority_label": "Priority",
+      "severity_label": "Severity",
+      "response_time_label": "Response time (min)",
+      "resolution_time_label": "Resolution time (min)",
+      "business_hours_label": "Business hours only",
+      "status_label": "Status"
+    },
+    "options": {
+      "yes": "Yes",
+      "no": "No",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "submit_create": "Create rule",
+    "submit_edit": "Save changes",
+    "submitting_create": "Creating…",
+    "submitting_edit": "Saving…",
+    "toast": {
+      "created": "SLA rule created",
+      "updated": "SLA rule updated",
+      "create_error": "Could not create rule",
+      "update_error": "Could not update rule"
+    },
+    "validation": {
+      "template_id_required": "Template ID is required",
+      "template_id_positive": "Template ID must be a positive number",
+      "priority_required": "Priority is required",
+      "severity_required": "Severity is required",
+      "time_non_negative": "Must be ≥ 0"
+    }
+  }
+}

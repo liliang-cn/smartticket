@@ -1,0 +1,80 @@
+{
+  "page": {
+    "eyebrow": "ai integration",
+    "title": "AI Providers"
+  },
+  "newProvider": "New provider",
+  "table": {
+    "name": "Name",
+    "type": "Type",
+    "tasks": "Tasks",
+    "model": "Model",
+    "endpoint": "Endpoint",
+    "dims": "Dims",
+    "key": "Key",
+    "flags": "Flags"
+  },
+  "badges": {
+    "default": "default",
+    "enabled": "enabled",
+    "disabled": "disabled"
+  },
+  "taskLabels": {
+    "chat": "Chat",
+    "embedding": "Embedding"
+  },
+  "empty": "No AI providers configured yet.",
+  "actions": {
+    "test": "Test",
+    "testTitle": "Test connectivity",
+    "editTitle": "Edit provider",
+    "deleteTitle": "Delete provider"
+  },
+  "form": {
+    "titleCreate": "New provider",
+    "titleEdit": "Edit provider",
+    "description": "Configure a chat or embedding provider. Chat and embedding are independent — create one row each (e.g. DeepSeek for chat, Aliyun Bailian for embedding).",
+    "name": "Name",
+    "providerType": "Provider type",
+    "apiEndpoint": "API endpoint",
+    "model": "Model",
+    "apiKey": "API key",
+    "apiKeyPlaceholderEdit": "Leave blank to keep existing",
+    "taskTypes": "Task types",
+    "dimensions": "Dimensions",
+    "maxTokens": "Max tokens",
+    "temperature": "Temperature",
+    "default": "Default",
+    "status": "Status",
+    "optionDefault": "Default",
+    "optionNotDefault": "Not default",
+    "optionEnabled": "Enabled",
+    "optionDisabled": "Disabled",
+    "submitCreate": "Create provider",
+    "submitEdit": "Save changes",
+    "creatingPending": "Creating…",
+    "savingPending": "Saving…"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "typeRequired": "Type is required",
+    "endpointRequired": "Endpoint is required",
+    "modelRequired": "Model is required",
+    "atLeastOneTask": "Select at least one task type (chat or embedding)"
+  },
+  "toast": {
+    "created": "Provider created",
+    "updated": "Provider updated",
+    "deleted": "Provider deleted",
+    "createFailed": "Could not create provider",
+    "updateFailed": "Could not update provider",
+    "deleteFailed": "Could not delete provider",
+    "testFailed": "Test failed"
+  },
+  "deleteDialog": {
+    "title": "Delete provider?",
+    "description": "This permanently removes the \"{{name}}\" provider configuration.",
+    "confirmPending": "Deleting…",
+    "confirm": "Delete"
+  }
+}

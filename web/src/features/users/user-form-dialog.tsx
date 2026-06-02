@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useCreateUser, type CreateUserInput } from "@/features/users/api";
 import { useCustomers } from "@/features/customers/api";
 import { useRoles } from "@/features/rbac/api";
@@ -34,42 +35,16 @@ import {
 // themselves are NOT hardcoded — they come from the RBAC roles configuration.
 const CUSTOMER_ROLE = "customer";
 
-const schema = z
-  .object({
-    email: z.string().min(1, "Email is required").email("Invalid email"),
-    username: z
-      .string()
-      .min(3, "At least 3 characters")
-      .max(50)
-      .regex(/^[a-zA-Z0-9_-]+$/, "Letters, numbers, _ and - only"),
-    first_name: z.string().min(1, "First name is required").max(100),
-    last_name: z.string().min(1, "Last name is required").max(100),
-    password: z
-      .string()
-      .min(8, "At least 8 characters")
-      .regex(/[A-Z]/, "Needs an uppercase letter")
-      .regex(/[a-z]/, "Needs a lowercase letter")
-      .regex(/\d/, "Needs a digit")
-      .regex(/[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/, "Needs a special character"),
-    role: z.string().min(1, "Role is required"),
-    is_active: z.boolean(),
-    customer_id: z.string().optional(),
-  })
-  .refine((v) => v.role !== CUSTOMER_ROLE || !!v.customer_id, {
-    message: "Select a customer for the customer role",
-    path: ["customer_id"],
-  });
-type FormValues = z.infer<typeof schema>;
+const ACTIVE = "active";
+const INACTIVE = "inactive";
 
 interface UserFormDialogProps {
   /** Optional custom trigger. Defaults to a "New user" button. */
   trigger?: React.ReactNode;
 }
 
-const ACTIVE = "active";
-const INACTIVE = "inactive";
-
 export function UserFormDialog({ trigger }: UserFormDialogProps) {
+  const { t } = useTranslation("users");
   const [open, setOpen] = useState(false);
   const create = useCreateUser();
   // Pull customers to populate the linked-customer selector.
@@ -77,6 +52,45 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
   // Selectable roles come from the RBAC roles configuration, not a hardcoded
   // list — any role an admin creates under /rbac is assignable here.
   const { data: roles = [] } = useRoles();
+
+  const schema = z
+    .object({
+      email: z
+        .string()
+        .min(1, t("form.validation.email_required"))
+        .email(t("form.validation.email_invalid")),
+      username: z
+        .string()
+        .min(3, t("form.validation.username_min"))
+        .max(50)
+        .regex(/^[a-zA-Z0-9_-]+$/, t("form.validation.username_chars")),
+      first_name: z
+        .string()
+        .min(1, t("form.validation.first_name_required"))
+        .max(100),
+      last_name: z
+        .string()
+        .min(1, t("form.validation.last_name_required"))
+        .max(100),
+      password: z
+        .string()
+        .min(8, t("form.validation.password_min"))
+        .regex(/[A-Z]/, t("form.validation.password_uppercase"))
+        .regex(/[a-z]/, t("form.validation.password_lowercase"))
+        .regex(/\d/, t("form.validation.password_digit"))
+        .regex(
+          /[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/,
+          t("form.validation.password_special")
+        ),
+      role: z.string().min(1, t("form.validation.role_required")),
+      is_active: z.boolean(),
+      customer_id: z.string().optional(),
+    })
+    .refine((v) => v.role !== CUSTOMER_ROLE || !!v.customer_id, {
+      message: t("form.validation.customer_required"),
+      path: ["customer_id"],
+    });
+  type FormValues = z.infer<typeof schema>;
 
   const {
     register,
@@ -134,10 +148,10 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
     };
     try {
       await create.mutateAsync(payload);
-      toast.success("User created");
+      toast.success(t("toasts.created"));
       setOpen(false);
     } catch (err) {
-      toast.error(apiError(err, "Could not create user"));
+      toast.error(apiError(err, t("toasts.create_error")));
     }
   }
 
@@ -146,21 +160,21 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
-            <Plus /> New user
+            <Plus /> {t("actions.new_user")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New user</DialogTitle>
+          <DialogTitle>{t("form.title")}</DialogTitle>
           <DialogDescription>
-            Create an operator or a customer-side account.
+            {t("form.description")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="u-first">First name</Label>
+              <Label htmlFor="u-first">{t("form.fields.first_name")}</Label>
               <Input id="u-first" placeholder="John" {...register("first_name")} />
               {errors.first_name && (
                 <p className="text-xs text-destructive">
@@ -169,7 +183,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="u-last">Last name</Label>
+              <Label htmlFor="u-last">{t("form.fields.last_name")}</Label>
               <Input id="u-last" placeholder="Doe" {...register("last_name")} />
               {errors.last_name && (
                 <p className="text-xs text-destructive">
@@ -180,7 +194,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label htmlFor="u-email">Email</Label>
+              <Label htmlFor="u-email">{t("form.fields.email")}</Label>
               <Input
                 id="u-email"
                 placeholder="john@acme.com"
@@ -191,7 +205,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
               )}
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="u-username">Username</Label>
+              <Label htmlFor="u-username">{t("form.fields.username")}</Label>
               <Input id="u-username" placeholder="johndoe" {...register("username")} />
               {errors.username && (
                 <p className="text-xs text-destructive">
@@ -201,7 +215,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="u-password">Password</Label>
+            <Label htmlFor="u-password">{t("form.fields.password")}</Label>
             <Input
               id="u-password"
               type="password"
@@ -212,14 +226,13 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
               <p className="text-xs text-destructive">{errors.password.message}</p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                At least 8 characters, with an uppercase letter, a digit and a
-                special character.
+                {t("form.password_hint")}
               </p>
             )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label>Role</Label>
+              <Label>{t("form.fields.role")}</Label>
               <Select
                 value={role}
                 onValueChange={(v) => {
@@ -228,19 +241,19 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a role" />
+                  <SelectValue placeholder={t("form.placeholders.role")} />
                 </SelectTrigger>
                 <SelectContent>
                   {roles.map((r) => (
                     <SelectItem key={r.name} value={r.name}>
-                      {r.name.charAt(0).toUpperCase() + r.name.slice(1)}
+                      {t(`roles.${r.name}`, r.name.charAt(0).toUpperCase() + r.name.slice(1))}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label>Status</Label>
+              <Label>{t("form.fields.status")}</Label>
               <Select
                 value={watch("is_active") ? ACTIVE : INACTIVE}
                 onValueChange={(v) => setValue("is_active", v === ACTIVE)}
@@ -249,21 +262,21 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ACTIVE}>Active</SelectItem>
-                  <SelectItem value={INACTIVE}>Inactive</SelectItem>
+                  <SelectItem value={ACTIVE}>{t("form.status_options.active")}</SelectItem>
+                  <SelectItem value={INACTIVE}>{t("form.status_options.inactive")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           {role === CUSTOMER_ROLE && (
             <div className="space-y-1.5">
-              <Label>Customer</Label>
+              <Label>{t("form.fields.customer")}</Label>
               <Select
                 value={watch("customer_id") ?? ""}
                 onValueChange={(v) => setValue("customer_id", v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a customer organization" />
+                  <SelectValue placeholder={t("form.placeholders.customer")} />
                 </SelectTrigger>
                 <SelectContent>
                   {(customers?.items ?? []).map((c) => (
@@ -283,11 +296,11 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">
-                Cancel
+                {t("actions.cancel", { ns: "common" })}
               </Button>
             </DialogClose>
             <Button type="submit" disabled={create.isPending}>
-              {create.isPending ? "Creating…" : "Create user"}
+              {create.isPending ? t("form.submit_pending") : t("form.submit")}
             </Button>
           </DialogFooter>
         </form>

@@ -1,0 +1,65 @@
+{
+  "title": "設定",
+  "subtitle": "このデプロイをホワイトラベル化します。ブランド名、アクセントカラー、ロゴはすべてのユーザーとログイン画面に適用されます。",
+  "language": {
+    "heading": "言語",
+    "desc": "アカウントの表示言語。このブラウザに保存されます。"
+  },
+  "identity": {
+    "heading": "アイデンティティ",
+    "desc": "サイドバーとワークスペースヘッダーに表示される名前。",
+    "app_name": "アプリ名",
+    "app_name_hint": "ロゴの横に表示されます。",
+    "app_subtitle": "アプリのサブタイトル",
+    "app_subtitle_hint": "アプリ名の下の小さなラベル。",
+    "workspace_name": "ワークスペース名",
+    "workspace_name_hint": "各ページの上部バーに表示されるラベル。"
+  },
+  "accent": {
+    "heading": "アクセントカラー",
+    "desc": "ボタン、アクティブなナビゲーション、リンク、フォーカスリングのシグナルカラー。ライト／ダークの両テーマに適用されます。",
+    "use_color": "{{color}} を使用",
+    "custom_color": "カスタムカラーを選択",
+    "invalid_hex": "#f59e0b のような 16 進数を使用してください"
+  },
+  "logo": {
+    "heading": "ロゴ",
+    "desc": "デフォルトのアイコンを置き換えます。PNG、JPG、SVG、WEBP、GIF（最大 2 MB）。正方形の画像が最適です。",
+    "current_alt": "現在のロゴ",
+    "upload": "ロゴをアップロード",
+    "uploading": "アップロード中…",
+    "remove": "削除"
+  },
+  "signin": {
+    "heading": "ログイン画面",
+    "desc": "ログイン画面の右側に表示される見出しとサブテキスト。",
+    "tagline": "タグライン",
+    "subtext": "サブテキスト"
+  },
+  "preview": {
+    "label": "ライブプレビュー",
+    "active_item": "アクティブな項目",
+    "inactive_item": "非アクティブな項目",
+    "primary": "プライマリ",
+    "accent": "アクセント",
+    "link": "リンク",
+    "note": "色はここで即座に更新されます。<0>変更を保存</0> をクリックするとアプリ全体に適用されます。"
+  },
+  "save_changes": "変更を保存",
+  "saving": "保存中…",
+  "reset_defaults": "デフォルトに戻す",
+  "toasts": {
+    "invalid_hex": "有効な 16 進数カラーを入力してください（例: #f59e0b）",
+    "saved": "ブランディングを保存しました",
+    "save_error": "ブランディングを保存できませんでした",
+    "logo_updated": "ロゴを更新しました",
+    "logo_upload_error": "ロゴをアップロードできませんでした",
+    "logo_removed": "ロゴを削除しました",
+    "logo_remove_error": "ロゴを削除できませんでした"
+  },
+  "confirm_remove_logo": {
+    "title": "ロゴを削除",
+    "description": "デフォルトのアイコンに戻しますか？アップロードした画像は削除されます。",
+    "confirm": "ロゴを削除"
+  }
+}

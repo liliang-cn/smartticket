@@ -1,0 +1,142 @@
+{
+  "list": {
+    "directory_label": "Verzeichnis",
+    "title": "Kunden",
+    "search_placeholder": "Name, Code, Domain suchen…",
+    "status_placeholder": "Status",
+    "status_all": "Alle Status",
+    "status_active": "Aktiv",
+    "status_inactive": "Inaktiv",
+    "col_name": "Name",
+    "col_code": "Code",
+    "col_domain": "Domain",
+    "col_active": "Aktiv",
+    "col_created": "Erstellt",
+    "empty": "Keine Kunden entsprechen diesen Filtern.",
+    "pagination": "{{total}} Kunden · Seite {{page}}/{{total_pages}}",
+    "syncing": " · wird synchronisiert…",
+    "prev": "Zurück",
+    "next": "Weiter"
+  },
+  "status": {
+    "active": "aktiv",
+    "inactive": "inaktiv"
+  },
+  "detail": {
+    "back": "Kunden",
+    "not_found": "Kunde nicht gefunden.",
+    "back_to_customers": "Zurück zu Kunden",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "description_label": "Beschreibung",
+    "no_description": "Keine Beschreibung vorhanden.",
+    "contacts_heading": "Kontakte",
+    "col_user": "Benutzer",
+    "col_email": "E-Mail",
+    "col_role": "Rolle",
+    "col_active": "Aktiv",
+    "col_actions": "Aktionen",
+    "no_contacts": "Diesem Kunden sind keine Kontakte zugeordnet.",
+    "meta_code": "Code",
+    "meta_domain": "Domain",
+    "meta_status": "Status",
+    "meta_created": "Erstellt",
+    "meta_updated": "Aktualisiert",
+    "delete_dialog": {
+      "title": "Kunden löschen",
+      "description": "<bold>{{name}}</bold> löschen? Die Organisation wird als gelöscht markiert. Kontakte und Tickets bleiben erhalten.",
+      "deleting": "Wird gelöscht…",
+      "confirm": "Kunden löschen"
+    },
+    "toast": {
+      "deleted": "Kunde gelöscht",
+      "delete_error": "Kunde konnte nicht gelöscht werden"
+    }
+  },
+  "contact_row": {
+    "deactivate": "Deaktivieren",
+    "activate": "Aktivieren",
+    "remove_aria": "{{name}} entfernen",
+    "remove_dialog": {
+      "title": "Kontakt entfernen",
+      "description": "<bold>{{name}}</bold> von diesem Kunden entfernen? Dadurch wird das Konto gelöscht.",
+      "removing": "Wird entfernt…",
+      "confirm": "Kontakt entfernen"
+    },
+    "toast": {
+      "deactivated": "Kontakt deaktiviert",
+      "activated": "Kontakt aktiviert",
+      "removed": "Kontakt entfernt",
+      "remove_error": "Kontakt konnte nicht entfernt werden"
+    }
+  },
+  "subscriptions": {
+    "heading": "Abonnements",
+    "col_product": "Produkt",
+    "col_plan": "Plan",
+    "col_sla": "SLA",
+    "col_nodes": "Knoten",
+    "col_status": "Status",
+    "col_expires": "Läuft ab",
+    "empty_loading": "Wird geladen…",
+    "empty": "Keine Abonnements. Diesem Kunden sind noch keine Produkte oder SLA zugewiesen.",
+    "cluster": "Cluster"
+  },
+  "add_contact": {
+    "trigger": "Kontakt hinzufügen",
+    "title": "Kontakt hinzufügen",
+    "description_no_customer": "Erstelle ein Kundenkonto. Die Person kann sich anmelden, um Tickets ihres Unternehmens einzusehen und zu erstellen.",
+    "description_with_customer": "Erstelle ein Kundenkonto für {{customerName}}. Die Person kann sich anmelden, um Tickets ihres Unternehmens einzusehen und zu erstellen.",
+    "field_first_name": "Vorname",
+    "field_last_name": "Nachname",
+    "field_email": "E-Mail",
+    "field_username": "Benutzername",
+    "field_password": "Passwort",
+    "password_hint": "Mindestens 8 Zeichen, mit einem Großbuchstaben, einer Ziffer und einem Sonderzeichen.",
+    "adding": "Wird hinzugefügt…",
+    "submit": "Kontakt hinzufügen",
+    "toast": {
+      "added": "Kontakt hinzugefügt",
+      "add_error": "Kontakt konnte nicht hinzugefügt werden"
+    },
+    "validation": {
+      "first_name_required": "Vorname ist erforderlich",
+      "last_name_required": "Nachname ist erforderlich",
+      "email_required": "E-Mail ist erforderlich",
+      "email_invalid": "Ungültige E-Mail-Adresse",
+      "username_min": "Mindestens 3 Zeichen",
+      "username_pattern": "Nur Buchstaben, Zahlen, _ und -",
+      "password_min": "Mindestens 8 Zeichen",
+      "password_uppercase": "Benötigt einen Großbuchstaben",
+      "password_lowercase": "Benötigt einen Kleinbuchstaben",
+      "password_digit": "Benötigt eine Ziffer",
+      "password_special": "Benötigt ein Sonderzeichen"
+    }
+  },
+  "form": {
+    "title_new": "Neuer Kunde",
+    "title_edit": "Kunde bearbeiten",
+    "description_new": "Registriere eine Kundenorganisation, der du Support bietest.",
+    "description_edit": "Aktualisiere die Details dieser Kundenorganisation.",
+    "field_name": "Name",
+    "field_code": "Code",
+    "field_domain": "Domain",
+    "field_description": "Beschreibung",
+    "description_placeholder": "Notizen zu diesem Kunden…",
+    "field_status": "Status",
+    "trigger_new": "Neuer Kunde",
+    "saving": "Wird gespeichert…",
+    "creating": "Wird erstellt…",
+    "save_changes": "Änderungen speichern",
+    "create": "Kunden erstellen",
+    "toast": {
+      "updated": "Kunde aktualisiert",
+      "created": "Kunde erstellt",
+      "update_error": "Kunde konnte nicht aktualisiert werden",
+      "create_error": "Kunde konnte nicht erstellt werden"
+    },
+    "validation": {
+      "name_required": "Name ist erforderlich"
+    }
+  }
+}
