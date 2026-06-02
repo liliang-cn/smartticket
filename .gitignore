@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-smartticket
+/smartticket
 smartticket-*
 
 # Test binary, built with `go test -c`
@@ -151,3 +151,9 @@ tickets-snap.md
 
 # stray build artifact from `go build ./...`
 /server
+
+# Xcode (iOS app under apps/)
+**/xcuserdata/
+**/*.xcuserstate
+apps/**/DerivedData/
+.DS_Store
