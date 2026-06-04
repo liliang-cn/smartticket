@@ -27,8 +27,9 @@ func scopeToActor(q *gorm.DB, actor authz.Actor) *gorm.DB {
 type Service struct {
 	db            *gorm.DB
 	slaCalculator *sla.Calculator
-	notifier      Notifier // optional; nil = no-op (see SetNotifier)
-	mailer        Mailer   // optional; nil = no-op (see SetMailer)
+	notifier      Notifier       // optional; nil = no-op (see SetNotifier)
+	mailer        Mailer         // optional; nil = no-op (see SetMailer)
+	suggester     ReplySuggester // optional; nil = AI suggestions unavailable
 }
 
 // NewService creates a new ticket service.

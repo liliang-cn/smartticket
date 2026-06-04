@@ -19,6 +19,7 @@ import (
 	smartticketweb "github.com/company/smartticket/web"
 
 	"github.com/company/smartticket/internal/api/handlers"
+	"github.com/company/smartticket/internal/aiassist"
 	"github.com/company/smartticket/internal/api/middleware"
 	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
@@ -294,6 +295,26 @@ func (s *Server) setupRoutes() {
 	knowledgeService := knowledge.NewService(s.db.DB, s.kbStore, llmServiceRef)
 	knowledgeHandlers := knowledge.NewHandlers(knowledgeService)
 
+	// AI feature toggles (admin-configurable) + the BYO-LLM-backed assistant.
+	// Settings always exist; the suggester is wired only when an LLM is available.
+	aiSettings := aiassist.NewSettingsStore(s.db.DB)
+	aiSettingsHandlers := aiassist.NewSettingsHandlers(aiSettings)
+	if llmServiceRef != nil {
+		kb := aiassist.KBSearcherFunc(func(ctx context.Context, q string, k int) []string {
+			hits, err := knowledgeService.Search(ctx, q, k, true)
+			if err != nil {
+				return nil
+			}
+			out := make([]string, 0, len(hits))
+			for _, h := range hits {
+				out = append(out, h.Title+": "+h.Snippet)
+			}
+			return out
+		})
+		assistant := aiassist.NewAssistant(aiassist.NewGenerator(llmServiceRef), kb, aiSettings)
+		ticketService.SetSuggester(assistant)
+	}
+
 	// Health check endpoints (no authentication required)
 	health := s.router.Group("/")
 	{
@@ -414,6 +435,7 @@ func (s *Server) setupRoutes() {
 				tickets.GET("/:id/events", ticketHandlers.GetTicketEvents)
 				tickets.GET("/:id/messages", ticketHandlers.GetTicketMessages)
 				tickets.POST("/:id/messages", ticketHandlers.CreateTicketMessage)
+				tickets.POST("/:id/suggest-reply", ticketHandlers.SuggestReply)
 				tickets.POST("/:id/attachments", attachmentHandlers.Upload)
 				tickets.GET("/:id/attachments", attachmentHandlers.List)
 			}
@@ -444,9 +466,14 @@ func (s *Server) setupRoutes() {
 
 			// Branding / white-label settings (admin-only writes; reads are
 			// public, registered above).
+			// AI settings: read for any authenticated user (the agent UI needs to
+			// know which AI features are on); writes are admin-only below.
+			protected.GET("/settings/ai", aiSettingsHandlers.Get)
+
 			settings := protected.Group("/settings")
 			settings.Use(s.adminMiddleware())
 			{
+				settings.PUT("/ai", aiSettingsHandlers.Update)
 				settings.PUT("/branding", brandingHandlers.Update)
 				settings.POST("/branding/logo", brandingHandlers.UploadLogo)
 				settings.DELETE("/branding/logo", brandingHandlers.DeleteLogo)

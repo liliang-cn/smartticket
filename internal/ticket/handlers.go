@@ -544,3 +544,19 @@ func (h *Handlers) CreateTicketMessage(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"success": true, "data": message})
 }
+
+// SuggestReply returns an AI-drafted reply for the ticket (team-only). The
+// service maps AI unavailability (disabled / no provider) to a clear error.
+func (h *Handlers) SuggestReply(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+	draft, err := h.service.SuggestReply(actorFromContext(c), uint(id))
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"suggestion": draft}})
+}

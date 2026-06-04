@@ -260,6 +260,24 @@ type Branding struct {
 	LogoExt  string `gorm:"size:16" json:"-"`
 }
 
+// AISettings is the singleton row holding deployment-wide AI feature toggles.
+// Every AI capability is gated on these so operators decide what is enabled —
+// AI is opt-in and fully under the deployment's control.
+type AISettings struct {
+	BaseModel
+	// Enabled is the master switch; when false no AI feature runs.
+	Enabled bool `gorm:"default:true" json:"enabled"`
+	// SuggestReplies lets agents request an AI-drafted reply on a ticket.
+	SuggestReplies bool `gorm:"default:true" json:"suggest_replies"`
+	// KnowledgeAI enables semantic search + "ask" over the knowledge base.
+	KnowledgeAI bool `gorm:"default:true" json:"knowledge_ai"`
+	// AutoClassify (future) lets AI suggest a category/priority on new tickets.
+	AutoClassify bool `gorm:"default:false" json:"auto_classify"`
+	// ReplyInstructions is optional operator guidance (tone, do/don'ts) injected
+	// into the suggested-reply prompt.
+	ReplyInstructions string `gorm:"type:text" json:"reply_instructions"`
+}
+
 // Product represents a product or service offering.
 type Product struct {
 	BaseModel
