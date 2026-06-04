@@ -74,7 +74,11 @@
       "label_created": "创建时间",
       "label_due": "截止时间",
       "unassigned": "未分配"
-    }
+    },
+    "suggest_btn": "建议回复",
+    "suggesting": "草拟中…",
+    "suggest_hint": "让 AI 草拟一条你可以编辑的回复",
+    "suggest_error": "无法草拟回复"
   },
   "create": {
     "btn_new_ticket": "新建工单",

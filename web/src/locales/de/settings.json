@@ -61,5 +61,22 @@
     "title": "Logo entfernen",
     "description": "Zum Standardsymbol zurückkehren? Das hochgeladene Bild wird gelöscht.",
     "confirm": "Logo entfernen"
+  },
+  "ai": {
+    "heading": "KI",
+    "desc": "Steuern Sie, welche KI-Funktionen aktiv sind und wie Antworten entworfen werden.",
+    "enabled": "KI aktivieren",
+    "enabled_desc": "Hauptschalter für alle KI-Funktionen.",
+    "suggest_replies": "Antwortvorschläge",
+    "suggest_replies_desc": "Agenten können Antworten per KI im Ticket entwerfen.",
+    "knowledge_ai": "Wissens-KI",
+    "knowledge_ai_desc": "Semantische Suche und Fragen über die Wissensdatenbank.",
+    "auto_classify": "Auto-Klassifizierung",
+    "auto_classify_desc": "KI schlägt Kategorie und Priorität für neue Tickets vor.",
+    "instructions": "Antwort-Leitlinien",
+    "instructions_placeholder": "z. B. Immer freundlich und knapp; nie Rückerstattungen versprechen.",
+    "instructions_hint": "Zusätzliche Vorgaben, die die KI beim Entwerfen befolgt.",
+    "toast_saved": "KI-Einstellungen gespeichert",
+    "toast_error": "KI-Einstellungen konnten nicht aktualisiert werden"
   }
 }

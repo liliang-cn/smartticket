@@ -74,7 +74,11 @@
       "label_created": "作成日時",
       "label_due": "期限",
       "unassigned": "未割り当て"
-    }
+    },
+    "suggest_btn": "返信を提案",
+    "suggesting": "下書き中…",
+    "suggest_hint": "編集できる返信を AI が下書きします",
+    "suggest_error": "返信を下書きできませんでした"
   },
   "create": {
     "btn_new_ticket": "新規チケット",

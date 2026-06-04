@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/misc";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { LanguageToggle } from "@/components/language-toggle";
+import { AISettingsCard } from "@/features/ai/AISettingsCard";
 import { useReveal } from "@/lib/use-reveal";
 
 // A small palette of tasteful accent presets to pick from.
@@ -175,6 +176,9 @@ export function SettingsPage() {
             </div>
             <LanguageToggle />
           </Card>
+
+          {/* AI features */}
+          <AISettingsCard />
 
           {/* Identity */}
           <Card data-reveal className="space-y-4 p-5">

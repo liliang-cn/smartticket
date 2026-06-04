@@ -9,6 +9,8 @@ final class TicketDetailModel {
     var loading = true
     var error: String?
     var sending = false
+    var canSuggest = false
+    var suggesting = false
 
     init(ticketID: Int) { self.ticketID = ticketID }
 
@@ -23,6 +25,28 @@ final class TicketDetailModel {
             self.error = (error as? APIError)?.errorDescription ?? error.localizedDescription
         }
         loading = false
+    }
+
+    /// Whether the deployment has AI suggested replies turned on.
+    func loadAISettings() async {
+        if let s: AISettings = try? await APIClient.shared.get("/settings/ai") {
+            canSuggest = s.enabled && s.suggestReplies
+        }
+    }
+
+    /// Ask the AI agent to draft a reply; returns the draft or nil on failure.
+    func suggestReply() async -> String? {
+        suggesting = true
+        defer { suggesting = false }
+        struct Empty: Encodable {}
+        struct Resp: Decodable { let suggestion: String }
+        do {
+            let r: Resp = try await APIClient.shared.post("/tickets/\(ticketID)/suggest-reply", body: Empty())
+            return r.suggestion
+        } catch {
+            self.error = (error as? APIError)?.errorDescription ?? error.localizedDescription
+            return nil
+        }
     }
 
     private func fetchMessages() async throws -> [TicketMessage] {
@@ -97,7 +121,10 @@ struct TicketDetailView: View {
         .navigationTitle(model.ticket?.ticketNumber ?? "Ticket")
         .navigationBarTitleDisplayMode(.inline)
         .safeAreaInset(edge: .bottom) { if model.ticket != nil { composer } }
-        .task { await model.load() }
+        .task {
+            await model.load()
+            if canManage { await model.loadAISettings() }
+        }
     }
 
     private func header(_ t: Ticket) -> some View {
@@ -174,6 +201,19 @@ struct TicketDetailView: View {
 
     private var composer: some View {
         VStack(spacing: 10) {
+            if canManage && model.canSuggest {
+                Button {
+                    Task { if let draft = await model.suggestReply() { reply = draft } }
+                } label: {
+                    Label(model.suggesting ? "Drafting…" : "Suggest reply",
+                          systemImage: "sparkles")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Brand.primary)
+                        .symbolEffect(.pulse, isActive: model.suggesting)
+                }
+                .disabled(model.suggesting)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
             if canManage {
                 Toggle(isOn: $internalNote) {
                     Label("Internal note (hidden from customer)", systemImage: "lock")

@@ -74,7 +74,11 @@
       "label_created": "Creado",
       "label_due": "Vencimiento",
       "unassigned": "Sin asignar"
-    }
+    },
+    "suggest_btn": "Sugerir respuesta",
+    "suggesting": "Redactando…",
+    "suggest_hint": "Deja que la IA redacte una respuesta que puedes editar",
+    "suggest_error": "No se pudo redactar una respuesta"
   },
   "create": {
     "btn_new_ticket": "Nuevo ticket",

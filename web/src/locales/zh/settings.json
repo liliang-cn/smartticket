@@ -61,5 +61,22 @@
     "title": "移除 Logo",
     "description": "恢复为默认图标？已上传的图片将被删除。",
     "confirm": "移除 Logo"
+  },
+  "ai": {
+    "heading": "AI",
+    "desc": "控制启用哪些 AI 功能，以及如何草拟回复。",
+    "enabled": "启用 AI",
+    "enabled_desc": "所有 AI 功能的总开关。",
+    "suggest_replies": "建议回复",
+    "suggest_replies_desc": "让坐席用 AI 草拟工单回复。",
+    "knowledge_ai": "知识库 AI",
+    "knowledge_ai_desc": "对知识库进行语义搜索与问答。",
+    "auto_classify": "自动分类",
+    "auto_classify_desc": "让 AI 为新工单建议分类和优先级。",
+    "instructions": "回复指引",
+    "instructions_placeholder": "例如：始终热情简洁；不要承诺退款。",
+    "instructions_hint": "AI 草拟回复时遵循的额外指引。",
+    "toast_saved": "AI 设置已保存",
+    "toast_error": "无法更新 AI 设置"
   }
 }

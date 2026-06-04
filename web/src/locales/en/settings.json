@@ -61,5 +61,22 @@
     "title": "Remove logo",
     "description": "Revert to the default glyph? The uploaded image is deleted.",
     "confirm": "Remove logo"
+  },
+  "ai": {
+    "heading": "AI",
+    "desc": "Control which AI features are enabled and how replies are drafted.",
+    "enabled": "Enable AI",
+    "enabled_desc": "Master switch for all AI features.",
+    "suggest_replies": "Suggested replies",
+    "suggest_replies_desc": "Let agents draft replies with AI on a ticket.",
+    "knowledge_ai": "Knowledge AI",
+    "knowledge_ai_desc": "Semantic search and ask over the knowledge base.",
+    "auto_classify": "Auto-classify",
+    "auto_classify_desc": "Let AI suggest a category and priority for new tickets.",
+    "instructions": "Reply guidance",
+    "instructions_placeholder": "e.g. Always be warm and concise; never promise refunds.",
+    "instructions_hint": "Extra guidance the AI follows when drafting replies.",
+    "toast_saved": "AI settings saved",
+    "toast_error": "Could not update AI settings"
   }
 }

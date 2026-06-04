@@ -74,7 +74,11 @@
       "label_created": "Erstellt",
       "label_due": "Fällig",
       "unassigned": "Nicht zugewiesen"
-    }
+    },
+    "suggest_btn": "Antwort vorschlagen",
+    "suggesting": "Wird entworfen…",
+    "suggest_hint": "KI entwirft eine Antwort, die du bearbeiten kannst",
+    "suggest_error": "Antwort konnte nicht entworfen werden"
   },
   "create": {
     "btn_new_ticket": "Neues Ticket",

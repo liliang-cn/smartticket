@@ -61,5 +61,22 @@
     "title": "Quitar logo",
     "description": "¿Volver al icono predeterminado? La imagen subida se eliminará.",
     "confirm": "Quitar logo"
+  },
+  "ai": {
+    "heading": "IA",
+    "desc": "Controla qué funciones de IA están activas y cómo se redactan las respuestas.",
+    "enabled": "Activar IA",
+    "enabled_desc": "Interruptor general de todas las funciones de IA.",
+    "suggest_replies": "Respuestas sugeridas",
+    "suggest_replies_desc": "Permite a los agentes redactar respuestas con IA en un ticket.",
+    "knowledge_ai": "IA de conocimiento",
+    "knowledge_ai_desc": "Búsqueda semántica y preguntas sobre la base de conocimiento.",
+    "auto_classify": "Clasificación automática",
+    "auto_classify_desc": "Deja que la IA sugiera categoría y prioridad para tickets nuevos.",
+    "instructions": "Guía de respuestas",
+    "instructions_placeholder": "p. ej. Sé siempre cálido y conciso; nunca prometas reembolsos.",
+    "instructions_hint": "Indicaciones extra que la IA sigue al redactar respuestas.",
+    "toast_saved": "Ajustes de IA guardados",
+    "toast_error": "No se pudieron actualizar los ajustes de IA"
   }
 }

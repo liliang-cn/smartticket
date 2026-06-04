@@ -61,5 +61,22 @@
     "title": "ロゴを削除",
     "description": "デフォルトのアイコンに戻しますか？アップロードした画像は削除されます。",
     "confirm": "ロゴを削除"
+  },
+  "ai": {
+    "heading": "AI",
+    "desc": "どの AI 機能を有効にするか、返信の下書き方法を管理します。",
+    "enabled": "AI を有効化",
+    "enabled_desc": "すべての AI 機能のマスタースイッチ。",
+    "suggest_replies": "返信の提案",
+    "suggest_replies_desc": "担当者がチケットで AI を使って返信を下書きできます。",
+    "knowledge_ai": "ナレッジ AI",
+    "knowledge_ai_desc": "ナレッジベースでのセマンティック検索と質問応答。",
+    "auto_classify": "自動分類",
+    "auto_classify_desc": "新規チケットのカテゴリと優先度を AI が提案します。",
+    "instructions": "返信ガイド",
+    "instructions_placeholder": "例：常に丁寧かつ簡潔に。返金は約束しない。",
+    "instructions_hint": "AI が返信を下書きする際に従う追加ガイド。",
+    "toast_saved": "AI 設定を保存しました",
+    "toast_error": "AI 設定を更新できませんでした"
   }
 }

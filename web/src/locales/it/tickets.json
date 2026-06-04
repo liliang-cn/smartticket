@@ -74,7 +74,11 @@
       "label_created": "Creato",
       "label_due": "Scadenza",
       "unassigned": "Non assegnato"
-    }
+    },
+    "suggest_btn": "Suggerisci risposta",
+    "suggesting": "Redazione…",
+    "suggest_hint": "L'IA redige una risposta che puoi modificare",
+    "suggest_error": "Impossibile redigere una risposta"
   },
   "create": {
     "btn_new_ticket": "Nuovo ticket",

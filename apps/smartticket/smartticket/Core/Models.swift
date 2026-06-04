@@ -229,6 +229,18 @@ struct KnowledgeArticle: Codable, Identifiable, Hashable {
     }
 }
 
+// MARK: - AI
+
+struct AISettings: Codable {
+    let enabled: Bool
+    let suggestReplies: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case enabled
+        case suggestReplies = "suggest_replies"
+    }
+}
+
 // MARK: - Branding
 
 struct Branding: Codable {

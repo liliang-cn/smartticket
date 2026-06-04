@@ -61,5 +61,22 @@
     "title": "Rimuovi logo",
     "description": "Tornare all'icona predefinita? L'immagine caricata verrà eliminata.",
     "confirm": "Rimuovi logo"
+  },
+  "ai": {
+    "heading": "IA",
+    "desc": "Controlla quali funzioni IA sono attive e come vengono redatte le risposte.",
+    "enabled": "Attiva IA",
+    "enabled_desc": "Interruttore generale di tutte le funzioni IA.",
+    "suggest_replies": "Risposte suggerite",
+    "suggest_replies_desc": "Permette agli agenti di redigere risposte con l'IA su un ticket.",
+    "knowledge_ai": "IA conoscenza",
+    "knowledge_ai_desc": "Ricerca semantica e domande sulla knowledge base.",
+    "auto_classify": "Classificazione automatica",
+    "auto_classify_desc": "L'IA suggerisce categoria e priorità per i nuovi ticket.",
+    "instructions": "Linee guida risposte",
+    "instructions_placeholder": "es. Sii sempre cordiale e conciso; non promettere rimborsi.",
+    "instructions_hint": "Indicazioni extra che l'IA segue redigendo le risposte.",
+    "toast_saved": "Impostazioni IA salvate",
+    "toast_error": "Impossibile aggiornare le impostazioni IA"
   }
 }

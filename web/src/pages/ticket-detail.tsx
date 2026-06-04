@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Send,
+  Sparkles,
   Lock,
   Bot,
   Download,
@@ -27,6 +28,7 @@ import {
   downloadAttachment,
 } from "@/features/tickets/api";
 import { useUsers } from "@/features/users/api";
+import { useAISettings, useSuggestReply } from "@/features/ai/api";
 import { useAuth } from "@/lib/auth";
 import type { Attachment, Ticket, UserInfo } from "@/lib/types";
 import { apiError } from "@/lib/api";
@@ -319,9 +321,26 @@ export function TicketDetailPage() {
   const { data: messages } = useTicketMessages(ticketId);
   const update = useUpdateTicket(ticketId ?? 0);
   const addMessage = useAddMessage(ticketId ?? 0);
+  const { data: aiSettings } = useAISettings();
+  const suggest = useSuggestReply(ticketId ?? 0);
   const [draft, setDraft] = useState("");
   const [internal, setInternal] = useState(false);
   const ref = useReveal(ticket?.id);
+
+  // AI "suggest reply" is for agents and only when the deployment has it enabled.
+  const canSuggest =
+    user?.role !== "customer" &&
+    !!aiSettings?.enabled &&
+    !!aiSettings?.suggest_replies;
+
+  async function suggestReply() {
+    try {
+      const text = await suggest.mutateAsync();
+      setDraft(text);
+    } catch (err) {
+      toast.error(apiError(err, t("detail.suggest_error")));
+    }
+  }
 
   async function patch(field: "status" | "priority", value: string) {
     try {
@@ -478,13 +497,27 @@ export function TicketDetailPage() {
                   />
                   {t("detail.internal_note_label")}
                 </label>
-                <Button
-                  size="sm"
-                  onClick={send}
-                  disabled={addMessage.isPending || !draft.trim()}
-                >
-                  <Send /> {addMessage.isPending ? t("detail.btn_sending") : t("detail.btn_send")}
-                </Button>
+                <div className="flex items-center gap-2">
+                  {canSuggest && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={suggestReply}
+                      disabled={suggest.isPending}
+                      title={t("detail.suggest_hint")}
+                    >
+                      <Sparkles className={suggest.isPending ? "animate-pulse" : ""} />
+                      {suggest.isPending ? t("detail.suggesting") : t("detail.suggest_btn")}
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    onClick={send}
+                    disabled={addMessage.isPending || !draft.trim()}
+                  >
+                    <Send /> {addMessage.isPending ? t("detail.btn_sending") : t("detail.btn_send")}
+                  </Button>
+                </div>
               </div>
             </Card>
           </div>

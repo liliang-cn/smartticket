@@ -74,7 +74,11 @@
       "label_created": "Created",
       "label_due": "Due",
       "unassigned": "Unassigned"
-    }
+    },
+    "suggest_btn": "Suggest reply",
+    "suggesting": "Drafting…",
+    "suggest_hint": "Let AI draft a reply you can edit",
+    "suggest_error": "Could not draft a reply"
   },
   "create": {
     "btn_new_ticket": "New ticket",
