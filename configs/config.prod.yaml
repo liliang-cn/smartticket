@@ -111,6 +111,15 @@ email:
   inbound:                      # email -> ticket webhook (POST /api/v1/email/inbound)
     enabled: false
     secret: ""                  # shared secret; prefer SMARTTICKET_EMAIL_INBOUND_SECRET
+  imap:                         # fully self-hosted inbound: poll a mailbox (no webhook/DNS)
+    enabled: false
+    host: ""                    # e.g. imap.yourco.com
+    port: 993
+    username: ""                # usually the support@ mailbox
+    password: ""                # prefer SMARTTICKET_EMAIL_IMAP_PASSWORD
+    mailbox: "INBOX"
+    tls: true                   # true=implicit TLS (993)
+    poll_seconds: 60
 
 # Cache Configuration
 cache:

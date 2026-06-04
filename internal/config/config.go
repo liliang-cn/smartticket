@@ -47,6 +47,7 @@ type EmailConfig struct {
 	Resend      ResendConfig  `mapstructure:"resend"`
 	SMTP        SMTPConfig    `mapstructure:"smtp"`
 	Inbound     InboundConfig `mapstructure:"inbound"`
+	IMAP        IMAPConfig    `mapstructure:"imap"`
 }
 
 // ResendConfig holds the Resend API credentials (https://resend.com).
@@ -69,6 +70,19 @@ type SMTPConfig struct {
 type InboundConfig struct {
 	Enabled bool   `mapstructure:"enabled"`
 	Secret  string `mapstructure:"secret"`
+}
+
+// IMAPConfig polls a mailbox over IMAP and turns new mail into tickets — the
+// fully self-hosted inbound path (no webhook, no DNS, no third party).
+type IMAPConfig struct {
+	Enabled     bool   `mapstructure:"enabled"`
+	Host        string `mapstructure:"host"`
+	Port        int    `mapstructure:"port"`
+	Username    string `mapstructure:"username"`
+	Password    string `mapstructure:"password"`
+	Mailbox     string `mapstructure:"mailbox"`
+	TLS         bool   `mapstructure:"tls"`
+	PollSeconds int    `mapstructure:"poll_seconds"`
 }
 
 // ServerConfig contains HTTP server configuration.
@@ -176,17 +190,25 @@ func loadFrom(configFile string) (*Config, error) {
 	// config file). Bind each key explicitly — viper's AutomaticEnv does not
 	// reliably resolve nested keys that lack a config-file entry.
 	for envKey, path := range map[string]string{
-		"SMARTTICKET_EMAIL_ENABLED":         "email.enabled",
-		"SMARTTICKET_EMAIL_PROVIDER":        "email.provider",
-		"SMARTTICKET_EMAIL_FROM_NAME":       "email.from_name",
-		"SMARTTICKET_EMAIL_FROM_ADDRESS":    "email.from_address",
-		"SMARTTICKET_EMAIL_SMTP_HOST":       "email.smtp.host",
-		"SMARTTICKET_EMAIL_SMTP_PORT":       "email.smtp.port",
-		"SMARTTICKET_EMAIL_SMTP_USERNAME":   "email.smtp.username",
-		"SMARTTICKET_EMAIL_SMTP_PASSWORD":   "email.smtp.password",
-		"SMARTTICKET_EMAIL_SMTP_TLS":        "email.smtp.tls",
-		"SMARTTICKET_EMAIL_INBOUND_ENABLED": "email.inbound.enabled",
-		"SMARTTICKET_EMAIL_INBOUND_SECRET":  "email.inbound.secret",
+		"SMARTTICKET_EMAIL_ENABLED":           "email.enabled",
+		"SMARTTICKET_EMAIL_PROVIDER":          "email.provider",
+		"SMARTTICKET_EMAIL_FROM_NAME":         "email.from_name",
+		"SMARTTICKET_EMAIL_FROM_ADDRESS":      "email.from_address",
+		"SMARTTICKET_EMAIL_SMTP_HOST":         "email.smtp.host",
+		"SMARTTICKET_EMAIL_SMTP_PORT":         "email.smtp.port",
+		"SMARTTICKET_EMAIL_SMTP_USERNAME":     "email.smtp.username",
+		"SMARTTICKET_EMAIL_SMTP_PASSWORD":     "email.smtp.password",
+		"SMARTTICKET_EMAIL_SMTP_TLS":          "email.smtp.tls",
+		"SMARTTICKET_EMAIL_INBOUND_ENABLED":   "email.inbound.enabled",
+		"SMARTTICKET_EMAIL_INBOUND_SECRET":    "email.inbound.secret",
+		"SMARTTICKET_EMAIL_IMAP_ENABLED":      "email.imap.enabled",
+		"SMARTTICKET_EMAIL_IMAP_HOST":         "email.imap.host",
+		"SMARTTICKET_EMAIL_IMAP_PORT":         "email.imap.port",
+		"SMARTTICKET_EMAIL_IMAP_USERNAME":     "email.imap.username",
+		"SMARTTICKET_EMAIL_IMAP_PASSWORD":     "email.imap.password",
+		"SMARTTICKET_EMAIL_IMAP_MAILBOX":      "email.imap.mailbox",
+		"SMARTTICKET_EMAIL_IMAP_TLS":          "email.imap.tls",
+		"SMARTTICKET_EMAIL_IMAP_POLL_SECONDS": "email.imap.poll_seconds",
 	} {
 		_ = v.BindEnv(path, envKey)
 	}
@@ -298,6 +320,11 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("email.smtp.port", 587)
 	v.SetDefault("email.smtp.tls", "starttls")
 	v.SetDefault("email.inbound.enabled", false)
+	v.SetDefault("email.imap.enabled", false)
+	v.SetDefault("email.imap.port", 993)
+	v.SetDefault("email.imap.mailbox", "INBOX")
+	v.SetDefault("email.imap.tls", true)
+	v.SetDefault("email.imap.poll_seconds", 60)
 
 	// Storage (attachments) defaults
 	v.SetDefault("storage.data_path", "./data")

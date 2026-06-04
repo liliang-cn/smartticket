@@ -213,6 +213,19 @@ func (s *Server) setupRoutes() {
 		if s.config.Email.Inbound.Enabled {
 			emailInbound = email.NewInboundHandler(ticketService, s.config.Email.Inbound.Secret)
 		}
+		// Fully self-hosted inbound: poll a mailbox over IMAP (no webhook/DNS).
+		if s.config.Email.IMAP.Enabled {
+			poller := email.NewPoller(email.IMAPOptions{
+				Host:         s.config.Email.IMAP.Host,
+				Port:         s.config.Email.IMAP.Port,
+				Username:     s.config.Email.IMAP.Username,
+				Password:     s.config.Email.IMAP.Password,
+				Mailbox:      s.config.Email.IMAP.Mailbox,
+				TLS:          s.config.Email.IMAP.TLS,
+				PollInterval: time.Duration(s.config.Email.IMAP.PollSeconds) * time.Second,
+			}, ticketService)
+			go poller.Run(context.Background())
+		}
 	}
 
 	productService := product.NewService(s.db.DB)
