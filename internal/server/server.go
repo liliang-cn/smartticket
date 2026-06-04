@@ -311,8 +311,12 @@ func (s *Server) setupRoutes() {
 			}
 			return out
 		})
-		assistant := aiassist.NewAssistant(aiassist.NewGenerator(llmServiceRef), kb, aiSettings)
-		ticketService.SetSuggester(assistant)
+		assistant, aerr := aiassist.NewAssistant(aiassist.NewGenerator(llmServiceRef), kb, aiSettings, "./data/agentgo.db")
+		if aerr != nil {
+			logger.Warn("AI assistant unavailable; suggested replies disabled", zap.Error(aerr))
+		} else {
+			ticketService.SetSuggester(assistant)
+		}
 	}
 
 	// Health check endpoints (no authentication required)
