@@ -8,16 +8,20 @@ import (
 
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/llm"
+	"github.com/company/smartticket/internal/macro"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/product"
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/sla"
 	"github.com/company/smartticket/internal/subscription"
+	"github.com/company/smartticket/internal/survey"
+	"github.com/company/smartticket/internal/team"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
 )
@@ -624,4 +628,131 @@ func (m *MockBackend) ListAttachments(_ authz.Actor, ticketID uint) ([]models.At
 func (m *MockBackend) GetAttachment(_ authz.Actor, attachmentID uint) (*models.Attachment, error) {
 	args := m.Called(attachmentID)
 	return getPtr[models.Attachment](args, 0), args.Error(1)
+}
+
+// --- Macro domain ---
+
+func (m *MockBackend) ListMacros(userID uint) ([]models.Macro, error) {
+	args := m.Called(userID)
+	return getSlice[models.Macro](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) GetMacro(userID, id uint) (*models.Macro, error) {
+	args := m.Called(userID, id)
+	return getPtr[models.Macro](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) CreateMacro(userID uint, req macro.CreateRequest) (*models.Macro, error) {
+	args := m.Called(userID, req)
+	return getPtr[models.Macro](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) UpdateMacro(userID, id uint, req macro.UpdateRequest) (*models.Macro, error) {
+	args := m.Called(userID, id, req)
+	return getPtr[models.Macro](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) DeleteMacro(userID, id uint) error {
+	return m.Called(userID, id).Error(0)
+}
+
+func (m *MockBackend) ApplyMacro(macroID, userID uint, rctx macro.RenderContext) (string, []macro.Action, error) {
+	args := m.Called(macroID, userID, rctx)
+	return args.String(0), getSlice[macro.Action](args, 1), args.Error(2)
+}
+
+// --- Automation domain ---
+
+func (m *MockBackend) ListRules() ([]automation.RuleResponse, error) {
+	args := m.Called()
+	return getSlice[automation.RuleResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) GetRule(id uint) (*automation.RuleResponse, error) {
+	args := m.Called(id)
+	return getPtr[automation.RuleResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) CreateRule(req *automation.CreateRuleRequest) (*automation.RuleResponse, error) {
+	args := m.Called(req)
+	return getPtr[automation.RuleResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) UpdateRule(id uint, req *automation.UpdateRuleRequest) (*automation.RuleResponse, error) {
+	args := m.Called(id, req)
+	return getPtr[automation.RuleResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) DeleteRule(id uint) error {
+	return m.Called(id).Error(0)
+}
+
+// --- Team domain ---
+
+func (m *MockBackend) ListTeams() ([]team.TeamResponse, error) {
+	args := m.Called()
+	return getSlice[team.TeamResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) GetTeam(id uint) (*team.TeamResponse, error) {
+	args := m.Called(id)
+	return getPtr[team.TeamResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) CreateTeam(req *team.CreateRequest) (*team.TeamResponse, error) {
+	args := m.Called(req)
+	return getPtr[team.TeamResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) UpdateTeam(id uint, req *team.UpdateRequest) (*team.TeamResponse, error) {
+	args := m.Called(id, req)
+	return getPtr[team.TeamResponse](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) DeleteTeam(id uint) error {
+	return m.Called(id).Error(0)
+}
+
+func (m *MockBackend) AddTeamMember(teamID, userID uint) error {
+	return m.Called(teamID, userID).Error(0)
+}
+
+func (m *MockBackend) RemoveTeamMember(teamID, userID uint) error {
+	return m.Called(teamID, userID).Error(0)
+}
+
+func (m *MockBackend) ListTeamMembers(teamID uint) ([]team.MemberResponse, error) {
+	args := m.Called(teamID)
+	return getSlice[team.MemberResponse](args, 0), args.Error(1)
+}
+
+// --- Survey domain ---
+
+func (m *MockBackend) GetSurveyStats() (survey.Stats, error) {
+	args := m.Called()
+	var st survey.Stats
+	if v := args.Get(0); v != nil {
+		st = v.(survey.Stats)
+	}
+	return st, args.Error(1)
+}
+
+// --- Ticket merge/link domain ---
+
+func (m *MockBackend) MergeTickets(_ authz.Actor, sourceID, targetID uint) error {
+	return m.Called(sourceID, targetID).Error(0)
+}
+
+func (m *MockBackend) LinkTickets(_ authz.Actor, sourceID, targetID uint, linkType string) (*models.TicketLink, error) {
+	args := m.Called(sourceID, targetID, linkType)
+	return getPtr[models.TicketLink](args, 0), args.Error(1)
+}
+
+func (m *MockBackend) UnlinkTicket(_ authz.Actor, ticketID, linkID uint) error {
+	return m.Called(ticketID, linkID).Error(0)
+}
+
+func (m *MockBackend) ListTicketLinks(_ authz.Actor, ticketID uint) ([]ticket.LinkResponse, error) {
+	args := m.Called(ticketID)
+	return getSlice[ticket.LinkResponse](args, 0), args.Error(1)
 }

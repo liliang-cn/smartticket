@@ -9,12 +9,14 @@ import (
 	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/customer"
 	apperrors "github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/llm"
+	"github.com/company/smartticket/internal/macro"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/notification"
 	"github.com/company/smartticket/internal/product"
@@ -22,6 +24,8 @@ import (
 	"github.com/company/smartticket/internal/services"
 	"github.com/company/smartticket/internal/sla"
 	"github.com/company/smartticket/internal/subscription"
+	"github.com/company/smartticket/internal/survey"
+	"github.com/company/smartticket/internal/team"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
 )
@@ -43,6 +47,10 @@ type DirectBackend struct {
 	notification *notification.Service
 	branding     *branding.Service
 	attachment   *attachment.Service
+	macro        *macro.Service
+	automation   *automation.Service
+	team         *team.Service
+	survey       *survey.Service
 	// llm may be nil when the deployment has no encryption key configured; the
 	// LLM-domain methods then return a clean "not configured" error.
 	llm *llm.Service
@@ -77,6 +85,10 @@ func NewDirectBackend(db *gorm.DB, authService *auth.Service, permissionService 
 		notification: notifSvc,
 		branding:     branding.NewService(db, dataPath),
 		attachment:   attachment.NewService(db, dataPath, 0, nil),
+		macro:        macro.NewService(db),
+		automation:   automation.NewService(db),
+		team:         team.NewService(db),
+		survey:       survey.NewService(db),
 		llm:          llmService,
 	}
 }
@@ -563,6 +575,112 @@ func (b *DirectBackend) ListAttachments(actor authz.Actor, ticketID uint) ([]mod
 
 func (b *DirectBackend) GetAttachment(actor authz.Actor, attachmentID uint) (*models.Attachment, error) {
 	return b.attachment.Get(actor, attachmentID)
+}
+
+// --- Macro domain ---
+
+func (b *DirectBackend) ListMacros(userID uint) ([]models.Macro, error) {
+	return b.macro.List(userID)
+}
+
+func (b *DirectBackend) GetMacro(userID, id uint) (*models.Macro, error) {
+	return b.macro.Get(userID, id)
+}
+
+func (b *DirectBackend) CreateMacro(userID uint, req macro.CreateRequest) (*models.Macro, error) {
+	return b.macro.Create(userID, req)
+}
+
+func (b *DirectBackend) UpdateMacro(userID, id uint, req macro.UpdateRequest) (*models.Macro, error) {
+	return b.macro.Update(userID, id, req)
+}
+
+func (b *DirectBackend) DeleteMacro(userID, id uint) error {
+	return b.macro.Delete(userID, id)
+}
+
+func (b *DirectBackend) ApplyMacro(macroID, userID uint, rctx macro.RenderContext) (string, []macro.Action, error) {
+	return b.macro.Apply(macroID, userID, rctx)
+}
+
+// --- Automation domain ---
+
+func (b *DirectBackend) ListRules() ([]automation.RuleResponse, error) {
+	return b.automation.ListRules()
+}
+
+func (b *DirectBackend) GetRule(id uint) (*automation.RuleResponse, error) {
+	return b.automation.GetRule(id)
+}
+
+func (b *DirectBackend) CreateRule(req *automation.CreateRuleRequest) (*automation.RuleResponse, error) {
+	return b.automation.CreateRule(req)
+}
+
+func (b *DirectBackend) UpdateRule(id uint, req *automation.UpdateRuleRequest) (*automation.RuleResponse, error) {
+	return b.automation.UpdateRule(id, req)
+}
+
+func (b *DirectBackend) DeleteRule(id uint) error {
+	return b.automation.DeleteRule(id)
+}
+
+// --- Team domain ---
+
+func (b *DirectBackend) ListTeams() ([]team.TeamResponse, error) {
+	return b.team.ListTeams()
+}
+
+func (b *DirectBackend) GetTeam(id uint) (*team.TeamResponse, error) {
+	return b.team.GetTeam(id)
+}
+
+func (b *DirectBackend) CreateTeam(req *team.CreateRequest) (*team.TeamResponse, error) {
+	return b.team.CreateTeam(req)
+}
+
+func (b *DirectBackend) UpdateTeam(id uint, req *team.UpdateRequest) (*team.TeamResponse, error) {
+	return b.team.UpdateTeam(id, req)
+}
+
+func (b *DirectBackend) DeleteTeam(id uint) error {
+	return b.team.DeleteTeam(id)
+}
+
+func (b *DirectBackend) AddTeamMember(teamID, userID uint) error {
+	return b.team.AddMember(teamID, userID)
+}
+
+func (b *DirectBackend) RemoveTeamMember(teamID, userID uint) error {
+	return b.team.RemoveMember(teamID, userID)
+}
+
+func (b *DirectBackend) ListTeamMembers(teamID uint) ([]team.MemberResponse, error) {
+	return b.team.ListMembers(teamID)
+}
+
+// --- Survey domain ---
+
+func (b *DirectBackend) GetSurveyStats() (survey.Stats, error) {
+	return b.survey.GetStats()
+}
+
+// --- Ticket merge/link domain ---
+
+func (b *DirectBackend) MergeTickets(actor authz.Actor, sourceID, targetID uint) error {
+	return b.ticket.Merge(actor, sourceID, targetID)
+}
+
+func (b *DirectBackend) LinkTickets(actor authz.Actor, sourceID, targetID uint, linkType string) (*models.TicketLink, error) {
+	return b.ticket.LinkTickets(actor, sourceID, targetID, linkType)
+}
+
+func (b *DirectBackend) UnlinkTicket(actor authz.Actor, ticketID, linkID uint) error {
+	return b.ticket.Unlink(actor, ticketID, linkID)
+}
+
+func (b *DirectBackend) ListTicketLinks(actor authz.Actor, ticketID uint) ([]ticket.LinkResponse, error) {
+	return b.ticket.ListLinks(actor, ticketID)
 }
 
 // Ensure DirectBackend satisfies the Backend interface.

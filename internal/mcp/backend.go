@@ -13,16 +13,20 @@ import (
 
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/llm"
+	"github.com/company/smartticket/internal/macro"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/product"
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/sla"
 	"github.com/company/smartticket/internal/subscription"
+	"github.com/company/smartticket/internal/survey"
+	"github.com/company/smartticket/internal/team"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
 )
@@ -172,6 +176,40 @@ type Backend interface {
 	// --- Attachment domain --- (metadata only; binary upload/download is not exposed over MCP)
 	ListAttachments(actor authz.Actor, ticketID uint) ([]models.Attachment, error)
 	GetAttachment(actor authz.Actor, attachmentID uint) (*models.Attachment, error)
+
+	// --- Macro domain --- (gated by macro:read/write; userID scopes visibility)
+	ListMacros(userID uint) ([]models.Macro, error)
+	GetMacro(userID, id uint) (*models.Macro, error)
+	CreateMacro(userID uint, req macro.CreateRequest) (*models.Macro, error)
+	UpdateMacro(userID, id uint, req macro.UpdateRequest) (*models.Macro, error)
+	DeleteMacro(userID, id uint) error
+	ApplyMacro(macroID, userID uint, rctx macro.RenderContext) (string, []macro.Action, error)
+
+	// --- Automation domain --- (gated by automation:read/write)
+	ListRules() ([]automation.RuleResponse, error)
+	GetRule(id uint) (*automation.RuleResponse, error)
+	CreateRule(req *automation.CreateRuleRequest) (*automation.RuleResponse, error)
+	UpdateRule(id uint, req *automation.UpdateRuleRequest) (*automation.RuleResponse, error)
+	DeleteRule(id uint) error
+
+	// --- Team domain --- (gated by team:read/write)
+	ListTeams() ([]team.TeamResponse, error)
+	GetTeam(id uint) (*team.TeamResponse, error)
+	CreateTeam(req *team.CreateRequest) (*team.TeamResponse, error)
+	UpdateTeam(id uint, req *team.UpdateRequest) (*team.TeamResponse, error)
+	DeleteTeam(id uint) error
+	AddTeamMember(teamID, userID uint) error
+	RemoveTeamMember(teamID, userID uint) error
+	ListTeamMembers(teamID uint) ([]team.MemberResponse, error)
+
+	// --- Survey domain --- (gated by survey:read)
+	GetSurveyStats() (survey.Stats, error)
+
+	// --- Ticket merge/link domain --- (actor-scoped; uses ticket:write/read perms)
+	MergeTickets(actor authz.Actor, sourceID, targetID uint) error
+	LinkTickets(actor authz.Actor, sourceID, targetID uint, linkType string) (*models.TicketLink, error)
+	UnlinkTicket(actor authz.Actor, ticketID, linkID uint) error
+	ListTicketLinks(actor authz.Actor, ticketID uint) ([]ticket.LinkResponse, error)
 }
 
 // Session holds the authenticated identity and effective permission set for a
