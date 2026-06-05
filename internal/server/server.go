@@ -11,6 +11,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,6 +25,7 @@ import (
 	"github.com/company/smartticket/internal/api/middleware"
 	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
+	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/config"
@@ -35,6 +37,7 @@ import (
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/knowledgebase"
 	"github.com/company/smartticket/internal/llm"
+	"github.com/company/smartticket/internal/macro"
 	"github.com/company/smartticket/internal/logger"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/notification"
@@ -254,6 +257,7 @@ func (s *Server) setupRoutes() {
 	importExportService := importexport.NewService(s.db.DB, s.config.Storage.DataPath)
 	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
 	brandingService := branding.NewService(s.db.DB, s.config.Storage.DataPath)
+	macroService := macro.NewService(s.db.DB)
 
 	authHandlers := auth.NewHandlers(s.authService)
 	userHandlers := user.NewHandlers(userService)
@@ -266,6 +270,7 @@ func (s *Server) setupRoutes() {
 	importExportHandlers := importexport.NewHandlers(importExportService)
 	attachmentHandlers := attachment.NewHandlers(attachmentService)
 	brandingHandlers := branding.NewHandlers(brandingService)
+	macroHandlers := macro.NewHandlers(macroService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
 
@@ -702,6 +707,49 @@ func (s *Server) setupRoutes() {
 				autoGroup.GET("/:id", autoHandlers.GetRule)
 				autoGroup.PUT("/:id", autoHandlers.UpdateRule)
 				autoGroup.DELETE("/:id", autoHandlers.DeleteRule)
+			}
+
+			// Macro / canned responses (any authenticated team or admin user).
+			macros := protected.Group("/macros")
+			{
+				macros.GET("", macroHandlers.List)
+				macros.POST("", macroHandlers.Create)
+				macros.GET("/:id", macroHandlers.Get)
+				macros.PUT("/:id", macroHandlers.Update)
+				macros.DELETE("/:id", macroHandlers.Delete)
+				macros.POST("/:id/apply", func(c *gin.Context) {
+					// Assemble RenderContext from ticket + user before delegating to
+					// the macro handler so macro package doesn't import ticket/user.
+					idStr := c.Query("ticket_id")
+					if idStr != "" {
+						if tid, err := strconv.ParseUint(idStr, 10, 64); err == nil && tid > 0 {
+							// Build a minimal actor for ticket lookup (team user, no customer scope).
+							actor := authz.Actor{
+								UserID: c.GetUint("user_id"),
+								Role:   c.GetString("user_role"),
+							}
+							if tkt, err := ticketService.GetTicket(actor, uint(tid)); err == nil {
+								// Resolve the acting user's display name.
+								agentName := ""
+								if ui, uerr := userService.GetUser(actor.UserID); uerr == nil {
+									agentName = ui.FirstName + " " + ui.LastName
+								}
+								customerName := tkt.RequesterName
+								if tkt.CustomerName != "" {
+									customerName = tkt.CustomerName
+								}
+								rctx := macro.RenderContext{
+									CustomerName:  customerName,
+									AgentName:     agentName,
+									TicketID:      fmt.Sprintf("%d", tkt.ID),
+									TicketSubject: tkt.Title,
+								}
+								c.Set("macro_render_ctx", rctx)
+							}
+						}
+					}
+					macroHandlers.Apply(c)
+				})
 			}
 
 			// Knowledge base routes

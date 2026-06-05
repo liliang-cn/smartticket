@@ -504,7 +504,7 @@ type Macro struct {
 	Category   string `gorm:"size:100;index" json:"category"`
 	Body       string `gorm:"type:text;not null" json:"body"`
 	Actions    string `gorm:"type:text" json:"actions"`
-	Shared     bool   `gorm:"default:true" json:"shared"`
+	Shared     bool   `gorm:"default:false" json:"shared"`
 	OwnerID    uint   `gorm:"index" json:"owner_id"`
 	UsageCount int    `gorm:"default:0" json:"usage_count"`
 }
