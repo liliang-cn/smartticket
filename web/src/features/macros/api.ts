@@ -77,3 +77,30 @@ export function useDeleteMacro() {
     },
   });
 }
+
+export interface MacroAction {
+  type: string;
+  value: string;
+}
+
+export interface ApplyMacroResult {
+  rendered: string;
+  actions: MacroAction[] | null;
+}
+
+/** Apply a macro, optionally scoped to a ticket for template rendering. */
+export function useApplyMacro() {
+  return useMutation({
+    mutationFn: async ({
+      macroId,
+      ticketId,
+    }: {
+      macroId: number;
+      ticketId?: number;
+    }): Promise<ApplyMacroResult> => {
+      const params = ticketId ? `?ticket_id=${ticketId}` : "";
+      const res = await api.post(`/macros/${macroId}/apply${params}`, {});
+      return unwrap<ApplyMacroResult>(res.data);
+    },
+  });
+}

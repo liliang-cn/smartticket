@@ -37,12 +37,29 @@ export function useUpdateAISettings() {
   });
 }
 
+/** The structured payload returned by the AI suggest-reply endpoint. */
+export interface SuggestReplyResult {
+  reply: string;
+  confidence: number;
+  needs_clarification: boolean;
+  used_kb: boolean;
+  sources: string[];
+}
+
 /** Ask the AI agent to draft a reply for a ticket (team only). */
 export function useSuggestReply(ticketId: number) {
   return useMutation({
-    mutationFn: async (): Promise<string> => {
+    mutationFn: async (): Promise<SuggestReplyResult> => {
       const res = await api.post(`/tickets/${ticketId}/suggest-reply`);
-      return unwrap<{ suggestion: string }>(res.data).suggestion;
+      const d = unwrap<SuggestReplyResult>(res.data);
+      // Normalise: backend guarantees "reply" key; sources may be null.
+      return {
+        reply: d.reply ?? "",
+        confidence: typeof d.confidence === "number" ? d.confidence : 0,
+        needs_clarification: !!d.needs_clarification,
+        used_kb: !!d.used_kb,
+        sources: Array.isArray(d.sources) ? d.sources : [],
+      };
     },
   });
 }
