@@ -6,6 +6,8 @@ package aiassist
 
 import (
 	"context"
+	"encoding/json"
+	"strings"
 
 	"github.com/liliang-cn/agent-go/v2/pkg/domain"
 
@@ -60,12 +62,52 @@ func (g *Generator) StreamWithTools(ctx context.Context, msgs []domain.Message, 
 	return cb(res)
 }
 
-func (g *Generator) GenerateStructured(ctx context.Context, prompt string, _ interface{}, opts *domain.GenerationOptions) (*domain.StructuredResult, error) {
-	out, err := g.Generate(ctx, prompt, opts)
+func (g *Generator) GenerateStructured(ctx context.Context, prompt string, schema interface{}, opts *domain.GenerationOptions) (*domain.StructuredResult, error) {
+	fullPrompt := prompt
+	if schema != nil {
+		schemaBytes, err := json.Marshal(schema)
+		if err == nil {
+			fullPrompt = prompt + "\n\nRespond with ONLY a single JSON object matching this schema (no prose, no markdown, no code fences):\n" + string(schemaBytes)
+		}
+	}
+
+	out, err := g.Generate(ctx, fullPrompt, opts)
 	if err != nil {
 		return nil, err
 	}
-	return &domain.StructuredResult{Data: out, Raw: out, Valid: true}, nil
+
+	extracted := extractJSON(out)
+	var parsed map[string]interface{}
+	if err := json.Unmarshal([]byte(extracted), &parsed); err != nil {
+		return &domain.StructuredResult{Data: nil, Raw: out, Valid: false}, nil
+	}
+	return &domain.StructuredResult{Data: parsed, Raw: extracted, Valid: true}, nil
+}
+
+// extractJSON strips markdown code fences and returns the substring from the
+// first '{' to the last '}'. Returns empty string if no JSON object is found.
+func extractJSON(s string) string {
+	// Strip ```json ... ``` or ``` ... ``` fences.
+	s = strings.TrimSpace(s)
+	if strings.HasPrefix(s, "```") {
+		// Remove opening fence line.
+		newline := strings.Index(s, "\n")
+		if newline >= 0 {
+			s = s[newline+1:]
+		}
+		// Remove closing fence.
+		if idx := strings.LastIndex(s, "```"); idx >= 0 {
+			s = s[:idx]
+		}
+		s = strings.TrimSpace(s)
+	}
+
+	start := strings.Index(s, "{")
+	end := strings.LastIndex(s, "}")
+	if start < 0 || end < start {
+		return ""
+	}
+	return s[start : end+1]
 }
 
 func (g *Generator) RecognizeIntent(_ context.Context, _ string) (*domain.IntentResult, error) {
