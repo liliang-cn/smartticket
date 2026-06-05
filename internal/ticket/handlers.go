@@ -547,16 +547,29 @@ func (h *Handlers) CreateTicketMessage(c *gin.Context) {
 
 // SuggestReply returns an AI-drafted reply for the ticket (team-only). The
 // service maps AI unavailability (disabled / no provider) to a clear error.
+// The response includes structured fields (confidence, needs_clarification,
+// used_kb, sources) in addition to the reply text. The "reply" key is
+// preserved so the existing frontend (which reads .data.reply) continues to
+// work unchanged.
 func (h *Handlers) SuggestReply(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
 		return
 	}
-	draft, err := h.service.SuggestReply(actorFromContext(c), uint(id))
+	draft, err := h.service.SuggestReplyDraft(actorFromContext(c), uint(id))
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"suggestion": draft}})
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"reply":               draft.Reply,
+			"confidence":          draft.Confidence,
+			"needs_clarification": draft.NeedsClarification,
+			"used_kb":             draft.UsedKB,
+			"sources":             draft.Sources,
+		},
+	})
 }
