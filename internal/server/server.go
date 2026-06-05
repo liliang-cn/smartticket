@@ -354,11 +354,78 @@ func (s *Server) setupRoutes() {
 	widgetService := widget.NewService(s.db.DB, ticketService, s.config.JWT.Secret)
 	widgetHandlers := widget.NewHandlers(widgetService)
 
+	// widgetCORS is a permissive CORS middleware applied to public widget endpoints
+	// and the widget bundle itself. These routes are intended to be embedded on
+	// arbitrary customer domains, so Access-Control-Allow-Origin: * is correct and
+	// safe — all sensitive operations are scoped by the conversation token, not by
+	// the browser's same-origin policy.
+	widgetCORS := func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	}
+
+	// Serve the compiled widget JS bundle. Path is configurable via the
+	// SMARTTICKET_WIDGET_JS_PATH environment variable (via Viper); falls back to
+	// the local build output so `go run` during development just works.
+	widgetJSPath := s.config.WidgetJSPath
+	if widgetJSPath == "" {
+		widgetJSPath = "./web-widget/dist/widget.js"
+	}
+	s.router.GET("/widget.js", widgetCORS, func(c *gin.Context) {
+		data, err := os.ReadFile(widgetJSPath)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "widget bundle not found — run `pnpm build` in web-widget/",
+				"path":  widgetJSPath,
+			})
+			return
+		}
+		c.Header("Cache-Control", "public, max-age=300")
+		c.Data(http.StatusOK, "application/javascript; charset=utf-8", data)
+	})
+
+	// Demo/smoke-test page: embeds the widget so it can be tested in a browser
+	// without deploying to a real customer site.
+	s.router.GET("/widget/demo", widgetCORS, func(c *gin.Context) {
+		scheme := "http"
+		if c.Request.TLS != nil {
+			scheme = "https"
+		}
+		origin := scheme + "://" + c.Request.Host
+		html := `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartTicket Widget Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 40px; background: #f8fafc; }
+    h1 { color: #1e293b; font-size: 24px; }
+    p  { color: #64748b; margin-top: 8px; line-height: 1.6; }
+    code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>SmartTicket Widget Demo</h1>
+  <p>The chat widget should appear in the bottom-right corner. Click the launcher button to open it.</p>
+  <p>This page is served from <code>` + origin + `</code>.</p>
+  <script src="` + origin + `/widget.js" data-key="demo" async></script>
+</body>
+</html>`
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(html))
+	})
+
 	// Public WebSocket endpoint for the customer-facing chat widget.
 	// Validates the conversation_token JWT, then subscribes to widget:<ticketID>
 	// — the same room the ticket service broadcasts to on web_widget messages.
 	hub := s.hub
-	s.router.GET("/widget/ws", func(c *gin.Context) {
+	s.router.GET("/widget/ws", widgetCORS, func(c *gin.Context) {
 		token := c.Query("conversation_token")
 		if token == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "conversation_token is required"})
@@ -370,12 +437,13 @@ func (s *Server) setupRoutes() {
 			return
 		}
 		room := fmt.Sprintf("widget:%d", ticketID)
-		realtime.ServeWS(hub, room, c.Writer, c.Request)
+		realtime.ServeWSPublic(hub, room, c.Writer, c.Request)
 	})
 
 	// Widget REST endpoints (public — no JWT auth required; secured by the
 	// conversation token instead).
 	widgetGroup := s.router.Group("/widget")
+	widgetGroup.Use(widgetCORS)
 	{
 		widgetGroup.POST("/session", widgetHandlers.StartSession)
 		widgetGroup.POST("/messages", widgetHandlers.PostMessage)

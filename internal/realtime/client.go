@@ -27,6 +27,15 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+// publicUpgrader accepts WebSocket connections from any origin. Used by the
+// customer-facing widget endpoint where cross-origin connections are expected
+// and safe (all sensitive operations are scoped by the conversation token).
+var publicUpgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin:     func(_ *http.Request) bool { return true },
+}
+
 // parseOriginHost extracts the host (host:port) from an Origin header value.
 func parseOriginHost(origin string) (string, error) {
 	// Origin format: scheme://host[:port]
@@ -52,7 +61,18 @@ const (
 // This function blocks until the connection is closed; it should be called from
 // a Gin handler (which runs in its own goroutine per request).
 func ServeWS(hub *Hub, room string, w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
+	serveWS(upgrader, hub, room, w, r)
+}
+
+// ServeWSPublic is identical to ServeWS but uses a cross-origin-permissive
+// upgrader. Use this for public widget WebSocket endpoints where the client
+// originates from a different domain than the server.
+func ServeWSPublic(hub *Hub, room string, w http.ResponseWriter, r *http.Request) {
+	serveWS(publicUpgrader, hub, room, w, r)
+}
+
+func serveWS(up websocket.Upgrader, hub *Hub, room string, w http.ResponseWriter, r *http.Request) {
+	conn, err := up.Upgrade(w, r, nil)
 	if err != nil {
 		// Upgrade writes the error response itself; nothing more to do.
 		return

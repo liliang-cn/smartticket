@@ -25,6 +25,10 @@ type Config struct {
 	// SecretKeyRaw is the raw encryption key (hex/base64) used for at-rest
 	// secrets such as LLM provider API keys. Bound from SMARTTICKET_SECRET_KEY.
 	SecretKeyRaw string `mapstructure:"secret_key"`
+	// WidgetJSPath is the filesystem path to the compiled widget JS bundle
+	// (web-widget/dist/widget.js). Defaults to "./web-widget/dist/widget.js".
+	// Override via SMARTTICKET_WIDGET_JS_PATH environment variable or config file.
+	WidgetJSPath string `mapstructure:"widget_js_path"`
 }
 
 // StorageConfig contains file (attachment) storage configuration.
