@@ -470,6 +470,29 @@ type Notification struct {
 
 func (Notification) TableName() string { return "notifications" }
 
+// AutomationRule defines a trigger-condition-action rule that runs automatically
+// when a matching domain event fires.
+type AutomationRule struct {
+	BaseModel
+	Name        string `gorm:"size:200;not null" json:"name"`
+	Description string `gorm:"type:text" json:"description"`
+	Enabled     bool   `gorm:"default:true" json:"enabled"`
+	// Event is the trigger event type, matching automation.EventType constants.
+	// Values: ticket.created | ticket.updated | message.created | ticket.sla_warning | schedule
+	Event string `gorm:"size:50;not null;index" json:"event"`
+	// Match controls whether all (AND) or any (OR) conditions must pass.
+	// Values: all | any
+	Match string `gorm:"size:10;default:'all'" json:"match"`
+	// Conditions is a JSON array of condition objects: [{field,op,value}]
+	Conditions string `gorm:"type:text" json:"conditions"`
+	// Actions is a JSON array of action objects: [{type,params}]
+	Actions string `gorm:"type:text" json:"actions"`
+	// Position controls rule evaluation order (ascending).
+	Position int `gorm:"default:0;index" json:"position"`
+}
+
+func (AutomationRule) TableName() string { return "automation_rules" }
+
 // Table name overrides.
 func (User) TableName() string             { return "users" }
 func (Ticket) TableName() string           { return "tickets" }

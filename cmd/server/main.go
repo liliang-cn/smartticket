@@ -204,6 +204,9 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		&models.AuditLog{},
 		&models.Notification{},
 		&models.TicketEvent{},
+
+		// Automation engine rules (no FK dependencies beyond base tables)
+		&models.AutomationRule{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -362,6 +365,9 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		&models.AuditLog{},
 		&models.Notification{},
 		&models.TicketEvent{},
+
+		// Automation engine rules (no FK dependencies beyond base tables)
+		&models.AutomationRule{},
 	}
 
 	// Run GORM AutoMigrate
