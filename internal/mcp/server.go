@@ -84,6 +84,11 @@ var allToolsets = []string{
 	"llm",
 	"branding",
 	"attachment",
+	"macro",
+	"automation",
+	"team",
+	"survey",
+	"ticketmerge",
 }
 
 // toolsetRegistry maps a toolset name to its registration function.
@@ -102,6 +107,11 @@ var toolsetRegistry = map[string]func(s *mcp.Server, b Backend){
 	"llm":          registerLLMTools,
 	"branding":     registerBrandingTools,
 	"attachment":   registerAttachmentTools,
+	"macro":        registerMacroTools,
+	"automation":   registerAutomationTools,
+	"team":         registerTeamTools,
+	"survey":       registerSurveyTools,
+	"ticketmerge":  registerTicketMergeTools,
 }
 
 // NewMCPServer builds an MCP server exposing the SmartTicket toolsets. If
