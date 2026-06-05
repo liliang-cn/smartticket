@@ -695,6 +695,8 @@ func (s *Server) setupRoutes() {
 			// WebSocket endpoint for agents/admins to receive real-time ticket updates.
 			// Subscribes to room "ticket:<id>". The actor must be able to view the ticket
 			// (enforced by attempting GetTicket before upgrading the connection).
+			// NOTE: this route is also registered outside this group (below) to support
+			// ?token= auth for browsers (which cannot set the Authorization header on WS).
 			protected.GET("/ws/tickets/:id", func(c *gin.Context) {
 				idStr := c.Param("id")
 				var ticketID uint
@@ -942,6 +944,53 @@ func (s *Server) setupRoutes() {
 		}
 
 	}
+
+	// Agent WebSocket — ?token= variant for browser clients that cannot set
+	// Authorization headers on a WebSocket upgrade. Registered outside the
+	// header-auth protected group; the handler validates the token itself.
+	// An invalid or missing token returns 401 and never upgrades the connection.
+	s.router.GET("/api/v1/ws/tickets/:id", func(c *gin.Context) {
+		// 1. Resolve token: prefer Authorization header, fall back to ?token= query param.
+		var rawToken string
+		if auth := c.GetHeader("Authorization"); strings.HasPrefix(auth, "Bearer ") {
+			rawToken = strings.TrimPrefix(auth, "Bearer ")
+		} else if q := c.Query("token"); q != "" {
+			rawToken = q
+		}
+		if rawToken == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication required: provide Authorization header or ?token= query parameter"})
+			return
+		}
+
+		// 2. Validate token using the same JWT validation as authMiddleware.
+		userID, userRole, customerID, err := s.validateJWTToken(rawToken)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+			return
+		}
+
+		// 3. Parse ticket ID.
+		idStr := c.Param("id")
+		var ticketID uint
+		if _, err := fmt.Sscanf(idStr, "%d", &ticketID); err != nil || ticketID == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ticket id"})
+			return
+		}
+
+		// 4. Build actor and verify ticket visibility.
+		actor := authz.Actor{UserID: userID, Role: userRole}
+		if customerID != nil {
+			actor.CustomerID = customerID
+		}
+		if _, err := ticketService.GetTicket(actor, ticketID); err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "ticket not found or access denied"})
+			return
+		}
+
+		// 5. Upgrade and serve.
+		room := fmt.Sprintf("ticket:%d", ticketID)
+		realtime.ServeWS(hub, room, c.Writer, c.Request)
+	})
 }
 
 // Start starts the HTTP server.
