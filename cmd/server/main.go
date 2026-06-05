@@ -207,6 +207,9 @@ func runServe(cmd *cobra.Command, _ []string) error {
 
 		// Automation engine rules (no FK dependencies beyond base tables)
 		&models.AutomationRule{},
+
+		// Macro / canned responses (no FK dependencies beyond users)
+		&models.Macro{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -368,6 +371,9 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 
 		// Automation engine rules (no FK dependencies beyond base tables)
 		&models.AutomationRule{},
+
+		// Macro / canned responses (no FK dependencies beyond users)
+		&models.Macro{},
 	}
 
 	// Run GORM AutoMigrate

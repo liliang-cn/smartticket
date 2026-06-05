@@ -493,6 +493,24 @@ type AutomationRule struct {
 
 func (AutomationRule) TableName() string { return "automation_rules" }
 
+// Macro is a canned response template an agent can apply to a ticket reply.
+// Shared=true macros are visible to all team members; Shared=false macros are
+// private to their OwnerID. The Body supports {{variable}} placeholders
+// substituted at apply-time (see internal/macro.Render).
+// Actions is an optional JSON array of side-effects: [{type, params}].
+type Macro struct {
+	BaseModel
+	Title      string `gorm:"size:200;not null" json:"title"`
+	Category   string `gorm:"size:100;index" json:"category"`
+	Body       string `gorm:"type:text;not null" json:"body"`
+	Actions    string `gorm:"type:text" json:"actions"`
+	Shared     bool   `gorm:"default:true" json:"shared"`
+	OwnerID    uint   `gorm:"index" json:"owner_id"`
+	UsageCount int    `gorm:"default:0" json:"usage_count"`
+}
+
+func (Macro) TableName() string { return "macros" }
+
 // Table name overrides.
 func (User) TableName() string             { return "users" }
 func (Ticket) TableName() string           { return "tickets" }
