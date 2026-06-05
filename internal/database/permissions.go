@@ -44,6 +44,13 @@ var permissionCatalog = []permissionDef{
 	{"settings:read", "Read deployment settings/branding", "settings"},
 	{"settings:write", "Manage deployment settings/branding", "settings"},
 	{"admin:system", "Full system administration", "system"},
+	{"macro:read", "Read macros", "macros"},
+	{"macro:write", "Manage macros", "macros"},
+	{"automation:read", "Read automation rules", "automation"},
+	{"automation:write", "Manage automation rules", "automation"},
+	{"team:read", "Read teams", "teams"},
+	{"team:write", "Manage teams", "teams"},
+	{"survey:read", "Read CSAT survey stats", "survey"},
 }
 
 // roleGrants maps each standard role to the permission codes it is granted.
@@ -63,6 +70,10 @@ var roleGrants = map[string][]string{
 		"llm:read",
 		"subscription:read", "subscription:write",
 		"settings:read",
+		"macro:read", "macro:write",
+		"automation:read",
+		"team:read",
+		"survey:read",
 	},
 	"support": {
 		"ticket:read", "ticket:write",
@@ -70,6 +81,8 @@ var roleGrants = map[string][]string{
 		"customer:read",
 		"product:read", "service:read", "sla:read",
 		"subscription:read",
+		"macro:read", "macro:write",
+		"survey:read",
 	},
 	"sales": {
 		"customer:read", "customer:write",
