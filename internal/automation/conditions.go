@@ -112,10 +112,21 @@ func evalRankedCond(c Condition, fieldVal string, rank map[string]int) bool {
 		return fieldVal != s
 	case "gt":
 		s, _ := c.Value.(string)
-		return rank[fieldVal] > rank[s]
+		lv, lok := rank[fieldVal]
+		rv, rok := rank[s]
+		if !lok || !rok {
+			// Unknown rank value — don't fire on garbage input.
+			return false
+		}
+		return lv > rv
 	case "lt":
 		s, _ := c.Value.(string)
-		return rank[fieldVal] < rank[s]
+		lv, lok := rank[fieldVal]
+		rv, rok := rank[s]
+		if !lok || !rok {
+			return false
+		}
+		return lv < rv
 	case "contains":
 		s, _ := c.Value.(string)
 		return strings.Contains(fieldVal, s)

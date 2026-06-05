@@ -134,3 +134,27 @@ func TestMatch_UnknownField(t *testing.T) {
 	conds := []automation.Condition{{Field: "does_not_exist", Op: "eq", Value: "foo"}}
 	assert.False(t, automation.Match("all", conds, tv()))
 }
+
+// --- rank guard (gt/lt with unknown enum values) ---
+
+func TestMatch_Gt_UnknownFieldVal_ReturnsFalse(t *testing.T) {
+	// Ticket priority is "" (unknown) — must not compare as below-"low".
+	conds := []automation.Condition{{Field: "priority", Op: "gt", Value: "low"}}
+	view := automation.TicketView{Priority: ""}
+	assert.False(t, automation.Match("all", conds, view),
+		"gt with unknown priority fieldVal must return false, not 'greater than low'")
+}
+
+func TestMatch_Lt_UnknownConditionVal_ReturnsFalse(t *testing.T) {
+	// Condition value is a garbage string — must not silently compare as rank 0.
+	conds := []automation.Condition{{Field: "priority", Op: "lt", Value: "not-a-priority"}}
+	view := automation.TicketView{Priority: "low"}
+	assert.False(t, automation.Match("all", conds, view),
+		"lt with unknown condition value must return false")
+}
+
+func TestMatch_Gt_UnknownBothSides_ReturnsFalse(t *testing.T) {
+	conds := []automation.Condition{{Field: "severity", Op: "gt", Value: "garbage"}}
+	view := automation.TicketView{Severity: "also-garbage"}
+	assert.False(t, automation.Match("all", conds, view))
+}

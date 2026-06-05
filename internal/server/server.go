@@ -60,6 +60,8 @@ type Server struct {
 	kbStore              *knowledgebase.Store
 	hub                  *realtime.Hub
 	bus                  *automation.Bus
+	// cancelCtx stops background goroutines (e.g. the automation scheduler) on Shutdown.
+	cancelCtx context.CancelFunc
 	// uiFS is the embedded single-page frontend, served for non-API GET routes.
 	// nil in API-only builds (built without the `embedui` tag).
 	uiFS fs.FS
@@ -379,10 +381,14 @@ func (s *Server) setupRoutes() {
 	autoEngine.Subscribe(s.bus)
 
 	autoScheduler := automation.NewScheduler(s.bus, autoSvc, autoEngine, automation.SchedulerConfig{
-		AutoResolveEnabled:  false, // configurable in a future iteration
 		SilentWindowSeconds: 86400,
+		// Wire the live settings store so toggling AutoResolveEnabled in /settings
+		// takes effect on the next scheduler tick without a server restart.
+		Settings: (*aiSettingsAdapter)(aiSettings),
 	})
-	go autoScheduler.Run(context.Background())
+	schedCtx, schedCancel := context.WithCancel(context.Background())
+	s.cancelCtx = schedCancel
+	go autoScheduler.Run(schedCtx)
 
 	autoHandlers := automation.NewHandlers(autoSvc)
 
@@ -829,6 +835,11 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 	logger.Info("Shutting down HTTP server...")
 
+	// Cancel the background context so the scheduler goroutine exits cleanly.
+	if s.cancelCtx != nil {
+		s.cancelCtx()
+	}
+
 	if s.kbStore != nil {
 		if err := s.kbStore.Close(); err != nil {
 			logger.Warn("failed to close cortexdb store", zap.Error(err))
@@ -846,6 +857,22 @@ func (s *Server) GetRouter() *gin.Engine {
 // GetConfig returns the server configuration.
 func (s *Server) GetConfig() *config.Config {
 	return s.config
+}
+
+// aiSettingsAdapter wraps *aiassist.SettingsStore and satisfies
+// automation.AutoResolveSettingsReader. The type alias avoids exposing the
+// aiassist import in the public scheduler API while keeping the dependency
+// explicit at the server wiring layer.
+type aiSettingsAdapter aiassist.SettingsStore
+
+// AutoResolveEnabled implements automation.AutoResolveSettingsReader.
+// Returns false on any DB error so the scheduler degrades safely.
+func (a *aiSettingsAdapter) AutoResolveEnabled() bool {
+	s, err := (*aiassist.SettingsStore)(a).Get()
+	if err != nil || s == nil {
+		return false
+	}
+	return s.AutoResolveEnabled
 }
 
 // handleNoRoute serves the embedded single-page app for unmatched non-API GET

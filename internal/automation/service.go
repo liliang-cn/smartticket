@@ -76,6 +76,7 @@ func (s *Service) SilentCustomerTicketIDs(now time.Time, windowSeconds int64) ([
 			SELECT MAX(m2.created_at) FROM messages m2
 			WHERE m2.ticket_id = t.id
 			  AND m2.is_internal = 0
+			  AND m2.is_from_ai = 0
 		  ) < ?
 	`, cutoff).Pluck("id", &ids).Error
 	return ids, err
