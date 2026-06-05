@@ -470,6 +470,25 @@ type Notification struct {
 
 func (Notification) TableName() string { return "notifications" }
 
+// Team is a named group of users (agents/admins) used for ticket assignment and
+// @mention routing. Teams are managed by admins.
+type Team struct {
+	BaseModel
+	Name        string `gorm:"size:120;not null;uniqueIndex" json:"name"`
+	Description string `gorm:"type:text" json:"description"`
+}
+
+// TeamMember records that a user belongs to a team. The composite unique index
+// prevents duplicate memberships at the database level.
+type TeamMember struct {
+	BaseModel
+	TeamID uint `gorm:"index;not null;uniqueIndex:idx_team_user" json:"team_id"`
+	UserID uint `gorm:"index;not null;uniqueIndex:idx_team_user" json:"user_id"`
+}
+
+func (Team) TableName() string       { return "teams" }
+func (TeamMember) TableName() string { return "team_members" }
+
 // SatisfactionSurvey captures a post-resolution CSAT survey for a ticket.
 // One survey per ticket: CreateForTicket is idempotent. Rating 0 means the
 // customer has not yet answered.

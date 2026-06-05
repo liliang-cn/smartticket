@@ -213,6 +213,10 @@ func runServe(cmd *cobra.Command, _ []string) error {
 
 		// CSAT satisfaction surveys (depend on Ticket)
 		&models.SatisfactionSurvey{},
+
+		// Teams and membership (agent collaboration)
+		&models.Team{},
+		&models.TeamMember{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -380,6 +384,10 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 
 		// CSAT satisfaction surveys (depend on Ticket)
 		&models.SatisfactionSurvey{},
+
+		// Teams and membership (agent collaboration)
+		&models.Team{},
+		&models.TeamMember{},
 	}
 
 	// Run GORM AutoMigrate

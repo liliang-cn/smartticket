@@ -47,6 +47,7 @@ import (
 	"github.com/company/smartticket/internal/services"
 	"github.com/company/smartticket/internal/sla"
 	"github.com/company/smartticket/internal/subscription"
+	"github.com/company/smartticket/internal/team"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
 	"github.com/company/smartticket/internal/survey"
@@ -259,6 +260,7 @@ func (s *Server) setupRoutes() {
 	importExportService := importexport.NewService(s.db.DB, s.config.Storage.DataPath)
 	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
 	brandingService := branding.NewService(s.db.DB, s.config.Storage.DataPath)
+	teamService := team.NewService(s.db.DB)
 	macroService := macro.NewService(s.db.DB)
 	surveyService := survey.NewService(s.db.DB)
 
@@ -273,6 +275,7 @@ func (s *Server) setupRoutes() {
 	importExportHandlers := importexport.NewHandlers(importExportService)
 	attachmentHandlers := attachment.NewHandlers(attachmentService)
 	brandingHandlers := branding.NewHandlers(brandingService)
+	teamHandlers := team.NewHandlers(teamService)
 	macroHandlers := macro.NewHandlers(macroService)
 	surveyHandlers := survey.NewHandlers(surveyService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
@@ -715,6 +718,26 @@ func (s *Server) setupRoutes() {
 				notif.GET("/unread-count", notificationHandlers.UnreadCount)
 				notif.POST("/:id/read", notificationHandlers.MarkRead)
 				notif.POST("/read-all", notificationHandlers.MarkAllRead)
+			}
+
+			// Teams and membership routes.
+			// List/read endpoints are accessible to all authenticated users so
+			// agents can see which teams exist when @mentioning. Mutations require
+			// admin.
+			teamsGroup := protected.Group("/teams")
+			{
+				teamsGroup.GET("", teamHandlers.ListTeams)
+				teamsGroup.GET("/:id", teamHandlers.GetTeam)
+				teamsGroup.GET("/:id/members", teamHandlers.ListMembers)
+			}
+			teamsAdmin := protected.Group("/teams")
+			teamsAdmin.Use(s.adminMiddleware())
+			{
+				teamsAdmin.POST("", teamHandlers.CreateTeam)
+				teamsAdmin.PUT("/:id", teamHandlers.UpdateTeam)
+				teamsAdmin.DELETE("/:id", teamHandlers.DeleteTeam)
+				teamsAdmin.POST("/:id/members", teamHandlers.AddMember)
+				teamsAdmin.DELETE("/:id/members/:userId", teamHandlers.RemoveMember)
 			}
 
 			// Customer organization management routes (team-only).
