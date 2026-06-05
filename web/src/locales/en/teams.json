@@ -1,0 +1,67 @@
+{
+  "page": {
+    "eyebrow": "team",
+    "title": "Teams"
+  },
+  "newTeam": "New team",
+  "table": {
+    "name": "Name",
+    "description": "Description",
+    "actions": ""
+  },
+  "members": {
+    "title": "Members — {{name}}",
+    "addMember": "Add member",
+    "empty": "No members yet.",
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "actions": ""
+    },
+    "remove": "Remove",
+    "addDialog": {
+      "title": "Add member",
+      "description": "Select a user to add to {{teamName}}.",
+      "userLabel": "User",
+      "selectPlaceholder": "Select a user…",
+      "submit": "Add",
+      "submitting": "Adding…"
+    }
+  },
+  "empty": "No teams yet.",
+  "form": {
+    "titleCreate": "New team",
+    "titleEdit": "Edit team",
+    "description": "Teams group agents for ticket assignment and notifications.",
+    "name": "Name",
+    "namePlaceholder": "Support",
+    "description_field": "Description",
+    "descriptionPlaceholder": "Optional notes about this team…",
+    "submitCreate": "Create team",
+    "submitEdit": "Save changes",
+    "creatingPending": "Creating…",
+    "savingPending": "Saving…"
+  },
+  "deleteDialog": {
+    "title": "Delete team",
+    "description": "Delete team \"{{name}}\"? All memberships will be removed. This cannot be undone.",
+    "confirm": "Delete",
+    "confirmPending": "Deleting…"
+  },
+  "toast": {
+    "created": "Team created",
+    "updated": "Team updated",
+    "deleted": "Team deleted",
+    "createFailed": "Could not create team",
+    "updateFailed": "Could not update team",
+    "deleteFailed": "Could not delete team",
+    "memberAdded": "Member added",
+    "memberRemoved": "Member removed",
+    "addMemberFailed": "Could not add member",
+    "removeMemberFailed": "Could not remove member"
+  },
+  "validation": {
+    "nameRequired": "Name is required"
+  }
+}

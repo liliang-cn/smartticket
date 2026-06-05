@@ -47,10 +47,33 @@ func (rl *rateLimiter) Allow(ip string) bool {
 	return limiter.Allow()
 }
 
+// isPublicWidgetPath reports whether the request path belongs to the public
+// widget endpoints (bundle, demo page, REST API, WebSocket). These routes are
+// embedded on arbitrary customer domains, so they must allow any origin.
+func isPublicWidgetPath(path string) bool {
+	return path == "/widget.js" ||
+		strings.HasPrefix(path, "/widget/")
+}
+
 // setupCORS configures CORS middleware.
 func (s *Server) setupCORS() {
 	s.router.Use(func(c *gin.Context) {
 		origin := c.Request.Header.Get("Origin")
+
+		// Public widget endpoints must allow any origin because they are embedded
+		// on arbitrary customer domains. For all other routes, check the configured
+		// allow-list.
+		if isPublicWidgetPath(c.Request.URL.Path) {
+			c.Header("Access-Control-Allow-Origin", "*")
+			c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			if c.Request.Method == http.MethodOptions {
+				c.AbortWithStatus(http.StatusNoContent)
+				return
+			}
+			c.Next()
+			return
+		}
 
 		// Check if origin is allowed
 		allowed := false

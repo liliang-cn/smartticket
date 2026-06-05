@@ -1,0 +1,18 @@
+{
+  "title": "Wie waren wir?",
+  "subtitle": "Ihr Feedback hilft uns, besser zu werden.",
+  "rate_heading": "Bewerten Sie Ihre Erfahrung",
+  "star_label": "{{n}} Stern",
+  "comment_label": "Weitere Kommentare (optional)",
+  "comment_placeholder": "Erzählen Sie uns mehr über Ihre Erfahrung…",
+  "submit": "Feedback absenden",
+  "submitting": "Wird gesendet…",
+  "already_responded_title": "Bereits eingereicht",
+  "already_responded_desc": "Danke — Sie haben dieses Ticket bereits bewertet.",
+  "thank_you_title": "Vielen Dank!",
+  "thank_you_desc": "Ihr Feedback wurde gespeichert.",
+  "not_found_title": "Umfrage nicht gefunden",
+  "not_found_desc": "Dieser Umfragelink ist ungültig oder abgelaufen.",
+  "error_generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+  "powered_by": "Powered by SmartTicket"
+}

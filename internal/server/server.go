@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"mime"
@@ -10,6 +11,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,6 +25,8 @@ import (
 	"github.com/company/smartticket/internal/api/middleware"
 	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
+	"github.com/company/smartticket/internal/authz"
+	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/customer"
@@ -33,15 +37,21 @@ import (
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/knowledgebase"
 	"github.com/company/smartticket/internal/llm"
+	"github.com/company/smartticket/internal/macro"
 	"github.com/company/smartticket/internal/logger"
+	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/notification"
 	"github.com/company/smartticket/internal/product"
+	"github.com/company/smartticket/internal/realtime"
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/services"
 	"github.com/company/smartticket/internal/sla"
 	"github.com/company/smartticket/internal/subscription"
+	"github.com/company/smartticket/internal/team"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
+	"github.com/company/smartticket/internal/survey"
+	"github.com/company/smartticket/internal/widget"
 )
 
 // Server represents the HTTP server.
@@ -53,6 +63,10 @@ type Server struct {
 	authService          *auth.Service
 	permissionMiddleware *middleware.PermissionMiddleware
 	kbStore              *knowledgebase.Store
+	hub                  *realtime.Hub
+	bus                  *automation.Bus
+	// cancelCtx stops background goroutines (e.g. the automation scheduler) on Shutdown.
+	cancelCtx context.CancelFunc
 	// uiFS is the embedded single-page frontend, served for non-API GET routes.
 	// nil in API-only builds (built without the `embedui` tag).
 	uiFS fs.FS
@@ -172,6 +186,12 @@ func (s *Server) setupMiddleware() {
 
 // setupRoutes configures server routes.
 func (s *Server) setupRoutes() {
+	// Initialize the in-process realtime hub (shared across all WS connections).
+	s.hub = realtime.NewHub()
+	go s.hub.Run()
+	// Initialize the domain-event bus (single shared instance for the server lifetime).
+	s.bus = automation.NewBus()
+
 	// Initialize services and handlers
 	authRepo := auth.NewRepository(s.db.DB)
 	userService := user.NewService(s.db.DB, authRepo, s.authService)
@@ -192,12 +212,15 @@ func (s *Server) setupRoutes() {
 	notificationService := notification.NewService(s.db.DB)
 	notificationHandlers := notification.NewHandlers(notificationService)
 	ticketService.SetNotifier(notificationService)
+	ticketService.SetBus(s.bus)
+	ticketService.SetHub(s.hub)
 
 	// Bidirectional email (opt-in): outbound ticket replies via Resend/SMTP, and
 	// inbound email→ticket via a signed webhook (registered as a public route).
 	var emailInbound *email.InboundHandler
+	var emailSvc *email.Service // kept for CSAT survey delivery
 	if s.config.Email.Enabled {
-		emailService := email.NewService(email.Options{
+		emailSvc = email.NewService(email.Options{
 			Provider:     s.config.Email.Provider,
 			FromName:     s.config.Email.FromName,
 			FromAddress:  s.config.Email.FromAddress,
@@ -210,7 +233,7 @@ func (s *Server) setupRoutes() {
 				TLS:      s.config.Email.SMTP.TLS,
 			},
 		})
-		ticketService.SetMailer(emailService)
+		ticketService.SetMailer(emailSvc)
 		if s.config.Email.Inbound.Enabled {
 			emailInbound = email.NewInboundHandler(ticketService, s.config.Email.Inbound.Secret)
 		}
@@ -237,6 +260,9 @@ func (s *Server) setupRoutes() {
 	importExportService := importexport.NewService(s.db.DB, s.config.Storage.DataPath)
 	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
 	brandingService := branding.NewService(s.db.DB, s.config.Storage.DataPath)
+	teamService := team.NewService(s.db.DB)
+	macroService := macro.NewService(s.db.DB)
+	surveyService := survey.NewService(s.db.DB)
 
 	authHandlers := auth.NewHandlers(s.authService)
 	userHandlers := user.NewHandlers(userService)
@@ -249,6 +275,9 @@ func (s *Server) setupRoutes() {
 	importExportHandlers := importexport.NewHandlers(importExportService)
 	attachmentHandlers := attachment.NewHandlers(attachmentService)
 	brandingHandlers := branding.NewHandlers(brandingService)
+	teamHandlers := team.NewHandlers(teamService)
+	macroHandlers := macro.NewHandlers(macroService)
+	surveyHandlers := survey.NewHandlers(surveyService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
 
@@ -299,6 +328,9 @@ func (s *Server) setupRoutes() {
 	// Settings always exist; the suggester is wired only when an LLM is available.
 	aiSettings := aiassist.NewSettingsStore(s.db.DB)
 	aiSettingsHandlers := aiassist.NewSettingsHandlers(aiSettings)
+	// autoAssistantRef is set inside the llmServiceRef block so the automation
+	// effector can optionally trigger AI actions; nil = AI actions are no-ops.
+	var autoAssistantRef *aiassist.Assistant
 	if llmServiceRef != nil {
 		kb := aiassist.KBSearcherFunc(func(ctx context.Context, q string, k int) []string {
 			hits, err := knowledgeService.Search(ctx, q, k, true)
@@ -316,7 +348,112 @@ func (s *Server) setupRoutes() {
 			logger.Warn("AI assistant unavailable; suggested replies disabled", zap.Error(aerr))
 		} else {
 			ticketService.SetSuggester(assistant)
+			autoAssistantRef = assistant
+
+			// Wire the auto-resolve orchestrator onto the event bus.
+			actions := &ticketAIActions{
+				svc:   ticketService,
+				notif: notificationService,
+				db:    s.db.DB,
+			}
+			resolver := aiassist.NewAutoResolver(assistant, aiSettings, actions)
+			resolver.Subscribe(s.bus)
 		}
+	}
+
+	// Automation engine: generic trigger→condition→action rules (admin-configurable).
+	// The engine subscribes to all ticket domain events and executes matching rules.
+	autoSvc := automation.NewService(s.db.DB)
+	autoEffector := &automationEffector{
+		svc:       ticketService,
+		notif:     notificationService,
+		assistant: autoAssistantRef,
+		db:        s.db.DB,
+	}
+	autoExec := automation.NewExecutor(autoEffector)
+	loadView := func(ticketID uint) (automation.TicketView, error) {
+		var tkt models.Ticket
+		if err := s.db.DB.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+			return automation.TicketView{}, err
+		}
+		var tags []string
+		if tkt.Tags != "" {
+			_ = json.Unmarshal([]byte(tkt.Tags), &tags)
+		}
+		return automation.TicketView{
+			Status:        tkt.Status,
+			Priority:      tkt.Priority,
+			Severity:      tkt.Severity,
+			Channel:       tkt.Channel,
+			CustomerEmail: tkt.RequesterEmail,
+			Tags:          tags,
+		}, nil
+	}
+	autoEngine := automation.NewEngine(autoSvc, autoExec, loadView)
+	autoEngine.Subscribe(s.bus)
+
+	autoScheduler := automation.NewScheduler(s.bus, autoSvc, autoEngine, automation.SchedulerConfig{
+		SilentWindowSeconds: 86400,
+		// Wire the live settings store so toggling AutoResolveEnabled in /settings
+		// takes effect on the next scheduler tick without a server restart.
+		Settings: (*aiSettingsAdapter)(aiSettings),
+	})
+	schedCtx, schedCancel := context.WithCancel(context.Background())
+	s.cancelCtx = schedCancel
+	go autoScheduler.Run(schedCtx)
+
+	autoHandlers := automation.NewHandlers(autoSvc)
+
+	// CSAT resolve subscriber: on ticket resolved, create a survey and deliver
+	// it via the appropriate channel (widget push or email).
+	// Defined here (in the server wiring layer) so survey package stays free of
+	// ticket/email/hub imports. Failures never block the resolve path.
+	{
+		hub := s.hub
+		baseURL := s.config.App.BaseURL
+		db := s.db.DB
+		mailer := emailSvc // nil when email is not configured
+		s.bus.Subscribe(automation.EventTicketResolved, func(ev automation.Event) {
+			sv, err := surveyService.CreateForTicket(ev.TicketID)
+			if err != nil {
+				logger.Warn("csat: failed to create survey", zap.Uint("ticket_id", ev.TicketID), zap.Error(err))
+				return
+			}
+
+			// Load the ticket to determine the delivery channel.
+			var tkt models.Ticket
+			if err := db.Where("id = ?", ev.TicketID).First(&tkt).Error; err != nil {
+				logger.Warn("csat: failed to load ticket", zap.Uint("ticket_id", ev.TicketID), zap.Error(err))
+				return
+			}
+
+			if tkt.Channel == "web_widget" {
+				// Notify the embedded widget via WebSocket broadcast.
+				payload, _ := json.Marshal(map[string]string{
+					"type":  "survey",
+					"token": sv.Token,
+				})
+				hub.Broadcast(fmt.Sprintf("widget:%d", ev.TicketID), payload)
+				return
+			}
+
+			// Email/web channels: send the survey link by email when available.
+			if mailer != nil && tkt.RequesterEmail != "" {
+				surveyLink := strings.TrimRight(baseURL, "/") + "/survey/" + sv.Token
+				body := "We'd love to hear your feedback on your recent support ticket.\n\n" +
+					"Please rate your experience (1–5) at:\n" + surveyLink +
+					"\n\nThank you!"
+				mailer.SendTicketReply(
+					context.Background(),
+					tkt.RequesterEmail,
+					tkt.TicketNumber,
+					"How did we do? — "+tkt.Title,
+					tkt.ID,
+					body,
+					"Support Team",
+				)
+			}
+		})
 	}
 
 	// Health check endpoints (no authentication required)
@@ -333,6 +470,108 @@ func (s *Server) setupRoutes() {
 		// Swagger documentation
 		health.GET("/swagger/*any", s.serveSwaggerUI)
 		health.GET("/swagger.yaml", s.serveSwaggerYAML)
+	}
+
+	// Widget service: manages visitor sessions + conversation tokens.
+	// Wired here (before route registration) so the widget WS handler can reuse
+	// the same ParseToken function without importing the service.
+	widgetService := widget.NewService(s.db.DB, ticketService, s.config.JWT.Secret)
+	widgetHandlers := widget.NewHandlers(widgetService)
+
+	// widgetCORS is a permissive CORS middleware applied to public widget endpoints
+	// and the widget bundle itself. These routes are intended to be embedded on
+	// arbitrary customer domains, so Access-Control-Allow-Origin: * is correct and
+	// safe — all sensitive operations are scoped by the conversation token, not by
+	// the browser's same-origin policy.
+	widgetCORS := func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	}
+
+	// Serve the compiled widget JS bundle. Path is configurable via the
+	// SMARTTICKET_WIDGET_JS_PATH environment variable (via Viper); falls back to
+	// the local build output so `go run` during development just works.
+	widgetJSPath := s.config.WidgetJSPath
+	if widgetJSPath == "" {
+		widgetJSPath = "./web-widget/dist/widget.js"
+	}
+	s.router.GET("/widget.js", widgetCORS, func(c *gin.Context) {
+		data, err := os.ReadFile(widgetJSPath)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "widget bundle not found — run `pnpm build` in web-widget/",
+				"path":  widgetJSPath,
+			})
+			return
+		}
+		c.Header("Cache-Control", "public, max-age=300")
+		c.Data(http.StatusOK, "application/javascript; charset=utf-8", data)
+	})
+
+	// Demo/smoke-test page: embeds the widget so it can be tested in a browser
+	// without deploying to a real customer site.
+	s.router.GET("/widget/demo", widgetCORS, func(c *gin.Context) {
+		scheme := "http"
+		if c.Request.TLS != nil {
+			scheme = "https"
+		}
+		origin := scheme + "://" + c.Request.Host
+		html := `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartTicket Widget Demo</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 40px; background: #f8fafc; }
+    h1 { color: #1e293b; font-size: 24px; }
+    p  { color: #64748b; margin-top: 8px; line-height: 1.6; }
+    code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>SmartTicket Widget Demo</h1>
+  <p>The chat widget should appear in the bottom-right corner. Click the launcher button to open it.</p>
+  <p>This page is served from <code>` + origin + `</code>.</p>
+  <script src="` + origin + `/widget.js" data-key="demo" async></script>
+</body>
+</html>`
+		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(html))
+	})
+
+	// Public WebSocket endpoint for the customer-facing chat widget.
+	// Validates the conversation_token JWT, then subscribes to widget:<ticketID>
+	// — the same room the ticket service broadcasts to on web_widget messages.
+	hub := s.hub
+	s.router.GET("/widget/ws", widgetCORS, func(c *gin.Context) {
+		token := c.Query("conversation_token")
+		if token == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "conversation_token is required"})
+			return
+		}
+		ticketID, err := widget.ParseToken(token, s.config.JWT.Secret)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired conversation token"})
+			return
+		}
+		room := fmt.Sprintf("widget:%d", ticketID)
+		realtime.ServeWSPublic(hub, room, c.Writer, c.Request)
+	})
+
+	// Widget REST endpoints (public — no JWT auth required; secured by the
+	// conversation token instead).
+	widgetGroup := s.router.Group("/widget")
+	widgetGroup.Use(widgetCORS)
+	{
+		widgetGroup.POST("/session", widgetHandlers.StartSession)
+		widgetGroup.POST("/messages", widgetHandlers.PostMessage)
+		widgetGroup.GET("/messages", widgetHandlers.History)
 	}
 
 	// API routes group - public authentication endpoints
@@ -360,6 +599,11 @@ func (s *Server) setupRoutes() {
 			if emailInbound != nil {
 				public.POST("/email/inbound", emailInbound.Handle)
 			}
+
+			// CSAT survey public endpoints — accessed by customers via the
+			// survey link; no authentication required.
+			public.GET("/survey/:token", surveyHandlers.GetSurvey)
+			public.POST("/survey/:token", surveyHandlers.SubmitSurvey)
 		}
 
 		// Protected endpoints (auth required)
@@ -440,9 +684,18 @@ func (s *Server) setupRoutes() {
 				tickets.GET("/:id/messages", ticketHandlers.GetTicketMessages)
 				tickets.POST("/:id/messages", ticketHandlers.CreateTicketMessage)
 				tickets.POST("/:id/suggest-reply", ticketHandlers.SuggestReply)
+				tickets.POST("/:id/merge", ticketHandlers.MergeTicket)
+				tickets.POST("/:id/links", ticketHandlers.CreateTicketLink)
+				tickets.GET("/:id/links", ticketHandlers.ListTicketLinks)
+				tickets.DELETE("/:id/links/:linkId", ticketHandlers.UnlinkTicket)
 				tickets.POST("/:id/attachments", attachmentHandlers.Upload)
 				tickets.GET("/:id/attachments", attachmentHandlers.List)
 			}
+
+			// NOTE: the agent ticket WebSocket endpoint (/api/v1/ws/tickets/:id) is
+			// registered once, outside this header-auth group (see setupRoutes below),
+			// so it can accept ?token= auth — browsers cannot set the Authorization
+			// header on a WebSocket. That handler validates header OR query token.
 
 			// Attachment download (by attachment id, customer-isolated).
 			protected.GET("/attachments/:id/download", attachmentHandlers.Download)
@@ -456,6 +709,26 @@ func (s *Server) setupRoutes() {
 				notif.POST("/read-all", notificationHandlers.MarkAllRead)
 			}
 
+			// Teams and membership routes.
+			// List/read endpoints are accessible to all authenticated users so
+			// agents can see which teams exist when @mentioning. Mutations require
+			// admin.
+			teamsGroup := protected.Group("/teams")
+			{
+				teamsGroup.GET("", teamHandlers.ListTeams)
+				teamsGroup.GET("/:id", teamHandlers.GetTeam)
+				teamsGroup.GET("/:id/members", teamHandlers.ListMembers)
+			}
+			teamsAdmin := protected.Group("/teams")
+			teamsAdmin.Use(s.adminMiddleware())
+			{
+				teamsAdmin.POST("", teamHandlers.CreateTeam)
+				teamsAdmin.PUT("/:id", teamHandlers.UpdateTeam)
+				teamsAdmin.DELETE("/:id", teamHandlers.DeleteTeam)
+				teamsAdmin.POST("/:id/members", teamHandlers.AddMember)
+				teamsAdmin.DELETE("/:id/members/:userId", teamHandlers.RemoveMember)
+			}
+
 			// Customer organization management routes (team-only).
 			customers := protected.Group("/customers")
 			customers.Use(s.adminMiddleware())
@@ -467,6 +740,9 @@ func (s *Server) setupRoutes() {
 				customers.DELETE("/:id", customerHandlers.DeleteCustomer)
 				customers.GET("/:id/users", customerHandlers.ListCustomerUsers)
 			}
+
+			// CSAT survey stats (any authenticated team/agent user).
+			protected.GET("/survey/stats", surveyHandlers.GetStats)
 
 			// Branding / white-label settings (admin-only writes; reads are
 			// public, registered above).
@@ -495,6 +771,61 @@ func (s *Server) setupRoutes() {
 					llmGroup.DELETE("/:id", llmHandlers.Delete)
 					llmGroup.POST("/:id/test", llmHandlers.Test)
 				}
+			}
+
+			// Automation rules (admin-only CRUD + reorder).
+			autoGroup := protected.Group("/automations")
+			autoGroup.Use(s.adminMiddleware())
+			{
+				autoGroup.GET("", autoHandlers.ListRules)
+				autoGroup.POST("", autoHandlers.CreateRule)
+				autoGroup.POST("/reorder", autoHandlers.ReorderRules)
+				autoGroup.GET("/:id", autoHandlers.GetRule)
+				autoGroup.PUT("/:id", autoHandlers.UpdateRule)
+				autoGroup.DELETE("/:id", autoHandlers.DeleteRule)
+			}
+
+			// Macro / canned responses (any authenticated team or admin user).
+			macros := protected.Group("/macros")
+			{
+				macros.GET("", macroHandlers.List)
+				macros.POST("", macroHandlers.Create)
+				macros.GET("/:id", macroHandlers.Get)
+				macros.PUT("/:id", macroHandlers.Update)
+				macros.DELETE("/:id", macroHandlers.Delete)
+				macros.POST("/:id/apply", func(c *gin.Context) {
+					// Assemble RenderContext from ticket + user before delegating to
+					// the macro handler so macro package doesn't import ticket/user.
+					idStr := c.Query("ticket_id")
+					if idStr != "" {
+						if tid, err := strconv.ParseUint(idStr, 10, 64); err == nil && tid > 0 {
+							// Build a minimal actor for ticket lookup (team user, no customer scope).
+							actor := authz.Actor{
+								UserID: c.GetUint("user_id"),
+								Role:   c.GetString("user_role"),
+							}
+							if tkt, err := ticketService.GetTicket(actor, uint(tid)); err == nil {
+								// Resolve the acting user's display name.
+								agentName := ""
+								if ui, uerr := userService.GetUser(actor.UserID); uerr == nil {
+									agentName = ui.FirstName + " " + ui.LastName
+								}
+								customerName := tkt.RequesterName
+								if tkt.CustomerName != "" {
+									customerName = tkt.CustomerName
+								}
+								rctx := macro.RenderContext{
+									CustomerName:  customerName,
+									AgentName:     agentName,
+									TicketID:      fmt.Sprintf("%d", tkt.ID),
+									TicketSubject: tkt.Title,
+								}
+								c.Set("macro_render_ctx", rctx)
+							}
+						}
+					}
+					macroHandlers.Apply(c)
+				})
 			}
 
 			// Knowledge base routes
@@ -596,6 +927,53 @@ func (s *Server) setupRoutes() {
 		}
 
 	}
+
+	// Agent WebSocket — ?token= variant for browser clients that cannot set
+	// Authorization headers on a WebSocket upgrade. Registered outside the
+	// header-auth protected group; the handler validates the token itself.
+	// An invalid or missing token returns 401 and never upgrades the connection.
+	s.router.GET("/api/v1/ws/tickets/:id", func(c *gin.Context) {
+		// 1. Resolve token: prefer Authorization header, fall back to ?token= query param.
+		var rawToken string
+		if auth := c.GetHeader("Authorization"); strings.HasPrefix(auth, "Bearer ") {
+			rawToken = strings.TrimPrefix(auth, "Bearer ")
+		} else if q := c.Query("token"); q != "" {
+			rawToken = q
+		}
+		if rawToken == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication required: provide Authorization header or ?token= query parameter"})
+			return
+		}
+
+		// 2. Validate token using the same JWT validation as authMiddleware.
+		userID, userRole, customerID, err := s.validateJWTToken(rawToken)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+			return
+		}
+
+		// 3. Parse ticket ID.
+		idStr := c.Param("id")
+		var ticketID uint
+		if _, err := fmt.Sscanf(idStr, "%d", &ticketID); err != nil || ticketID == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ticket id"})
+			return
+		}
+
+		// 4. Build actor and verify ticket visibility.
+		actor := authz.Actor{UserID: userID, Role: userRole}
+		if customerID != nil {
+			actor.CustomerID = customerID
+		}
+		if _, err := ticketService.GetTicket(actor, ticketID); err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "ticket not found or access denied"})
+			return
+		}
+
+		// 5. Upgrade and serve.
+		room := fmt.Sprintf("ticket:%d", ticketID)
+		realtime.ServeWS(hub, room, c.Writer, c.Request)
+	})
 }
 
 // Start starts the HTTP server.
@@ -628,6 +1006,11 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 	logger.Info("Shutting down HTTP server...")
 
+	// Cancel the background context so the scheduler goroutine exits cleanly.
+	if s.cancelCtx != nil {
+		s.cancelCtx()
+	}
+
 	if s.kbStore != nil {
 		if err := s.kbStore.Close(); err != nil {
 			logger.Warn("failed to close cortexdb store", zap.Error(err))
@@ -645,6 +1028,22 @@ func (s *Server) GetRouter() *gin.Engine {
 // GetConfig returns the server configuration.
 func (s *Server) GetConfig() *config.Config {
 	return s.config
+}
+
+// aiSettingsAdapter wraps *aiassist.SettingsStore and satisfies
+// automation.AutoResolveSettingsReader. The type alias avoids exposing the
+// aiassist import in the public scheduler API while keeping the dependency
+// explicit at the server wiring layer.
+type aiSettingsAdapter aiassist.SettingsStore
+
+// AutoResolveEnabled implements automation.AutoResolveSettingsReader.
+// Returns false on any DB error so the scheduler degrades safely.
+func (a *aiSettingsAdapter) AutoResolveEnabled() bool {
+	s, err := (*aiassist.SettingsStore)(a).Get()
+	if err != nil || s == nil {
+		return false
+	}
+	return s.AutoResolveEnabled
 }
 
 // handleNoRoute serves the embedded single-page app for unmatched non-API GET

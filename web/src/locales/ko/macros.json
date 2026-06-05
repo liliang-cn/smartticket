@@ -1,0 +1,56 @@
+{
+  "page": {
+    "eyebrow": "팀",
+    "title": "매크로"
+  },
+  "newMacro": "새 매크로",
+  "table": {
+    "title": "제목",
+    "category": "카테고리",
+    "visibility": "공개 설정",
+    "usage": "사용 횟수",
+    "actions": ""
+  },
+  "visibility": {
+    "shared": "공유",
+    "private": "비공개"
+  },
+  "empty": "매크로가 아직 없습니다.",
+  "form": {
+    "titleCreate": "새 매크로",
+    "titleEdit": "매크로 편집",
+    "description": "매크로는 선택적 티켓 작업이 포함된 재사용 가능한 메시지 템플릿입니다.",
+    "title": "제목",
+    "titlePlaceholder": "접수 확인",
+    "category": "카테고리",
+    "categoryPlaceholder": "예: 인사말, 에스컬레이션…",
+    "body": "메시지 본문",
+    "bodyPlaceholder": "안녕하세요 {{customer.name}}님, 티켓 #{{ticket.id}}에 대한 문의를 주셔서 감사합니다…",
+    "bodyHint": "변수: {{customer.name}}, {{ticket.id}}, {{ticket.subject}}, {{agent.name}}",
+    "shared": "팀과 공유",
+    "actions_field": "작업 (선택적 JSON)",
+    "actionsPlaceholder": "[]",
+    "submitCreate": "매크로 만들기",
+    "submitEdit": "변경 사항 저장",
+    "creatingPending": "생성 중…",
+    "savingPending": "저장 중…"
+  },
+  "deleteDialog": {
+    "title": "매크로 삭제",
+    "description": "「{{title}}」을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+    "confirm": "삭제",
+    "confirmPending": "삭제 중…"
+  },
+  "toast": {
+    "created": "매크로가 생성되었습니다",
+    "updated": "매크로가 업데이트되었습니다",
+    "deleted": "매크로가 삭제되었습니다",
+    "createFailed": "매크로를 생성할 수 없습니다",
+    "updateFailed": "매크로를 업데이트할 수 없습니다",
+    "deleteFailed": "매크로를 삭제할 수 없습니다"
+  },
+  "validation": {
+    "titleRequired": "제목은 필수입니다",
+    "bodyRequired": "본문은 필수입니다"
+  }
+}

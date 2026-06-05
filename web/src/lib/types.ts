@@ -50,7 +50,8 @@ export type TicketStatus =
   | "in_progress"
   | "resolved"
   | "closed"
-  | "cancelled";
+  | "cancelled"
+  | "merged";
 export type TicketPriority = "low" | "medium" | "high" | "critical";
 export type TicketSeverity = "trivial" | "minor" | "major" | "critical";
 
@@ -80,6 +81,7 @@ export interface Ticket {
   resolved_at?: string | null;
   due_date?: string | null;
   sla_status?: string;
+  merged_into_id?: number | null;
 }
 
 export interface TicketListResponse {

@@ -9,9 +9,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
+	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/database"
+	"github.com/company/smartticket/internal/models"
 )
 
 // createTestConfig creates a test configuration.
@@ -313,4 +316,57 @@ func TestServerVersionInfo(t *testing.T) {
 
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.Contains(t, w.Body.String(), "version")
+}
+
+// TestCSATResolveSubscriber verifies that publishing EventTicketResolved causes
+// the CSAT subscriber to call CreateForTicket exactly once, leaving a
+// satisfaction_surveys row in the database.
+func TestCSATResolveSubscriber(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	cfg := createTestConfig()
+	db := createTestDB(t)
+	defer func() { _ = db.Close() }()
+
+	// The server does not run migrations itself; migrate the tables the
+	// subscriber and the test body need.
+	require.NoError(t, db.DB.AutoMigrate(
+		&models.Ticket{},
+		&models.SatisfactionSurvey{},
+	))
+
+	srv := NewServer(cfg, db)
+
+	// Insert a minimal ticket so the subscriber can load it.
+	tkt := models.Ticket{
+		TicketNumber: "TK-CSAT-1",
+		Title:        "Test ticket",
+		Status:       "resolved",
+		Priority:     "medium",
+		Severity:     "minor",
+		Channel:      "web",
+	}
+	require.NoError(t, db.DB.Create(&tkt).Error)
+
+	// Fire the resolve event synchronously via the bus.
+	srv.bus.Publish(automation.Event{
+		Type:     automation.EventTicketResolved,
+		TicketID: tkt.ID,
+		ActorID:  0,
+	})
+
+	// A survey row must exist for the ticket.
+	var count int64
+	require.NoError(t, db.DB.Model(&models.SatisfactionSurvey{}).
+		Where("ticket_id = ?", tkt.ID).Count(&count).Error)
+	require.Equal(t, int64(1), count)
+
+	// Publishing a second time must NOT create a duplicate (idempotent).
+	srv.bus.Publish(automation.Event{
+		Type:     automation.EventTicketResolved,
+		TicketID: tkt.ID,
+	})
+	require.NoError(t, db.DB.Model(&models.SatisfactionSurvey{}).
+		Where("ticket_id = ?", tkt.ID).Count(&count).Error)
+	require.Equal(t, int64(1), count, "CreateForTicket must be idempotent")
 }

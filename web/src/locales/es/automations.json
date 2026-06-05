@@ -1,0 +1,119 @@
+{
+  "page": {
+    "eyebrow": "admin",
+    "title": "Automatizaciones"
+  },
+  "newRule": "Nueva regla",
+  "table": {
+    "position": "#",
+    "name": "Nombre",
+    "event": "Evento",
+    "match": "Coincidencia",
+    "enabled": "Activo",
+    "actions": ""
+  },
+  "events": {
+    "ticket.created": "Ticket creado",
+    "ticket.updated": "Ticket actualizado",
+    "message.created": "Mensaje creado",
+    "ticket.sla_warning": "Aviso de SLA"
+  },
+  "match": {
+    "all": "Todas las condiciones",
+    "any": "Cualquier condición"
+  },
+  "empty": "Aún no hay reglas de automatización.",
+  "form": {
+    "titleCreate": "Nueva regla de automatización",
+    "titleEdit": "Editar regla de automatización",
+    "description": "Desencadena acciones automáticamente cuando ocurren eventos en los tickets.",
+    "name": "Nombre",
+    "namePlaceholder": "Cerrar tickets resueltos automáticamente",
+    "description_field": "Descripción",
+    "descriptionPlaceholder": "Notas opcionales sobre esta regla…",
+    "event": "Evento desencadenador",
+    "match": "Coincidencia",
+    "enabled": "Activo",
+    "conditions": "Condiciones",
+    "addCondition": "Agregar condición",
+    "removeCondition": "Eliminar",
+    "actions_field": "Acciones",
+    "addAction": "Agregar acción",
+    "removeAction": "Eliminar",
+    "submitCreate": "Crear regla",
+    "submitEdit": "Guardar cambios",
+    "creatingPending": "Creando…",
+    "savingPending": "Guardando…"
+  },
+  "condition": {
+    "fields": {
+      "status": "Estado",
+      "priority": "Prioridad",
+      "severity": "Severidad",
+      "channel": "Canal",
+      "customer_email": "Email del cliente",
+      "tags": "Etiquetas"
+    },
+    "ops": {
+      "eq": "igual a",
+      "neq": "diferente de",
+      "contains": "contiene",
+      "in": "en",
+      "gt": "mayor que",
+      "lt": "menor que"
+    },
+    "valuePlaceholder": "valor"
+  },
+  "action": {
+    "types": {
+      "assign": "Asignar",
+      "add_tag": "Agregar etiqueta",
+      "set_priority": "Establecer prioridad",
+      "set_status": "Establecer estado",
+      "set_severity": "Establecer severidad",
+      "notify": "Notificar",
+      "send_email": "Enviar email",
+      "escalate": "Escalar",
+      "ai_suggest": "Sugerencia IA",
+      "ai_auto_reply": "Respuesta automática IA",
+      "close": "Cerrar"
+    },
+    "params": {
+      "assignee_id": "ID asignado",
+      "team_id": "ID equipo",
+      "tag": "Etiqueta",
+      "priority": "Prioridad",
+      "status": "Estado",
+      "severity": "Severidad",
+      "message": "Mensaje"
+    }
+  },
+  "reorder": {
+    "up": "Subir",
+    "down": "Bajar"
+  },
+  "toggle": {
+    "enable": "Activar",
+    "disable": "Desactivar"
+  },
+  "deleteDialog": {
+    "title": "Eliminar regla de automatización",
+    "description": "¿Eliminar la regla «{{name}}»? Esta acción no se puede deshacer.",
+    "confirm": "Eliminar",
+    "confirmPending": "Eliminando…"
+  },
+  "toast": {
+    "created": "Regla de automatización creada",
+    "updated": "Regla de automatización actualizada",
+    "deleted": "Regla de automatización eliminada",
+    "createFailed": "No se pudo crear la regla",
+    "updateFailed": "No se pudo actualizar la regla",
+    "deleteFailed": "No se pudo eliminar la regla",
+    "toggleFailed": "No se pudo cambiar el estado de la regla",
+    "reorderFailed": "No se pudo reordenar las reglas"
+  },
+  "validation": {
+    "nameRequired": "El nombre es obligatorio",
+    "eventRequired": "El evento es obligatorio"
+  }
+}

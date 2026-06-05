@@ -77,6 +77,16 @@
     "instructions_placeholder": "例：常に丁寧かつ簡潔に。返金は約束しない。",
     "instructions_hint": "AI が返信を下書きする際に従う追加ガイド。",
     "toast_saved": "AI 設定を保存しました",
-    "toast_error": "AI 設定を更新できませんでした"
+    "toast_error": "AI 設定を更新できませんでした",
+    "auto_reply_enabled": "高信頼度の返信を自動送信",
+    "auto_reply_enabled_desc": "信頼度が閾値以上のとき AI が自動で返信を送信します。",
+    "auto_reply_confidence": "信頼度の閾値",
+    "auto_reply_confidence_desc": "自動送信前に必要な最低 AI 信頼度（0–100%）。",
+    "auto_resolve_enabled": "AI 返信後に自動解決",
+    "auto_resolve_enabled_desc": "AI が返信した後、チケットを自動的に解決済みにします。",
+    "max_auto_replies": "チケットあたりの最大自動返信数",
+    "max_auto_replies_desc": "この件数に達すると AI の自動返信が停止します。",
+    "auto_summarize_on_resolve": "解決時にチケットを要約",
+    "auto_summarize_on_resolve_desc": "チケット解決時に LLM で会話の要約を生成します。"
   }
 }

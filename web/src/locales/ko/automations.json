@@ -1,0 +1,119 @@
+{
+  "page": {
+    "eyebrow": "관리자",
+    "title": "자동화"
+  },
+  "newRule": "새 규칙",
+  "table": {
+    "position": "#",
+    "name": "이름",
+    "event": "이벤트",
+    "match": "일치",
+    "enabled": "활성화",
+    "actions": ""
+  },
+  "events": {
+    "ticket.created": "티켓 생성",
+    "ticket.updated": "티켓 업데이트",
+    "message.created": "메시지 생성",
+    "ticket.sla_warning": "SLA 경고"
+  },
+  "match": {
+    "all": "모든 조건",
+    "any": "하나의 조건"
+  },
+  "empty": "자동화 규칙이 아직 없습니다.",
+  "form": {
+    "titleCreate": "새 자동화 규칙",
+    "titleEdit": "자동화 규칙 편집",
+    "description": "티켓 이벤트 발생 시 자동으로 작업을 트리거합니다.",
+    "name": "이름",
+    "namePlaceholder": "해결된 티켓 자동 종료",
+    "description_field": "설명",
+    "descriptionPlaceholder": "이 규칙에 대한 선택적 메모…",
+    "event": "트리거 이벤트",
+    "match": "일치",
+    "enabled": "활성화",
+    "conditions": "조건",
+    "addCondition": "조건 추가",
+    "removeCondition": "제거",
+    "actions_field": "작업",
+    "addAction": "작업 추가",
+    "removeAction": "제거",
+    "submitCreate": "규칙 만들기",
+    "submitEdit": "변경 사항 저장",
+    "creatingPending": "생성 중…",
+    "savingPending": "저장 중…"
+  },
+  "condition": {
+    "fields": {
+      "status": "상태",
+      "priority": "우선순위",
+      "severity": "심각도",
+      "channel": "채널",
+      "customer_email": "고객 이메일",
+      "tags": "태그"
+    },
+    "ops": {
+      "eq": "같음",
+      "neq": "다름",
+      "contains": "포함",
+      "in": "포함됨",
+      "gt": "보다 큼",
+      "lt": "보다 작음"
+    },
+    "valuePlaceholder": "값"
+  },
+  "action": {
+    "types": {
+      "assign": "할당",
+      "add_tag": "태그 추가",
+      "set_priority": "우선순위 설정",
+      "set_status": "상태 설정",
+      "set_severity": "심각도 설정",
+      "notify": "알림",
+      "send_email": "이메일 보내기",
+      "escalate": "에스컬레이트",
+      "ai_suggest": "AI 제안",
+      "ai_auto_reply": "AI 자동 응답",
+      "close": "닫기"
+    },
+    "params": {
+      "assignee_id": "담당자 ID",
+      "team_id": "팀 ID",
+      "tag": "태그",
+      "priority": "우선순위",
+      "status": "상태",
+      "severity": "심각도",
+      "message": "메시지"
+    }
+  },
+  "reorder": {
+    "up": "위로",
+    "down": "아래로"
+  },
+  "toggle": {
+    "enable": "활성화",
+    "disable": "비활성화"
+  },
+  "deleteDialog": {
+    "title": "자동화 규칙 삭제",
+    "description": "규칙 「{{name}}」을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+    "confirm": "삭제",
+    "confirmPending": "삭제 중…"
+  },
+  "toast": {
+    "created": "자동화 규칙이 생성되었습니다",
+    "updated": "자동화 규칙이 업데이트되었습니다",
+    "deleted": "자동화 규칙이 삭제되었습니다",
+    "createFailed": "규칙을 생성할 수 없습니다",
+    "updateFailed": "규칙을 업데이트할 수 없습니다",
+    "deleteFailed": "규칙을 삭제할 수 없습니다",
+    "toggleFailed": "규칙 상태를 변경할 수 없습니다",
+    "reorderFailed": "규칙 순서를 변경할 수 없습니다"
+  },
+  "validation": {
+    "nameRequired": "이름은 필수입니다",
+    "eventRequired": "이벤트는 필수입니다"
+  }
+}

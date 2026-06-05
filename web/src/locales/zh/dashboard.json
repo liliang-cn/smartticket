@@ -13,5 +13,14 @@
     "total": "共 {{count}} 个工单 · 进入实时列表",
     "total_loading": "— · 进入实时列表",
     "cta": "打开工单"
+  },
+  "csat": {
+    "title": "客户满意度",
+    "avg_rating": "平均评分",
+    "response_rate": "响应率",
+    "responses": "响应数",
+    "no_responses": "暂无响应",
+    "of_five": "/ 5",
+    "loading": "加载 CSAT 中…"
   }
 }

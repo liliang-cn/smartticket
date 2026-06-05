@@ -1,0 +1,67 @@
+{
+  "page": {
+    "eyebrow": "チーム",
+    "title": "チーム"
+  },
+  "newTeam": "新しいチーム",
+  "table": {
+    "name": "名前",
+    "description": "説明",
+    "actions": ""
+  },
+  "members": {
+    "title": "メンバー — {{name}}",
+    "addMember": "メンバーを追加",
+    "empty": "メンバーはまだいません。",
+    "table": {
+      "name": "名前",
+      "email": "メール",
+      "role": "ロール",
+      "actions": ""
+    },
+    "remove": "削除",
+    "addDialog": {
+      "title": "メンバーを追加",
+      "description": "{{teamName}} に追加するユーザーを選択してください。",
+      "userLabel": "ユーザー",
+      "selectPlaceholder": "ユーザーを選択…",
+      "submit": "追加",
+      "submitting": "追加中…"
+    }
+  },
+  "empty": "チームはまだありません。",
+  "form": {
+    "titleCreate": "新しいチーム",
+    "titleEdit": "チームを編集",
+    "description": "チームはチケットの割り当てと通知のためにエージェントをグループ化します。",
+    "name": "名前",
+    "namePlaceholder": "サポート",
+    "description_field": "説明",
+    "descriptionPlaceholder": "このチームに関するメモ（省略可）…",
+    "submitCreate": "チームを作成",
+    "submitEdit": "変更を保存",
+    "creatingPending": "作成中…",
+    "savingPending": "保存中…"
+  },
+  "deleteDialog": {
+    "title": "チームを削除",
+    "description": "チーム「{{name}}」を削除しますか？すべてのメンバーシップが削除されます。この操作は取り消せません。",
+    "confirm": "削除",
+    "confirmPending": "削除中…"
+  },
+  "toast": {
+    "created": "チームを作成しました",
+    "updated": "チームを更新しました",
+    "deleted": "チームを削除しました",
+    "createFailed": "チームの作成に失敗しました",
+    "updateFailed": "チームの更新に失敗しました",
+    "deleteFailed": "チームの削除に失敗しました",
+    "memberAdded": "メンバーを追加しました",
+    "memberRemoved": "メンバーを削除しました",
+    "addMemberFailed": "メンバーの追加に失敗しました",
+    "removeMemberFailed": "メンバーの削除に失敗しました"
+  },
+  "validation": {
+    "nameRequired": "名前は必須です"
+  }
+}

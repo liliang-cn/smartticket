@@ -204,6 +204,22 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		&models.AuditLog{},
 		&models.Notification{},
 		&models.TicketEvent{},
+
+		// Automation engine rules (no FK dependencies beyond base tables)
+		&models.AutomationRule{},
+
+		// Macro / canned responses (no FK dependencies beyond users)
+		&models.Macro{},
+
+		// CSAT satisfaction surveys (depend on Ticket)
+		&models.SatisfactionSurvey{},
+
+		// Teams and membership (agent collaboration)
+		&models.Team{},
+		&models.TeamMember{},
+
+		// Ticket relationships (merge + linking)
+		&models.TicketLink{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -362,6 +378,22 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		&models.AuditLog{},
 		&models.Notification{},
 		&models.TicketEvent{},
+
+		// Automation engine rules (no FK dependencies beyond base tables)
+		&models.AutomationRule{},
+
+		// Macro / canned responses (no FK dependencies beyond users)
+		&models.Macro{},
+
+		// CSAT satisfaction surveys (depend on Ticket)
+		&models.SatisfactionSurvey{},
+
+		// Teams and membership (agent collaboration)
+		&models.Team{},
+		&models.TeamMember{},
+
+		// Ticket relationships (merge + linking)
+		&models.TicketLink{},
 	}
 
 	// Run GORM AutoMigrate

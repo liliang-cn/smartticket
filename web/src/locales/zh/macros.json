@@ -1,0 +1,56 @@
+{
+  "page": {
+    "eyebrow": "团队",
+    "title": "宏"
+  },
+  "newMacro": "新建宏",
+  "table": {
+    "title": "标题",
+    "category": "分类",
+    "visibility": "可见性",
+    "usage": "使用次数",
+    "actions": ""
+  },
+  "visibility": {
+    "shared": "共享",
+    "private": "私有"
+  },
+  "empty": "暂无宏。",
+  "form": {
+    "titleCreate": "新建宏",
+    "titleEdit": "编辑宏",
+    "description": "宏是带有可选工单操作的可重用消息模板。",
+    "title": "标题",
+    "titlePlaceholder": "确认收到",
+    "category": "分类",
+    "categoryPlaceholder": "如：问候语、升级…",
+    "body": "消息正文",
+    "bodyPlaceholder": "您好 {{customer.name}}，感谢您联系我们关于工单 #{{ticket.id}}…",
+    "bodyHint": "变量：{{customer.name}}, {{ticket.id}}, {{ticket.subject}}, {{agent.name}}",
+    "shared": "与团队共享",
+    "actions_field": "操作（可选 JSON）",
+    "actionsPlaceholder": "[]",
+    "submitCreate": "创建宏",
+    "submitEdit": "保存更改",
+    "creatingPending": "创建中…",
+    "savingPending": "保存中…"
+  },
+  "deleteDialog": {
+    "title": "删除宏",
+    "description": "删除「{{title}}」？此操作无法撤销。",
+    "confirm": "删除",
+    "confirmPending": "删除中…"
+  },
+  "toast": {
+    "created": "宏已创建",
+    "updated": "宏已更新",
+    "deleted": "宏已删除",
+    "createFailed": "无法创建宏",
+    "updateFailed": "无法更新宏",
+    "deleteFailed": "无法删除宏"
+  },
+  "validation": {
+    "titleRequired": "标题为必填项",
+    "bodyRequired": "正文为必填项"
+  }
+}

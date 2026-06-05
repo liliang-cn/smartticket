@@ -1,0 +1,18 @@
+{
+  "title": "서비스는 어떠셨나요?",
+  "subtitle": "여러분의 의견이 서비스 개선에 도움이 됩니다.",
+  "rate_heading": "경험을 평가해 주세요",
+  "star_label": "{{n}}점",
+  "comment_label": "추가 의견 (선택)",
+  "comment_placeholder": "경험에 대해 더 알려주세요…",
+  "submit": "피드백 제출",
+  "submitting": "제출 중…",
+  "already_responded_title": "이미 제출됨",
+  "already_responded_desc": "감사합니다 — 이 티켓은 이미 평가하셨습니다.",
+  "thank_you_title": "감사합니다!",
+  "thank_you_desc": "피드백이 접수되었습니다.",
+  "not_found_title": "설문을 찾을 수 없습니다",
+  "not_found_desc": "이 설문 링크는 유효하지 않거나 만료되었습니다.",
+  "error_generic": "오류가 발생했습니다. 다시 시도해 주세요.",
+  "powered_by": "Powered by SmartTicket"
+}

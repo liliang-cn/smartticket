@@ -25,6 +25,22 @@ type Config struct {
 	// SecretKeyRaw is the raw encryption key (hex/base64) used for at-rest
 	// secrets such as LLM provider API keys. Bound from SMARTTICKET_SECRET_KEY.
 	SecretKeyRaw string `mapstructure:"secret_key"`
+	// WidgetJSPath is the filesystem path to the compiled widget JS bundle
+	// (web-widget/dist/widget.js). Defaults to "./web-widget/dist/widget.js".
+	// Override via SMARTTICKET_WIDGET_JS_PATH environment variable or config file.
+	WidgetJSPath string `mapstructure:"widget_js_path"`
+
+	// App holds application-level settings.
+	App AppConfig `mapstructure:"app"`
+}
+
+// AppConfig holds application-level settings.
+type AppConfig struct {
+	// BaseURL is the externally reachable root URL of this deployment
+	// (e.g. "https://support.example.com"). It is used to construct links
+	// in outbound emails (e.g. CSAT survey links). Defaults to
+	// "http://localhost:6533". Set SMARTTICKET_APP_BASE_URL to override.
+	BaseURL string `mapstructure:"base_url"`
 }
 
 // StorageConfig contains file (attachment) storage configuration.
@@ -186,6 +202,7 @@ func loadFrom(configFile string) (*Config, error) {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
 	v.BindEnv("secret_key", "SMARTTICKET_SECRET_KEY")
+	_ = v.BindEnv("app.base_url", "SMARTTICKET_APP_BASE_URL")
 	// Email is most often configured via environment (secrets stay out of the
 	// config file). Bind each key explicitly — viper's AutomaticEnv does not
 	// reliably resolve nested keys that lack a config-file entry.
@@ -325,6 +342,9 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("email.imap.mailbox", "INBOX")
 	v.SetDefault("email.imap.tls", true)
 	v.SetDefault("email.imap.poll_seconds", 60)
+
+	// Application defaults
+	v.SetDefault("app.base_url", "http://localhost:6533")
 
 	// Storage (attachments) defaults
 	v.SetDefault("storage.data_path", "./data")

@@ -1,0 +1,18 @@
+{
+  "title": "我们的服务怎么样？",
+  "subtitle": "您的反馈帮助我们持续改进。",
+  "rate_heading": "为您的体验评分",
+  "star_label": "{{n}} 星",
+  "comment_label": "附加说明（可选）",
+  "comment_placeholder": "请告诉我们更多关于您的体验…",
+  "submit": "提交反馈",
+  "submitting": "提交中…",
+  "already_responded_title": "已提交",
+  "already_responded_desc": "感谢您 — 您已经为此工单评过分了。",
+  "thank_you_title": "感谢您！",
+  "thank_you_desc": "您的反馈已记录。",
+  "not_found_title": "未找到问卷",
+  "not_found_desc": "此问卷链接无效或已过期。",
+  "error_generic": "出现错误，请重试。",
+  "powered_by": "Powered by SmartTicket"
+}

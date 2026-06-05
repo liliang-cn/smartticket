@@ -1,0 +1,119 @@
+{
+  "page": {
+    "eyebrow": "管理员",
+    "title": "自动化"
+  },
+  "newRule": "新建规则",
+  "table": {
+    "position": "#",
+    "name": "名称",
+    "event": "事件",
+    "match": "匹配",
+    "enabled": "启用",
+    "actions": ""
+  },
+  "events": {
+    "ticket.created": "工单创建",
+    "ticket.updated": "工单更新",
+    "message.created": "消息创建",
+    "ticket.sla_warning": "SLA 警告"
+  },
+  "match": {
+    "all": "所有条件",
+    "any": "任意条件"
+  },
+  "empty": "暂无自动化规则。",
+  "form": {
+    "titleCreate": "新建自动化规则",
+    "titleEdit": "编辑自动化规则",
+    "description": "当工单事件发生时自动触发操作。",
+    "name": "名称",
+    "namePlaceholder": "自动关闭已解决工单",
+    "description_field": "描述",
+    "descriptionPlaceholder": "关于此规则的可选备注…",
+    "event": "触发事件",
+    "match": "匹配",
+    "enabled": "启用",
+    "conditions": "条件",
+    "addCondition": "添加条件",
+    "removeCondition": "删除",
+    "actions_field": "操作",
+    "addAction": "添加操作",
+    "removeAction": "删除",
+    "submitCreate": "创建规则",
+    "submitEdit": "保存更改",
+    "creatingPending": "创建中…",
+    "savingPending": "保存中…"
+  },
+  "condition": {
+    "fields": {
+      "status": "状态",
+      "priority": "优先级",
+      "severity": "严重程度",
+      "channel": "渠道",
+      "customer_email": "客户邮箱",
+      "tags": "标签"
+    },
+    "ops": {
+      "eq": "等于",
+      "neq": "不等于",
+      "contains": "包含",
+      "in": "在其中",
+      "gt": "大于",
+      "lt": "小于"
+    },
+    "valuePlaceholder": "值"
+  },
+  "action": {
+    "types": {
+      "assign": "分配",
+      "add_tag": "添加标签",
+      "set_priority": "设置优先级",
+      "set_status": "设置状态",
+      "set_severity": "设置严重程度",
+      "notify": "通知",
+      "send_email": "发送邮件",
+      "escalate": "升级",
+      "ai_suggest": "AI 建议",
+      "ai_auto_reply": "AI 自动回复",
+      "close": "关闭"
+    },
+    "params": {
+      "assignee_id": "受理人 ID",
+      "team_id": "团队 ID",
+      "tag": "标签",
+      "priority": "优先级",
+      "status": "状态",
+      "severity": "严重程度",
+      "message": "消息"
+    }
+  },
+  "reorder": {
+    "up": "上移",
+    "down": "下移"
+  },
+  "toggle": {
+    "enable": "启用",
+    "disable": "禁用"
+  },
+  "deleteDialog": {
+    "title": "删除自动化规则",
+    "description": "删除规则「{{name}}」？此操作无法撤销。",
+    "confirm": "删除",
+    "confirmPending": "删除中…"
+  },
+  "toast": {
+    "created": "自动化规则已创建",
+    "updated": "自动化规则已更新",
+    "deleted": "自动化规则已删除",
+    "createFailed": "无法创建规则",
+    "updateFailed": "无法更新规则",
+    "deleteFailed": "无法删除规则",
+    "toggleFailed": "无法切换规则状态",
+    "reorderFailed": "无法重新排序规则"
+  },
+  "validation": {
+    "nameRequired": "名称为必填项",
+    "eventRequired": "事件为必填项"
+  }
+}

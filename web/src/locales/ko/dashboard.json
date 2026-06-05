@@ -13,5 +13,14 @@
     "total": "총 {{count}}건의 티켓 · 실시간 목록으로 이동",
     "total_loading": "— · 실시간 목록으로 이동",
     "cta": "티켓 열기"
+  },
+  "csat": {
+    "title": "고객 만족도",
+    "avg_rating": "평균 평점",
+    "response_rate": "응답률",
+    "responses": "응답 수",
+    "no_responses": "아직 응답이 없습니다",
+    "of_five": "/ 5",
+    "loading": "CSAT 불러오는 중…"
   }
 }

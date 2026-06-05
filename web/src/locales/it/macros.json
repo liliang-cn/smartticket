@@ -1,0 +1,56 @@
+{
+  "page": {
+    "eyebrow": "team",
+    "title": "Macro"
+  },
+  "newMacro": "Nuova macro",
+  "table": {
+    "title": "Titolo",
+    "category": "Categoria",
+    "visibility": "Visibilità",
+    "usage": "Utilizzi",
+    "actions": ""
+  },
+  "visibility": {
+    "shared": "Condivisa",
+    "private": "Privata"
+  },
+  "empty": "Nessuna macro ancora.",
+  "form": {
+    "titleCreate": "Nuova macro",
+    "titleEdit": "Modifica macro",
+    "description": "Le macro sono modelli di messaggi riutilizzabili con azioni opzionali sui ticket.",
+    "title": "Titolo",
+    "titlePlaceholder": "Conferma ricezione",
+    "category": "Categoria",
+    "categoryPlaceholder": "es. Saluti, Escalation…",
+    "body": "Corpo del messaggio",
+    "bodyPlaceholder": "Ciao {{customer.name}}, grazie per averci contattato riguardo al ticket #{{ticket.id}}…",
+    "bodyHint": "Variabili: {{customer.name}}, {{ticket.id}}, {{ticket.subject}}, {{agent.name}}",
+    "shared": "Condividi con il team",
+    "actions_field": "Azioni (JSON opzionale)",
+    "actionsPlaceholder": "[]",
+    "submitCreate": "Crea macro",
+    "submitEdit": "Salva modifiche",
+    "creatingPending": "Creazione in corso…",
+    "savingPending": "Salvataggio in corso…"
+  },
+  "deleteDialog": {
+    "title": "Elimina macro",
+    "description": "Eliminare «{{title}}»? Questa azione non può essere annullata.",
+    "confirm": "Elimina",
+    "confirmPending": "Eliminazione in corso…"
+  },
+  "toast": {
+    "created": "Macro creata",
+    "updated": "Macro aggiornata",
+    "deleted": "Macro eliminata",
+    "createFailed": "Impossibile creare la macro",
+    "updateFailed": "Impossibile aggiornare la macro",
+    "deleteFailed": "Impossibile eliminare la macro"
+  },
+  "validation": {
+    "titleRequired": "Il titolo è obbligatorio",
+    "bodyRequired": "Il corpo è obbligatorio"
+  }
+}

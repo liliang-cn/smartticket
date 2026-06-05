@@ -1,0 +1,56 @@
+{
+  "page": {
+    "eyebrow": "team",
+    "title": "Makros"
+  },
+  "newMacro": "Neues Makro",
+  "table": {
+    "title": "Titel",
+    "category": "Kategorie",
+    "visibility": "Sichtbarkeit",
+    "usage": "Verwendungen",
+    "actions": ""
+  },
+  "visibility": {
+    "shared": "Geteilt",
+    "private": "Privat"
+  },
+  "empty": "Noch keine Makros.",
+  "form": {
+    "titleCreate": "Neues Makro",
+    "titleEdit": "Makro bearbeiten",
+    "description": "Makros sind wiederverwendbare Nachrichtenvorlagen mit optionalen Ticket-Aktionen.",
+    "title": "Titel",
+    "titlePlaceholder": "Eingang bestätigen",
+    "category": "Kategorie",
+    "categoryPlaceholder": "z.B. Begrüßungen, Eskalationen…",
+    "body": "Nachrichtentext",
+    "bodyPlaceholder": "Hallo {{customer.name}}, vielen Dank für Ihre Anfrage zu Ticket #{{ticket.id}}…",
+    "bodyHint": "Variablen: {{customer.name}}, {{ticket.id}}, {{ticket.subject}}, {{agent.name}}",
+    "shared": "Mit Team teilen",
+    "actions_field": "Aktionen (optionales JSON)",
+    "actionsPlaceholder": "[]",
+    "submitCreate": "Makro erstellen",
+    "submitEdit": "Änderungen speichern",
+    "creatingPending": "Wird erstellt…",
+    "savingPending": "Wird gespeichert…"
+  },
+  "deleteDialog": {
+    "title": "Makro löschen",
+    "description": "„{{title}}” löschen? Dies kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "confirmPending": "Wird gelöscht…"
+  },
+  "toast": {
+    "created": "Makro erstellt",
+    "updated": "Makro aktualisiert",
+    "deleted": "Makro gelöscht",
+    "createFailed": "Makro konnte nicht erstellt werden",
+    "updateFailed": "Makro konnte nicht aktualisiert werden",
+    "deleteFailed": "Makro konnte nicht gelöscht werden"
+  },
+  "validation": {
+    "titleRequired": "Titel ist erforderlich",
+    "bodyRequired": "Text ist erforderlich"
+  }
+}

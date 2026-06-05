@@ -22,6 +22,10 @@ import { DataJobsPage } from "@/pages/data-jobs";
 import { LLMProvidersPage } from "@/pages/llm-providers";
 import { SubscriptionsPage } from "@/pages/subscriptions-list";
 import { SettingsPage } from "@/pages/settings";
+import { AutomationsPage } from "@/pages/automations";
+import { MacrosPage } from "@/pages/macros";
+import { TeamsPage } from "@/pages/teams";
+import { SurveyPage } from "@/pages/survey";
 import type { JSX } from "react";
 
 function FullScreenLoader() {
@@ -74,6 +78,8 @@ export default function App() {
           </PublicOnly>
         }
       />
+      {/* Public survey — no auth required, emailed link to customers. */}
+      <Route path="/survey/:token" element={<SurveyPage />} />
       <Route
         element={
           <Protected>
@@ -103,6 +109,9 @@ export default function App() {
         <Route path="/data" element={<TeamOnly><DataJobsPage /></TeamOnly>} />
         <Route path="/rbac" element={<TeamOnly><AccessPage /></TeamOnly>} />
         <Route path="/llm" element={<TeamOnly><LLMProvidersPage /></TeamOnly>} />
+        <Route path="/macros" element={<TeamOnly><MacrosPage /></TeamOnly>} />
+        <Route path="/teams" element={<TeamOnly><TeamsPage /></TeamOnly>} />
+        <Route path="/automations" element={<AdminOnly><AutomationsPage /></AdminOnly>} />
         <Route path="/settings" element={<AdminOnly><SettingsPage /></AdminOnly>} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

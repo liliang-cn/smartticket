@@ -8,6 +8,7 @@ const STATUS_TONE: Record<TicketStatus, Parameters<typeof Badge>[0]["tone"]> = {
   resolved: "green",
   closed: "slate",
   cancelled: "neutral",
+  merged: "slate",
 };
 
 const PRIORITY_TONE: Record<

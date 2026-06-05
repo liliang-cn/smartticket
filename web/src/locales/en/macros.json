@@ -1,0 +1,56 @@
+{
+  "page": {
+    "eyebrow": "team",
+    "title": "Macros"
+  },
+  "newMacro": "New macro",
+  "table": {
+    "title": "Title",
+    "category": "Category",
+    "visibility": "Visibility",
+    "usage": "Uses",
+    "actions": ""
+  },
+  "visibility": {
+    "shared": "Shared",
+    "private": "Private"
+  },
+  "empty": "No macros yet.",
+  "form": {
+    "titleCreate": "New macro",
+    "titleEdit": "Edit macro",
+    "description": "Macros are reusable message templates with optional ticket actions.",
+    "title": "Title",
+    "titlePlaceholder": "Acknowledge receipt",
+    "category": "Category",
+    "categoryPlaceholder": "e.g. Greetings, Escalations…",
+    "body": "Message body",
+    "bodyPlaceholder": "Hi {{customer.name}}, thanks for reaching out about ticket #{{ticket.id}}…",
+    "bodyHint": "Variables: {{customer.name}}, {{ticket.id}}, {{ticket.subject}}, {{agent.name}}",
+    "shared": "Shared with team",
+    "actions_field": "Actions (optional JSON)",
+    "actionsPlaceholder": "[]",
+    "submitCreate": "Create macro",
+    "submitEdit": "Save changes",
+    "creatingPending": "Creating…",
+    "savingPending": "Saving…"
+  },
+  "deleteDialog": {
+    "title": "Delete macro",
+    "description": "Delete \"{{title}}\"? This cannot be undone.",
+    "confirm": "Delete",
+    "confirmPending": "Deleting…"
+  },
+  "toast": {
+    "created": "Macro created",
+    "updated": "Macro updated",
+    "deleted": "Macro deleted",
+    "createFailed": "Could not create macro",
+    "updateFailed": "Could not update macro",
+    "deleteFailed": "Could not delete macro"
+  },
+  "validation": {
+    "titleRequired": "Title is required",
+    "bodyRequired": "Body is required"
+  }
+}

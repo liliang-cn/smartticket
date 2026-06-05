@@ -1,0 +1,67 @@
+{
+  "page": {
+    "eyebrow": "团队",
+    "title": "团队"
+  },
+  "newTeam": "新建团队",
+  "table": {
+    "name": "名称",
+    "description": "描述",
+    "actions": ""
+  },
+  "members": {
+    "title": "成员 — {{name}}",
+    "addMember": "添加成员",
+    "empty": "暂无成员。",
+    "table": {
+      "name": "姓名",
+      "email": "邮箱",
+      "role": "角色",
+      "actions": ""
+    },
+    "remove": "移除",
+    "addDialog": {
+      "title": "添加成员",
+      "description": "选择要添加到 {{teamName}} 的用户。",
+      "userLabel": "用户",
+      "selectPlaceholder": "选择用户…",
+      "submit": "添加",
+      "submitting": "添加中…"
+    }
+  },
+  "empty": "暂无团队。",
+  "form": {
+    "titleCreate": "新建团队",
+    "titleEdit": "编辑团队",
+    "description": "团队将客服人员分组，用于工单分配和通知。",
+    "name": "名称",
+    "namePlaceholder": "客服支持",
+    "description_field": "描述",
+    "descriptionPlaceholder": "关于此团队的可选备注…",
+    "submitCreate": "创建团队",
+    "submitEdit": "保存更改",
+    "creatingPending": "创建中…",
+    "savingPending": "保存中…"
+  },
+  "deleteDialog": {
+    "title": "删除团队",
+    "description": "删除团队「{{name}}」？所有成员资格将被删除。此操作无法撤销。",
+    "confirm": "删除",
+    "confirmPending": "删除中…"
+  },
+  "toast": {
+    "created": "团队已创建",
+    "updated": "团队已更新",
+    "deleted": "团队已删除",
+    "createFailed": "无法创建团队",
+    "updateFailed": "无法更新团队",
+    "deleteFailed": "无法删除团队",
+    "memberAdded": "成员已添加",
+    "memberRemoved": "成员已移除",
+    "addMemberFailed": "无法添加成员",
+    "removeMemberFailed": "无法移除成员"
+  },
+  "validation": {
+    "nameRequired": "名称为必填项"
+  }
+}

@@ -13,5 +13,14 @@
     "total": "{{count}} ticket in totale · vai alla lista live",
     "total_loading": "— · vai alla lista live",
     "cta": "Apri ticket"
+  },
+  "csat": {
+    "title": "Soddisfazione del cliente",
+    "avg_rating": "Valutazione media",
+    "response_rate": "Tasso di risposta",
+    "responses": "Risposte",
+    "no_responses": "Ancora nessuna risposta",
+    "of_five": "/ 5",
+    "loading": "Caricamento CSAT…"
   }
 }

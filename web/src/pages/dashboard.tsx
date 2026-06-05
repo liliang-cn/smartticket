@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Inbox, Loader2, CheckCircle2, AlertTriangle, ArrowUpRight } from "lucide-react";
+import { Inbox, Loader2, CheckCircle2, AlertTriangle, ArrowUpRight, Star } from "lucide-react";
 import { useTicketStats } from "@/features/tickets/api";
+import { useSurveyStats } from "@/features/survey/api";
 import { useReveal } from "@/lib/use-reveal";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/misc";
@@ -34,6 +35,7 @@ export function DashboardPage() {
   const { t } = useTranslation("dashboard");
   const { user } = useAuth();
   const { data, isLoading } = useTicketStats();
+  const { data: csatData, isLoading: csatLoading } = useSurveyStats();
   const ref = useReveal(isLoading ? "loading" : "ready");
 
   return (
@@ -86,6 +88,53 @@ export function DashboardPage() {
         >
           {t("queue.cta")} <ArrowUpRight className="size-4" />
         </Link>
+      </Card>
+
+      {/* CSAT card */}
+      <Card data-reveal className="mt-4 p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <Star className="size-4 text-amber-400" />
+          <span className="font-semibold">{t("csat.title")}</span>
+        </div>
+        {csatLoading ? (
+          <div className="flex gap-6">
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-8 w-20" />
+          </div>
+        ) : !csatData || csatData.response_count === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("csat.no_responses")}</p>
+        ) : (
+          <div className="flex flex-wrap gap-8">
+            <div>
+              <div className="font-display text-3xl font-bold tabular-nums">
+                {csatData.average_rating.toFixed(1)}
+                <span className="ml-1 text-base font-normal text-muted-foreground">
+                  {t("csat.of_five")}
+                </span>
+              </div>
+              <div className="mt-0.5 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                {t("csat.avg_rating")}
+              </div>
+            </div>
+            <div>
+              <div className="font-display text-3xl font-bold tabular-nums">
+                {Math.round(csatData.response_rate * 100)}%
+              </div>
+              <div className="mt-0.5 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                {t("csat.response_rate")}
+              </div>
+            </div>
+            <div>
+              <div className="font-display text-3xl font-bold tabular-nums">
+                <CountUp value={csatData.response_count} />
+              </div>
+              <div className="mt-0.5 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                {t("csat.responses")}
+              </div>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );

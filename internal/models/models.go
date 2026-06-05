@@ -81,8 +81,14 @@ type Ticket struct {
 	ResolvedAt     *time.Time   `json:"resolved_at"`
 	DueDate        *time.Time   `json:"due_date"`
 	SLAStatus      string       `gorm:"size:20;default:'within'" json:"sla_status"` // within, breached, warning
-	Messages       []Message    `gorm:"foreignKey:TicketID" json:"messages,omitempty"`
-	Attachments    []Attachment `gorm:"foreignKey:TicketID" json:"attachments,omitempty"`
+	// Parity fields — added together to avoid repeat migrations.
+	Channel           string `gorm:"size:30;default:'web'" json:"channel"`                // web, email, web_widget
+	ConversationToken string `gorm:"type:text;index" json:"conversation_token,omitempty"`
+	Summary           string `gorm:"type:text" json:"summary,omitempty"`
+	AssignedTeamID    *uint  `gorm:"index" json:"assigned_team_id,omitempty"`
+	MergedIntoID      *uint  `gorm:"index" json:"merged_into_id,omitempty"`
+	Messages    []Message    `gorm:"foreignKey:TicketID" json:"messages,omitempty"`
+	Attachments []Attachment `gorm:"foreignKey:TicketID" json:"attachments,omitempty"`
 }
 
 // Message represents a ticket message.
@@ -271,11 +277,26 @@ type AISettings struct {
 	SuggestReplies bool `gorm:"default:true" json:"suggest_replies"`
 	// KnowledgeAI enables semantic search + "ask" over the knowledge base.
 	KnowledgeAI bool `gorm:"default:true" json:"knowledge_ai"`
-	// AutoClassify (future) lets AI suggest a category/priority on new tickets.
+	// AutoClassify lets AI suggest a category/priority on new tickets.
 	AutoClassify bool `gorm:"default:false" json:"auto_classify"`
 	// ReplyInstructions is optional operator guidance (tone, do/don'ts) injected
 	// into the suggested-reply prompt.
 	ReplyInstructions string `gorm:"type:text" json:"reply_instructions"`
+	// AutoReplyEnabled lets the AI post a public reply automatically when
+	// confidence >= AutoReplyConfidence and NeedsClarification is false.
+	AutoReplyEnabled bool `gorm:"default:false" json:"auto_reply_enabled"`
+	// AutoReplyConfidence is the minimum Draft.Confidence (0..1) required before
+	// the orchestrator posts an automated reply without agent review.
+	AutoReplyConfidence float64 `gorm:"default:0.75" json:"auto_reply_confidence"`
+	// AutoResolveEnabled allows the orchestrator to mark a ticket resolved after
+	// posting a high-confidence auto-reply (Phase 3; post-reply action today).
+	AutoResolveEnabled bool `gorm:"default:false" json:"auto_resolve_enabled"`
+	// MaxAutoRepliesPerTicket caps how many AI-authored messages the orchestrator
+	// will post on a single ticket before handing off to a human agent.
+	MaxAutoRepliesPerTicket int `gorm:"default:2" json:"max_auto_replies_per_ticket"`
+	// AutoSummarizeOnResolve triggers an LLM summary of the conversation when a
+	// ticket transitions to resolved status.
+	AutoSummarizeOnResolve bool `gorm:"default:false" json:"auto_summarize_on_resolve"`
 }
 
 // Product represents a product or service offering.
@@ -448,6 +469,93 @@ type Notification struct {
 }
 
 func (Notification) TableName() string { return "notifications" }
+
+// Team is a named group of users (agents/admins) used for ticket assignment and
+// @mention routing. Teams are managed by admins.
+type Team struct {
+	BaseModel
+	Name        string `gorm:"size:120;not null;uniqueIndex" json:"name"`
+	Description string `gorm:"type:text" json:"description"`
+}
+
+// TeamMember records that a user belongs to a team. The composite unique index
+// prevents duplicate memberships at the database level.
+type TeamMember struct {
+	BaseModel
+	TeamID uint `gorm:"index;not null;uniqueIndex:idx_team_user" json:"team_id"`
+	UserID uint `gorm:"index;not null;uniqueIndex:idx_team_user" json:"user_id"`
+}
+
+func (Team) TableName() string       { return "teams" }
+func (TeamMember) TableName() string { return "team_members" }
+
+// SatisfactionSurvey captures a post-resolution CSAT survey for a ticket.
+// One survey per ticket: CreateForTicket is idempotent. Rating 0 means the
+// customer has not yet answered.
+type SatisfactionSurvey struct {
+	BaseModel
+	TicketID    uint       `gorm:"index;not null" json:"ticket_id"`
+	Rating      int        `json:"rating"`              // 1..5, 0 = not yet answered
+	Comment     string     `gorm:"type:text" json:"comment"`
+	Token       string     `gorm:"size:128;uniqueIndex" json:"-"` // public access token
+	SentAt      *time.Time `json:"sent_at"`
+	RespondedAt *time.Time `json:"responded_at"`
+}
+
+func (SatisfactionSurvey) TableName() string { return "satisfaction_surveys" }
+
+// TicketLink records a directional relationship between two tickets.
+// The composite unique index (source_id, target_id, type) prevents duplicate
+// links of the same type between the same pair of tickets.
+type TicketLink struct {
+	BaseModel
+	SourceID uint   `gorm:"index;not null;uniqueIndex:idx_link" json:"source_id"`
+	TargetID uint   `gorm:"index;not null;uniqueIndex:idx_link" json:"target_id"`
+	Type     string `gorm:"size:20;not null;uniqueIndex:idx_link" json:"type"` // related|duplicate|blocks
+}
+
+func (TicketLink) TableName() string { return "ticket_links" }
+
+// AutomationRule defines a trigger-condition-action rule that runs automatically
+// when a matching domain event fires.
+type AutomationRule struct {
+	BaseModel
+	Name        string `gorm:"size:200;not null" json:"name"`
+	Description string `gorm:"type:text" json:"description"`
+	Enabled     bool   `gorm:"default:true" json:"enabled"`
+	// Event is the trigger event type, matching automation.EventType constants.
+	// Values: ticket.created | ticket.updated | message.created | ticket.sla_warning | schedule
+	Event string `gorm:"size:50;not null;index" json:"event"`
+	// Match controls whether all (AND) or any (OR) conditions must pass.
+	// Values: all | any
+	Match string `gorm:"size:10;default:'all'" json:"match"`
+	// Conditions is a JSON array of condition objects: [{field,op,value}]
+	Conditions string `gorm:"type:text" json:"conditions"`
+	// Actions is a JSON array of action objects: [{type,params}]
+	Actions string `gorm:"type:text" json:"actions"`
+	// Position controls rule evaluation order (ascending).
+	Position int `gorm:"default:0;index" json:"position"`
+}
+
+func (AutomationRule) TableName() string { return "automation_rules" }
+
+// Macro is a canned response template an agent can apply to a ticket reply.
+// Shared=true macros are visible to all team members; Shared=false macros are
+// private to their OwnerID. The Body supports {{variable}} placeholders
+// substituted at apply-time (see internal/macro.Render).
+// Actions is an optional JSON array of side-effects: [{type, params}].
+type Macro struct {
+	BaseModel
+	Title      string `gorm:"size:200;not null" json:"title"`
+	Category   string `gorm:"size:100;index" json:"category"`
+	Body       string `gorm:"type:text;not null" json:"body"`
+	Actions    string `gorm:"type:text" json:"actions"`
+	Shared     bool   `gorm:"default:false" json:"shared"`
+	OwnerID    uint   `gorm:"index" json:"owner_id"`
+	UsageCount int    `gorm:"default:0" json:"usage_count"`
+}
+
+func (Macro) TableName() string { return "macros" }
 
 // Table name overrides.
 func (User) TableName() string             { return "users" }

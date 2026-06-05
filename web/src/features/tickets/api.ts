@@ -254,3 +254,71 @@ export function useAddMessage(id: number) {
     },
   });
 }
+
+// Ticket merge
+
+export function useMergeTicket(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (into: number) => {
+      await api.post(`/tickets/${id}/merge`, { into });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ticket", id] });
+      qc.invalidateQueries({ queryKey: ["tickets"] });
+      qc.invalidateQueries({ queryKey: ["ticket-events", id] });
+    },
+  });
+}
+
+// Ticket links
+
+export interface TicketLink {
+  id: number;
+  source_id: number;
+  target_id: number;
+  type: string;
+  other_ticket: {
+    id: number;
+    title: string;
+    status: string;
+  };
+}
+
+export function useTicketLinks(id: number | undefined) {
+  return useQuery({
+    queryKey: ["ticket-links", id],
+    enabled: (id ?? 0) > 0,
+    queryFn: async (): Promise<TicketLink[]> => {
+      const res = await api.get(`/tickets/${id}/links`);
+      return unwrap<TicketLink[]>(res.data) ?? [];
+    },
+  });
+}
+
+export function useCreateTicketLink(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { target_id: number; type: string }) => {
+      const res = await api.post(`/tickets/${id}/links`, input);
+      return unwrap<TicketLink>(res.data);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ticket-links", id] });
+      qc.invalidateQueries({ queryKey: ["ticket-events", id] });
+    },
+  });
+}
+
+export function useDeleteTicketLink(ticketId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (linkId: number) => {
+      await api.delete(`/tickets/${ticketId}/links/${linkId}`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["ticket-links", ticketId] });
+      qc.invalidateQueries({ queryKey: ["ticket-events", ticketId] });
+    },
+  });
+}

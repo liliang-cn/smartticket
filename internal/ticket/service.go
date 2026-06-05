@@ -2,23 +2,36 @@ package ticket
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	stderrors "errors"
+	"github.com/company/smartticket/internal/aiassist"
+	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/models"
+	"github.com/company/smartticket/internal/realtime"
 	"github.com/company/smartticket/internal/sla"
 	"gorm.io/gorm"
 )
 
 // scopeToActor restricts a ticket query to the actor's customer when the actor
 // is a customer-role user. Team actors (admin/engineer) are unrestricted.
+//
+// Safety invariant: a customer actor with a nil CustomerID is a misconfigured
+// account that must never see any tickets. Returning an impossible condition
+// (1=0) prevents an IDOR where a misconfigured customer would fall through to
+// an unscoped query and see all tickets.
 func scopeToActor(q *gorm.DB, actor authz.Actor) *gorm.DB {
-	if actor.IsCustomer() && actor.CustomerID != nil {
-		return q.Where("customer_id = ?", *actor.CustomerID)
+	if actor.IsCustomer() {
+		if actor.CustomerID != nil {
+			return q.Where("customer_id = ?", *actor.CustomerID)
+		}
+		// CustomerID is nil for a customer actor — scope to nothing (IDOR guard).
+		return q.Where("1 = 0")
 	}
 	return q
 }
@@ -30,7 +43,15 @@ type Service struct {
 	notifier      Notifier       // optional; nil = no-op (see SetNotifier)
 	mailer        Mailer         // optional; nil = no-op (see SetMailer)
 	suggester     ReplySuggester // optional; nil = AI suggestions unavailable
+	bus           *automation.Bus  // optional; nil = no domain events
+	hub           *realtime.Hub    // optional; nil = no ws broadcasts
 }
+
+// SetBus wires the domain event bus. Safe to call after NewService.
+func (s *Service) SetBus(b *automation.Bus) { s.bus = b }
+
+// SetHub wires the realtime hub for WebSocket broadcasts. Safe to call after NewService.
+func (s *Service) SetHub(h *realtime.Hub) { s.hub = h }
 
 // NewService creates a new ticket service.
 func NewService(db *gorm.DB, slaCalculator *sla.Calculator) *Service {
@@ -55,6 +76,7 @@ type CreateTicketRequest struct {
 	RequesterEmail string `json:"requester_email" binding:"required,email,max=255"`
 	Tags           string `json:"tags" binding:"omitempty"`          // JSON array
 	CustomFields   string `json:"custom_fields" binding:"omitempty"` // JSON object
+	Channel        string `json:"channel,omitempty"`                 // e.g. web_widget; empty → default 'web'
 }
 
 // UpdateTicketRequest represents a ticket update request.
@@ -162,6 +184,13 @@ func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicket
 		customerID = actor.CustomerID
 	}
 
+	// Determine the channel: callers may request a specific channel (e.g.
+	// "web_widget"); default to "web" when none is provided.
+	channel := req.Channel
+	if channel == "" {
+		channel = "web"
+	}
+
 	// Create ticket
 	ticket := &models.Ticket{
 		BaseModel: models.BaseModel{
@@ -188,6 +217,7 @@ func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicket
 		CustomFields:   req.CustomFields,
 		DueDate:        &slaDueDate.ResponseDueDate,
 		SLAStatus:      "within", // Default SLA status
+		Channel:        channel,
 	}
 
 	if err := s.db.Create(ticket).Error; err != nil {
@@ -195,6 +225,15 @@ func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicket
 	}
 
 	s.recordEvent(ticket.ID, userID, "created", "created the ticket")
+
+	// Emit domain event (best-effort; never affects the request path).
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventTicketCreated,
+			TicketID: ticket.ID,
+			ActorID:  actor.UserID,
+		})
+	}
 
 	return s.ticketToResponse(ticket), nil
 }
@@ -235,8 +274,14 @@ func (s *Service) ListTickets(actor authz.Actor, page, pageSize int, filters map
 	query := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor)
 
 	// Apply filters
-	if status, ok := filters["status"].(string); ok && status != "" {
-		query = query.Where("status = ?", status)
+	statusFilter, hasStatusFilter := filters["status"].(string)
+	if hasStatusFilter && statusFilter != "" {
+		query = query.Where("status = ?", statusFilter)
+	} else {
+		// When no explicit status filter is provided, hide merged tickets from
+		// the active queue. Callers that want merged tickets must request them
+		// explicitly with status=merged.
+		query = query.Where("status != ?", "merged")
 	}
 	if priority, ok := filters["priority"].(string); ok && priority != "" {
 		query = query.Where("priority = ?", priority)
@@ -411,6 +456,23 @@ func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, re
 		s.recordEvent(ticket.ID, userID, "assigned", s.assignSummary(ticket.AssignedTo))
 	}
 
+	// Emit domain events for status transitions (best-effort).
+	if s.bus != nil && req.Status != "" && req.Status != oldStatus {
+		if ticket.Status == "resolved" {
+			s.bus.Publish(automation.Event{
+				Type:     automation.EventTicketResolved,
+				TicketID: ticket.ID,
+				ActorID:  userID,
+			})
+		} else {
+			s.bus.Publish(automation.Event{
+				Type:     automation.EventTicketUpdated,
+				TicketID: ticket.ID,
+				ActorID:  userID,
+			})
+		}
+	}
+
 	// Best-effort: on an actual status change, notify the ticket's customer-side
 	// users (skip if no owning customer). Author is excluded from recipients.
 	if s.notifier != nil && req.Status != "" && req.Status != oldStatus && ticket.CustomerID != nil {
@@ -494,10 +556,11 @@ type CreateMessageRequest struct {
 }
 
 // findTicketForActor loads a ticket scoped to the actor's customer, returning a
-// NotFound error (no existence disclosure) when it is outside the actor's scope.
+// NotFound error (no existence disclosure) when it is outside the actor's scope
+// or has been soft-deleted.
 func (s *Service) findTicketForActor(actor authz.Actor, ticketID uint) (*models.Ticket, error) {
 	var ticket models.Ticket
-	if err := scopeToActor(s.db.Where("id = ?", ticketID), actor).First(&ticket).Error; err != nil {
+	if err := scopeToActor(s.db.Where("id = ? AND is_deleted = ?", ticketID, false), actor).First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("ticket")
 		}
@@ -562,6 +625,12 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 	// affects the request path). Internal notes are NEVER surfaced to customers.
 	s.notifyMessage(actor, tkt, message, userID)
 
+	// @mention notifications: only for internal notes so that external messages
+	// do not expose internal user handles to the customer-visible message stream.
+	if isInternal {
+		s.notifyMentions(tkt, message.Content, userID)
+	}
+
 	if isInternal {
 		s.recordEvent(ticketID, userID, "note", "added an internal note")
 	} else {
@@ -584,7 +653,159 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 	}
 
 	resp := messageToResponse(message)
+
+	// Emit domain event and broadcast over WebSocket (best-effort).
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventMessageCreated,
+			TicketID: ticketID,
+			ActorID:  actor.UserID,
+		})
+	}
+	if s.hub != nil {
+		if payload, err := json.Marshal(resp); err == nil {
+			// Broadcast to the ticket room so connected agents see the new message.
+			s.hub.Broadcast(fmt.Sprintf("ticket:%d", ticketID), payload)
+			// Also broadcast to the widget room when the ticket originates from a
+			// web_widget conversation so the embedded chat widget receives the reply.
+			if tkt != nil && tkt.Channel == "web_widget" {
+				s.hub.Broadcast(fmt.Sprintf("widget:%d", ticketID), payload)
+			}
+		}
+	}
+
 	return &resp, nil
+}
+
+// PostAIMessage appends a public AI-authored reply to the ticket.
+// It bypasses the human notification/mailer pipeline and publishes the
+// EventMessageCreated event with Source:"ai" so the AutoResolver's loop-guard
+// fires and the message is not re-processed.
+func (s *Service) PostAIMessage(ticketID uint, body string) error {
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.NewNotFoundError("ticket")
+		}
+		return fmt.Errorf("failed to load ticket for AI message: %w", err)
+	}
+
+	msg := &models.Message{
+		TicketID:    ticketID,
+		UserID:      0, // system / no human author
+		Content:     strings.TrimSpace(body),
+		ContentType: "text",
+		IsInternal:  false,
+		IsFromAI:    true,
+	}
+	if err := s.db.Create(msg).Error; err != nil {
+		return fmt.Errorf("failed to persist AI message: %w", err)
+	}
+
+	s.recordEvent(ticketID, 0, "replied", "AI replied to the ticket")
+
+	resp := messageToResponse(msg)
+
+	// Publish with Source:"ai" — this is the key that prevents the orchestrator
+	// from treating this event as a new customer message (loop guard).
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventMessageCreated,
+			TicketID: ticketID,
+			ActorID:  0,
+			Source:   "ai",
+		})
+	}
+	if s.hub != nil {
+		if payload, err := json.Marshal(resp); err == nil {
+			s.hub.Broadcast(fmt.Sprintf("ticket:%d", ticketID), payload)
+			if tkt.Channel == "web_widget" {
+				s.hub.Broadcast(fmt.Sprintf("widget:%d", ticketID), payload)
+			}
+		}
+	}
+
+	return nil
+}
+
+// CountAIMessages returns the number of AI-authored messages on a ticket.
+func (s *Service) CountAIMessages(ticketID uint) (int, error) {
+	var count int64
+	if err := s.db.Model(&models.Message{}).
+		Where("ticket_id = ? AND is_from_ai = ?", ticketID, true).
+		Count(&count).Error; err != nil {
+		return 0, fmt.Errorf("count AI messages: %w", err)
+	}
+	return int(count), nil
+}
+
+// UpdateTicketClassification sets category, priority, and tags on a ticket
+// without triggering the full UpdateTicket lifecycle (no SLA recalc, no
+// activity log for silent AI updates).
+func (s *Service) UpdateTicketClassification(ticketID uint, category, priority string, tags []string) error {
+	updates := map[string]interface{}{}
+	if category != "" {
+		updates["category"] = category
+	}
+	if priority != "" {
+		updates["priority"] = priority
+	}
+	if len(tags) > 0 {
+		raw, _ := json.Marshal(tags)
+		updates["tags"] = string(raw)
+	}
+	if len(updates) == 0 {
+		return nil
+	}
+	result := s.db.Model(&models.Ticket{}).Where("id = ?", ticketID).Updates(updates)
+	if result.Error != nil {
+		return fmt.Errorf("update ticket classification: %w", result.Error)
+	}
+	return nil
+}
+
+// SetTicketSummary stores an AI-generated summary on the ticket.
+func (s *Service) SetTicketSummary(ticketID uint, summary string) error {
+	result := s.db.Model(&models.Ticket{}).Where("id = ?", ticketID).Update("summary", summary)
+	if result.Error != nil {
+		return fmt.Errorf("set ticket summary: %w", result.Error)
+	}
+	return nil
+}
+
+// LoadAISuggestInput assembles the SuggestInput for a ticket and reports
+// whether the last message in the conversation comes from a customer (i.e.
+// someone is waiting for a reply).  On a brand-new ticket with no messages
+// the description itself counts as the customer's opening, so customerWaiting
+// is true.
+func (s *Service) LoadAISuggestInput(ticketID uint) (aiassist.SuggestInput, bool, error) {
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).
+		Preload("Customer").First(&tkt).Error; err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return aiassist.SuggestInput{}, false, errors.NewNotFoundError("ticket")
+		}
+		return aiassist.SuggestInput{}, false, fmt.Errorf("load ticket for AI: %w", err)
+	}
+
+	conv, _ := s.buildConversation(ticketID)
+
+	in := aiassist.SuggestInput{
+		Title:        tkt.Title,
+		Description:  tkt.Description,
+		CustomerName: tkt.RequesterName,
+		Conversation: conv,
+	}
+
+	// Determine whether the last conversational turn is from a customer.
+	// If there are no messages the ticket description is the opening statement
+	// from the requester, so we treat that as customer-waiting.
+	customerWaiting := true
+	if len(conv) > 0 {
+		customerWaiting = conv[len(conv)-1].IsCustomer
+	}
+
+	return in, customerWaiting, nil
 }
 
 // notifyMessage emits a ticket_reply notification for a freshly created message.
@@ -656,6 +877,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 		InProgress    int64 `json:"in_progress"`
 		Resolved      int64 `json:"resolved"`
 		Closed        int64 `json:"closed"`
+		Merged        int64 `json:"merged"`
 		OverdueCount  int64 `json:"overdue_count"`
 		CriticalCount int64 `json:"critical_count"`
 		HighCount     int64 `json:"high_count"`
@@ -694,6 +916,8 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 			stats.Resolved = count
 		case "closed":
 			stats.Closed = count
+		case "merged":
+			stats.Merged = count
 		}
 	}
 
@@ -741,6 +965,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 		"in_progress_tickets": stats.InProgress,
 		"resolved_tickets":    stats.Resolved,
 		"closed_tickets":      stats.Closed,
+		"merged_tickets":      stats.Merged,
 		"overdue_tickets":     stats.OverdueCount,
 		"priority_breakdown": map[string]int64{
 			"critical": stats.CriticalCount,
@@ -753,6 +978,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 			"in_progress": stats.InProgress,
 			"resolved":    stats.Resolved,
 			"closed":      stats.Closed,
+			"merged":      stats.Merged,
 		},
 	}
 
@@ -1019,4 +1245,116 @@ func (s *Service) ListTicketEvents(actor authz.Actor, ticketID uint) ([]TicketEv
 		out = append(out, r)
 	}
 	return out, nil
+}
+
+// SetFieldAutomation updates a single field (priority|status|severity) on a ticket
+// and publishes the resulting domain event with Source:"automation" so the engine's
+// recursion guard fires and does not re-process the event.
+func (s *Service) SetFieldAutomation(ticketID uint, field, value string) error {
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		return fmt.Errorf("SetFieldAutomation: load ticket: %w", err)
+	}
+
+	updates := map[string]interface{}{field: value}
+	if field == "status" && value == "resolved" {
+		now := time.Now()
+		updates["resolved_at"] = now
+		updates["resolution_time"] = now
+	}
+
+	if err := s.db.Model(&models.Ticket{}).Where("id = ?", ticketID).Updates(updates).Error; err != nil {
+		return fmt.Errorf("SetFieldAutomation: update %s: %w", field, err)
+	}
+
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventTicketUpdated,
+			TicketID: ticketID,
+			ActorID:  0,
+			Source:   "automation",
+		})
+	}
+	return nil
+}
+
+// AddTagAutomation appends tag to the ticket's JSON tag list (no-op if already present).
+// Publishes EventTicketUpdated with Source:"automation".
+func (s *Service) AddTagAutomation(ticketID uint, tag string) error {
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		return fmt.Errorf("AddTagAutomation: load ticket: %w", err)
+	}
+
+	var tags []string
+	if tkt.Tags != "" {
+		_ = json.Unmarshal([]byte(tkt.Tags), &tags)
+	}
+	for _, t := range tags {
+		if t == tag {
+			return nil // already present
+		}
+	}
+	tags = append(tags, tag)
+	raw, _ := json.Marshal(tags)
+
+	if err := s.db.Model(&models.Ticket{}).Where("id = ?", ticketID).
+		Update("tags", string(raw)).Error; err != nil {
+		return fmt.Errorf("AddTagAutomation: save tags: %w", err)
+	}
+
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventTicketUpdated,
+			TicketID: ticketID,
+			Source:   "automation",
+		})
+	}
+	return nil
+}
+
+// AssignAutomation sets assigned_to and/or assigned_team_id on a ticket.
+// Publishes EventTicketUpdated with Source:"automation".
+func (s *Service) AssignAutomation(ticketID uint, userID, teamID *uint) error {
+	updates := map[string]interface{}{}
+	if userID != nil {
+		updates["assigned_to"] = userID
+	}
+	if teamID != nil {
+		updates["assigned_team_id"] = teamID
+	}
+	if len(updates) == 0 {
+		return nil
+	}
+	if err := s.db.Model(&models.Ticket{}).Where("id = ? AND is_deleted = ?", ticketID, false).
+		Updates(updates).Error; err != nil {
+		return fmt.Errorf("AssignAutomation: %w", err)
+	}
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventTicketUpdated,
+			TicketID: ticketID,
+			Source:   "automation",
+		})
+	}
+	return nil
+}
+
+// EscalateAutomation bumps the ticket priority one rank (e.g. medium → high).
+// Publishes EventTicketUpdated with Source:"automation".
+func (s *Service) EscalateAutomation(ticketID uint) error {
+	escalate := map[string]string{
+		"low":    "medium",
+		"medium": "high",
+		"high":   "critical",
+	}
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		return fmt.Errorf("EscalateAutomation: load: %w", err)
+	}
+	next, ok := escalate[tkt.Priority]
+	if !ok {
+		return nil // already critical or unknown — no-op
+	}
+	return s.SetFieldAutomation(ticketID, "priority", next)
 }

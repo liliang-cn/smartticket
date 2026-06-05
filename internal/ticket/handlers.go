@@ -545,18 +545,126 @@ func (h *Handlers) CreateTicketMessage(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"success": true, "data": message})
 }
 
+// MergeTicket merges the ticket at :id into the target specified in the JSON body.
+// Body: {"into": <targetID>}
+// Team-only.
+func (h *Handlers) MergeTicket(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+
+	var body struct {
+		Into uint `json:"into" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("request_body", err.Error()))
+		return
+	}
+
+	if err := h.service.Merge(actorFromContext(c), uint(id), body.Into); err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Ticket merged successfully"})
+}
+
+// CreateTicketLink creates a link between the ticket at :id and a target ticket.
+// Body: {"target_id": <uint>, "type": "related|duplicate|blocks"}
+// Team-only.
+func (h *Handlers) CreateTicketLink(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+
+	var body struct {
+		TargetID uint   `json:"target_id" binding:"required"`
+		Type     string `json:"type" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("request_body", err.Error()))
+		return
+	}
+
+	link, err := h.service.LinkTickets(actorFromContext(c), uint(id), body.TargetID, body.Type)
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"success": true, "data": link})
+}
+
+// ListTicketLinks returns all links for the ticket at :id.
+func (h *Handlers) ListTicketLinks(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+
+	links, err := h.service.ListLinks(actorFromContext(c), uint(id))
+	if err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": links})
+}
+
+// UnlinkTicket deletes the link identified by :linkId.
+// The link must be associated with the ticket at :id.
+// Team-only.
+func (h *Handlers) UnlinkTicket(c *gin.Context) {
+	ticketID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+
+	linkID, err := strconv.ParseUint(c.Param("linkId"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("link_id", c.Param("linkId")))
+		return
+	}
+
+	if err := h.service.Unlink(actorFromContext(c), uint(ticketID), uint(linkID)); err != nil {
+		errors.ErrorHandler(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Link removed successfully"})
+}
+
 // SuggestReply returns an AI-drafted reply for the ticket (team-only). The
 // service maps AI unavailability (disabled / no provider) to a clear error.
+// The response includes structured fields (confidence, needs_clarification,
+// used_kb, sources) in addition to the reply text. The "reply" key is
+// preserved so the existing frontend (which reads .data.reply) continues to
+// work unchanged.
 func (h *Handlers) SuggestReply(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
 		return
 	}
-	draft, err := h.service.SuggestReply(actorFromContext(c), uint(id))
+	draft, err := h.service.SuggestReplyDraft(actorFromContext(c), uint(id))
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{"suggestion": draft}})
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"reply":               draft.Reply,
+			"confidence":          draft.Confidence,
+			"needs_clarification": draft.NeedsClarification,
+			"used_kb":             draft.UsedKB,
+			"sources":             draft.Sources,
+		},
+	})
 }

@@ -1,0 +1,119 @@
+{
+  "page": {
+    "eyebrow": "admin",
+    "title": "Automations"
+  },
+  "newRule": "New rule",
+  "table": {
+    "position": "#",
+    "name": "Name",
+    "event": "Event",
+    "match": "Match",
+    "enabled": "Enabled",
+    "actions": ""
+  },
+  "events": {
+    "ticket.created": "Ticket created",
+    "ticket.updated": "Ticket updated",
+    "message.created": "Message created",
+    "ticket.sla_warning": "SLA warning"
+  },
+  "match": {
+    "all": "All conditions",
+    "any": "Any condition"
+  },
+  "empty": "No automation rules yet.",
+  "form": {
+    "titleCreate": "New automation rule",
+    "titleEdit": "Edit automation rule",
+    "description": "Trigger actions automatically when ticket events occur.",
+    "name": "Name",
+    "namePlaceholder": "Auto-close resolved tickets",
+    "description_field": "Description",
+    "descriptionPlaceholder": "Optional notes about this rule…",
+    "event": "Trigger event",
+    "match": "Match",
+    "enabled": "Enabled",
+    "conditions": "Conditions",
+    "addCondition": "Add condition",
+    "removeCondition": "Remove",
+    "actions_field": "Actions",
+    "addAction": "Add action",
+    "removeAction": "Remove",
+    "submitCreate": "Create rule",
+    "submitEdit": "Save changes",
+    "creatingPending": "Creating…",
+    "savingPending": "Saving…"
+  },
+  "condition": {
+    "fields": {
+      "status": "Status",
+      "priority": "Priority",
+      "severity": "Severity",
+      "channel": "Channel",
+      "customer_email": "Customer email",
+      "tags": "Tags"
+    },
+    "ops": {
+      "eq": "equals",
+      "neq": "not equals",
+      "contains": "contains",
+      "in": "in",
+      "gt": "greater than",
+      "lt": "less than"
+    },
+    "valuePlaceholder": "value"
+  },
+  "action": {
+    "types": {
+      "assign": "Assign",
+      "add_tag": "Add tag",
+      "set_priority": "Set priority",
+      "set_status": "Set status",
+      "set_severity": "Set severity",
+      "notify": "Notify",
+      "send_email": "Send email",
+      "escalate": "Escalate",
+      "ai_suggest": "AI suggest",
+      "ai_auto_reply": "AI auto-reply",
+      "close": "Close"
+    },
+    "params": {
+      "assignee_id": "Assignee ID",
+      "team_id": "Team ID",
+      "tag": "Tag",
+      "priority": "Priority",
+      "status": "Status",
+      "severity": "Severity",
+      "message": "Message"
+    }
+  },
+  "reorder": {
+    "up": "Move up",
+    "down": "Move down"
+  },
+  "toggle": {
+    "enable": "Enable",
+    "disable": "Disable"
+  },
+  "deleteDialog": {
+    "title": "Delete automation rule",
+    "description": "Delete the \"{{name}}\" rule? This cannot be undone.",
+    "confirm": "Delete",
+    "confirmPending": "Deleting…"
+  },
+  "toast": {
+    "created": "Automation rule created",
+    "updated": "Automation rule updated",
+    "deleted": "Automation rule deleted",
+    "createFailed": "Could not create rule",
+    "updateFailed": "Could not update rule",
+    "deleteFailed": "Could not delete rule",
+    "toggleFailed": "Could not toggle rule",
+    "reorderFailed": "Could not reorder rules"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "eventRequired": "Event is required"
+  }
+}

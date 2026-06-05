@@ -77,6 +77,16 @@
     "instructions_placeholder": "e.g. Always be warm and concise; never promise refunds.",
     "instructions_hint": "Extra guidance the AI follows when drafting replies.",
     "toast_saved": "AI settings saved",
-    "toast_error": "Could not update AI settings"
+    "toast_error": "Could not update AI settings",
+    "auto_reply_enabled": "Auto-send high-confidence replies",
+    "auto_reply_enabled_desc": "AI posts a reply automatically when confidence meets the threshold.",
+    "auto_reply_confidence": "Confidence threshold",
+    "auto_reply_confidence_desc": "Minimum AI confidence (0–100%) required before auto-sending.",
+    "auto_resolve_enabled": "Auto-resolve after AI reply",
+    "auto_resolve_enabled_desc": "Automatically mark a ticket resolved after the AI sends a reply.",
+    "max_auto_replies": "Max auto-replies per ticket",
+    "max_auto_replies_desc": "AI will stop replying automatically after this many messages.",
+    "auto_summarize_on_resolve": "Summarize ticket on resolve",
+    "auto_summarize_on_resolve_desc": "Generate an LLM summary of the conversation when a ticket is resolved."
   }
 }

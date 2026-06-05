@@ -1,0 +1,18 @@
+{
+  "title": "サービスはいかがでしたか？",
+  "subtitle": "ご意見をお聞かせください。改善に役立てます。",
+  "rate_heading": "体験を評価してください",
+  "star_label": "{{n}} 星",
+  "comment_label": "追加コメント（任意）",
+  "comment_placeholder": "ご体験についてお聞かせください…",
+  "submit": "フィードバックを送信",
+  "submitting": "送信中…",
+  "already_responded_title": "回答済み",
+  "already_responded_desc": "ありがとうございます。このチケットはすでに評価されています。",
+  "thank_you_title": "ありがとうございます！",
+  "thank_you_desc": "フィードバックを受け付けました。",
+  "not_found_title": "アンケートが見つかりません",
+  "not_found_desc": "このアンケートリンクは無効か期限切れです。",
+  "error_generic": "エラーが発生しました。もう一度お試しください。",
+  "powered_by": "Powered by SmartTicket"
+}
