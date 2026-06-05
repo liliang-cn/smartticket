@@ -77,6 +77,16 @@
     "instructions_placeholder": "z. B. Immer freundlich und knapp; nie Rückerstattungen versprechen.",
     "instructions_hint": "Zusätzliche Vorgaben, die die KI beim Entwerfen befolgt.",
     "toast_saved": "KI-Einstellungen gespeichert",
-    "toast_error": "KI-Einstellungen konnten nicht aktualisiert werden"
+    "toast_error": "KI-Einstellungen konnten nicht aktualisiert werden",
+    "auto_reply_enabled": "Hochkonfidente Antworten automatisch senden",
+    "auto_reply_enabled_desc": "KI sendet automatisch eine Antwort, wenn die Konfidenz den Schwellenwert erreicht.",
+    "auto_reply_confidence": "Konfidenz-Schwellenwert",
+    "auto_reply_confidence_desc": "Mindest-KI-Konfidenz (0–100 %), bevor automatisch gesendet wird.",
+    "auto_resolve_enabled": "Nach KI-Antwort automatisch lösen",
+    "auto_resolve_enabled_desc": "Ticket automatisch als gelöst markieren, nachdem die KI geantwortet hat.",
+    "max_auto_replies": "Max. Auto-Antworten pro Ticket",
+    "max_auto_replies_desc": "KI hört nach dieser Anzahl Nachrichten mit dem automatischen Antworten auf.",
+    "auto_summarize_on_resolve": "Ticket beim Lösen zusammenfassen",
+    "auto_summarize_on_resolve_desc": "Erstellt eine LLM-Zusammenfassung der Konversation beim Schließen des Tickets."
   }
 }

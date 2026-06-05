@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/input";
+import { Input, Textarea } from "@/components/ui/input";
 import { Separator } from "@/components/ui/misc";
 import { cn } from "@/lib/utils";
 import { apiError } from "@/lib/api";
@@ -76,6 +76,20 @@ export function AISettingsCard() {
     if (data) setInstructions(data.reply_instructions ?? "");
   }, [data]);
 
+  const [confidence, setConfidence] = useState(
+    data ? Math.round((data.auto_reply_confidence ?? 0.75) * 100) : 75
+  );
+  const [maxReplies, setMaxReplies] = useState(
+    data ? (data.max_auto_replies_per_ticket ?? 2) : 2
+  );
+
+  useEffect(() => {
+    if (data) {
+      setConfidence(Math.round((data.auto_reply_confidence ?? 0.75) * 100));
+      setMaxReplies(data.max_auto_replies_per_ticket ?? 2);
+    }
+  }, [data]);
+
   if (isLoading || !data) {
     return (
       <Card data-reveal className="p-5">
@@ -96,6 +110,28 @@ export function AISettingsCard() {
     if (instructions === (data?.reply_instructions ?? "")) return;
     try {
       await update.mutateAsync({ reply_instructions: instructions });
+      toast.success(t("ai.toast_saved"));
+    } catch (err) {
+      toast.error(apiError(err, t("ai.toast_error")));
+    }
+  }
+
+  async function saveConfidence() {
+    const clamped = Math.min(100, Math.max(0, confidence));
+    if (clamped === Math.round((data?.auto_reply_confidence ?? 0.75) * 100)) return;
+    try {
+      await update.mutateAsync({ auto_reply_confidence: clamped / 100 });
+      toast.success(t("ai.toast_saved"));
+    } catch (err) {
+      toast.error(apiError(err, t("ai.toast_error")));
+    }
+  }
+
+  async function saveMaxReplies() {
+    const v = Math.max(1, maxReplies);
+    if (v === (data?.max_auto_replies_per_ticket ?? 2)) return;
+    try {
+      await update.mutateAsync({ max_auto_replies_per_ticket: v });
       toast.success(t("ai.toast_saved"));
     } catch (err) {
       toast.error(apiError(err, t("ai.toast_error")));
@@ -139,6 +175,71 @@ export function AISettingsCard() {
           desc={t("ai.auto_classify_desc")}
           checked={data.auto_classify}
           onChange={(v) => set({ auto_classify: v })}
+          disabled={off}
+        />
+        <Separator />
+        <ToggleRow
+          label={t("ai.auto_reply_enabled")}
+          desc={t("ai.auto_reply_enabled_desc")}
+          checked={data.auto_reply_enabled}
+          onChange={(v) => set({ auto_reply_enabled: v })}
+          disabled={off}
+        />
+        {data.auto_reply_enabled && !off && (
+          <div className="ml-0 pb-1 pl-0 pt-1">
+            <div className="text-xs font-medium text-muted-foreground mb-1">
+              {t("ai.auto_reply_confidence")}
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={confidence}
+                onChange={(e) => setConfidence(Number(e.target.value))}
+                onMouseUp={saveConfidence}
+                onTouchEnd={saveConfidence}
+                className="flex-1 accent-[var(--color-primary)]"
+                aria-label={t("ai.auto_reply_confidence")}
+              />
+              <span className="w-10 text-right text-sm tabular-nums">
+                {confidence}%
+              </span>
+            </div>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {t("ai.auto_reply_confidence_desc")}
+            </p>
+          </div>
+        )}
+        <ToggleRow
+          label={t("ai.auto_resolve_enabled")}
+          desc={t("ai.auto_resolve_enabled_desc")}
+          checked={data.auto_resolve_enabled}
+          onChange={(v) => set({ auto_resolve_enabled: v })}
+          disabled={off}
+        />
+        <div className="flex items-center justify-between gap-4 py-2.5">
+          <div className="min-w-0">
+            <div className="text-sm font-medium">{t("ai.max_auto_replies")}</div>
+            <div className="text-xs text-muted-foreground">{t("ai.max_auto_replies_desc")}</div>
+          </div>
+          <Input
+            type="number"
+            min={1}
+            value={maxReplies}
+            onChange={(e) => setMaxReplies(Number(e.target.value))}
+            onBlur={saveMaxReplies}
+            disabled={off}
+            className="w-20 text-right"
+            aria-label={t("ai.max_auto_replies")}
+          />
+        </div>
+        <ToggleRow
+          label={t("ai.auto_summarize_on_resolve")}
+          desc={t("ai.auto_summarize_on_resolve_desc")}
+          checked={data.auto_summarize_on_resolve}
+          onChange={(v) => set({ auto_summarize_on_resolve: v })}
           disabled={off}
         />
       </div>

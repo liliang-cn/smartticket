@@ -1,0 +1,18 @@
+{
+  "title": "¿Cómo lo hicimos?",
+  "subtitle": "Tu opinión nos ayuda a mejorar.",
+  "rate_heading": "Valora tu experiencia",
+  "star_label": "{{n}} estrella",
+  "comment_label": "Comentarios adicionales (opcional)",
+  "comment_placeholder": "Cuéntanos más sobre tu experiencia…",
+  "submit": "Enviar opinión",
+  "submitting": "Enviando…",
+  "already_responded_title": "Ya enviado",
+  "already_responded_desc": "Gracias — ya has valorado este ticket.",
+  "thank_you_title": "¡Gracias!",
+  "thank_you_desc": "Tu opinión ha sido registrada.",
+  "not_found_title": "Encuesta no encontrada",
+  "not_found_desc": "Este enlace de encuesta es inválido o ha expirado.",
+  "error_generic": "Algo salió mal. Por favor, inténtalo de nuevo.",
+  "powered_by": "Powered by SmartTicket"
+}

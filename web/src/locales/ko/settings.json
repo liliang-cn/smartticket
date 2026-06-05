@@ -77,6 +77,16 @@
     "instructions_placeholder": "예: 항상 친절하고 간결하게; 환불은 약속하지 마세요.",
     "instructions_hint": "AI가 답변 초안을 작성할 때 따르는 추가 지침.",
     "toast_saved": "AI 설정이 저장되었습니다",
-    "toast_error": "AI 설정을 업데이트할 수 없습니다"
+    "toast_error": "AI 설정을 업데이트할 수 없습니다",
+    "auto_reply_enabled": "높은 신뢰도 답변 자동 전송",
+    "auto_reply_enabled_desc": "신뢰도가 임계값 이상일 때 AI가 자동으로 답변을 전송합니다.",
+    "auto_reply_confidence": "신뢰도 임계값",
+    "auto_reply_confidence_desc": "자동 전송 전 필요한 최소 AI 신뢰도(0–100%).",
+    "auto_resolve_enabled": "AI 답변 후 자동 해결",
+    "auto_resolve_enabled_desc": "AI가 답변을 전송한 후 티켓을 자동으로 해결 처리합니다.",
+    "max_auto_replies": "티켓당 최대 자동 답변 수",
+    "max_auto_replies_desc": "이 횟수에 도달하면 AI 자동 답변이 중단됩니다.",
+    "auto_summarize_on_resolve": "해결 시 티켓 요약",
+    "auto_summarize_on_resolve_desc": "티켓 해결 시 LLM으로 대화 요약을 생성합니다."
   }
 }

@@ -77,6 +77,16 @@
     "instructions_placeholder": "es. Sii sempre cordiale e conciso; non promettere rimborsi.",
     "instructions_hint": "Indicazioni extra che l'IA segue redigendo le risposte.",
     "toast_saved": "Impostazioni IA salvate",
-    "toast_error": "Impossibile aggiornare le impostazioni IA"
+    "toast_error": "Impossibile aggiornare le impostazioni IA",
+    "auto_reply_enabled": "Invia automaticamente risposte ad alta confidenza",
+    "auto_reply_enabled_desc": "L'IA invia una risposta automaticamente quando la confidenza raggiunge la soglia.",
+    "auto_reply_confidence": "Soglia di confidenza",
+    "auto_reply_confidence_desc": "Confidenza minima dell'IA (0–100%) prima dell'invio automatico.",
+    "auto_resolve_enabled": "Risolvi automaticamente dopo la risposta IA",
+    "auto_resolve_enabled_desc": "Segna il ticket come risolto automaticamente dopo la risposta dell'IA.",
+    "max_auto_replies": "Risposte automatiche max per ticket",
+    "max_auto_replies_desc": "L'IA smetterà di rispondere automaticamente dopo questo numero di messaggi.",
+    "auto_summarize_on_resolve": "Riepiloga il ticket alla risoluzione",
+    "auto_summarize_on_resolve_desc": "Genera un riepilogo LLM della conversazione alla chiusura del ticket."
   }
 }

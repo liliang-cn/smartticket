@@ -13,5 +13,14 @@
     "total": "合計 {{count}} 件のチケット · ライブ一覧へ",
     "total_loading": "— · ライブ一覧へ",
     "cta": "チケットを開く"
+  },
+  "csat": {
+    "title": "顧客満足度",
+    "avg_rating": "平均評価",
+    "response_rate": "回答率",
+    "responses": "回答数",
+    "no_responses": "まだ回答がありません",
+    "of_five": "/ 5",
+    "loading": "CSAT を読み込み中…"
   }
 }

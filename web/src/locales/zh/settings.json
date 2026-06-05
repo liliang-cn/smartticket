@@ -77,6 +77,16 @@
     "instructions_placeholder": "例如：始终热情简洁；不要承诺退款。",
     "instructions_hint": "AI 草拟回复时遵循的额外指引。",
     "toast_saved": "AI 设置已保存",
-    "toast_error": "无法更新 AI 设置"
+    "toast_error": "无法更新 AI 设置",
+    "auto_reply_enabled": "自动发送高置信度回复",
+    "auto_reply_enabled_desc": "当 AI 置信度达到阈值时自动发送回复。",
+    "auto_reply_confidence": "置信度阈值",
+    "auto_reply_confidence_desc": "自动发送前所需的最低 AI 置信度（0–100%）。",
+    "auto_resolve_enabled": "AI 回复后自动解决",
+    "auto_resolve_enabled_desc": "AI 发送回复后自动将工单标记为已解决。",
+    "max_auto_replies": "每个工单最大自动回复数",
+    "max_auto_replies_desc": "达到此数量后 AI 将停止自动回复。",
+    "auto_summarize_on_resolve": "解决时总结工单",
+    "auto_summarize_on_resolve_desc": "工单解决时通过 LLM 生成对话摘要。"
   }
 }

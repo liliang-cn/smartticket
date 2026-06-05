@@ -8,6 +8,12 @@ export interface AISettings {
   knowledge_ai: boolean;
   auto_classify: boolean;
   reply_instructions: string;
+  // Auto-resolve controls (new in competitive-parity)
+  auto_reply_enabled: boolean;
+  auto_reply_confidence: number; // 0..1
+  auto_resolve_enabled: boolean;
+  max_auto_replies_per_ticket: number; // >= 1
+  auto_summarize_on_resolve: boolean;
 }
 
 /** Read the AI settings (any authenticated user — drives which AI affordances show). */

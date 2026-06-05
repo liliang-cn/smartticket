@@ -13,5 +13,14 @@
     "total": "{{count}} tickets en total · entra en la lista en vivo",
     "total_loading": "— · entra en la lista en vivo",
     "cta": "Abrir tickets"
+  },
+  "csat": {
+    "title": "Satisfacción del cliente",
+    "avg_rating": "Valoración media",
+    "response_rate": "Tasa de respuesta",
+    "responses": "Respuestas",
+    "no_responses": "Sin respuestas aún",
+    "of_five": "/ 5",
+    "loading": "Cargando CSAT…"
   }
 }

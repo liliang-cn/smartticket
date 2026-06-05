@@ -1,0 +1,18 @@
+{
+  "title": "Come siamo stati?",
+  "subtitle": "Il tuo feedback ci aiuta a migliorare.",
+  "rate_heading": "Valuta la tua esperienza",
+  "star_label": "{{n}} stella",
+  "comment_label": "Commenti aggiuntivi (facoltativo)",
+  "comment_placeholder": "Raccontaci di più sulla tua esperienza…",
+  "submit": "Invia feedback",
+  "submitting": "Invio in corso…",
+  "already_responded_title": "Già inviato",
+  "already_responded_desc": "Grazie — hai già valutato questo ticket.",
+  "thank_you_title": "Grazie!",
+  "thank_you_desc": "Il tuo feedback è stato registrato.",
+  "not_found_title": "Sondaggio non trovato",
+  "not_found_desc": "Questo link al sondaggio non è valido o è scaduto.",
+  "error_generic": "Qualcosa è andato storto. Riprova.",
+  "powered_by": "Powered by SmartTicket"
+}

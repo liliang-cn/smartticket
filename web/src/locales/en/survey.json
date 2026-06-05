@@ -1,0 +1,18 @@
+{
+  "title": "How did we do?",
+  "subtitle": "Your feedback helps us improve.",
+  "rate_heading": "Rate your experience",
+  "star_label": "{{n}} star",
+  "comment_label": "Additional comments (optional)",
+  "comment_placeholder": "Tell us more about your experience…",
+  "submit": "Submit feedback",
+  "submitting": "Submitting…",
+  "already_responded_title": "Already submitted",
+  "already_responded_desc": "Thanks — you've already rated this ticket.",
+  "thank_you_title": "Thank you!",
+  "thank_you_desc": "Your feedback has been recorded.",
+  "not_found_title": "Survey not found",
+  "not_found_desc": "This survey link is invalid or has expired.",
+  "error_generic": "Something went wrong. Please try again.",
+  "powered_by": "Powered by SmartTicket"
+}

@@ -25,6 +25,7 @@ import { SettingsPage } from "@/pages/settings";
 import { AutomationsPage } from "@/pages/automations";
 import { MacrosPage } from "@/pages/macros";
 import { TeamsPage } from "@/pages/teams";
+import { SurveyPage } from "@/pages/survey";
 import type { JSX } from "react";
 
 function FullScreenLoader() {
@@ -77,6 +78,8 @@ export default function App() {
           </PublicOnly>
         }
       />
+      {/* Public survey — no auth required, emailed link to customers. */}
+      <Route path="/survey/:token" element={<SurveyPage />} />
       <Route
         element={
           <Protected>

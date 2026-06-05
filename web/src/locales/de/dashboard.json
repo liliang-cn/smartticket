@@ -13,5 +13,14 @@
     "total": "{{count}} Tickets insgesamt · zur Live-Liste springen",
     "total_loading": "— · zur Live-Liste springen",
     "cta": "Tickets öffnen"
+  },
+  "csat": {
+    "title": "Kundenzufriedenheit",
+    "avg_rating": "Durchschn. Bewertung",
+    "response_rate": "Antwortrate",
+    "responses": "Antworten",
+    "no_responses": "Noch keine Antworten",
+    "of_five": "/ 5",
+    "loading": "CSAT wird geladen…"
   }
 }
