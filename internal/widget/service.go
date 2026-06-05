@@ -192,65 +192,36 @@ func (s *Service) History(token string) ([]ticket.MessageResponse, error) {
 // resolveVisitor finds or creates a Customer + User for the widget visitor.
 // Returns (customerID, userID, requesterName, requesterEmail, error).
 func (s *Service) resolveVisitor(email, name string) (uint, uint, string, string, error) {
-	anonymous := email == ""
-
-	if anonymous {
-		// Generate a unique placeholder identity for anonymous visitors.
-		email = fmt.Sprintf("widget-%s@anon.local", randomHex(8))
-		if name == "" {
-			name = "Website visitor"
-		}
-	}
-	if name == "" {
-		// Named email visitor without an explicit display name: use local-part.
-		parts := strings.SplitN(email, "@", 2)
-		name = parts[0]
-	}
-
-	// For anonymous visitors we always create a fresh customer + user so each
-	// session is distinct. For named visitors we reuse an existing user if found.
-	if !anonymous {
-		var existing models.User
-		err := s.db.Where("email = ?", email).First(&existing).Error
-		if err == nil {
-			// Existing user: reuse their customer link (or create one if missing).
-			if existing.CustomerID != nil {
-				return *existing.CustomerID, existing.ID, name, email, nil
-			}
-			// User exists but has no customer — create a customer for them.
-			cust, cerr := s.createCustomer(name, email)
-			if cerr != nil {
-				return 0, 0, "", "", cerr
-			}
-			if err2 := s.db.Model(&existing).Update("customer_id", cust.ID).Error; err2 != nil {
-				return 0, 0, "", "", fmt.Errorf("link customer to user: %w", err2)
-			}
-			return cust.ID, existing.ID, name, email, nil
-		}
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return 0, 0, "", "", fmt.Errorf("look up user: %w", err)
+	// SECURITY: the visitor-supplied email is UNVERIFIED contact info. Widget
+	// sessions must NEVER look up or reuse an existing portal user/customer by it,
+	// otherwise a visitor could type a real user's address and have their ticket
+	// injected into that account (mis-attribution + a shared conversation thread).
+	// Every session creates an independent, widget-scoped User+Customer with a
+	// unique INTERNAL identity that can't collide with a real portal user; the
+	// typed email/name ride along on the ticket as the requester's contact info,
+	// and an agent can merge/link to a real customer later once verified.
+	contactEmail := strings.TrimSpace(email) // caller already lowercased
+	contactName := strings.TrimSpace(name)
+	if contactName == "" {
+		if contactEmail != "" {
+			contactName = strings.SplitN(contactEmail, "@", 2)[0]
+		} else {
+			contactName = "Website visitor"
 		}
 	}
 
-	// Create a new Customer (one per widget session for anonymous; one per
-	// first-seen email for named visitors).
-	cust, err := s.createCustomer(name, email)
+	cust, err := s.createCustomer(contactName, contactEmail)
 	if err != nil {
 		return 0, 0, "", "", err
 	}
 
-	// Create a placeholder User linked to the customer (no password — widget
-	// visitors never log in directly).
-	username := strings.ReplaceAll(email, "@", "_at_")
-	username = strings.ReplaceAll(username, ".", "_")
-	if len(username) > 90 {
-		username = username[:90]
-	}
+	// Unique internal identity — never reuses or collides with a portal user.
+	internalEmail := fmt.Sprintf("widget-%s@anon.local", randomHex(8))
 	u := models.User{
-		Email:        email,
-		Username:     username,
-		PasswordHash: "-",   // widget users have no password
-		FirstName:    name,
+		Email:        internalEmail,
+		Username:     "widget_" + randomHex(8),
+		PasswordHash: "-", // widget visitors have no password / never log in
+		FirstName:    contactName,
 		Role:         authz.RoleCustomer,
 		IsActive:     true,
 		CustomerID:   &cust.ID,
@@ -259,7 +230,7 @@ func (s *Service) resolveVisitor(email, name string) (uint, uint, string, string
 		return 0, 0, "", "", fmt.Errorf("create widget user: %w", err)
 	}
 
-	return cust.ID, u.ID, name, email, nil
+	return cust.ID, u.ID, contactName, contactEmail, nil
 }
 
 // createCustomer inserts a minimal Customer row for the widget visitor.
@@ -286,13 +257,19 @@ func (s *Service) ticketVisitorIDs(ticketID uint) (*models.Ticket, *uint, uint, 
 		return nil, nil, 0, fmt.Errorf("load ticket %d: %w", ticketID, err)
 	}
 
-	var u models.User
-	if err := s.db.Where("email = ?", tkt.RequesterEmail).First(&u).Error; err != nil {
-		// If the user is somehow missing, fall back to a zero actor — the ticket
-		// service will still allow a customer actor to append messages.
-		return &tkt, tkt.CustomerID, 0, nil
+	// Derive the visitor's user from the ticket's customer (1:1 for widget
+	// sessions). This is decoupled from RequesterEmail on purpose: RequesterEmail
+	// now holds the visitor's UNVERIFIED contact email, not the internal user
+	// identity, so it must not be used to resolve the acting user.
+	if tkt.CustomerID != nil {
+		var u models.User
+		if err := s.db.Where("customer_id = ?", *tkt.CustomerID).First(&u).Error; err == nil {
+			return &tkt, tkt.CustomerID, u.ID, nil
+		}
 	}
-	return &tkt, tkt.CustomerID, u.ID, nil
+	// Fall back to a zero user — the ticket service still allows a customer actor
+	// (scoped by CustomerID) to append messages on its own ticket.
+	return &tkt, tkt.CustomerID, 0, nil
 }
 
 // firstN returns up to n runes of s (UTF-8 safe).

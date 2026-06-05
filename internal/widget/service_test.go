@@ -40,7 +40,7 @@ type fakeTicketService struct {
 	counter uint
 }
 
-func (f *fakeTicketService) CreateTicket(_ authz.Actor, _ uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error) {
+func (f *fakeTicketService) CreateTicket(actor authz.Actor, _ uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error) {
 	f.counter++
 	channel := req.Channel
 	if channel == "" {
@@ -58,8 +58,14 @@ func (f *fakeTicketService) CreateTicket(_ authz.Actor, _ uint, req *ticket.Crea
 		RequesterEmail: req.RequesterEmail,
 		Channel:        channel,
 	}
-	if req.CustomerID != nil {
-		tkt.CustomerID = req.CustomerID
+	// Mirror the real ticket service: a customer actor's CustomerID wins over
+	// any req.CustomerID, so widget tickets carry the visitor's customer.
+	customerID := req.CustomerID
+	if actor.IsCustomer() {
+		customerID = actor.CustomerID
+	}
+	if customerID != nil {
+		tkt.CustomerID = customerID
 	}
 	if err := f.db.Create(tkt).Error; err != nil {
 		return nil, err
@@ -140,21 +146,26 @@ func TestStartSession_WithEmail_CreatesCustomerTicketToken(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, resp.TicketID, gotID)
 
-	// Customer should exist in DB.
+	// Customer should exist in DB (domain derived from the contact email).
 	var cust models.Customer
 	require.NoError(t, db.Where("domain = ?", "example.com").First(&cust).Error)
 
-	// User should exist and be linked to the customer.
+	// A widget user is created and linked to the customer, but with a synthetic
+	// INTERNAL identity — NOT the visitor's typed email (which is unverified).
 	var u models.User
-	require.NoError(t, db.Where("email = ?", "alice@example.com").First(&u).Error)
+	require.NoError(t, db.Where("customer_id = ?", cust.ID).First(&u).Error)
 	require.NotNil(t, u.CustomerID)
 	require.Equal(t, cust.ID, *u.CustomerID)
+	require.NotEqual(t, "alice@example.com", u.Email, "widget user must not adopt the unverified contact email")
+	require.Contains(t, u.Email, "@anon.local")
 
-	// Ticket row should carry channel=web_widget and the token.
+	// The typed contact email lives on the ticket as the requester's contact info.
 	var tkt models.Ticket
 	require.NoError(t, db.Where("id = ?", resp.TicketID).First(&tkt).Error)
 	require.Equal(t, "web_widget", tkt.Channel)
 	require.Equal(t, resp.Token, tkt.ConversationToken)
+	require.Equal(t, "alice@example.com", tkt.RequesterEmail)
+	require.Equal(t, "Alice", tkt.RequesterName)
 }
 
 func TestStartSession_Anonymous_Works(t *testing.T) {
@@ -173,23 +184,55 @@ func TestStartSession_Anonymous_Works(t *testing.T) {
 	require.True(t, cust.IsActive)
 }
 
-func TestStartSession_ReusesExistingCustomerForSameEmail(t *testing.T) {
+func TestStartSession_SameEmail_DoesNotReuseIdentity(t *testing.T) {
 	svc, db := newTestService(t)
 
-	// First session.
+	// Two sessions with the same typed email.
 	resp1, err := svc.StartSession(StartSessionRequest{Email: "bob@example.com", Message: "first"})
 	require.NoError(t, err)
-
-	// Second session with same email should reuse the same user/customer.
 	resp2, err := svc.StartSession(StartSessionRequest{Email: "bob@example.com", Message: "second"})
 	require.NoError(t, err)
 
-	// Both sessions produce distinct tickets.
+	// Distinct tickets AND distinct customers — the unverified email is never
+	// used to merge sessions into a shared identity.
 	require.NotEqual(t, resp1.TicketID, resp2.TicketID)
 
-	// Only one user record should exist for this email.
+	var t1, t2 models.Ticket
+	require.NoError(t, db.First(&t1, resp1.TicketID).Error)
+	require.NoError(t, db.First(&t2, resp2.TicketID).Error)
+	require.NotNil(t, t1.CustomerID)
+	require.NotNil(t, t2.CustomerID)
+	require.NotEqual(t, *t1.CustomerID, *t2.CustomerID, "same email must not collapse into one customer")
+}
+
+// TestStartSession_DoesNotInjectIntoExistingPortalUser is the security guarantee:
+// a visitor typing a REAL portal user's email must not have their widget ticket
+// attached to that user's account.
+func TestStartSession_DoesNotInjectIntoExistingPortalUser(t *testing.T) {
+	svc, db := newTestService(t)
+
+	// Seed a real portal user + customer (e.g. an existing paying customer).
+	realCust := models.Customer{Name: "Real Co", Domain: "victim.com", IsActive: true}
+	require.NoError(t, db.Omit("Users", "Tickets").Create(&realCust).Error)
+	realUser := models.User{
+		Email: "victim@victim.com", Username: "victim", PasswordHash: "x",
+		FirstName: "Victim", Role: authz.RoleCustomer, IsActive: true, CustomerID: &realCust.ID,
+	}
+	require.NoError(t, db.Create(&realUser).Error)
+
+	// An anonymous visitor types the real user's email into the widget.
+	resp, err := svc.StartSession(StartSessionRequest{Email: "victim@victim.com", Message: "I'm totally the victim"})
+	require.NoError(t, err)
+
+	// The widget ticket must NOT be attached to the real user's customer/user.
+	var tkt models.Ticket
+	require.NoError(t, db.First(&tkt, resp.TicketID).Error)
+	require.NotNil(t, tkt.CustomerID)
+	require.NotEqual(t, realCust.ID, *tkt.CustomerID, "widget ticket must not land under the real customer")
+
+	// The real user's identity is untouched: still exactly one user with that email.
 	var count int64
-	require.NoError(t, db.Model(&models.User{}).Where("email = ?", "bob@example.com").Count(&count).Error)
+	require.NoError(t, db.Model(&models.User{}).Where("email = ?", "victim@victim.com").Count(&count).Error)
 	require.EqualValues(t, 1, count)
 }
 
