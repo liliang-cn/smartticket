@@ -634,8 +634,11 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 		if payload, err := json.Marshal(resp); err == nil {
 			// Broadcast to the ticket room so connected agents see the new message.
 			s.hub.Broadcast(fmt.Sprintf("ticket:%d", ticketID), payload)
-			// TODO(phase1): widget room — broadcast to "widget:<id>" when the ticket
-			// originates from a widget conversation (no channel field on Ticket yet).
+			// Also broadcast to the widget room when the ticket originates from a
+			// web_widget conversation so the embedded chat widget receives the reply.
+			if tkt != nil && tkt.Channel == "web_widget" {
+				s.hub.Broadcast(fmt.Sprintf("widget:%d", ticketID), payload)
+			}
 		}
 	}
 

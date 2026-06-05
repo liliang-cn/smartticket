@@ -44,6 +44,7 @@ import (
 	"github.com/company/smartticket/internal/subscription"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
+	"github.com/company/smartticket/internal/widget"
 )
 
 // Server represents the HTTP server.
@@ -347,9 +348,15 @@ func (s *Server) setupRoutes() {
 		health.GET("/swagger.yaml", s.serveSwaggerYAML)
 	}
 
+	// Widget service: manages visitor sessions + conversation tokens.
+	// Wired here (before route registration) so the widget WS handler can reuse
+	// the same ParseToken function without importing the service.
+	widgetService := widget.NewService(s.db.DB, ticketService, s.config.JWT.Secret)
+	widgetHandlers := widget.NewHandlers(widgetService)
+
 	// Public WebSocket endpoint for the customer-facing chat widget.
-	// Reads `conversation_token` query param; any non-empty token is accepted here.
-	// TODO(phase1): validate conversation_token against the widget session store.
+	// Validates the conversation_token JWT, then subscribes to widget:<ticketID>
+	// — the same room the ticket service broadcasts to on web_widget messages.
 	hub := s.hub
 	s.router.GET("/widget/ws", func(c *gin.Context) {
 		token := c.Query("conversation_token")
@@ -357,9 +364,23 @@ func (s *Server) setupRoutes() {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "conversation_token is required"})
 			return
 		}
-		room := "widget:" + token
+		ticketID, err := widget.ParseToken(token, s.config.JWT.Secret)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired conversation token"})
+			return
+		}
+		room := fmt.Sprintf("widget:%d", ticketID)
 		realtime.ServeWS(hub, room, c.Writer, c.Request)
 	})
+
+	// Widget REST endpoints (public — no JWT auth required; secured by the
+	// conversation token instead).
+	widgetGroup := s.router.Group("/widget")
+	{
+		widgetGroup.POST("/session", widgetHandlers.StartSession)
+		widgetGroup.POST("/messages", widgetHandlers.PostMessage)
+		widgetGroup.GET("/messages", widgetHandlers.History)
+	}
 
 	// API routes group - public authentication endpoints
 	authPublic := s.router.Group("/api/v1/auth")
