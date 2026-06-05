@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/time/rate"
 
+	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/logger"
 )
@@ -311,6 +312,22 @@ func (s *Server) checkUserPermission(requiredRole string) gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// wsActorFromContext builds an authz.Actor from the gin context values set by
+// the auth middleware. Mirrors ticket.actorFromContext without requiring an import
+// of the ticket package from the server package.
+func wsActorFromContext(c *gin.Context) authz.Actor {
+	a := authz.Actor{
+		UserID: c.GetUint("user_id"),
+		Role:   c.GetString("user_role"),
+	}
+	if v, ok := c.Get("user_customer_id"); ok {
+		if cid, ok := v.(uint); ok {
+			a.CustomerID = &cid
+		}
+	}
+	return a
 }
 
 // Helper functions

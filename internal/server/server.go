@@ -36,6 +36,7 @@ import (
 	"github.com/company/smartticket/internal/logger"
 	"github.com/company/smartticket/internal/notification"
 	"github.com/company/smartticket/internal/product"
+	"github.com/company/smartticket/internal/realtime"
 	servicemgmt "github.com/company/smartticket/internal/service"
 	"github.com/company/smartticket/internal/services"
 	"github.com/company/smartticket/internal/sla"
@@ -53,6 +54,7 @@ type Server struct {
 	authService          *auth.Service
 	permissionMiddleware *middleware.PermissionMiddleware
 	kbStore              *knowledgebase.Store
+	hub                  *realtime.Hub
 	// uiFS is the embedded single-page frontend, served for non-API GET routes.
 	// nil in API-only builds (built without the `embedui` tag).
 	uiFS fs.FS
@@ -172,6 +174,10 @@ func (s *Server) setupMiddleware() {
 
 // setupRoutes configures server routes.
 func (s *Server) setupRoutes() {
+	// Initialize the in-process realtime hub (shared across all WS connections).
+	s.hub = realtime.NewHub()
+	go s.hub.Run()
+
 	// Initialize services and handlers
 	authRepo := auth.NewRepository(s.db.DB)
 	userService := user.NewService(s.db.DB, authRepo, s.authService)
@@ -335,6 +341,20 @@ func (s *Server) setupRoutes() {
 		health.GET("/swagger.yaml", s.serveSwaggerYAML)
 	}
 
+	// Public WebSocket endpoint for the customer-facing chat widget.
+	// Reads `conversation_token` query param; any non-empty token is accepted here.
+	// TODO(phase1): validate conversation_token against the widget session store.
+	hub := s.hub
+	s.router.GET("/widget/ws", func(c *gin.Context) {
+		token := c.Query("conversation_token")
+		if token == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "conversation_token is required"})
+			return
+		}
+		room := "widget:" + token
+		realtime.ServeWS(hub, room, c.Writer, c.Request)
+	})
+
 	// API routes group - public authentication endpoints
 	authPublic := s.router.Group("/api/v1/auth")
 	{
@@ -443,6 +463,26 @@ func (s *Server) setupRoutes() {
 				tickets.POST("/:id/attachments", attachmentHandlers.Upload)
 				tickets.GET("/:id/attachments", attachmentHandlers.List)
 			}
+
+			// WebSocket endpoint for agents/admins to receive real-time ticket updates.
+			// Subscribes to room "ticket:<id>". The actor must be able to view the ticket
+			// (enforced by attempting GetTicket before upgrading the connection).
+			protected.GET("/ws/tickets/:id", func(c *gin.Context) {
+				idStr := c.Param("id")
+				var ticketID uint
+				if _, err := fmt.Sscanf(idStr, "%d", &ticketID); err != nil || ticketID == 0 {
+					c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ticket id"})
+					return
+				}
+				// Build actor from auth middleware context values.
+				actor := wsActorFromContext(c)
+				if _, err := ticketService.GetTicket(actor, ticketID); err != nil {
+					c.JSON(http.StatusNotFound, gin.H{"error": "ticket not found or access denied"})
+					return
+				}
+				room := fmt.Sprintf("ticket:%d", ticketID)
+				realtime.ServeWS(hub, room, c.Writer, c.Request)
+			})
 
 			// Attachment download (by attachment id, customer-isolated).
 			protected.GET("/attachments/:id/download", attachmentHandlers.Download)
