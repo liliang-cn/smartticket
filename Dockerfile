@@ -14,6 +14,13 @@ RUN pnpm install --frozen-lockfile
 COPY web/ ./
 RUN pnpm build
 
+# Build the embeddable chat widget bundle (vanilla TS → web-widget/dist/widget.js).
+WORKDIR /widget
+COPY web-widget/package.json web-widget/pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+COPY web-widget/ ./
+RUN pnpm build
+
 # Build stage
 FROM m.daocloud.io/docker.io/library/golang:1.25-alpine AS builder
 
@@ -64,6 +71,10 @@ COPY --from=builder /build/smartticket /app/smartticket
 
 # Copy configuration files
 COPY --from=builder /build/configs /app/configs
+
+# Copy the embeddable widget bundle so the backend can serve GET /widget.js
+# (default WidgetJSPath = ./web-widget/dist/widget.js relative to WORKDIR /app).
+COPY --from=web /widget/dist /app/web-widget/dist
 
 # Create necessary directories
 RUN mkdir -p /app/data /app/logs /app/backups && \
