@@ -470,6 +470,21 @@ type Notification struct {
 
 func (Notification) TableName() string { return "notifications" }
 
+// SatisfactionSurvey captures a post-resolution CSAT survey for a ticket.
+// One survey per ticket: CreateForTicket is idempotent. Rating 0 means the
+// customer has not yet answered.
+type SatisfactionSurvey struct {
+	BaseModel
+	TicketID    uint       `gorm:"index;not null" json:"ticket_id"`
+	Rating      int        `json:"rating"`              // 1..5, 0 = not yet answered
+	Comment     string     `gorm:"type:text" json:"comment"`
+	Token       string     `gorm:"size:128;uniqueIndex" json:"-"` // public access token
+	SentAt      *time.Time `json:"sent_at"`
+	RespondedAt *time.Time `json:"responded_at"`
+}
+
+func (SatisfactionSurvey) TableName() string { return "satisfaction_surveys" }
+
 // AutomationRule defines a trigger-condition-action rule that runs automatically
 // when a matching domain event fires.
 type AutomationRule struct {

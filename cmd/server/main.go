@@ -210,6 +210,9 @@ func runServe(cmd *cobra.Command, _ []string) error {
 
 		// Macro / canned responses (no FK dependencies beyond users)
 		&models.Macro{},
+
+		// CSAT satisfaction surveys (depend on Ticket)
+		&models.SatisfactionSurvey{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -374,6 +377,9 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 
 		// Macro / canned responses (no FK dependencies beyond users)
 		&models.Macro{},
+
+		// CSAT satisfaction surveys (depend on Ticket)
+		&models.SatisfactionSurvey{},
 	}
 
 	// Run GORM AutoMigrate
