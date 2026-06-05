@@ -618,6 +618,12 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 	// affects the request path). Internal notes are NEVER surfaced to customers.
 	s.notifyMessage(actor, tkt, message, userID)
 
+	// @mention notifications: only for internal notes so that external messages
+	// do not expose internal user handles to the customer-visible message stream.
+	if isInternal {
+		s.notifyMentions(tkt, message.Content, userID)
+	}
+
 	if isInternal {
 		s.recordEvent(ticketID, userID, "note", "added an internal note")
 	} else {
