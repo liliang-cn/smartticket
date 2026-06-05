@@ -68,7 +68,8 @@
 
 | | 部署轻 | 数据主权 | 可换/本地 LLM+RAG | 工单深度 | 全渠道 | 生态/集成 | 开源纯度 | 成熟/信任 |
 |---|---|---|---|---|---|---|---|---|
-| **SmartTicket** | ★★★★★ | ★★★★★ | ★★★★ | ★★★ | ★ | ★ | ★★★★★ | ★ |
+| **SmartTicket**(2026-06 前) | ★★★★★ | ★★★★★ | ★★★★ | ★★★ | ★ | ★ | ★★★★★ | ★ |
+| **SmartTicket**(parity 后) | ★★★★★ | ★★★★★ | ★★★★★ | ★★★★ | ★★★ | ★ | ★★★★★ | ★ |
 | Chatwoot | ★★ | ★★★ | ★★★ | ★★ | ★★★★★ | ★★★★ | ★★★ | ★★★★ |
 | Zammad | ★★ | ★★★★ | ★★ | ★★★★ | ★★★ | ★★★ | ★★★★ | ★★★★ |
 | FreeScout | ★★★ | ★★★ | ★ | ★★ | ★★ | ★★ | ★★★ | ★★★ |
@@ -118,3 +119,19 @@
 ---
 
 **一句话结论**:不和 Zendesk 比功能,而是赌"**自托管 + 数据主权 + 可换 AI**"这条窄但真实的需求;短期最大对手是 **Chatwoot** 与 **AI 原生那一拨**,最该立刻补**邮件渠道**,最该长期打磨**私有 RAG 的自动解决体验**。
+
+---
+
+## 九、已交付(2026-06,`feature/parity`)
+
+针对上面识别的一/二级缺口,本批补齐(单二进制内,无新增外部依赖):
+
+1. **网页聊天 Widget** —— 可嵌入 `<script>`(Shadow DOM,~14KB gzip 4.6KB),进程内 WebSocket 实时收发,访客会话复用 Ticket(`channel=web_widget`),签名 conversation token。补上邮件之外的第二个实时渠道(全渠道 ★→★★★)。
+2. **AI 自动结案** —— agent-go **结构化输出** `Draft{reply, confidence, needs_clarification, used_kb, sources}`;置信度闸门自动回复(默认建议、admin 可开自动+阈值)、每单上限、负面/无果转人工;自动分类、结案摘要。RAG 从"能问知识库"升级到产品级"自动解决"(可换 LLM+RAG ★★★★→★★★★★)。
+3. **通用触发器/自动化引擎** —— DB 规则(事件+条件+动作),事件驱动 + 60s 调度器(SLA 超时/无回复),递归防护(动作产生的事件标 `Source:automation`),`/automations` 可视化配置。
+4. **Macros / 预设回复** —— 变量渲染、共享/私有可见性、ticket-detail 插入选择器。
+5. **CSAT** —— 结案触发(邮件链接 / widget 内嵌评分),公开 token 问卷页,dashboard 指标卡。
+6. **坐席协作** —— teams/groups + 成员、内部备注 `@mentions` 通知、WebSocket collision/typing 在线提示。
+7. **工单合并/关联** —— 事务化合并(迁移消息/附件、源置 `merged`)、related/duplicate/blocks 关联。
+
+**仍不做(维持楔子,YAGNI)**:社交渠道(WhatsApp/TG/Slack)、SSO/SAML、自定义报表构建器、知识文章多语翻译。单进程 WebSocket Hub 仅适配单实例部署(多副本需外部 pub/sub,记为 TODO)。
