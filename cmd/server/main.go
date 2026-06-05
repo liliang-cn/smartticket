@@ -217,6 +217,9 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		// Teams and membership (agent collaboration)
 		&models.Team{},
 		&models.TeamMember{},
+
+		// Ticket relationships (merge + linking)
+		&models.TicketLink{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -388,6 +391,9 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		// Teams and membership (agent collaboration)
 		&models.Team{},
 		&models.TeamMember{},
+
+		// Ticket relationships (merge + linking)
+		&models.TicketLink{},
 	}
 
 	// Run GORM AutoMigrate

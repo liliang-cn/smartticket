@@ -504,6 +504,18 @@ type SatisfactionSurvey struct {
 
 func (SatisfactionSurvey) TableName() string { return "satisfaction_surveys" }
 
+// TicketLink records a directional relationship between two tickets.
+// The composite unique index (source_id, target_id, type) prevents duplicate
+// links of the same type between the same pair of tickets.
+type TicketLink struct {
+	BaseModel
+	SourceID uint   `gorm:"index;not null;uniqueIndex:idx_link" json:"source_id"`
+	TargetID uint   `gorm:"index;not null;uniqueIndex:idx_link" json:"target_id"`
+	Type     string `gorm:"size:20;not null;uniqueIndex:idx_link" json:"type"` // related|duplicate|blocks
+}
+
+func (TicketLink) TableName() string { return "ticket_links" }
+
 // AutomationRule defines a trigger-condition-action rule that runs automatically
 // when a matching domain event fires.
 type AutomationRule struct {
