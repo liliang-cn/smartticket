@@ -1,6 +1,7 @@
 package widget
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -47,9 +48,8 @@ func (h *Handlers) StartSession(c *gin.Context) {
 // The conversation token is resolved from (in order):
 //  1. Authorization: Bearer <token> header
 //  2. ?token= query param
-//  3. JSON body field "token"
 //
-// Request body: { "message": "...", "token": "..." (optional) }
+// Request body: { "message": "..." }
 // Response:     { "success": true, "data": <MessageResponse> }
 func (h *Handlers) PostMessage(c *gin.Context) {
 	token := extractToken(c)
@@ -73,7 +73,7 @@ func (h *Handlers) PostMessage(c *gin.Context) {
 
 	msg, err := h.service.PostMessage(token, body.Message)
 	if err != nil {
-		if err == ErrInvalidToken {
+		if errors.Is(err, ErrInvalidToken) {
 			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "invalid or expired token"})
 			return
 		}
@@ -96,7 +96,7 @@ func (h *Handlers) History(c *gin.Context) {
 
 	msgs, err := h.service.History(token)
 	if err != nil {
-		if err == ErrInvalidToken {
+		if errors.Is(err, ErrInvalidToken) {
 			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "error": "invalid or expired token"})
 			return
 		}

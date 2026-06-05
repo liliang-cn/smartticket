@@ -19,9 +19,18 @@ import (
 
 // scopeToActor restricts a ticket query to the actor's customer when the actor
 // is a customer-role user. Team actors (admin/engineer) are unrestricted.
+//
+// Safety invariant: a customer actor with a nil CustomerID is a misconfigured
+// account that must never see any tickets. Returning an impossible condition
+// (1=0) prevents an IDOR where a misconfigured customer would fall through to
+// an unscoped query and see all tickets.
 func scopeToActor(q *gorm.DB, actor authz.Actor) *gorm.DB {
-	if actor.IsCustomer() && actor.CustomerID != nil {
-		return q.Where("customer_id = ?", *actor.CustomerID)
+	if actor.IsCustomer() {
+		if actor.CustomerID != nil {
+			return q.Where("customer_id = ?", *actor.CustomerID)
+		}
+		// CustomerID is nil for a customer actor — scope to nothing (IDOR guard).
+		return q.Where("1 = 0")
 	}
 	return q
 }
@@ -66,6 +75,7 @@ type CreateTicketRequest struct {
 	RequesterEmail string `json:"requester_email" binding:"required,email,max=255"`
 	Tags           string `json:"tags" binding:"omitempty"`          // JSON array
 	CustomFields   string `json:"custom_fields" binding:"omitempty"` // JSON object
+	Channel        string `json:"channel,omitempty"`                 // e.g. web_widget; empty → default 'web'
 }
 
 // UpdateTicketRequest represents a ticket update request.
@@ -173,6 +183,13 @@ func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicket
 		customerID = actor.CustomerID
 	}
 
+	// Determine the channel: callers may request a specific channel (e.g.
+	// "web_widget"); default to "web" when none is provided.
+	channel := req.Channel
+	if channel == "" {
+		channel = "web"
+	}
+
 	// Create ticket
 	ticket := &models.Ticket{
 		BaseModel: models.BaseModel{
@@ -199,6 +216,7 @@ func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicket
 		CustomFields:   req.CustomFields,
 		DueDate:        &slaDueDate.ResponseDueDate,
 		SLAStatus:      "within", // Default SLA status
+		Channel:        channel,
 	}
 
 	if err := s.db.Create(ticket).Error; err != nil {

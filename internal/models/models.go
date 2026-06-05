@@ -83,7 +83,7 @@ type Ticket struct {
 	SLAStatus      string       `gorm:"size:20;default:'within'" json:"sla_status"` // within, breached, warning
 	// Parity fields — added together to avoid repeat migrations.
 	Channel           string `gorm:"size:30;default:'web'" json:"channel"`                // web, email, web_widget
-	ConversationToken string `gorm:"size:128;index" json:"conversation_token,omitempty"`
+	ConversationToken string `gorm:"type:text;index" json:"conversation_token,omitempty"`
 	Summary           string `gorm:"type:text" json:"summary,omitempty"`
 	AssignedTeamID    *uint  `gorm:"index" json:"assigned_team_id,omitempty"`
 	MergedIntoID      *uint  `gorm:"index" json:"merged_into_id,omitempty"`

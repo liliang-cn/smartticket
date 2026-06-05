@@ -42,6 +42,10 @@ type fakeTicketService struct {
 
 func (f *fakeTicketService) CreateTicket(_ authz.Actor, _ uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error) {
 	f.counter++
+	channel := req.Channel
+	if channel == "" {
+		channel = "web"
+	}
 	tkt := &models.Ticket{
 		BaseModel:      models.BaseModel{},
 		TicketNumber:   fmt.Sprintf("TK-%d", f.counter),
@@ -52,6 +56,7 @@ func (f *fakeTicketService) CreateTicket(_ authz.Actor, _ uint, req *ticket.Crea
 		Severity:       req.Severity,
 		RequesterName:  req.RequesterName,
 		RequesterEmail: req.RequesterEmail,
+		Channel:        channel,
 	}
 	if req.CustomerID != nil {
 		tkt.CustomerID = req.CustomerID

@@ -42,6 +42,10 @@ type fakeHandlerTicketService struct {
 
 func (f *fakeHandlerTicketService) CreateTicket(_ authz.Actor, _ uint, req *ticket.CreateTicketRequest) (*ticket.TicketResponse, error) {
 	f.counter++
+	channel := req.Channel
+	if channel == "" {
+		channel = "web"
+	}
 	tkt := &models.Ticket{
 		TicketNumber:   fmt.Sprintf("TK-H%d", f.counter),
 		Title:          req.Title,
@@ -51,6 +55,7 @@ func (f *fakeHandlerTicketService) CreateTicket(_ authz.Actor, _ uint, req *tick
 		Severity:       req.Severity,
 		RequesterName:  req.RequesterName,
 		RequesterEmail: req.RequesterEmail,
+		Channel:        channel,
 	}
 	if req.CustomerID != nil {
 		tkt.CustomerID = req.CustomerID
@@ -195,6 +200,49 @@ func TestHandler_History_Returns200(t *testing.T) {
 	r.ServeHTTP(w2, req2)
 
 	require.Equal(t, http.StatusOK, w2.Code)
+}
+
+// TestHandler_PostMessage_MissingToken_Returns401 verifies that POST
+// /widget/messages without a token returns HTTP 401.
+func TestHandler_PostMessage_MissingToken_Returns401(t *testing.T) {
+	r, _ := newHandlerRouter(t)
+
+	body := `{"message":"hello"}`
+	req := httptest.NewRequest(http.MethodPost, "/widget/messages", bytes.NewBufferString(body))
+	req.Header.Set("Content-Type", "application/json")
+	// Deliberately omit the Authorization header and ?token= param.
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+// TestHandler_History_MissingToken_Returns401 verifies that GET /widget/messages
+// without a token returns HTTP 401.
+func TestHandler_History_MissingToken_Returns401(t *testing.T) {
+	r, _ := newHandlerRouter(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/widget/messages", nil)
+	// No Authorization header, no ?token= param.
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
+// TestHandler_PostMessage_BadToken_Returns401 verifies that POST /widget/messages
+// with an invalid Bearer token returns HTTP 401.
+func TestHandler_PostMessage_BadToken_Returns401(t *testing.T) {
+	r, _ := newHandlerRouter(t)
+
+	body := `{"message":"hello"}`
+	req := httptest.NewRequest(http.MethodPost, "/widget/messages", bytes.NewBufferString(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer totally.invalid.token")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
 // TestHandler_StartSession_AnonymousRequest verifies anonymous sessions work.

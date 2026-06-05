@@ -1,11 +1,11 @@
 package widget
 
 import (
+	cryptorand "crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
-	"math/rand"
 	"strings"
-	"time"
 
 	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/models"
@@ -87,6 +87,7 @@ func (s *Service) StartSession(req StartSessionRequest) (SessionResponse, error)
 		Severity:       "minor",
 		RequesterName:  requesterName,
 		RequesterEmail: requesterEmail,
+		Channel:        "web_widget",
 	}
 	if tktReq.Description == "" {
 		tktReq.Description = title
@@ -97,19 +98,19 @@ func (s *Service) StartSession(req StartSessionRequest) (SessionResponse, error)
 		return SessionResponse{}, fmt.Errorf("widget.StartSession: create ticket: %w", err)
 	}
 
-	// Stamp the ticket's Channel and ConversationToken fields. GORM's AutoMigrate
-	// added these columns; we write them directly so the ticket service does not
-	// need to know about widget-specific fields.
+	// The conversation token encodes the ticket ID so it must be issued after
+	// the ticket is persisted. A failure here is non-critical (the ticket already
+	// exists with the correct channel) but we surface the error so callers know
+	// the session is unusable.
 	token, err := IssueToken(tktResp.ID, s.secret)
 	if err != nil {
 		return SessionResponse{}, fmt.Errorf("widget.StartSession: issue token: %w", err)
 	}
+	// Stamp the conversation_token only (channel is already set atomically at
+	// creation time via the ticket service).
 	if err := s.db.Model(&models.Ticket{}).
 		Where("id = ?", tktResp.ID).
-		Updates(map[string]interface{}{
-			"channel":            "web_widget",
-			"conversation_token": token,
-		}).Error; err != nil {
+		Update("conversation_token", token).Error; err != nil {
 		return SessionResponse{}, fmt.Errorf("widget.StartSession: stamp token: %w", err)
 	}
 
@@ -312,13 +313,16 @@ func domainOf(email string) string {
 	return "anon.local"
 }
 
-// randomHex returns n random hex characters.
+// randomHex returns n random hex characters using a cryptographically secure
+// source, preventing collision when multiple anonymous sessions start in the
+// same nanosecond.
 func randomHex(n int) string {
-	const charset = "0123456789abcdef"
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = charset[r.Intn(len(charset))]
+	// n hex chars require ceil(n/2) random bytes.
+	bytes := make([]byte, (n+1)/2)
+	if _, err := cryptorand.Read(bytes); err != nil {
+		// crypto/rand failure is extremely rare (e.g. OS entropy exhausted).
+		// Panic rather than silently producing a predictable value.
+		panic(fmt.Sprintf("widget.randomHex: crypto/rand.Read: %v", err))
 	}
-	return string(b)
+	return hex.EncodeToString(bytes)[:n]
 }
