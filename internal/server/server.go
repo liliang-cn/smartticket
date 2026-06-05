@@ -49,6 +49,7 @@ import (
 	"github.com/company/smartticket/internal/subscription"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
+	"github.com/company/smartticket/internal/survey"
 	"github.com/company/smartticket/internal/widget"
 )
 
@@ -216,8 +217,9 @@ func (s *Server) setupRoutes() {
 	// Bidirectional email (opt-in): outbound ticket replies via Resend/SMTP, and
 	// inbound email→ticket via a signed webhook (registered as a public route).
 	var emailInbound *email.InboundHandler
+	var emailSvc *email.Service // kept for CSAT survey delivery
 	if s.config.Email.Enabled {
-		emailService := email.NewService(email.Options{
+		emailSvc = email.NewService(email.Options{
 			Provider:     s.config.Email.Provider,
 			FromName:     s.config.Email.FromName,
 			FromAddress:  s.config.Email.FromAddress,
@@ -230,7 +232,7 @@ func (s *Server) setupRoutes() {
 				TLS:      s.config.Email.SMTP.TLS,
 			},
 		})
-		ticketService.SetMailer(emailService)
+		ticketService.SetMailer(emailSvc)
 		if s.config.Email.Inbound.Enabled {
 			emailInbound = email.NewInboundHandler(ticketService, s.config.Email.Inbound.Secret)
 		}
@@ -258,6 +260,7 @@ func (s *Server) setupRoutes() {
 	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
 	brandingService := branding.NewService(s.db.DB, s.config.Storage.DataPath)
 	macroService := macro.NewService(s.db.DB)
+	surveyService := survey.NewService(s.db.DB)
 
 	authHandlers := auth.NewHandlers(s.authService)
 	userHandlers := user.NewHandlers(userService)
@@ -271,6 +274,7 @@ func (s *Server) setupRoutes() {
 	attachmentHandlers := attachment.NewHandlers(attachmentService)
 	brandingHandlers := branding.NewHandlers(brandingService)
 	macroHandlers := macro.NewHandlers(macroService)
+	surveyHandlers := survey.NewHandlers(surveyService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
 
@@ -396,6 +400,58 @@ func (s *Server) setupRoutes() {
 	go autoScheduler.Run(schedCtx)
 
 	autoHandlers := automation.NewHandlers(autoSvc)
+
+	// CSAT resolve subscriber: on ticket resolved, create a survey and deliver
+	// it via the appropriate channel (widget push or email).
+	// Defined here (in the server wiring layer) so survey package stays free of
+	// ticket/email/hub imports. Failures never block the resolve path.
+	{
+		hub := s.hub
+		baseURL := s.config.App.BaseURL
+		db := s.db.DB
+		mailer := emailSvc // nil when email is not configured
+		s.bus.Subscribe(automation.EventTicketResolved, func(ev automation.Event) {
+			sv, err := surveyService.CreateForTicket(ev.TicketID)
+			if err != nil {
+				logger.Warn("csat: failed to create survey", zap.Uint("ticket_id", ev.TicketID), zap.Error(err))
+				return
+			}
+
+			// Load the ticket to determine the delivery channel.
+			var tkt models.Ticket
+			if err := db.Where("id = ?", ev.TicketID).First(&tkt).Error; err != nil {
+				logger.Warn("csat: failed to load ticket", zap.Uint("ticket_id", ev.TicketID), zap.Error(err))
+				return
+			}
+
+			if tkt.Channel == "web_widget" {
+				// Notify the embedded widget via WebSocket broadcast.
+				payload, _ := json.Marshal(map[string]string{
+					"type":  "survey",
+					"token": sv.Token,
+				})
+				hub.Broadcast(fmt.Sprintf("widget:%d", ev.TicketID), payload)
+				return
+			}
+
+			// Email/web channels: send the survey link by email when available.
+			if mailer != nil && tkt.RequesterEmail != "" {
+				surveyLink := strings.TrimRight(baseURL, "/") + "/survey/" + sv.Token
+				body := "We'd love to hear your feedback on your recent support ticket.\n\n" +
+					"Please rate your experience (1–5) at:\n" + surveyLink +
+					"\n\nThank you!"
+				mailer.SendTicketReply(
+					context.Background(),
+					tkt.RequesterEmail,
+					tkt.TicketNumber,
+					"How did we do? — "+tkt.Title,
+					tkt.ID,
+					body,
+					"Support Team",
+				)
+			}
+		})
+	}
 
 	// Health check endpoints (no authentication required)
 	health := s.router.Group("/")
@@ -540,6 +596,11 @@ func (s *Server) setupRoutes() {
 			if emailInbound != nil {
 				public.POST("/email/inbound", emailInbound.Handle)
 			}
+
+			// CSAT survey public endpoints — accessed by customers via the
+			// survey link; no authentication required.
+			public.GET("/survey/:token", surveyHandlers.GetSurvey)
+			public.POST("/survey/:token", surveyHandlers.SubmitSurvey)
 		}
 
 		// Protected endpoints (auth required)
@@ -667,6 +728,9 @@ func (s *Server) setupRoutes() {
 				customers.DELETE("/:id", customerHandlers.DeleteCustomer)
 				customers.GET("/:id/users", customerHandlers.ListCustomerUsers)
 			}
+
+			// CSAT survey stats (any authenticated team/agent user).
+			protected.GET("/survey/stats", surveyHandlers.GetStats)
 
 			// Branding / white-label settings (admin-only writes; reads are
 			// public, registered above).
