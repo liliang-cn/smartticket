@@ -684,6 +684,10 @@ func (s *Server) setupRoutes() {
 				tickets.GET("/:id/messages", ticketHandlers.GetTicketMessages)
 				tickets.POST("/:id/messages", ticketHandlers.CreateTicketMessage)
 				tickets.POST("/:id/suggest-reply", ticketHandlers.SuggestReply)
+				tickets.POST("/:id/merge", ticketHandlers.MergeTicket)
+				tickets.POST("/:id/links", ticketHandlers.CreateTicketLink)
+				tickets.GET("/:id/links", ticketHandlers.ListTicketLinks)
+				tickets.DELETE("/:id/links/:linkId", ticketHandlers.UnlinkTicket)
 				tickets.POST("/:id/attachments", attachmentHandlers.Upload)
 				tickets.GET("/:id/attachments", attachmentHandlers.List)
 			}
