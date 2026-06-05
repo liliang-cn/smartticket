@@ -2,14 +2,17 @@ package ticket
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	stderrors "errors"
+	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/models"
+	"github.com/company/smartticket/internal/realtime"
 	"github.com/company/smartticket/internal/sla"
 	"gorm.io/gorm"
 )
@@ -30,7 +33,15 @@ type Service struct {
 	notifier      Notifier       // optional; nil = no-op (see SetNotifier)
 	mailer        Mailer         // optional; nil = no-op (see SetMailer)
 	suggester     ReplySuggester // optional; nil = AI suggestions unavailable
+	bus           *automation.Bus  // optional; nil = no domain events
+	hub           *realtime.Hub    // optional; nil = no ws broadcasts
 }
+
+// SetBus wires the domain event bus. Safe to call after NewService.
+func (s *Service) SetBus(b *automation.Bus) { s.bus = b }
+
+// SetHub wires the realtime hub for WebSocket broadcasts. Safe to call after NewService.
+func (s *Service) SetHub(h *realtime.Hub) { s.hub = h }
 
 // NewService creates a new ticket service.
 func NewService(db *gorm.DB, slaCalculator *sla.Calculator) *Service {
@@ -195,6 +206,15 @@ func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicket
 	}
 
 	s.recordEvent(ticket.ID, userID, "created", "created the ticket")
+
+	// Emit domain event (best-effort; never affects the request path).
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventTicketCreated,
+			TicketID: ticket.ID,
+			ActorID:  actor.UserID,
+		})
+	}
 
 	return s.ticketToResponse(ticket), nil
 }
@@ -411,6 +431,23 @@ func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, re
 		s.recordEvent(ticket.ID, userID, "assigned", s.assignSummary(ticket.AssignedTo))
 	}
 
+	// Emit domain events for status transitions (best-effort).
+	if s.bus != nil && req.Status != "" && req.Status != oldStatus {
+		if ticket.Status == "resolved" {
+			s.bus.Publish(automation.Event{
+				Type:     automation.EventTicketResolved,
+				TicketID: ticket.ID,
+				ActorID:  userID,
+			})
+		} else {
+			s.bus.Publish(automation.Event{
+				Type:     automation.EventTicketUpdated,
+				TicketID: ticket.ID,
+				ActorID:  userID,
+			})
+		}
+	}
+
 	// Best-effort: on an actual status change, notify the ticket's customer-side
 	// users (skip if no owning customer). Author is excluded from recipients.
 	if s.notifier != nil && req.Status != "" && req.Status != oldStatus && ticket.CustomerID != nil {
@@ -584,6 +621,24 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 	}
 
 	resp := messageToResponse(message)
+
+	// Emit domain event and broadcast over WebSocket (best-effort).
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventMessageCreated,
+			TicketID: ticketID,
+			ActorID:  actor.UserID,
+		})
+	}
+	if s.hub != nil {
+		if payload, err := json.Marshal(resp); err == nil {
+			// Broadcast to the ticket room so connected agents see the new message.
+			s.hub.Broadcast(fmt.Sprintf("ticket:%d", ticketID), payload)
+			// TODO(phase1): widget room — broadcast to "widget:<id>" when the ticket
+			// originates from a widget conversation (no channel field on Ticket yet).
+		}
+	}
+
 	return &resp, nil
 }
 
