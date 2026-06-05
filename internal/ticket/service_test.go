@@ -221,6 +221,61 @@ func TestTicketService_GetTicketStats(t *testing.T) {
 	})
 }
 
+func TestTicketService_GetTicketStats_MergedBucket(t *testing.T) {
+	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
+		slaCalc := sla.NewCalculator(db.DB)
+		service := NewService(db.DB, slaCalc)
+
+		user := createTestUser(t, db)
+
+		createTestTicketWithStatus(t, db, user.ID, "open")
+		createTestTicketWithStatus(t, db, user.ID, "merged")
+
+		stats, err := service.GetTicketStats(teamActor)
+		require.NoError(t, err)
+
+		total := stats["total_tickets"].(int64)
+		breakdown := stats["status_breakdown"].(map[string]int64)
+
+		// The merged bucket must be populated.
+		assert.Equal(t, int64(1), breakdown["merged"], "merged bucket should contain 1 ticket")
+		assert.Equal(t, int64(1), breakdown["open"], "open bucket should contain 1 ticket")
+
+		// Total must equal the sum of all breakdown buckets so the numbers reconcile.
+		var sum int64
+		for _, v := range breakdown {
+			sum += v
+		}
+		assert.Equal(t, total, sum, "total_tickets must equal sum of status_breakdown buckets")
+	})
+}
+
+func TestTicketService_ListTickets_ExcludesMergedByDefault(t *testing.T) {
+	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
+		slaCalc := sla.NewCalculator(db.DB)
+		service := NewService(db.DB, slaCalc)
+
+		user := createTestUser(t, db)
+
+		createTestTicketWithStatus(t, db, user.ID, "open")
+		createTestTicketWithStatus(t, db, user.ID, "merged")
+
+		// Default list (no status filter) must not include merged.
+		result, err := service.ListTickets(teamActor, 1, 20, map[string]interface{}{})
+		require.NoError(t, err)
+		assert.Equal(t, int64(1), result.Total, "merged ticket must not appear in default listing")
+		require.Len(t, result.Data, 1)
+		assert.Equal(t, "open", result.Data[0].Status)
+
+		// Explicit status=merged must return it.
+		merged, err := service.ListTickets(teamActor, 1, 20, map[string]interface{}{"status": "merged"})
+		require.NoError(t, err)
+		assert.Equal(t, int64(1), merged.Total)
+		require.Len(t, merged.Data, 1)
+		assert.Equal(t, "merged", merged.Data[0].Status)
+	})
+}
+
 // Helper functions for creating test data
 
 func createTestUser(t *testing.T, db *database.Database) *models.User {

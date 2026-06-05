@@ -244,7 +244,7 @@ func TestUnlink(t *testing.T) {
 		link, err := svc.LinkTickets(adminActor, a.ID, b.ID, "blocks")
 		require.NoError(t, err)
 
-		err = svc.Unlink(adminActor, link.ID)
+		err = svc.Unlink(adminActor, a.ID, link.ID)
 		require.NoError(t, err)
 
 		// Link should be gone
@@ -263,7 +263,7 @@ func TestUnlink_CustomerRejected(t *testing.T) {
 		link, err := svc.LinkTickets(adminActor, a.ID, b.ID, "blocks")
 		require.NoError(t, err)
 
-		err = svc.Unlink(customerActor, link.ID)
+		err = svc.Unlink(customerActor, a.ID, link.ID)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "only team")
 	})
@@ -272,9 +272,34 @@ func TestUnlink_CustomerRejected(t *testing.T) {
 func TestUnlink_NotFound(t *testing.T) {
 	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
 		svc := newMergeService(t, db)
+		a := mkTicket(t, db, "open")
 
-		err := svc.Unlink(adminActor, 99999)
+		err := svc.Unlink(adminActor, a.ID, 99999)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "not found")
+	})
+}
+
+// TestUnlink_WrongTicket verifies that passing a ticketID that is not part of
+// the link returns NotFound and does NOT delete the link.
+func TestUnlink_WrongTicket(t *testing.T) {
+	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
+		svc := newMergeService(t, db)
+		a := mkTicket(t, db, "open")
+		b := mkTicket(t, db, "open")
+		c := mkTicket(t, db, "open") // unrelated ticket
+
+		link, err := svc.LinkTickets(adminActor, a.ID, b.ID, "related")
+		require.NoError(t, err)
+
+		// Attempt to unlink using c's ID — c is not part of the link.
+		err = svc.Unlink(adminActor, c.ID, link.ID)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "not found")
+
+		// The link must still exist.
+		links, err := svc.ListLinks(adminActor, a.ID)
+		require.NoError(t, err)
+		require.Len(t, links, 1, "link must not have been deleted")
 	})
 }

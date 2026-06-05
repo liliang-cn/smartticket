@@ -183,9 +183,32 @@ func (s *Service) LinkTickets(actor authz.Actor, sourceID, targetID uint, linkTy
 }
 
 // Unlink deletes a TicketLink by ID (team-only).
-func (s *Service) Unlink(actor authz.Actor, linkID uint) error {
+//
+// ticketID is the ticket the caller is acting on; the link must have ticketID
+// as either its source or target — otherwise NotFound is returned. This
+// prevents a team member from deleting an arbitrary link by guessing its ID.
+func (s *Service) Unlink(actor authz.Actor, ticketID, linkID uint) error {
 	if !actor.IsTeam() {
 		return errors.NewForbiddenError("only team members can unlink tickets")
+	}
+
+	// Ensure the ticket is visible to this actor (customer isolation + soft-delete).
+	if _, err := s.findTicketForActor(actor, ticketID); err != nil {
+		return err
+	}
+
+	// Load the link and verify it belongs to the given ticket.
+	var link models.TicketLink
+	if err := s.db.First(&link, linkID).Error; err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.NewNotFoundError("ticket link")
+		}
+		return fmt.Errorf("load ticket link: %w", err)
+	}
+	if link.SourceID != ticketID && link.TargetID != ticketID {
+		// The link exists but is not associated with the given ticket — treat
+		// as not found so callers cannot enumerate links by ID.
+		return errors.NewNotFoundError("ticket link")
 	}
 
 	result := s.db.Delete(&models.TicketLink{}, linkID)

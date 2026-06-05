@@ -274,8 +274,14 @@ func (s *Service) ListTickets(actor authz.Actor, page, pageSize int, filters map
 	query := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor)
 
 	// Apply filters
-	if status, ok := filters["status"].(string); ok && status != "" {
-		query = query.Where("status = ?", status)
+	statusFilter, hasStatusFilter := filters["status"].(string)
+	if hasStatusFilter && statusFilter != "" {
+		query = query.Where("status = ?", statusFilter)
+	} else {
+		// When no explicit status filter is provided, hide merged tickets from
+		// the active queue. Callers that want merged tickets must request them
+		// explicitly with status=merged.
+		query = query.Where("status != ?", "merged")
 	}
 	if priority, ok := filters["priority"].(string); ok && priority != "" {
 		query = query.Where("priority = ?", priority)
@@ -550,10 +556,11 @@ type CreateMessageRequest struct {
 }
 
 // findTicketForActor loads a ticket scoped to the actor's customer, returning a
-// NotFound error (no existence disclosure) when it is outside the actor's scope.
+// NotFound error (no existence disclosure) when it is outside the actor's scope
+// or has been soft-deleted.
 func (s *Service) findTicketForActor(actor authz.Actor, ticketID uint) (*models.Ticket, error) {
 	var ticket models.Ticket
-	if err := scopeToActor(s.db.Where("id = ?", ticketID), actor).First(&ticket).Error; err != nil {
+	if err := scopeToActor(s.db.Where("id = ? AND is_deleted = ?", ticketID, false), actor).First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("ticket")
 		}
@@ -870,6 +877,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 		InProgress    int64 `json:"in_progress"`
 		Resolved      int64 `json:"resolved"`
 		Closed        int64 `json:"closed"`
+		Merged        int64 `json:"merged"`
 		OverdueCount  int64 `json:"overdue_count"`
 		CriticalCount int64 `json:"critical_count"`
 		HighCount     int64 `json:"high_count"`
@@ -908,6 +916,8 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 			stats.Resolved = count
 		case "closed":
 			stats.Closed = count
+		case "merged":
+			stats.Merged = count
 		}
 	}
 
@@ -955,6 +965,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 		"in_progress_tickets": stats.InProgress,
 		"resolved_tickets":    stats.Resolved,
 		"closed_tickets":      stats.Closed,
+		"merged_tickets":      stats.Merged,
 		"overdue_tickets":     stats.OverdueCount,
 		"priority_breakdown": map[string]int64{
 			"critical": stats.CriticalCount,
@@ -967,6 +978,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 			"in_progress": stats.InProgress,
 			"resolved":    stats.Resolved,
 			"closed":      stats.Closed,
+			"merged":      stats.Merged,
 		},
 	}
 

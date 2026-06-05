@@ -617,15 +617,22 @@ func (h *Handlers) ListTicketLinks(c *gin.Context) {
 }
 
 // UnlinkTicket deletes the link identified by :linkId.
+// The link must be associated with the ticket at :id.
 // Team-only.
 func (h *Handlers) UnlinkTicket(c *gin.Context) {
+	ticketID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		errors.ErrorHandler(c, errors.NewInvalidInputError("ticket_id", c.Param("id")))
+		return
+	}
+
 	linkID, err := strconv.ParseUint(c.Param("linkId"), 10, 32)
 	if err != nil {
 		errors.ErrorHandler(c, errors.NewInvalidInputError("link_id", c.Param("linkId")))
 		return
 	}
 
-	if err := h.service.Unlink(actorFromContext(c), uint(linkID)); err != nil {
+	if err := h.service.Unlink(actorFromContext(c), uint(ticketID), uint(linkID)); err != nil {
 		errors.ErrorHandler(c, err)
 		return
 	}
