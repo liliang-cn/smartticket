@@ -2,6 +2,7 @@ package aiassist
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/liliang-cn/agent-go/v2/pkg/domain"
@@ -60,7 +61,7 @@ func TestGenerateStructured_ParsesJSON(t *testing.T) {
 		t.Fatal("chatter received no messages")
 	}
 	lastContent := f.gotContents[len(f.gotContents)-1]
-	if !contains(lastContent, "JSON object") {
+	if !strings.Contains(lastContent, "JSON object") {
 		t.Fatalf("prompt did not contain JSON instruction; got: %q", lastContent)
 	}
 }
@@ -100,18 +101,6 @@ func TestGenerateStructured_StripsCodeFence(t *testing.T) {
 	if data["reply"] != "hello" {
 		t.Fatalf("expected reply=hello, got %v", data["reply"])
 	}
-}
-
-func contains(s, sub string) bool {
-	return len(s) >= len(sub) && (s == sub || len(sub) == 0 ||
-		func() bool {
-			for i := 0; i <= len(s)-len(sub); i++ {
-				if s[i:i+len(sub)] == sub {
-					return true
-				}
-			}
-			return false
-		}())
 }
 
 func TestGenerator_RoutesThroughChatter(t *testing.T) {

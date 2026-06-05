@@ -2,13 +2,10 @@ package aiassist
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
-	"sync"
 
 	"github.com/liliang-cn/agent-go/v2/pkg/agent"
 	"github.com/liliang-cn/agent-go/v2/pkg/domain"
@@ -68,7 +65,6 @@ type Assistant struct {
 	gen      domain.Generator // direct generator for structured path
 	kb       KBSearcher       // direct KB searcher for structured path
 	settings *SettingsStore
-	mu       sync.Mutex // serialize runs — suggestions are low-QPS
 }
 
 const agentSystemPrompt = `You are an experienced customer-support agent. Your job is to draft the agent's next reply to the customer on a support ticket.
@@ -290,57 +286,3 @@ func buildGoalStructured(in SuggestInput, custom string) string {
 	return b.String()
 }
 
-// buildGoal assembles the per-run instruction (ticket context + dynamic
-// operator guidance). Dynamic guidance lives here, not in the built system
-// prompt, so settings changes take effect without rebuilding the agent.
-func buildGoal(in SuggestInput, custom string) string {
-	var b strings.Builder
-	b.WriteString("Draft the agent's next reply for this support ticket.\n\n")
-	b.WriteString("Ticket: " + in.Title + "\n")
-	if d := strings.TrimSpace(in.Description); d != "" {
-		b.WriteString("Description: " + d + "\n")
-	}
-	if in.CustomerName != "" {
-		b.WriteString("Customer: " + in.CustomerName + "\n")
-	}
-	b.WriteString("\nConversation so far:\n")
-	if len(in.Conversation) == 0 {
-		b.WriteString("(no replies yet — respond to the description above)\n")
-	}
-	for _, t := range in.Conversation {
-		who := strings.TrimSpace(t.Author)
-		if who == "" {
-			if t.IsCustomer {
-				who = "Customer"
-			} else {
-				who = "Agent"
-			}
-		}
-		b.WriteString(who + ": " + t.Content + "\n")
-	}
-	if c := strings.TrimSpace(custom); c != "" {
-		b.WriteString("\nTeam guidance to follow:\n" + c + "\n")
-	}
-	b.WriteString("\nReturn only the reply text.")
-	return b.String()
-}
-
-func finalText(r *agent.ExecutionResult) string {
-	if r == nil {
-		return ""
-	}
-	switch v := r.FinalResult.(type) {
-	case string:
-		return v
-	case nil:
-		return ""
-	default:
-		return fmt.Sprint(v)
-	}
-}
-
-func newSessionID() string {
-	b := make([]byte, 12)
-	_, _ = rand.Read(b)
-	return "suggest-" + hex.EncodeToString(b)
-}
