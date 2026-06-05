@@ -329,6 +329,15 @@ func (s *Server) setupRoutes() {
 			logger.Warn("AI assistant unavailable; suggested replies disabled", zap.Error(aerr))
 		} else {
 			ticketService.SetSuggester(assistant)
+
+			// Wire the auto-resolve orchestrator onto the event bus.
+			actions := &ticketAIActions{
+				svc:   ticketService,
+				notif: notificationService,
+				db:    s.db.DB,
+			}
+			resolver := aiassist.NewAutoResolver(assistant, aiSettings, actions)
+			resolver.Subscribe(s.bus)
 		}
 	}
 

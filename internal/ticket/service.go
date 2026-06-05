@@ -8,6 +8,7 @@ import (
 	"time"
 
 	stderrors "errors"
+	"github.com/company/smartticket/internal/aiassist"
 	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/authz"
 	"github.com/company/smartticket/internal/errors"
@@ -661,6 +662,137 @@ func (s *Service) CreateMessage(actor authz.Actor, ticketID, userID uint, req *C
 	}
 
 	return &resp, nil
+}
+
+// PostAIMessage appends a public AI-authored reply to the ticket.
+// It bypasses the human notification/mailer pipeline and publishes the
+// EventMessageCreated event with Source:"ai" so the AutoResolver's loop-guard
+// fires and the message is not re-processed.
+func (s *Service) PostAIMessage(ticketID uint, body string) error {
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.NewNotFoundError("ticket")
+		}
+		return fmt.Errorf("failed to load ticket for AI message: %w", err)
+	}
+
+	msg := &models.Message{
+		TicketID:    ticketID,
+		UserID:      0, // system / no human author
+		Content:     strings.TrimSpace(body),
+		ContentType: "text",
+		IsInternal:  false,
+		IsFromAI:    true,
+	}
+	if err := s.db.Create(msg).Error; err != nil {
+		return fmt.Errorf("failed to persist AI message: %w", err)
+	}
+
+	s.recordEvent(ticketID, 0, "replied", "AI replied to the ticket")
+
+	resp := messageToResponse(msg)
+
+	// Publish with Source:"ai" — this is the key that prevents the orchestrator
+	// from treating this event as a new customer message (loop guard).
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventMessageCreated,
+			TicketID: ticketID,
+			ActorID:  0,
+			Source:   "ai",
+		})
+	}
+	if s.hub != nil {
+		if payload, err := json.Marshal(resp); err == nil {
+			s.hub.Broadcast(fmt.Sprintf("ticket:%d", ticketID), payload)
+			if tkt.Channel == "web_widget" {
+				s.hub.Broadcast(fmt.Sprintf("widget:%d", ticketID), payload)
+			}
+		}
+	}
+
+	return nil
+}
+
+// CountAIMessages returns the number of AI-authored messages on a ticket.
+func (s *Service) CountAIMessages(ticketID uint) (int, error) {
+	var count int64
+	if err := s.db.Model(&models.Message{}).
+		Where("ticket_id = ? AND is_from_ai = ?", ticketID, true).
+		Count(&count).Error; err != nil {
+		return 0, fmt.Errorf("count AI messages: %w", err)
+	}
+	return int(count), nil
+}
+
+// UpdateTicketClassification sets category, priority, and tags on a ticket
+// without triggering the full UpdateTicket lifecycle (no SLA recalc, no
+// activity log for silent AI updates).
+func (s *Service) UpdateTicketClassification(ticketID uint, category, priority string, tags []string) error {
+	updates := map[string]interface{}{}
+	if category != "" {
+		updates["category"] = category
+	}
+	if priority != "" {
+		updates["priority"] = priority
+	}
+	if len(tags) > 0 {
+		raw, _ := json.Marshal(tags)
+		updates["tags"] = string(raw)
+	}
+	if len(updates) == 0 {
+		return nil
+	}
+	result := s.db.Model(&models.Ticket{}).Where("id = ?", ticketID).Updates(updates)
+	if result.Error != nil {
+		return fmt.Errorf("update ticket classification: %w", result.Error)
+	}
+	return nil
+}
+
+// SetTicketSummary stores an AI-generated summary on the ticket.
+func (s *Service) SetTicketSummary(ticketID uint, summary string) error {
+	result := s.db.Model(&models.Ticket{}).Where("id = ?", ticketID).Update("summary", summary)
+	if result.Error != nil {
+		return fmt.Errorf("set ticket summary: %w", result.Error)
+	}
+	return nil
+}
+
+// LoadAISuggestInput assembles the SuggestInput for a ticket and reports
+// whether the last message in the conversation comes from a customer (i.e.
+// someone is waiting for a reply).  On a brand-new ticket with no messages
+// the description itself counts as the customer's opening, so customerWaiting
+// is true.
+func (s *Service) LoadAISuggestInput(ticketID uint) (aiassist.SuggestInput, bool, error) {
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).
+		Preload("Customer").First(&tkt).Error; err != nil {
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return aiassist.SuggestInput{}, false, errors.NewNotFoundError("ticket")
+		}
+		return aiassist.SuggestInput{}, false, fmt.Errorf("load ticket for AI: %w", err)
+	}
+
+	conv, _ := s.buildConversation(ticketID)
+
+	in := aiassist.SuggestInput{
+		Title:        tkt.Title,
+		Description:  tkt.Description,
+		CustomerName: tkt.RequesterName,
+		Conversation: conv,
+	}
+
+	// Determine whether the last conversational turn is from a customer.
+	// If there are no messages the ticket description is the opening statement
+	// from the requester, so we treat that as customer-waiting.
+	customerWaiting := true
+	if len(conv) > 0 {
+		customerWaiting = conv[len(conv)-1].IsCustomer
+	}
+
+	return in, customerWaiting, nil
 }
 
 // notifyMessage emits a ticket_reply notification for a freshly created message.
