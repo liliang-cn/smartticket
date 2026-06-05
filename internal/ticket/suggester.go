@@ -22,9 +22,11 @@ func (s *Service) SetSuggester(r ReplySuggester) { s.suggester = r }
 
 // buildConversation loads ticket messages from the DB and converts them to the
 // aiassist.Turn slice expected by the AI layer.
+// Only public (non-internal) messages are included so that agent-only notes
+// are never leaked into the LLM context.
 func (s *Service) buildConversation(ticketID uint) ([]aiassist.Turn, error) {
 	var msgs []models.Message
-	s.db.Where("ticket_id = ?", ticketID).Order("created_at asc").Preload("User").Find(&msgs)
+	s.db.Where("ticket_id = ? AND is_internal = ?", ticketID, false).Order("created_at asc").Preload("User").Find(&msgs)
 	conv := make([]aiassist.Turn, 0, len(msgs))
 	for i := range msgs {
 		m := msgs[i]

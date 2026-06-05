@@ -73,7 +73,13 @@ func (r *AutoResolver) Subscribe(bus *automation.Bus) {
 }
 
 // OnTicketCreated handles new ticket events.  It optionally classifies the
-// ticket and then triggers the same auto-reply logic as OnMessageCreated.
+// ticket and, when SuggestReplies is also enabled, triggers the same auto-reply
+// logic as OnMessageCreated.
+//
+// The two capabilities are independent:
+//   - AutoClassify is controlled solely by set.AutoClassify.
+//   - Auto-reply (handleCustomerMessage) requires set.SuggestReplies, keeping
+//     it consistent with the OnMessageCreated gate.
 func (r *AutoResolver) OnTicketCreated(e automation.Event) {
 	set, err := r.settings.Get()
 	if err != nil || !set.Enabled {
@@ -84,6 +90,13 @@ func (r *AutoResolver) OnTicketCreated(e automation.Event) {
 
 	if set.AutoClassify {
 		r.classifyTicket(ctx, e.TicketID)
+	}
+
+	// Only attempt auto-reply when SuggestReplies is enabled — consistent with
+	// the OnMessageCreated gate.  Classification above is intentionally
+	// independent of this flag.
+	if !set.SuggestReplies {
+		return
 	}
 
 	// Treat ticket creation like a new customer message so that if auto-reply

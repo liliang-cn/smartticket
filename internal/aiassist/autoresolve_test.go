@@ -416,6 +416,49 @@ func TestAutoResolver_Subscribe_WiresHandlers(t *testing.T) {
 	})
 }
 
+// ----------------------------------------------------------------------------
+// OnTicketCreated + SuggestReplies gate tests
+// ----------------------------------------------------------------------------
+
+// TestOnTicketCreated_SuggestRepliesFalse_NoAutoReply verifies that when
+// SuggestReplies=false, OnTicketCreated does NOT call PostAIReply even when
+// AutoReplyEnabled=true and confidence is high.  When AutoClassify=true the
+// classification step MUST still run.
+func TestOnTicketCreated_SuggestRepliesFalse_NoAutoReply(t *testing.T) {
+	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
+		classifyReply := `{"category":"login","priority":"high","tags":["auth"]}`
+		resolver, actions := buildResolver(t, db, classifyReply, func(u *UpdateSettings) {
+			on := true
+			off := false
+			conf := 0.75
+			u.AutoReplyEnabled = &on
+			u.AutoReplyConfidence = &conf
+			u.SuggestReplies = &off  // SuggestReplies disabled
+			u.AutoClassify = &on     // classification should still fire
+		})
+
+		resolver.OnTicketCreated(automation.Event{
+			Type:     automation.EventTicketCreated,
+			TicketID: 20,
+			Source:   "",
+		})
+
+		// Auto-reply must NOT have been called.
+		assert.Empty(t, actions.postedReplies, "PostAIReply must not be called when SuggestReplies=false")
+		assert.Empty(t, actions.notifiedDrafts, "agent suggestion must not be sent when SuggestReplies=false")
+
+		// Classification MUST still have run.
+		require.Len(t, actions.classifications, 1, "UpdateClassification must be called when AutoClassify=true")
+		assert.Equal(t, uint(20), actions.classifications[0].ticketID)
+		assert.Equal(t, "login", actions.classifications[0].category)
+		assert.Equal(t, "high", actions.classifications[0].priority)
+	})
+}
+
+// ----------------------------------------------------------------------------
+// Existing classify tests
+// ----------------------------------------------------------------------------
+
 // TestClassify_InvalidPriorityIgnored verifies that an unknown priority
 // returned by the model is discarded (empty string stored instead).
 func TestClassify_InvalidPriorityIgnored(t *testing.T) {
