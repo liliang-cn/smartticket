@@ -81,8 +81,14 @@ type Ticket struct {
 	ResolvedAt     *time.Time   `json:"resolved_at"`
 	DueDate        *time.Time   `json:"due_date"`
 	SLAStatus      string       `gorm:"size:20;default:'within'" json:"sla_status"` // within, breached, warning
-	Messages       []Message    `gorm:"foreignKey:TicketID" json:"messages,omitempty"`
-	Attachments    []Attachment `gorm:"foreignKey:TicketID" json:"attachments,omitempty"`
+	// Parity fields — added together to avoid repeat migrations.
+	Channel           string `gorm:"size:30;default:'web'" json:"channel"`                // web, email, web_widget
+	ConversationToken string `gorm:"size:128;index" json:"conversation_token,omitempty"`
+	Summary           string `gorm:"type:text" json:"summary,omitempty"`
+	AssignedTeamID    *uint  `gorm:"index" json:"assigned_team_id,omitempty"`
+	MergedIntoID      *uint  `gorm:"index" json:"merged_into_id,omitempty"`
+	Messages    []Message    `gorm:"foreignKey:TicketID" json:"messages,omitempty"`
+	Attachments []Attachment `gorm:"foreignKey:TicketID" json:"attachments,omitempty"`
 }
 
 // Message represents a ticket message.
