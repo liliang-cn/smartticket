@@ -1,0 +1,119 @@
+{
+  "page": {
+    "eyebrow": "管理者",
+    "title": "自動化"
+  },
+  "newRule": "新しいルール",
+  "table": {
+    "position": "#",
+    "name": "名前",
+    "event": "イベント",
+    "match": "一致",
+    "enabled": "有効",
+    "actions": ""
+  },
+  "events": {
+    "ticket.created": "チケット作成",
+    "ticket.updated": "チケット更新",
+    "message.created": "メッセージ作成",
+    "ticket.sla_warning": "SLA 警告"
+  },
+  "match": {
+    "all": "すべての条件",
+    "any": "いずれかの条件"
+  },
+  "empty": "自動化ルールはまだありません。",
+  "form": {
+    "titleCreate": "新しい自動化ルール",
+    "titleEdit": "自動化ルールを編集",
+    "description": "チケットイベント発生時にアクションを自動的にトリガーします。",
+    "name": "名前",
+    "namePlaceholder": "解決済みチケットを自動クローズ",
+    "description_field": "説明",
+    "descriptionPlaceholder": "このルールに関するメモ（省略可）…",
+    "event": "トリガーイベント",
+    "match": "一致",
+    "enabled": "有効",
+    "conditions": "条件",
+    "addCondition": "条件を追加",
+    "removeCondition": "削除",
+    "actions_field": "アクション",
+    "addAction": "アクションを追加",
+    "removeAction": "削除",
+    "submitCreate": "ルールを作成",
+    "submitEdit": "変更を保存",
+    "creatingPending": "作成中…",
+    "savingPending": "保存中…"
+  },
+  "condition": {
+    "fields": {
+      "status": "ステータス",
+      "priority": "優先度",
+      "severity": "深刻度",
+      "channel": "チャンネル",
+      "customer_email": "顧客メール",
+      "tags": "タグ"
+    },
+    "ops": {
+      "eq": "等しい",
+      "neq": "等しくない",
+      "contains": "含む",
+      "in": "含まれる",
+      "gt": "より大きい",
+      "lt": "より小さい"
+    },
+    "valuePlaceholder": "値"
+  },
+  "action": {
+    "types": {
+      "assign": "割り当て",
+      "add_tag": "タグ追加",
+      "set_priority": "優先度を設定",
+      "set_status": "ステータスを設定",
+      "set_severity": "深刻度を設定",
+      "notify": "通知",
+      "send_email": "メール送信",
+      "escalate": "エスカレート",
+      "ai_suggest": "AI 提案",
+      "ai_auto_reply": "AI 自動返信",
+      "close": "クローズ"
+    },
+    "params": {
+      "assignee_id": "担当者 ID",
+      "team_id": "チーム ID",
+      "tag": "タグ",
+      "priority": "優先度",
+      "status": "ステータス",
+      "severity": "深刻度",
+      "message": "メッセージ"
+    }
+  },
+  "reorder": {
+    "up": "上へ",
+    "down": "下へ"
+  },
+  "toggle": {
+    "enable": "有効化",
+    "disable": "無効化"
+  },
+  "deleteDialog": {
+    "title": "自動化ルールを削除",
+    "description": "ルール「{{name}}」を削除しますか？この操作は取り消せません。",
+    "confirm": "削除",
+    "confirmPending": "削除中…"
+  },
+  "toast": {
+    "created": "自動化ルールを作成しました",
+    "updated": "自動化ルールを更新しました",
+    "deleted": "自動化ルールを削除しました",
+    "createFailed": "ルールの作成に失敗しました",
+    "updateFailed": "ルールの更新に失敗しました",
+    "deleteFailed": "ルールの削除に失敗しました",
+    "toggleFailed": "ルールの切り替えに失敗しました",
+    "reorderFailed": "ルールの並び替えに失敗しました"
+  },
+  "validation": {
+    "nameRequired": "名前は必須です",
+    "eventRequired": "イベントは必須です"
+  }
+}

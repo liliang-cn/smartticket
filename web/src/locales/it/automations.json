@@ -1,0 +1,119 @@
+{
+  "page": {
+    "eyebrow": "admin",
+    "title": "Automazioni"
+  },
+  "newRule": "Nuova regola",
+  "table": {
+    "position": "#",
+    "name": "Nome",
+    "event": "Evento",
+    "match": "Corrispondenza",
+    "enabled": "Attivo",
+    "actions": ""
+  },
+  "events": {
+    "ticket.created": "Ticket creato",
+    "ticket.updated": "Ticket aggiornato",
+    "message.created": "Messaggio creato",
+    "ticket.sla_warning": "Avviso SLA"
+  },
+  "match": {
+    "all": "Tutte le condizioni",
+    "any": "Qualsiasi condizione"
+  },
+  "empty": "Nessuna regola di automazione ancora.",
+  "form": {
+    "titleCreate": "Nuova regola di automazione",
+    "titleEdit": "Modifica regola di automazione",
+    "description": "Attiva azioni automaticamente quando si verificano eventi sui ticket.",
+    "name": "Nome",
+    "namePlaceholder": "Chiudi automaticamente i ticket risolti",
+    "description_field": "Descrizione",
+    "descriptionPlaceholder": "Note opzionali su questa regola…",
+    "event": "Evento scatenante",
+    "match": "Corrispondenza",
+    "enabled": "Attivo",
+    "conditions": "Condizioni",
+    "addCondition": "Aggiungi condizione",
+    "removeCondition": "Rimuovi",
+    "actions_field": "Azioni",
+    "addAction": "Aggiungi azione",
+    "removeAction": "Rimuovi",
+    "submitCreate": "Crea regola",
+    "submitEdit": "Salva modifiche",
+    "creatingPending": "Creazione in corso…",
+    "savingPending": "Salvataggio in corso…"
+  },
+  "condition": {
+    "fields": {
+      "status": "Stato",
+      "priority": "Priorità",
+      "severity": "Gravità",
+      "channel": "Canale",
+      "customer_email": "Email cliente",
+      "tags": "Tag"
+    },
+    "ops": {
+      "eq": "uguale a",
+      "neq": "diverso da",
+      "contains": "contiene",
+      "in": "in",
+      "gt": "maggiore di",
+      "lt": "minore di"
+    },
+    "valuePlaceholder": "valore"
+  },
+  "action": {
+    "types": {
+      "assign": "Assegna",
+      "add_tag": "Aggiungi tag",
+      "set_priority": "Imposta priorità",
+      "set_status": "Imposta stato",
+      "set_severity": "Imposta gravità",
+      "notify": "Notifica",
+      "send_email": "Invia email",
+      "escalate": "Scala",
+      "ai_suggest": "Suggerimento IA",
+      "ai_auto_reply": "Risposta automatica IA",
+      "close": "Chiudi"
+    },
+    "params": {
+      "assignee_id": "ID assegnatario",
+      "team_id": "ID team",
+      "tag": "Tag",
+      "priority": "Priorità",
+      "status": "Stato",
+      "severity": "Gravità",
+      "message": "Messaggio"
+    }
+  },
+  "reorder": {
+    "up": "Sposta su",
+    "down": "Sposta giù"
+  },
+  "toggle": {
+    "enable": "Attiva",
+    "disable": "Disattiva"
+  },
+  "deleteDialog": {
+    "title": "Elimina regola di automazione",
+    "description": "Eliminare la regola «{{name}}»? Questa azione non può essere annullata.",
+    "confirm": "Elimina",
+    "confirmPending": "Eliminazione in corso…"
+  },
+  "toast": {
+    "created": "Regola di automazione creata",
+    "updated": "Regola di automazione aggiornata",
+    "deleted": "Regola di automazione eliminata",
+    "createFailed": "Impossibile creare la regola",
+    "updateFailed": "Impossibile aggiornare la regola",
+    "deleteFailed": "Impossibile eliminare la regola",
+    "toggleFailed": "Impossibile cambiare lo stato della regola",
+    "reorderFailed": "Impossibile riordinare le regole"
+  },
+  "validation": {
+    "nameRequired": "Il nome è obbligatorio",
+    "eventRequired": "L'evento è obbligatorio"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "page": {
+    "eyebrow": "equipo",
+    "title": "Equipos"
+  },
+  "newTeam": "Nuevo equipo",
+  "table": {
+    "name": "Nombre",
+    "description": "Descripción",
+    "actions": ""
+  },
+  "members": {
+    "title": "Miembros — {{name}}",
+    "addMember": "Agregar miembro",
+    "empty": "Aún no hay miembros.",
+    "table": {
+      "name": "Nombre",
+      "email": "Email",
+      "role": "Rol",
+      "actions": ""
+    },
+    "remove": "Eliminar",
+    "addDialog": {
+      "title": "Agregar miembro",
+      "description": "Selecciona un usuario para agregar a {{teamName}}.",
+      "userLabel": "Usuario",
+      "selectPlaceholder": "Seleccionar un usuario…",
+      "submit": "Agregar",
+      "submitting": "Agregando…"
+    }
+  },
+  "empty": "Aún no hay equipos.",
+  "form": {
+    "titleCreate": "Nuevo equipo",
+    "titleEdit": "Editar equipo",
+    "description": "Los equipos agrupan agentes para la asignación de tickets y notificaciones.",
+    "name": "Nombre",
+    "namePlaceholder": "Soporte",
+    "description_field": "Descripción",
+    "descriptionPlaceholder": "Notas opcionales sobre este equipo…",
+    "submitCreate": "Crear equipo",
+    "submitEdit": "Guardar cambios",
+    "creatingPending": "Creando…",
+    "savingPending": "Guardando…"
+  },
+  "deleteDialog": {
+    "title": "Eliminar equipo",
+    "description": "¿Eliminar el equipo «{{name}}»? Se eliminarán todas las membresías. Esta acción no se puede deshacer.",
+    "confirm": "Eliminar",
+    "confirmPending": "Eliminando…"
+  },
+  "toast": {
+    "created": "Equipo creado",
+    "updated": "Equipo actualizado",
+    "deleted": "Equipo eliminado",
+    "createFailed": "No se pudo crear el equipo",
+    "updateFailed": "No se pudo actualizar el equipo",
+    "deleteFailed": "No se pudo eliminar el equipo",
+    "memberAdded": "Miembro agregado",
+    "memberRemoved": "Miembro eliminado",
+    "addMemberFailed": "No se pudo agregar el miembro",
+    "removeMemberFailed": "No se pudo eliminar el miembro"
+  },
+  "validation": {
+    "nameRequired": "El nombre es obligatorio"
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "page": {
+    "eyebrow": "admin",
+    "title": "Automatisierungen"
+  },
+  "newRule": "Neue Regel",
+  "table": {
+    "position": "#",
+    "name": "Name",
+    "event": "Ereignis",
+    "match": "Abgleich",
+    "enabled": "Aktiv",
+    "actions": ""
+  },
+  "events": {
+    "ticket.created": "Ticket erstellt",
+    "ticket.updated": "Ticket aktualisiert",
+    "message.created": "Nachricht erstellt",
+    "ticket.sla_warning": "SLA-Warnung"
+  },
+  "match": {
+    "all": "Alle Bedingungen",
+    "any": "Beliebige Bedingung"
+  },
+  "empty": "Noch keine Automatisierungsregeln.",
+  "form": {
+    "titleCreate": "Neue Automatisierungsregel",
+    "titleEdit": "Automatisierungsregel bearbeiten",
+    "description": "Aktionen automatisch auslösen, wenn Ticket-Ereignisse eintreten.",
+    "name": "Name",
+    "namePlaceholder": "Gelöste Tickets automatisch schließen",
+    "description_field": "Beschreibung",
+    "descriptionPlaceholder": "Optionale Hinweise zu dieser Regel…",
+    "event": "Auslösendes Ereignis",
+    "match": "Abgleich",
+    "enabled": "Aktiv",
+    "conditions": "Bedingungen",
+    "addCondition": "Bedingung hinzufügen",
+    "removeCondition": "Entfernen",
+    "actions_field": "Aktionen",
+    "addAction": "Aktion hinzufügen",
+    "removeAction": "Entfernen",
+    "submitCreate": "Regel erstellen",
+    "submitEdit": "Änderungen speichern",
+    "creatingPending": "Wird erstellt…",
+    "savingPending": "Wird gespeichert…"
+  },
+  "condition": {
+    "fields": {
+      "status": "Status",
+      "priority": "Priorität",
+      "severity": "Schweregrad",
+      "channel": "Kanal",
+      "customer_email": "Kunden-E-Mail",
+      "tags": "Tags"
+    },
+    "ops": {
+      "eq": "gleich",
+      "neq": "ungleich",
+      "contains": "enthält",
+      "in": "in",
+      "gt": "größer als",
+      "lt": "kleiner als"
+    },
+    "valuePlaceholder": "Wert"
+  },
+  "action": {
+    "types": {
+      "assign": "Zuweisen",
+      "add_tag": "Tag hinzufügen",
+      "set_priority": "Priorität setzen",
+      "set_status": "Status setzen",
+      "set_severity": "Schweregrad setzen",
+      "notify": "Benachrichtigen",
+      "send_email": "E-Mail senden",
+      "escalate": "Eskalieren",
+      "ai_suggest": "KI-Vorschlag",
+      "ai_auto_reply": "KI-Autoantwort",
+      "close": "Schließen"
+    },
+    "params": {
+      "assignee_id": "Bearbeiter-ID",
+      "team_id": "Team-ID",
+      "tag": "Tag",
+      "priority": "Priorität",
+      "status": "Status",
+      "severity": "Schweregrad",
+      "message": "Nachricht"
+    }
+  },
+  "reorder": {
+    "up": "Nach oben",
+    "down": "Nach unten"
+  },
+  "toggle": {
+    "enable": "Aktivieren",
+    "disable": "Deaktivieren"
+  },
+  "deleteDialog": {
+    "title": "Automatisierungsregel löschen",
+    "description": "Regel „{{name}}“ löschen? Dies kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "confirmPending": "Wird gelöscht…"
+  },
+  "toast": {
+    "created": "Automatisierungsregel erstellt",
+    "updated": "Automatisierungsregel aktualisiert",
+    "deleted": "Automatisierungsregel gelöscht",
+    "createFailed": "Regel konnte nicht erstellt werden",
+    "updateFailed": "Regel konnte nicht aktualisiert werden",
+    "deleteFailed": "Regel konnte nicht gelöscht werden",
+    "toggleFailed": "Regel konnte nicht umgeschaltet werden",
+    "reorderFailed": "Regeln konnten nicht neu geordnet werden"
+  },
+  "validation": {
+    "nameRequired": "Name ist erforderlich",
+    "eventRequired": "Ereignis ist erforderlich"
+  }
+}

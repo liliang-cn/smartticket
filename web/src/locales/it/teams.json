@@ -1,0 +1,67 @@
+{
+  "page": {
+    "eyebrow": "team",
+    "title": "Team"
+  },
+  "newTeam": "Nuovo team",
+  "table": {
+    "name": "Nome",
+    "description": "Descrizione",
+    "actions": ""
+  },
+  "members": {
+    "title": "Membri — {{name}}",
+    "addMember": "Aggiungi membro",
+    "empty": "Nessun membro ancora.",
+    "table": {
+      "name": "Nome",
+      "email": "Email",
+      "role": "Ruolo",
+      "actions": ""
+    },
+    "remove": "Rimuovi",
+    "addDialog": {
+      "title": "Aggiungi membro",
+      "description": "Seleziona un utente da aggiungere a {{teamName}}.",
+      "userLabel": "Utente",
+      "selectPlaceholder": "Seleziona un utente…",
+      "submit": "Aggiungi",
+      "submitting": "Aggiunta in corso…"
+    }
+  },
+  "empty": "Nessun team ancora.",
+  "form": {
+    "titleCreate": "Nuovo team",
+    "titleEdit": "Modifica team",
+    "description": "I team raggruppano gli agenti per l'assegnazione dei ticket e le notifiche.",
+    "name": "Nome",
+    "namePlaceholder": "Supporto",
+    "description_field": "Descrizione",
+    "descriptionPlaceholder": "Note opzionali su questo team…",
+    "submitCreate": "Crea team",
+    "submitEdit": "Salva modifiche",
+    "creatingPending": "Creazione in corso…",
+    "savingPending": "Salvataggio in corso…"
+  },
+  "deleteDialog": {
+    "title": "Elimina team",
+    "description": "Eliminare il team «{{name}}»? Tutte le appartenenze verranno rimosse. Questa azione non può essere annullata.",
+    "confirm": "Elimina",
+    "confirmPending": "Eliminazione in corso…"
+  },
+  "toast": {
+    "created": "Team creato",
+    "updated": "Team aggiornato",
+    "deleted": "Team eliminato",
+    "createFailed": "Impossibile creare il team",
+    "updateFailed": "Impossibile aggiornare il team",
+    "deleteFailed": "Impossibile eliminare il team",
+    "memberAdded": "Membro aggiunto",
+    "memberRemoved": "Membro rimosso",
+    "addMemberFailed": "Impossibile aggiungere il membro",
+    "removeMemberFailed": "Impossibile rimuovere il membro"
+  },
+  "validation": {
+    "nameRequired": "Il nome è obbligatorio"
+  }
+}

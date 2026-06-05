@@ -1,0 +1,56 @@
+{
+  "page": {
+    "eyebrow": "equipo",
+    "title": "Macros"
+  },
+  "newMacro": "Nueva macro",
+  "table": {
+    "title": "Título",
+    "category": "Categoría",
+    "visibility": "Visibilidad",
+    "usage": "Usos",
+    "actions": ""
+  },
+  "visibility": {
+    "shared": "Compartida",
+    "private": "Privada"
+  },
+  "empty": "Aún no hay macros.",
+  "form": {
+    "titleCreate": "Nueva macro",
+    "titleEdit": "Editar macro",
+    "description": "Las macros son plantillas de mensajes reutilizables con acciones opcionales en tickets.",
+    "title": "Título",
+    "titlePlaceholder": "Confirmar recepción",
+    "category": "Categoría",
+    "categoryPlaceholder": "p.ej. Saludos, Escalaciones…",
+    "body": "Cuerpo del mensaje",
+    "bodyPlaceholder": "Hola {{customer.name}}, gracias por contactarnos sobre el ticket #{{ticket.id}}…",
+    "bodyHint": "Variables: {{customer.name}}, {{ticket.id}}, {{ticket.subject}}, {{agent.name}}",
+    "shared": "Compartir con el equipo",
+    "actions_field": "Acciones (JSON opcional)",
+    "actionsPlaceholder": "[]",
+    "submitCreate": "Crear macro",
+    "submitEdit": "Guardar cambios",
+    "creatingPending": "Creando…",
+    "savingPending": "Guardando…"
+  },
+  "deleteDialog": {
+    "title": "Eliminar macro",
+    "description": "¿Eliminar «{{title}}»? Esta acción no se puede deshacer.",
+    "confirm": "Eliminar",
+    "confirmPending": "Eliminando…"
+  },
+  "toast": {
+    "created": "Macro creada",
+    "updated": "Macro actualizada",
+    "deleted": "Macro eliminada",
+    "createFailed": "No se pudo crear la macro",
+    "updateFailed": "No se pudo actualizar la macro",
+    "deleteFailed": "No se pudo eliminar la macro"
+  },
+  "validation": {
+    "titleRequired": "El título es obligatorio",
+    "bodyRequired": "El cuerpo es obligatorio"
+  }
+}

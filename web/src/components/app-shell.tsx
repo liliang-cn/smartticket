@@ -21,6 +21,9 @@ import {
   Sun,
   Moon,
   Monitor,
+  Workflow,
+  MessageSquareText,
+  UsersRound,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useBranding } from "@/lib/branding";
@@ -64,6 +67,9 @@ const NAV: NavItem[] = [
   { to: "/data", labelKey: "nav.data", icon: Database, team: true },
   { to: "/rbac", labelKey: "nav.access", icon: ShieldCheck, team: true },
   { to: "/llm", labelKey: "nav.ai_providers", icon: Sparkles, team: true },
+  { to: "/macros", labelKey: "nav.macros", icon: MessageSquareText, team: true },
+  { to: "/teams", labelKey: "nav.teams", icon: UsersRound, team: true },
+  { to: "/automations", labelKey: "nav.automations", icon: Workflow, admin: true },
   { to: "/settings", labelKey: "nav.settings", icon: Settings, admin: true },
 ];
 

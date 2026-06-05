@@ -1,0 +1,56 @@
+{
+  "page": {
+    "eyebrow": "チーム",
+    "title": "マクロ"
+  },
+  "newMacro": "新しいマクロ",
+  "table": {
+    "title": "タイトル",
+    "category": "カテゴリ",
+    "visibility": "公開設定",
+    "usage": "使用回数",
+    "actions": ""
+  },
+  "visibility": {
+    "shared": "共有",
+    "private": "プライベート"
+  },
+  "empty": "マクロはまだありません。",
+  "form": {
+    "titleCreate": "新しいマクロ",
+    "titleEdit": "マクロを編集",
+    "description": "マクロはオプションのチケットアクション付き再利用可能なメッセージテンプレートです。",
+    "title": "タイトル",
+    "titlePlaceholder": "受信確認",
+    "category": "カテゴリ",
+    "categoryPlaceholder": "例：挨拶、エスカレーション…",
+    "body": "メッセージ本文",
+    "bodyPlaceholder": "{{customer.name}} 様、チケット #{{ticket.id}} についてお問い合わせいただきありがとうございます…",
+    "bodyHint": "変数: {{customer.name}}, {{ticket.id}}, {{ticket.subject}}, {{agent.name}}",
+    "shared": "チームと共有",
+    "actions_field": "アクション（省略可 JSON）",
+    "actionsPlaceholder": "[]",
+    "submitCreate": "マクロを作成",
+    "submitEdit": "変更を保存",
+    "creatingPending": "作成中…",
+    "savingPending": "保存中…"
+  },
+  "deleteDialog": {
+    "title": "マクロを削除",
+    "description": "「{{title}}」を削除しますか？この操作は取り消せません。",
+    "confirm": "削除",
+    "confirmPending": "削除中…"
+  },
+  "toast": {
+    "created": "マクロを作成しました",
+    "updated": "マクロを更新しました",
+    "deleted": "マクロを削除しました",
+    "createFailed": "マクロの作成に失敗しました",
+    "updateFailed": "マクロの更新に失敗しました",
+    "deleteFailed": "マクロの削除に失敗しました"
+  },
+  "validation": {
+    "titleRequired": "タイトルは必須です",
+    "bodyRequired": "本文は必須です"
+  }
+}

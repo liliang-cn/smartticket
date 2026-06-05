@@ -1,0 +1,67 @@
+{
+  "page": {
+    "eyebrow": "team",
+    "title": "Teams"
+  },
+  "newTeam": "Neues Team",
+  "table": {
+    "name": "Name",
+    "description": "Beschreibung",
+    "actions": ""
+  },
+  "members": {
+    "title": "Mitglieder — {{name}}",
+    "addMember": "Mitglied hinzufügen",
+    "empty": "Noch keine Mitglieder.",
+    "table": {
+      "name": "Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "actions": ""
+    },
+    "remove": "Entfernen",
+    "addDialog": {
+      "title": "Mitglied hinzufügen",
+      "description": "Benutzer zu {{teamName}} hinzufügen.",
+      "userLabel": "Benutzer",
+      "selectPlaceholder": "Benutzer auswählen…",
+      "submit": "Hinzufügen",
+      "submitting": "Wird hinzugefügt…"
+    }
+  },
+  "empty": "Noch keine Teams.",
+  "form": {
+    "titleCreate": "Neues Team",
+    "titleEdit": "Team bearbeiten",
+    "description": "Teams gruppieren Agenten für Ticket-Zuweisung und Benachrichtigungen.",
+    "name": "Name",
+    "namePlaceholder": "Support",
+    "description_field": "Beschreibung",
+    "descriptionPlaceholder": "Optionale Hinweise zu diesem Team…",
+    "submitCreate": "Team erstellen",
+    "submitEdit": "Änderungen speichern",
+    "creatingPending": "Wird erstellt…",
+    "savingPending": "Wird gespeichert…"
+  },
+  "deleteDialog": {
+    "title": "Team löschen",
+    "description": "Team „{{name}}“ löschen? Alle Mitgliedschaften werden entfernt. Dies kann nicht rückgängig gemacht werden.",
+    "confirm": "Löschen",
+    "confirmPending": "Wird gelöscht…"
+  },
+  "toast": {
+    "created": "Team erstellt",
+    "updated": "Team aktualisiert",
+    "deleted": "Team gelöscht",
+    "createFailed": "Team konnte nicht erstellt werden",
+    "updateFailed": "Team konnte nicht aktualisiert werden",
+    "deleteFailed": "Team konnte nicht gelöscht werden",
+    "memberAdded": "Mitglied hinzugefügt",
+    "memberRemoved": "Mitglied entfernt",
+    "addMemberFailed": "Mitglied konnte nicht hinzugefügt werden",
+    "removeMemberFailed": "Mitglied konnte nicht entfernt werden"
+  },
+  "validation": {
+    "nameRequired": "Name ist erforderlich"
+  }
+}
