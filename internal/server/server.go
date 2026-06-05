@@ -517,8 +517,12 @@ func (s *Server) setupRoutes() {
 	// Demo/smoke-test page: embeds the widget so it can be tested in a browser
 	// without deploying to a real customer site.
 	s.router.GET("/widget/demo", widgetCORS, func(c *gin.Context) {
+		// Behind a TLS-terminating reverse proxy (Caddy) the backend sees plain
+		// HTTP, so trust X-Forwarded-Proto before falling back to the TLS flag.
 		scheme := "http"
-		if c.Request.TLS != nil {
+		if fp := c.GetHeader("X-Forwarded-Proto"); fp != "" {
+			scheme = fp
+		} else if c.Request.TLS != nil {
 			scheme = "https"
 		}
 		origin := scheme + "://" + c.Request.Host
@@ -539,7 +543,7 @@ func (s *Server) setupRoutes() {
   <h1>SmartTicket Widget Demo</h1>
   <p>The chat widget should appear in the bottom-right corner. Click the launcher button to open it.</p>
   <p>This page is served from <code>` + origin + `</code>.</p>
-  <script src="` + origin + `/widget.js" data-key="demo" async></script>
+  <script src="/widget.js" data-key="demo" async></script>
 </body>
 </html>`
 		c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(html))
