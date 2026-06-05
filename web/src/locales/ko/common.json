@@ -23,8 +23,7 @@
   "topbar": {
     "sign_out": "로그아웃",
     "collapse_sidebar": "사이드바 접기",
-    "expand_sidebar": "사이드바 펼치기",
-    "meta": "v0.1 · 단일 테넌트"
+    "expand_sidebar": "사이드바 펼치기"
   },
   "theme": {
     "label": "테마",

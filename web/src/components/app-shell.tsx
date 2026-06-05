@@ -224,11 +224,6 @@ export function AppShell() {
             collapsed ? "justify-center" : "justify-between"
           )}
         >
-          {!collapsed && (
-            <span className="font-mono text-[10px] text-muted-foreground/50">
-              {t("topbar.meta")}
-            </span>
-          )}
           <button
             type="button"
             onClick={toggleSidebar}

@@ -23,8 +23,7 @@
   "topbar": {
     "sign_out": "Cerrar sesión",
     "collapse_sidebar": "Contraer barra lateral",
-    "expand_sidebar": "Expandir barra lateral",
-    "meta": "v0.1 · inquilino único"
+    "expand_sidebar": "Expandir barra lateral"
   },
   "theme": {
     "label": "Tema",

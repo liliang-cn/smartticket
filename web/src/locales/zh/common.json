@@ -23,8 +23,7 @@
   "topbar": {
     "sign_out": "退出登录",
     "collapse_sidebar": "收起侧边栏",
-    "expand_sidebar": "展开侧边栏",
-    "meta": "v0.1 · 单租户"
+    "expand_sidebar": "展开侧边栏"
   },
   "theme": {
     "label": "主题",

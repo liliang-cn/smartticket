@@ -23,8 +23,7 @@
   "topbar": {
     "sign_out": "Sign out",
     "collapse_sidebar": "Collapse sidebar",
-    "expand_sidebar": "Expand sidebar",
-    "meta": "v0.1 · single-tenant"
+    "expand_sidebar": "Expand sidebar"
   },
   "theme": {
     "label": "Theme",

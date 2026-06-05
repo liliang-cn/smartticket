@@ -23,8 +23,7 @@
   "topbar": {
     "sign_out": "Esci",
     "collapse_sidebar": "Comprimi barra laterale",
-    "expand_sidebar": "Espandi barra laterale",
-    "meta": "v0.1 · single-tenant"
+    "expand_sidebar": "Espandi barra laterale"
   },
   "theme": {
     "label": "Tema",

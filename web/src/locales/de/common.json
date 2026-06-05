@@ -23,8 +23,7 @@
   "topbar": {
     "sign_out": "Abmelden",
     "collapse_sidebar": "Seitenleiste einklappen",
-    "expand_sidebar": "Seitenleiste ausklappen",
-    "meta": "v0.1 · Einzelmandant"
+    "expand_sidebar": "Seitenleiste ausklappen"
   },
   "theme": {
     "label": "Design",
