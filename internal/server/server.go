@@ -23,6 +23,7 @@ import (
 	"github.com/company/smartticket/internal/api/middleware"
 	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
+	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/branding"
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/customer"
@@ -55,6 +56,7 @@ type Server struct {
 	permissionMiddleware *middleware.PermissionMiddleware
 	kbStore              *knowledgebase.Store
 	hub                  *realtime.Hub
+	bus                  *automation.Bus
 	// uiFS is the embedded single-page frontend, served for non-API GET routes.
 	// nil in API-only builds (built without the `embedui` tag).
 	uiFS fs.FS
@@ -177,6 +179,8 @@ func (s *Server) setupRoutes() {
 	// Initialize the in-process realtime hub (shared across all WS connections).
 	s.hub = realtime.NewHub()
 	go s.hub.Run()
+	// Initialize the domain-event bus (single shared instance for the server lifetime).
+	s.bus = automation.NewBus()
 
 	// Initialize services and handlers
 	authRepo := auth.NewRepository(s.db.DB)
@@ -198,6 +202,8 @@ func (s *Server) setupRoutes() {
 	notificationService := notification.NewService(s.db.DB)
 	notificationHandlers := notification.NewHandlers(notificationService)
 	ticketService.SetNotifier(notificationService)
+	ticketService.SetBus(s.bus)
+	ticketService.SetHub(s.hub)
 
 	// Bidirectional email (opt-in): outbound ticket replies via Resend/SMTP, and
 	// inbound email→ticket via a signed webhook (registered as a public route).
