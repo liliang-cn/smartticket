@@ -277,11 +277,26 @@ type AISettings struct {
 	SuggestReplies bool `gorm:"default:true" json:"suggest_replies"`
 	// KnowledgeAI enables semantic search + "ask" over the knowledge base.
 	KnowledgeAI bool `gorm:"default:true" json:"knowledge_ai"`
-	// AutoClassify (future) lets AI suggest a category/priority on new tickets.
+	// AutoClassify lets AI suggest a category/priority on new tickets.
 	AutoClassify bool `gorm:"default:false" json:"auto_classify"`
 	// ReplyInstructions is optional operator guidance (tone, do/don'ts) injected
 	// into the suggested-reply prompt.
 	ReplyInstructions string `gorm:"type:text" json:"reply_instructions"`
+	// AutoReplyEnabled lets the AI post a public reply automatically when
+	// confidence >= AutoReplyConfidence and NeedsClarification is false.
+	AutoReplyEnabled bool `gorm:"default:false" json:"auto_reply_enabled"`
+	// AutoReplyConfidence is the minimum Draft.Confidence (0..1) required before
+	// the orchestrator posts an automated reply without agent review.
+	AutoReplyConfidence float64 `gorm:"default:0.75" json:"auto_reply_confidence"`
+	// AutoResolveEnabled allows the orchestrator to mark a ticket resolved after
+	// posting a high-confidence auto-reply (Phase 3; post-reply action today).
+	AutoResolveEnabled bool `gorm:"default:false" json:"auto_resolve_enabled"`
+	// MaxAutoRepliesPerTicket caps how many AI-authored messages the orchestrator
+	// will post on a single ticket before handing off to a human agent.
+	MaxAutoRepliesPerTicket int `gorm:"default:2" json:"max_auto_replies_per_ticket"`
+	// AutoSummarizeOnResolve triggers an LLM summary of the conversation when a
+	// ticket transitions to resolved status.
+	AutoSummarizeOnResolve bool `gorm:"default:false" json:"auto_summarize_on_resolve"`
 }
 
 // Product represents a product or service offering.
