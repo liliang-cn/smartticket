@@ -692,27 +692,10 @@ func (s *Server) setupRoutes() {
 				tickets.GET("/:id/attachments", attachmentHandlers.List)
 			}
 
-			// WebSocket endpoint for agents/admins to receive real-time ticket updates.
-			// Subscribes to room "ticket:<id>". The actor must be able to view the ticket
-			// (enforced by attempting GetTicket before upgrading the connection).
-			// NOTE: this route is also registered outside this group (below) to support
-			// ?token= auth for browsers (which cannot set the Authorization header on WS).
-			protected.GET("/ws/tickets/:id", func(c *gin.Context) {
-				idStr := c.Param("id")
-				var ticketID uint
-				if _, err := fmt.Sscanf(idStr, "%d", &ticketID); err != nil || ticketID == 0 {
-					c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ticket id"})
-					return
-				}
-				// Build actor from auth middleware context values.
-				actor := wsActorFromContext(c)
-				if _, err := ticketService.GetTicket(actor, ticketID); err != nil {
-					c.JSON(http.StatusNotFound, gin.H{"error": "ticket not found or access denied"})
-					return
-				}
-				room := fmt.Sprintf("ticket:%d", ticketID)
-				realtime.ServeWS(hub, room, c.Writer, c.Request)
-			})
+			// NOTE: the agent ticket WebSocket endpoint (/api/v1/ws/tickets/:id) is
+			// registered once, outside this header-auth group (see setupRoutes below),
+			// so it can accept ?token= auth — browsers cannot set the Authorization
+			// header on a WebSocket. That handler validates header OR query token.
 
 			// Attachment download (by attachment id, customer-isolated).
 			protected.GET("/attachments/:id/download", attachmentHandlers.Download)
