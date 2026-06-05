@@ -1228,3 +1228,115 @@ func (s *Service) ListTicketEvents(actor authz.Actor, ticketID uint) ([]TicketEv
 	}
 	return out, nil
 }
+
+// SetFieldAutomation updates a single field (priority|status|severity) on a ticket
+// and publishes the resulting domain event with Source:"automation" so the engine's
+// recursion guard fires and does not re-process the event.
+func (s *Service) SetFieldAutomation(ticketID uint, field, value string) error {
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		return fmt.Errorf("SetFieldAutomation: load ticket: %w", err)
+	}
+
+	updates := map[string]interface{}{field: value}
+	if field == "status" && value == "resolved" {
+		now := time.Now()
+		updates["resolved_at"] = now
+		updates["resolution_time"] = now
+	}
+
+	if err := s.db.Model(&models.Ticket{}).Where("id = ?", ticketID).Updates(updates).Error; err != nil {
+		return fmt.Errorf("SetFieldAutomation: update %s: %w", field, err)
+	}
+
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventTicketUpdated,
+			TicketID: ticketID,
+			ActorID:  0,
+			Source:   "automation",
+		})
+	}
+	return nil
+}
+
+// AddTagAutomation appends tag to the ticket's JSON tag list (no-op if already present).
+// Publishes EventTicketUpdated with Source:"automation".
+func (s *Service) AddTagAutomation(ticketID uint, tag string) error {
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		return fmt.Errorf("AddTagAutomation: load ticket: %w", err)
+	}
+
+	var tags []string
+	if tkt.Tags != "" {
+		_ = json.Unmarshal([]byte(tkt.Tags), &tags)
+	}
+	for _, t := range tags {
+		if t == tag {
+			return nil // already present
+		}
+	}
+	tags = append(tags, tag)
+	raw, _ := json.Marshal(tags)
+
+	if err := s.db.Model(&models.Ticket{}).Where("id = ?", ticketID).
+		Update("tags", string(raw)).Error; err != nil {
+		return fmt.Errorf("AddTagAutomation: save tags: %w", err)
+	}
+
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventTicketUpdated,
+			TicketID: ticketID,
+			Source:   "automation",
+		})
+	}
+	return nil
+}
+
+// AssignAutomation sets assigned_to and/or assigned_team_id on a ticket.
+// Publishes EventTicketUpdated with Source:"automation".
+func (s *Service) AssignAutomation(ticketID uint, userID, teamID *uint) error {
+	updates := map[string]interface{}{}
+	if userID != nil {
+		updates["assigned_to"] = userID
+	}
+	if teamID != nil {
+		updates["assigned_team_id"] = teamID
+	}
+	if len(updates) == 0 {
+		return nil
+	}
+	if err := s.db.Model(&models.Ticket{}).Where("id = ? AND is_deleted = ?", ticketID, false).
+		Updates(updates).Error; err != nil {
+		return fmt.Errorf("AssignAutomation: %w", err)
+	}
+	if s.bus != nil {
+		s.bus.Publish(automation.Event{
+			Type:     automation.EventTicketUpdated,
+			TicketID: ticketID,
+			Source:   "automation",
+		})
+	}
+	return nil
+}
+
+// EscalateAutomation bumps the ticket priority one rank (e.g. medium → high).
+// Publishes EventTicketUpdated with Source:"automation".
+func (s *Service) EscalateAutomation(ticketID uint) error {
+	escalate := map[string]string{
+		"low":    "medium",
+		"medium": "high",
+		"high":   "critical",
+	}
+	var tkt models.Ticket
+	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		return fmt.Errorf("EscalateAutomation: load: %w", err)
+	}
+	next, ok := escalate[tkt.Priority]
+	if !ok {
+		return nil // already critical or unknown — no-op
+	}
+	return s.SetFieldAutomation(ticketID, "priority", next)
+}

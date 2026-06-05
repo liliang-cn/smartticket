@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"mime"
@@ -35,6 +36,7 @@ import (
 	"github.com/company/smartticket/internal/knowledgebase"
 	"github.com/company/smartticket/internal/llm"
 	"github.com/company/smartticket/internal/logger"
+	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/notification"
 	"github.com/company/smartticket/internal/product"
 	"github.com/company/smartticket/internal/realtime"
@@ -312,6 +314,9 @@ func (s *Server) setupRoutes() {
 	// Settings always exist; the suggester is wired only when an LLM is available.
 	aiSettings := aiassist.NewSettingsStore(s.db.DB)
 	aiSettingsHandlers := aiassist.NewSettingsHandlers(aiSettings)
+	// autoAssistantRef is set inside the llmServiceRef block so the automation
+	// effector can optionally trigger AI actions; nil = AI actions are no-ops.
+	var autoAssistantRef *aiassist.Assistant
 	if llmServiceRef != nil {
 		kb := aiassist.KBSearcherFunc(func(ctx context.Context, q string, k int) []string {
 			hits, err := knowledgeService.Search(ctx, q, k, true)
@@ -329,6 +334,7 @@ func (s *Server) setupRoutes() {
 			logger.Warn("AI assistant unavailable; suggested replies disabled", zap.Error(aerr))
 		} else {
 			ticketService.SetSuggester(assistant)
+			autoAssistantRef = assistant
 
 			// Wire the auto-resolve orchestrator onto the event bus.
 			actions := &ticketAIActions{
@@ -340,6 +346,45 @@ func (s *Server) setupRoutes() {
 			resolver.Subscribe(s.bus)
 		}
 	}
+
+	// Automation engine: generic trigger→condition→action rules (admin-configurable).
+	// The engine subscribes to all ticket domain events and executes matching rules.
+	autoSvc := automation.NewService(s.db.DB)
+	autoEffector := &automationEffector{
+		svc:       ticketService,
+		notif:     notificationService,
+		assistant: autoAssistantRef,
+		db:        s.db.DB,
+	}
+	autoExec := automation.NewExecutor(autoEffector)
+	loadView := func(ticketID uint) (automation.TicketView, error) {
+		var tkt models.Ticket
+		if err := s.db.DB.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+			return automation.TicketView{}, err
+		}
+		var tags []string
+		if tkt.Tags != "" {
+			_ = json.Unmarshal([]byte(tkt.Tags), &tags)
+		}
+		return automation.TicketView{
+			Status:        tkt.Status,
+			Priority:      tkt.Priority,
+			Severity:      tkt.Severity,
+			Channel:       tkt.Channel,
+			CustomerEmail: tkt.RequesterEmail,
+			Tags:          tags,
+		}, nil
+	}
+	autoEngine := automation.NewEngine(autoSvc, autoExec, loadView)
+	autoEngine.Subscribe(s.bus)
+
+	autoScheduler := automation.NewScheduler(s.bus, autoSvc, autoEngine, automation.SchedulerConfig{
+		AutoResolveEnabled:  false, // configurable in a future iteration
+		SilentWindowSeconds: 86400,
+	})
+	go autoScheduler.Run(context.Background())
+
+	autoHandlers := automation.NewHandlers(autoSvc)
 
 	// Health check endpoints (no authentication required)
 	health := s.router.Group("/")
@@ -639,6 +684,18 @@ func (s *Server) setupRoutes() {
 					llmGroup.DELETE("/:id", llmHandlers.Delete)
 					llmGroup.POST("/:id/test", llmHandlers.Test)
 				}
+			}
+
+			// Automation rules (admin-only CRUD + reorder).
+			autoGroup := protected.Group("/automations")
+			autoGroup.Use(s.adminMiddleware())
+			{
+				autoGroup.GET("", autoHandlers.ListRules)
+				autoGroup.POST("", autoHandlers.CreateRule)
+				autoGroup.POST("/reorder", autoHandlers.ReorderRules)
+				autoGroup.GET("/:id", autoHandlers.GetRule)
+				autoGroup.PUT("/:id", autoHandlers.UpdateRule)
+				autoGroup.DELETE("/:id", autoHandlers.DeleteRule)
 			}
 
 			// Knowledge base routes
