@@ -136,6 +136,12 @@
   .hero h1 .accent { color: var(--primary); }
   .hero p.sub { font-size: clamp(16px, 2.2vw, 20px); color: var(--muted); max-width: 60ch; margin: 20px 0 0; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .launch-capture { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 10px; max-width: 620px; }
+  .launch-capture input { flex: 1 1 230px; min-width: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--fg); padding: 11px 13px; font: inherit; font-size: 14px; }
+  .launch-capture input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,176,31,.12); }
+  .launch-capture input::placeholder { color: var(--muted); }
+  .launch-capture .btn { flex: 0 0 auto; }
+  .capture-note { width: 100%; margin: 0; color: var(--muted); font-size: 12.5px; }
   .oneliner { margin-top: 26px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .oneliner code { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 11px 15px; font-size: 13.5px; color: var(--fg); }
   .oneliner code .c { color: var(--muted); }
@@ -378,6 +384,11 @@
         Star on GitHub
       </a>
     </div>
+    <form class="launch-capture" data-mailto="liliang.imut@gmail.com">
+      <input type="email" name="email" placeholder="Get the launch email" aria-label="Email for SmartTicket launch updates" required />
+      <button type="submit" class="btn btn-ghost">Join launch list</button>
+      <p class="capture-note">No tracking service yet; this opens an email draft so launch traffic turns into a real reply.</p>
+    </form>
     <div class="oneliner">
       <code><span class="c">$</span> git clone https://github.com/liliang-cn/smartticket &amp;&amp; cd smartticket &amp;&amp; <span class="y">docker compose up -d</span></code>
       <button class="copybtn" data-copy="git clone https://github.com/liliang-cn/smartticket && cd smartticket && docker compose up -d">Copy</button>
@@ -706,6 +717,11 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
       <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-primary">Get SmartTicket on GitHub</a>
       <a href="https://smartticket.superleo.app" target="_blank" rel="noopener" class="btn btn-ghost">Open the live demo</a>
     </div>
+    <form class="launch-capture" data-mailto="liliang.imut@gmail.com" style="margin-left:auto;margin-right:auto;justify-content:center;">
+      <input type="email" name="email" placeholder="Get launch updates" aria-label="Email for SmartTicket launch updates" required />
+      <button type="submit" class="btn btn-ghost">Join launch list</button>
+      <p class="capture-note">Opens an email draft to the maker. No third-party list or analytics required.</p>
+    </form>
   </div>
 </div>
 
@@ -762,6 +778,19 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
     var pm = d.querySelector('.pm');
     var sync = function () { if (pm) pm.textContent = d.open ? '–' : '+'; };
     d.addEventListener('toggle', sync); sync();
+  });
+  // Launch capture: use mailto until a real owned-channel backend is wired.
+  document.querySelectorAll('.launch-capture').forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      var input = form.querySelector('input[type="email"]');
+      var email = input ? input.value.trim() : '';
+      if (!email) return;
+      var to = form.getAttribute('data-mailto');
+      var subject = encodeURIComponent('SmartTicket launch list');
+      var body = encodeURIComponent('Please add me to SmartTicket launch updates.\n\nEmail: ' + email);
+      window.location.href = 'mailto:' + to + '?subject=' + subject + '&body=' + body;
+    });
   });
 </script>
 </body>
