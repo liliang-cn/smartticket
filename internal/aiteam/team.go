@@ -116,3 +116,6 @@ func (t *Team) ensureMembers(ctx context.Context) error {
 
 // Members returns all registered team members (specialists + orchestrator).
 func (t *Team) Members() ([]*agent.AgentModel, error) { return t.mgr.ListMembers() }
+
+// Settings returns the SettingsStore wired into this Team (may be nil).
+func (t *Team) Settings() *aiassist.SettingsStore { return t.settings }

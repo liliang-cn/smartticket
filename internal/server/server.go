@@ -17,6 +17,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 
 	smartticketweb "github.com/company/smartticket/web"
 
@@ -72,6 +73,7 @@ type Server struct {
 	hub                  *realtime.Hub
 	bus                  *automation.Bus
 	webhookSvc           *webhook.Service
+	aiteamOrch           *aiteam.Orchestrator // nil when no LLM configured; used by Task 8 routes
 	// cancelCtx stops background goroutines (e.g. the automation scheduler) on Shutdown.
 	cancelCtx context.CancelFunc
 	// uiFS is the embedded single-page frontend, served for non-API GET routes.
@@ -480,9 +482,6 @@ func (s *Server) setupRoutes() {
 	// into the CortexDB "tickets" collection so the AI Researcher can find
 	// similar past tickets.  Best-effort only — failures are logged at warn and
 	// never block the ticket path.
-	//
-	// TODO(task-7): wire similarSearcher into the aiteam.Team once that team var
-	// is constructed here; call team.SetSimilarSearcher(similarSearcher).
 	var similarSearcher *aiteam.StoreSimilarSearcher
 	if s.kbStore != nil && s.kbStore.Healthy() {
 		if ss, ssErr := aiteam.NewStoreSimilarSearcher(s.kbStore); ssErr == nil {
@@ -490,7 +489,6 @@ func (s *Server) setupRoutes() {
 		} else {
 			logger.Warn("similar-ticket searcher unavailable", zap.Error(ssErr))
 		}
-		_ = similarSearcher // used when aiteam.Team is wired in task-7
 
 		indexDB := s.db.DB
 		kbStoreRef := s.kbStore
@@ -521,6 +519,53 @@ func (s *Server) setupRoutes() {
 			})
 		}
 	}
+
+	// AI advisory team + orchestrator. Constructed after similarSearcher so we
+	// can wire it into the team immediately. Nil when no LLM is configured.
+	var aiteamOrch *aiteam.Orchestrator
+	if llmServiceRef != nil {
+		teamKB := aiassist.KBSearcherFunc(func(ctx context.Context, q string, k int) []string {
+			hits, err := knowledgeService.Search(ctx, q, k, true)
+			if err != nil {
+				return nil
+			}
+			out := make([]string, 0, len(hits))
+			for _, h := range hits {
+				out = append(out, h.Title+": "+h.Snippet)
+			}
+			return out
+		})
+		advisoryTeam, terr := aiteam.NewTeam("./data/agentgo-team.db", aiassist.NewGenerator(llmServiceRef), teamKB, aiSettings, s.db.DB)
+		if terr != nil {
+			logger.Warn("AI advisory team unavailable", zap.Error(terr))
+		} else {
+			if similarSearcher != nil {
+				advisoryTeam.SetSimilarSearcher(similarSearcher)
+			}
+			suggestionStore := aiteam.NewSuggestionStore(s.db.DB)
+			aiteamOrch = aiteam.NewOrchestrator(advisoryTeam, suggestionStore, s.hub)
+			s.aiteamOrch = aiteamOrch
+
+			// Auto-trigger: Triage on new ticket.
+			s.bus.Subscribe(automation.EventTicketCreated, func(ev automation.Event) {
+				go func() {
+					_, _ = aiteamOrch.Run(context.Background(), "Triage", buildAITicketContext(s.db.DB, ev.TicketID), "")
+				}()
+			})
+			// Auto-trigger: Sentinel on new message or SLA warning.
+			s.bus.Subscribe(automation.EventMessageCreated, func(ev automation.Event) {
+				go func() {
+					_, _ = aiteamOrch.Run(context.Background(), "Sentinel", buildAITicketContext(s.db.DB, ev.TicketID), "")
+				}()
+			})
+			s.bus.Subscribe(automation.EventSLAWarning, func(ev automation.Event) {
+				go func() {
+					_, _ = aiteamOrch.Run(context.Background(), "Sentinel", buildAITicketContext(s.db.DB, ev.TicketID), "")
+				}()
+			})
+		}
+	}
+	_ = aiteamOrch // consumed by Task 8 on-demand API routes
 
 	// Outbound webhooks: persist a delivery per subscribed endpoint on each
 	// ticket event; a background worker POSTs them (signed, retried). Declared
@@ -1175,6 +1220,51 @@ func (a *aiSettingsAdapter) AutoResolveEnabled() bool {
 		return false
 	}
 	return s.AutoResolveEnabled
+}
+
+// buildAITicketContext loads the ticket and its messages from the DB and
+// assembles an aiteam.TicketContext ready for advisory agent dispatch.
+// Returns a minimal (title-only) context on any DB error so callers never block.
+func buildAITicketContext(db *gorm.DB, ticketID uint) aiteam.TicketContext {
+	var tkt models.Ticket
+	if err := db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		return aiteam.TicketContext{TicketID: ticketID}
+	}
+
+	var msgs []models.Message
+	_ = db.Where("ticket_id = ?", ticketID).Order("created_at asc").Find(&msgs)
+
+	var convBuf strings.Builder
+	for _, m := range msgs {
+		sender := "Agent"
+		if m.IsFromAI {
+			sender = "AI"
+		} else if m.UserID == 0 {
+			sender = tkt.RequesterName
+			if sender == "" {
+				sender = "Customer"
+			}
+		}
+		if !m.IsInternal {
+			fmt.Fprintf(&convBuf, "%s: %s\n", sender, m.Content)
+		}
+	}
+
+	slaState := ""
+	if tkt.SLAStatus == "warning" {
+		slaState = "warning: approaching SLA breach"
+	} else if tkt.SLAStatus == "breached" {
+		slaState = "breached"
+	}
+
+	return aiteam.TicketContext{
+		TicketID:     tkt.ID,
+		Title:        tkt.Title,
+		Description:  tkt.Description,
+		Conversation: strings.TrimSpace(convBuf.String()),
+		CustomerName: tkt.RequesterName,
+		SLAState:     slaState,
+	}
 }
 
 // handleNoRoute serves the embedded single-page app for unmatched non-API GET

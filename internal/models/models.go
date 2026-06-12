@@ -316,6 +316,10 @@ type AISettings struct {
 	// AutoSummarizeOnResolve triggers an LLM summary of the conversation when a
 	// ticket transitions to resolved status.
 	AutoSummarizeOnResolve bool `gorm:"default:false" json:"auto_summarize_on_resolve"`
+	// Per-agent advisory toggles + Sentinel throttle.
+	TriageEnabled       bool `gorm:"default:true" json:"triage_enabled"`
+	SentinelEnabled     bool `gorm:"default:true" json:"sentinel_enabled"`
+	SentinelThrottleSec int  `gorm:"default:60" json:"sentinel_throttle_sec"`
 }
 
 // Product represents a product or service offering.

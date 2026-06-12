@@ -62,3 +62,17 @@ func (s *SuggestionStore) Dismiss(id uint) error {
 	return s.db.Model(&models.AISuggestion{}).Where("id = ?", id).
 		Updates(map[string]any{"status": "dismissed", "resolved_at": now}).Error
 }
+
+// GetByTicketAgent returns the most recent suggestion for (ticketID, agentName),
+// or nil (no error) when no row exists.
+func (s *SuggestionStore) GetByTicketAgent(ticketID uint, agent string) (*models.AISuggestion, error) {
+	var sug models.AISuggestion
+	err := s.db.Where("ticket_id = ? AND agent_name = ?", ticketID, agent).First(&sug).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &sug, nil
+}
