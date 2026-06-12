@@ -1,0 +1,54 @@
+{
+  "page": {
+    "eyebrow": "组织架构",
+    "title": "部门管理"
+  },
+  "newDepartment": "新建部门",
+  "table": {
+    "name": "名称",
+    "manager": "负责人"
+  },
+  "empty": "暂无部门，创建一个来组织您的团队。",
+  "actions": {
+    "addChild": "添加子部门",
+    "addChildTitle": "添加子部门",
+    "edit": "编辑",
+    "editTitle": "编辑此部门",
+    "delete": "删除",
+    "deleteTitle": "删除此部门"
+  },
+  "form": {
+    "createTitle": "新建部门",
+    "editTitle": "编辑部门",
+    "createDescription": "创建新的部门或子部门。",
+    "editDescription": "修改部门名称、上级部门或负责人。",
+    "name": "名称",
+    "namePlaceholder": "工程部",
+    "parent": "上级部门",
+    "parentNone": "（无 — 根部门）",
+    "manager": "负责人",
+    "managerNone": "（无）",
+    "submitCreate": "创建",
+    "submitEdit": "保存",
+    "creating": "创建中…",
+    "savingEdit": "保存中…"
+  },
+  "deleteDialog": {
+    "title": "删除部门？",
+    "description": "确定删除「{{name}}」？子部门将变为根部门。",
+    "confirm": "删除",
+    "confirmPending": "删除中…"
+  },
+  "validation": {
+    "nameRequired": "名称不能为空"
+  },
+  "toast": {
+    "created": "部门已创建",
+    "updated": "部门已更新",
+    "deleted": "部门已删除",
+    "createFailed": "无法创建部门",
+    "updateFailed": "无法更新部门",
+    "deleteFailed": "无法删除部门",
+    "cycleError": "不能将部门移动到其自身的下级部门"
+  }
+}

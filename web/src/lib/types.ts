@@ -15,6 +15,7 @@ export interface UserInfo {
   last_login_at?: string | null;
   created_at?: string | null;
   customer_id?: number | null;
+  department_id?: number | null;
 }
 
 // Org-wide white-label configuration (see internal/branding). Read is public.

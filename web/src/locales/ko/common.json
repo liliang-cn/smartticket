@@ -15,6 +15,7 @@
     "automations": "자동화",
     "macros": "매크로",
     "teams": "팀",
+    "departments": "부서 관리",
     "api_keys": "API 키",
     "webhooks": "Webhook",
     "settings": "설정",

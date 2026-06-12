@@ -94,11 +94,13 @@
       "password": "密码",
       "role": "角色",
       "status": "状态",
-      "customer": "客户"
+      "customer": "客户",
+      "department": "部门"
     },
     "placeholders": {
       "role": "选择角色",
-      "customer": "选择客户组织"
+      "customer": "选择客户组织",
+      "department": "（无）"
     },
     "password_hint": "至少 8 个字符，包含大写字母、数字和特殊字符。",
     "status_options": {

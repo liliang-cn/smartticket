@@ -1,0 +1,54 @@
+{
+  "page": {
+    "eyebrow": "organization",
+    "title": "Departments"
+  },
+  "newDepartment": "New department",
+  "table": {
+    "name": "Name",
+    "manager": "Manager"
+  },
+  "empty": "No departments yet. Create one to organize your team.",
+  "actions": {
+    "addChild": "Add child",
+    "addChildTitle": "Add a sub-department",
+    "edit": "Edit",
+    "editTitle": "Edit this department",
+    "delete": "Delete",
+    "deleteTitle": "Delete this department"
+  },
+  "form": {
+    "createTitle": "New department",
+    "editTitle": "Edit department",
+    "createDescription": "Create a new department or sub-department.",
+    "editDescription": "Update the department name, parent, or manager.",
+    "name": "Name",
+    "namePlaceholder": "Engineering",
+    "parent": "Parent department",
+    "parentNone": "(none — root)",
+    "manager": "Manager",
+    "managerNone": "(none)",
+    "submitCreate": "Create",
+    "submitEdit": "Save",
+    "creating": "Creating…",
+    "savingEdit": "Saving…"
+  },
+  "deleteDialog": {
+    "title": "Delete department?",
+    "description": "Delete \"{{name}}\"? Child departments will become roots.",
+    "confirm": "Delete",
+    "confirmPending": "Deleting…"
+  },
+  "validation": {
+    "nameRequired": "Name is required"
+  },
+  "toast": {
+    "created": "Department created",
+    "updated": "Department updated",
+    "deleted": "Department deleted",
+    "createFailed": "Could not create department",
+    "updateFailed": "Could not update department",
+    "deleteFailed": "Could not delete department",
+    "cycleError": "Cannot move a department under its own descendant"
+  }
+}

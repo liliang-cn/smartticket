@@ -27,6 +27,7 @@ import {
   BarChart3,
   KeyRound,
   Webhook,
+  Network,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useBranding } from "@/lib/branding";
@@ -73,6 +74,7 @@ const NAV: NavItem[] = [
   { to: "/llm", labelKey: "nav.ai_providers", icon: Sparkles, team: true },
   { to: "/macros", labelKey: "nav.macros", icon: MessageSquareText, team: true },
   { to: "/teams", labelKey: "nav.teams", icon: UsersRound, team: true },
+  { to: "/departments", labelKey: "nav.departments", icon: Network, admin: true },
   { to: "/api-keys", labelKey: "nav.api_keys", icon: KeyRound, admin: true },
   { to: "/webhooks", labelKey: "nav.webhooks", icon: Webhook, admin: true },
   { to: "/analytics", label: "Analytics", icon: BarChart3, admin: true },

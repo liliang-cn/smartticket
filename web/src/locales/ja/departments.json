@@ -1,0 +1,54 @@
+{
+  "page": {
+    "eyebrow": "組織",
+    "title": "部署管理"
+  },
+  "newDepartment": "新規部署",
+  "table": {
+    "name": "名称",
+    "manager": "責任者"
+  },
+  "empty": "部署がまだありません。チームを整理するために作成してください。",
+  "actions": {
+    "addChild": "子部署を追加",
+    "addChildTitle": "子部署を追加",
+    "edit": "編集",
+    "editTitle": "この部署を編集",
+    "delete": "削除",
+    "deleteTitle": "この部署を削除"
+  },
+  "form": {
+    "createTitle": "新規部署",
+    "editTitle": "部署を編集",
+    "createDescription": "新しい部署または子部署を作成します。",
+    "editDescription": "部署名、親部署、責任者を更新します。",
+    "name": "名称",
+    "namePlaceholder": "エンジニアリング",
+    "parent": "親部署",
+    "parentNone": "（なし — ルート）",
+    "manager": "責任者",
+    "managerNone": "（なし）",
+    "submitCreate": "作成",
+    "submitEdit": "保存",
+    "creating": "作成中…",
+    "savingEdit": "保存中…"
+  },
+  "deleteDialog": {
+    "title": "部署を削除しますか？",
+    "description": "「{{name}}」を削除しますか？子部署はルートになります。",
+    "confirm": "削除",
+    "confirmPending": "削除中…"
+  },
+  "validation": {
+    "nameRequired": "名称は必須です"
+  },
+  "toast": {
+    "created": "部署を作成しました",
+    "updated": "部署を更新しました",
+    "deleted": "部署を削除しました",
+    "createFailed": "部署を作成できませんでした",
+    "updateFailed": "部署を更新できませんでした",
+    "deleteFailed": "部署を削除できませんでした",
+    "cycleError": "部署を自身の子孫の下に移動することはできません"
+  }
+}

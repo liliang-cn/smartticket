@@ -15,6 +15,7 @@
     "automations": "自動化",
     "macros": "マクロ",
     "teams": "チーム",
+    "departments": "部署管理",
     "api_keys": "API キー",
     "webhooks": "Webhook",
     "settings": "設定",

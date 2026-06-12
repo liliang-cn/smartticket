@@ -15,6 +15,7 @@
     "automations": "Automations",
     "macros": "Macros",
     "teams": "Teams",
+    "departments": "Departments",
     "api_keys": "API Keys",
     "webhooks": "Webhooks",
     "settings": "Settings",

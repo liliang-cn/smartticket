@@ -76,6 +76,7 @@ export interface CreateUserInput {
   role: string;
   is_active: boolean;
   customer_id?: number;
+  department_id?: number | null;
 }
 
 export function useCreateUser() {
@@ -98,6 +99,7 @@ export interface UpdateUserInput {
   last_name?: string;
   role?: string;
   is_active?: boolean;
+  department_id?: number | null;
 }
 
 export function useUpdateUser(id: number) {

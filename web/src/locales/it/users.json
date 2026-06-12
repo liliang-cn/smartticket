@@ -94,11 +94,13 @@
       "password": "Password",
       "role": "Ruolo",
       "status": "Stato",
-      "customer": "Cliente"
+      "customer": "Cliente",
+      "department": "Reparto"
     },
     "placeholders": {
       "role": "Seleziona un ruolo",
-      "customer": "Seleziona un'organizzazione cliente"
+      "customer": "Seleziona un'organizzazione cliente",
+      "department": "(nessuno)"
     },
     "password_hint": "Almeno 8 caratteri, con una lettera maiuscola, una cifra e un carattere speciale.",
     "status_options": {

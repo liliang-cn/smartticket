@@ -94,11 +94,13 @@
       "password": "パスワード",
       "role": "ロール",
       "status": "状態",
-      "customer": "顧客"
+      "customer": "顧客",
+      "department": "部署"
     },
     "placeholders": {
       "role": "ロールを選択",
-      "customer": "顧客組織を選択"
+      "customer": "顧客組織を選択",
+      "department": "（なし）"
     },
     "password_hint": "8文字以上、大文字・数字・特殊文字を含めてください。",
     "status_options": {

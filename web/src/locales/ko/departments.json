@@ -1,0 +1,54 @@
+{
+  "page": {
+    "eyebrow": "조직",
+    "title": "부서 관리"
+  },
+  "newDepartment": "새 부서",
+  "table": {
+    "name": "이름",
+    "manager": "담당자"
+  },
+  "empty": "부서가 없습니다. 팀을 구성할 부서를 만들어 보세요.",
+  "actions": {
+    "addChild": "하위 부서 추가",
+    "addChildTitle": "하위 부서 추가",
+    "edit": "편집",
+    "editTitle": "이 부서 편집",
+    "delete": "삭제",
+    "deleteTitle": "이 부서 삭제"
+  },
+  "form": {
+    "createTitle": "새 부서",
+    "editTitle": "부서 편집",
+    "createDescription": "새 부서 또는 하위 부서를 만듭니다.",
+    "editDescription": "부서 이름, 상위 부서 또는 담당자를 업데이트합니다.",
+    "name": "이름",
+    "namePlaceholder": "엔지니어링",
+    "parent": "상위 부서",
+    "parentNone": "(없음 — 최상위)",
+    "manager": "담당자",
+    "managerNone": "(없음)",
+    "submitCreate": "만들기",
+    "submitEdit": "저장",
+    "creating": "만드는 중…",
+    "savingEdit": "저장 중…"
+  },
+  "deleteDialog": {
+    "title": "부서를 삭제하시겠습니까?",
+    "description": "\"{{name}}\"을 삭제하시겠습니까? 하위 부서는 최상위로 이동됩니다.",
+    "confirm": "삭제",
+    "confirmPending": "삭제 중…"
+  },
+  "validation": {
+    "nameRequired": "이름은 필수입니다"
+  },
+  "toast": {
+    "created": "부서가 만들어졌습니다",
+    "updated": "부서가 업데이트되었습니다",
+    "deleted": "부서가 삭제되었습니다",
+    "createFailed": "부서를 만들 수 없습니다",
+    "updateFailed": "부서를 업데이트할 수 없습니다",
+    "deleteFailed": "부서를 삭제할 수 없습니다",
+    "cycleError": "부서를 자신의 하위 항목 아래로 이동할 수 없습니다"
+  }
+}
