@@ -17,11 +17,13 @@
 - 实时:`internal/realtime` hub,房间 `ticket:<id>`(坐席 WS `/api/v1/ws/tickets/:id`)。
 - 模型集中 `models.go`,Unix 时间戳;Service 配 `_test.go` ≥75%;端口 6533;7 语言 i18n。
 
-## 现状 → 目标的架构跃迁
+## 现状 → 目标的架构跃迁(混合方案,2026-06-12 定)
 
-现在只有一个 agent-go agent(`support-assistant`,直接 `agent.New`,无 TeamManager)。本批引入 **`agent.NewTeamManager(store)`**:多专家成员 + 持久 Task 队列 + `SubscribeTask` 事件流。`support-assistant` 作为 **Drafter** 成员并入,复用 `NewGenerator` + `KBSearcher`。
+现在只有一个 agent-go agent(`support-assistant`,直接 `agent.New`,无 TeamManager)。
 
-新模块:`internal/aiteam/`(team 装配、成员 prompt、各 agent 输出 schema、Task 提交/订阅封装)。复用 `internal/aiassist` 的 Generator/KBSearcher,不重写 AI 调用。
+> **实现决策(读 agent-go v2.79.1 源码后)**:纯 TeamManager 有两个硬约束——① 成员工具只能 MCP/Skills,不能挂 Go 闭包(现有 KB 工具是闭包);② Task 输出是自由文本 `ResultText`,无 schema 校验(结构化卡片得解析文本 JSON,脆)。故采用**混合**:用 `agent.NewTeamManager(store)` + `AddSpecialist(...)` **真实注册** 5 个具名成员(`ListMembers` 可见、prompt 存团队库、是真正的 agent-go team),但每个成员的**实际推理走已验证的 `gen.GenerateStructured(prompt, schema)`**(可靠结构化)+ **复用现有 KB 闭包工具**。编排(触发/持久化/hub 广播)由我们做,不依赖 Task 队列的 LLM 执行。
+
+新模块:`internal/aiteam/`(TeamManager 装配 + 5 成员注册;各 agent 的 prompt 取自成员 Instructions;各 agent 输出 schema + `GenerateStructured` 调用;编排:建上下文→跑 agent→落 `AISuggestion`→hub 广播)。复用 `internal/aiassist` 的 `NewGenerator` / `KBSearcher`,不重写 AI 调用。`support-assistant`(Drafter)逻辑并入。
 
 ---
 
