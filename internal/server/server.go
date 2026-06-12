@@ -21,6 +21,7 @@ import (
 	smartticketweb "github.com/company/smartticket/web"
 
 	"github.com/company/smartticket/internal/aiassist"
+	"github.com/company/smartticket/internal/aiteam"
 	"github.com/company/smartticket/internal/analytics"
 	"github.com/company/smartticket/internal/api/handlers"
 	"github.com/company/smartticket/internal/api/middleware"
@@ -473,6 +474,52 @@ func (s *Server) setupRoutes() {
 				)
 			}
 		})
+	}
+
+	// Async ticket indexing: on ticket resolved (or updated), upsert the ticket
+	// into the CortexDB "tickets" collection so the AI Researcher can find
+	// similar past tickets.  Best-effort only — failures are logged at warn and
+	// never block the ticket path.
+	//
+	// TODO(task-7): wire similarSearcher into the aiteam.Team once that team var
+	// is constructed here; call team.SetSimilarSearcher(similarSearcher).
+	var similarSearcher *aiteam.StoreSimilarSearcher
+	if s.kbStore != nil && s.kbStore.Healthy() {
+		if ss, ssErr := aiteam.NewStoreSimilarSearcher(s.kbStore); ssErr == nil {
+			similarSearcher = ss
+		} else {
+			logger.Warn("similar-ticket searcher unavailable", zap.Error(ssErr))
+		}
+		_ = similarSearcher // used when aiteam.Team is wired in task-7
+
+		indexDB := s.db.DB
+		kbStoreRef := s.kbStore
+		for _, evType := range []automation.EventType{
+			automation.EventTicketResolved,
+			automation.EventTicketUpdated,
+		} {
+			evType := evType
+			s.bus.Subscribe(evType, func(ev automation.Event) {
+				go func() {
+					var tkt models.Ticket
+					if err := indexDB.Where("id = ? AND is_deleted = ?", ev.TicketID, false).First(&tkt).Error; err != nil {
+						logger.Warn("ticket-index: failed to load ticket",
+							zap.Uint("ticket_id", ev.TicketID), zap.Error(err))
+						return
+					}
+					if err := kbStoreRef.SaveTicket(
+						context.Background(),
+						tkt.ID,
+						tkt.Title,
+						tkt.Description,
+						"",
+					); err != nil {
+						logger.Warn("ticket-index: failed to index ticket",
+							zap.Uint("ticket_id", tkt.ID), zap.Error(err))
+					}
+				}()
+			})
+		}
 	}
 
 	// Outbound webhooks: persist a delivery per subscribed endpoint on each
