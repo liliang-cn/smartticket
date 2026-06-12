@@ -33,6 +33,7 @@ import (
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/database"
+	"github.com/company/smartticket/internal/department"
 	"github.com/company/smartticket/internal/email"
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/importexport"
@@ -267,6 +268,7 @@ func (s *Server) setupRoutes() {
 	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
 	brandingService := branding.NewService(s.db.DB, s.config.Storage.DataPath)
 	teamService := team.NewService(s.db.DB)
+	departmentService := department.NewService(s.db.DB)
 	macroService := macro.NewService(s.db.DB)
 	surveyService := survey.NewService(s.db.DB)
 	analyticsService := analytics.NewService(s.db.DB, s.config.JWT.Secret)
@@ -809,6 +811,16 @@ func (s *Server) setupRoutes() {
 				adminKeys.GET("", apiKeyHandlers.List)
 				adminKeys.POST("", apiKeyHandlers.Create)
 				adminKeys.DELETE("/:id", apiKeyHandlers.Revoke)
+			}
+
+			deptHandlers := department.NewHandlers(departmentService)
+			adminDepts := protected.Group("/admin/departments")
+			adminDepts.Use(s.adminMiddleware())
+			{
+				adminDepts.GET("", deptHandlers.List)
+				adminDepts.POST("", deptHandlers.Create)
+				adminDepts.PUT("/:id", deptHandlers.Update)
+				adminDepts.DELETE("/:id", deptHandlers.Delete)
 			}
 
 			webhookHandlers := webhook.NewHandlers(s.webhookSvc)
