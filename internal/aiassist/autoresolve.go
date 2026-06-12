@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -81,33 +82,38 @@ func (r *AutoResolver) Subscribe(bus *automation.Bus) {
 //   - Auto-reply (handleCustomerMessage) requires set.SuggestReplies, keeping
 //     it consistent with the OnMessageCreated gate.
 func (r *AutoResolver) OnTicketCreated(e automation.Event) {
-	set, err := r.settings.Get()
-	if err != nil || !set.Enabled {
-		return
-	}
+	// AI runs ASYNCHRONOUSLY so it never blocks the ticket-create request: the
+	// event bus dispatches handlers synchronously in the caller's goroutine, so a
+	// slow (or unreachable, timing-out) LLM call would otherwise stall the HTTP
+	// response. recover() keeps a panic from crashing the single-binary server.
+	go func() {
+		defer func() { _ = recover() }()
+		set, err := r.settings.Get()
+		if err != nil || !set.Enabled {
+			return
+		}
 
-	ctx := context.Background()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
 
-	if set.AutoClassify {
-		r.classifyTicket(ctx, e.TicketID)
-	}
+		if set.AutoClassify {
+			r.classifyTicket(ctx, e.TicketID)
+		}
 
-	// Only attempt auto-reply when SuggestReplies is enabled — consistent with
-	// the OnMessageCreated gate.  Classification above is intentionally
-	// independent of this flag.
-	if !set.SuggestReplies {
-		return
-	}
+		// Auto-reply requires set.SuggestReplies; classification above is independent.
+		if !set.SuggestReplies {
+			return
+		}
 
-	// Treat ticket creation like a new customer message so that if auto-reply
-	// is on we can respond to the opening description immediately.
-	// Synthesise a fake event with empty Source so the guard passes.
-	r.handleCustomerMessage(ctx, set, automation.Event{
-		Type:     automation.EventMessageCreated,
-		TicketID: e.TicketID,
-		ActorID:  e.ActorID,
-		Source:   "", // human-originated ticket creation
-	})
+		// Treat ticket creation like a new customer message so auto-reply can
+		// respond to the opening description. Empty Source so the guard passes.
+		r.handleCustomerMessage(ctx, set, automation.Event{
+			Type:     automation.EventMessageCreated,
+			TicketID: e.TicketID,
+			ActorID:  e.ActorID,
+			Source:   "", // human-originated ticket creation
+		})
+	}()
 }
 
 // OnMessageCreated handles new-message events.
@@ -120,12 +126,17 @@ func (r *AutoResolver) OnMessageCreated(e automation.Event) {
 		return // AI/automation message — ignore to prevent loops
 	}
 
-	set, err := r.settings.Get()
-	if err != nil || !set.Enabled || !set.SuggestReplies {
-		return
-	}
-
-	r.handleCustomerMessage(context.Background(), set, e)
+	// Async (+recover, +timeout): never block the message-create request on AI.
+	go func() {
+		defer func() { _ = recover() }()
+		set, err := r.settings.Get()
+		if err != nil || !set.Enabled || !set.SuggestReplies {
+			return
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		r.handleCustomerMessage(ctx, set, e)
+	}()
 }
 
 // OnTicketResolved handles ticket-resolved events and optionally summarizes.
