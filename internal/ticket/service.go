@@ -18,22 +18,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// scopeToActor restricts a ticket query to the actor's customer when the actor
-// is a customer-role user. Team actors (admin/engineer) are unrestricted.
-//
-// Safety invariant: a customer actor with a nil CustomerID is a misconfigured
-// account that must never see any tickets. Returning an impossible condition
-// (1=0) prevents an IDOR where a misconfigured customer would fall through to
-// an unscoped query and see all tickets.
-func scopeToActor(q *gorm.DB, actor authz.Actor) *gorm.DB {
-	if actor.IsCustomer() {
-		if actor.CustomerID != nil {
-			return q.Where("customer_id = ?", *actor.CustomerID)
-		}
-		// CustomerID is nil for a customer actor — scope to nothing (IDOR guard).
-		return q.Where("1 = 0")
-	}
-	return q
+// DeptScoper yields the department IDs a manager oversees (their subtree).
+type DeptScoper interface {
+	DeptScopeFor(userID uint) ([]uint, error)
 }
 
 // SupervisorResolver resolves the manager a user reports to (see department svc).
@@ -43,14 +30,16 @@ type SupervisorResolver interface {
 
 // Service provides ticket management business logic.
 type Service struct {
-	db            *gorm.DB
-	slaCalculator *sla.Calculator
-	notifier      Notifier          // optional; nil = no-op (see SetNotifier)
-	mailer        Mailer            // optional; nil = no-op (see SetMailer)
-	suggester     ReplySuggester    // optional; nil = AI suggestions unavailable
-	bus           *automation.Bus   // optional; nil = no domain events
-	hub           *realtime.Hub     // optional; nil = no ws broadcasts
-	supervisors   SupervisorResolver // optional; nil = no supervisor notifications
+	db                    *gorm.DB
+	slaCalculator         *sla.Calculator
+	notifier              Notifier           // optional; nil = no-op (see SetNotifier)
+	mailer                Mailer             // optional; nil = no-op (see SetMailer)
+	suggester             ReplySuggester     // optional; nil = AI suggestions unavailable
+	bus                   *automation.Bus    // optional; nil = no domain events
+	hub                   *realtime.Hub      // optional; nil = no ws broadcasts
+	supervisors           SupervisorResolver // optional; nil = no supervisor notifications
+	deptScoper            DeptScoper         // optional; enriches manager actors with dept subtree
+	departmentIsolationFn func() bool        // optional; reads live isolation toggle
 }
 
 // SetBus wires the domain event bus. Safe to call after NewService.
@@ -61,6 +50,40 @@ func (s *Service) SetHub(h *realtime.Hub) { s.hub = h }
 
 // SetSupervisors injects the supervisor resolver used to notify a manager on escalation.
 func (s *Service) SetSupervisors(r SupervisorResolver) { s.supervisors = r }
+
+// SetDeptScoper injects the department scoper used to enrich manager actors.
+func (s *Service) SetDeptScoper(d DeptScoper) { s.deptScoper = d }
+
+// SetDepartmentIsolation injects a live-reader for the department isolation toggle.
+func (s *Service) SetDepartmentIsolation(fn func() bool) { s.departmentIsolationFn = fn }
+
+// departmentIsolation reports the current value of the isolation toggle.
+func (s *Service) departmentIsolation() bool {
+	if s.departmentIsolationFn == nil {
+		return false
+	}
+	return s.departmentIsolationFn()
+}
+
+// scopeToActor restricts a ticket query to the actor's view.
+// - Customer actors: scoped to their customer (IDOR-safe).
+// - Admin actors: unrestricted.
+// - Non-admin team actors (when dept isolation is ON): restricted to tickets
+//   assigned to users within the manager's department subtree.
+// Manager DeptScope is enriched via deptScoper when not already set.
+func (s *Service) scopeToActor(q *gorm.DB, actor authz.Actor) *gorm.DB {
+	// Enrich a manager actor with their department subtree (best-effort).
+	if s.deptScoper != nil && actor.IsTeam() && !actor.IsAdmin() && len(actor.DeptScope) == 0 {
+		if scope, err := s.deptScoper.DeptScopeFor(actor.UserID); err == nil {
+			actor.DeptScope = scope
+		}
+	}
+	return authz.Scope(s.db, q, actor, authz.ScopeOptions{
+		CustomerColumn:      "customer_id",
+		AssigneeColumn:      "assigned_to",
+		DepartmentIsolation: s.departmentIsolation(),
+	})
+}
 
 // NewService creates a new ticket service.
 func NewService(db *gorm.DB, slaCalculator *sla.Calculator) *Service {
@@ -250,7 +273,7 @@ func (s *Service) CreateTicket(actor authz.Actor, userID uint, req *CreateTicket
 // GetTicket gets a ticket by ID, scoped to the actor's customer.
 func (s *Service) GetTicket(actor authz.Actor, ticketID uint) (*TicketResponse, error) {
 	var ticket models.Ticket
-	if err := scopeToActor(s.db.Where("id = ?", ticketID), actor).
+	if err := s.scopeToActor(s.db.Where("id = ?", ticketID), actor).
 		Preload("AssignedUser").Preload("Customer").
 		First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
@@ -280,7 +303,7 @@ func (s *Service) ListTickets(actor authz.Actor, page, pageSize int, filters map
 	var total int64
 
 	// Exclude soft-deleted tickets from listings.
-	query := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor)
+	query := s.scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor)
 
 	// Apply filters
 	statusFilter, hasStatusFilter := filters["status"].(string)
@@ -338,10 +361,94 @@ func (s *Service) ListTickets(actor authz.Actor, page, pageSize int, filters map
 	}, nil
 }
 
+// ListTicketsForDepartment returns tickets whose assignee belongs to the
+// manager's department subtree — regardless of the global isolation toggle.
+// Non-managers (empty DeptScope after enrichment) get an empty result.
+// This is the backing implementation for ?scope=my_department.
+func (s *Service) ListTicketsForDepartment(actor authz.Actor, page, pageSize int, filters map[string]interface{}) (*TicketListResponse, error) {
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 {
+		pageSize = 20
+	}
+	if pageSize > 100 {
+		pageSize = 100
+	}
+
+	// Enrich actor with their managed department subtree.
+	if s.deptScoper != nil && len(actor.DeptScope) == 0 {
+		if scope, err := s.deptScoper.DeptScopeFor(actor.UserID); err == nil {
+			actor.DeptScope = scope
+		}
+	}
+
+	offset := (page - 1) * pageSize
+
+	var tickets []models.Ticket
+	var total int64
+
+	// Always apply department isolation regardless of the global toggle.
+	query := authz.Scope(s.db, s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor, authz.ScopeOptions{
+		CustomerColumn:      "customer_id",
+		AssigneeColumn:      "assigned_to",
+		DepartmentIsolation: true,
+	})
+
+	// Apply the same filters as ListTickets.
+	statusFilter, hasStatusFilter := filters["status"].(string)
+	if hasStatusFilter && statusFilter != "" {
+		query = query.Where("status = ?", statusFilter)
+	} else {
+		query = query.Where("status != ?", "merged")
+	}
+	if priority, ok := filters["priority"].(string); ok && priority != "" {
+		query = query.Where("priority = ?", priority)
+	}
+	if category, ok := filters["category"].(string); ok && category != "" {
+		query = query.Where("category = ?", category)
+	}
+	if assignedTo, ok := filters["assigned_to"].(uint); ok && assignedTo > 0 {
+		query = query.Where("assigned_to = ?", assignedTo)
+	}
+	if search, ok := filters["search"].(string); ok && search != "" {
+		search = strings.TrimSpace(search)
+		query = query.Where("title ILIKE ? OR description ILIKE ? OR requester_name ILIKE ? OR requester_email ILIKE ?",
+			"%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%")
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, fmt.Errorf("failed to count department tickets: %w", err)
+	}
+
+	if err := query.Preload("AssignedUser").Preload("Customer").
+		Offset(offset).
+		Limit(pageSize).
+		Order("created_at DESC").
+		Find(&tickets).Error; err != nil {
+		return nil, fmt.Errorf("failed to list department tickets: %w", err)
+	}
+
+	responses := make([]TicketResponse, len(tickets))
+	for i, ticket := range tickets {
+		responses[i] = *s.ticketToResponse(&ticket)
+	}
+
+	totalPages := int((total + int64(pageSize) - 1) / int64(pageSize))
+
+	return &TicketListResponse{
+		Data:       responses,
+		Total:      total,
+		Page:       page,
+		PageSize:   pageSize,
+		TotalPages: totalPages,
+	}, nil
+}
+
 // UpdateTicket updates a ticket, scoped to the actor's customer.
 func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, req *UpdateTicketRequest) (*TicketResponse, error) {
 	var ticket models.Ticket
-	if err := scopeToActor(s.db.Where("id = ?", ticketID), actor).
+	if err := s.scopeToActor(s.db.Where("id = ?", ticketID), actor).
 		First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("ticket")
@@ -501,7 +608,7 @@ func (s *Service) UpdateTicket(actor authz.Actor, ticketID uint, userID uint, re
 
 // DeleteTicket soft deletes a ticket, scoped to the actor's customer.
 func (s *Service) DeleteTicket(actor authz.Actor, ticketID uint) error {
-	result := scopeToActor(s.db.Model(&models.Ticket{}).Where("id = ?", ticketID), actor).
+	result := s.scopeToActor(s.db.Model(&models.Ticket{}).Where("id = ?", ticketID), actor).
 		Update("is_deleted", true)
 
 	if result.Error != nil {
@@ -569,7 +676,7 @@ type CreateMessageRequest struct {
 // or has been soft-deleted.
 func (s *Service) findTicketForActor(actor authz.Actor, ticketID uint) (*models.Ticket, error) {
 	var ticket models.Ticket
-	if err := scopeToActor(s.db.Where("id = ? AND is_deleted = ?", ticketID, false), actor).First(&ticket).Error; err != nil {
+	if err := s.scopeToActor(s.db.Where("id = ? AND is_deleted = ?", ticketID, false), actor).First(&ticket).Error; err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("ticket")
 		}
@@ -895,13 +1002,13 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 	}
 
 	// Get basic status counts
-	if err := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
+	if err := s.scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
 		Count(&stats.Total).Error; err != nil {
 		return nil, fmt.Errorf("failed to count total tickets: %w", err)
 	}
 
 	// Get status breakdown
-	rows, err := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
+	rows, err := s.scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
 		Select("status, COUNT(*) as count").
 		Group("status").
 		Rows()
@@ -931,7 +1038,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 	}
 
 	// Get priority breakdown
-	priorityRows, err := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
+	priorityRows, err := s.scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
 		Where("status IN ?", []string{"open", "in_progress"}).
 		Select("priority, COUNT(*) as count").
 		Group("priority").
@@ -961,7 +1068,7 @@ func (s *Service) GetTicketStats(actor authz.Actor) (map[string]interface{}, err
 
 	// Get overdue count
 	now := time.Now()
-	if err := scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
+	if err := s.scopeToActor(s.db.Model(&models.Ticket{}).Where("is_deleted = ?", false), actor).
 		Where("status IN ? AND due_date < ?",
 			[]string{"open", "in_progress"}, now).
 		Count(&stats.OverdueCount).Error; err != nil {

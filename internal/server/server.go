@@ -270,6 +270,14 @@ func (s *Server) setupRoutes() {
 	teamService := team.NewService(s.db.DB)
 	departmentService := department.NewService(s.db.DB)
 	ticketService.SetSupervisors(departmentService)
+	ticketService.SetDeptScoper(departmentService)
+	ticketService.SetDepartmentIsolation(func() bool {
+		var st models.SystemSetting
+		if err := s.db.DB.Where("key = ?", "department_isolation").First(&st).Error; err != nil {
+			return false
+		}
+		return st.Value == "true"
+	})
 	macroService := macro.NewService(s.db.DB)
 	surveyService := survey.NewService(s.db.DB)
 	analyticsService := analytics.NewService(s.db.DB, s.config.JWT.Secret)
