@@ -1,0 +1,61 @@
+{
+  "panel_title": "AI 副驾驶",
+  "loading": "正在加载建议…",
+  "empty": "暂无 AI 建议，系统将自动分析该工单。",
+  "run_btn": "重新运行",
+  "adopt_btn": "采纳",
+  "adopted_label": "已采纳",
+  "dismiss_btn": "忽略",
+  "dismissed_label": "已忽略",
+  "reasoning_label": "推理过程",
+  "confidence": {
+    "high": "高",
+    "med": "中",
+    "low": "低"
+  },
+  "agent": {
+    "Triage": "分诊",
+    "Sentinel": "哨兵",
+    "Researcher": "研究员",
+    "Reviewer": "审核员",
+    "Drafter": "起草员"
+  },
+  "triage": {
+    "priority": "优先级",
+    "severity": "严重性",
+    "category": "类别",
+    "apply_btn": "应用字段"
+  },
+  "sentinel": {
+    "sentiment": "情感",
+    "churn_risk": "流失风险",
+    "sla_risk": "SLA 风险",
+    "escalate_badge": "建议升级处理"
+  },
+  "researcher": {
+    "kb_label": "知识库文章",
+    "similar_label": "相似工单",
+    "merge_tag": "可合并",
+    "resolution_label": "建议解决方案",
+    "insert_btn": "插入解决方案",
+    "run_hint": "运行研究员代理"
+  },
+  "reviewer": {
+    "approved_badge": "草稿已通过审核",
+    "revised_draft_label": "修订草稿",
+    "use_draft_btn": "使用修订草稿",
+    "run_needs_draft": "请先编写回复草稿"
+  },
+  "drafter": {
+    "use_draft_btn": "使用草稿",
+    "run_hint": "运行起草员代理"
+  },
+  "toast": {
+    "adopt_error": "无法采纳建议",
+    "dismiss_error": "无法忽略建议",
+    "run_error": "无法运行代理",
+    "research_done": "研究完成",
+    "review_done": "审核完成",
+    "draft_done": "草稿已就绪"
+  }
+}
