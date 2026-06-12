@@ -829,6 +829,25 @@ func (s *Server) setupRoutes() {
 				tickets.DELETE("/:id/links/:linkId", ticketHandlers.UnlinkTicket)
 				tickets.POST("/:id/attachments", attachmentHandlers.Upload)
 				tickets.GET("/:id/attachments", attachmentHandlers.List)
+
+				// AI advisory team on-demand endpoints. Only registered when an LLM
+				// provider is configured (s.aiteamOrch != nil).
+				if s.aiteamOrch != nil {
+					aiTeamHandlers := aiteam.NewHandlers(
+						s.aiteamOrch,
+						aiteam.NewSuggestionStore(s.db.DB),
+						func(id uint) aiteam.TicketContext { return buildAITicketContext(s.db.DB, id) },
+					)
+					tai := tickets.Group("/:id/ai")
+					{
+						tai.POST("/research", aiTeamHandlers.Research)
+						tai.POST("/review", aiTeamHandlers.Review)
+						tai.POST("/draft", aiTeamHandlers.Draft)
+						tai.GET("/suggestions", aiTeamHandlers.List)
+						tai.POST("/suggestions/:sid/adopt", aiTeamHandlers.Adopt)
+						tai.POST("/suggestions/:sid/dismiss", aiTeamHandlers.Dismiss)
+					}
+				}
 			}
 
 			// NOTE: the agent ticket WebSocket endpoint (/api/v1/ws/tickets/:id) is
