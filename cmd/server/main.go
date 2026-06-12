@@ -228,6 +228,9 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		// Outbound webhook delivery
 		&models.Webhook{},
 		&models.WebhookDelivery{},
+
+		// AI advisory team suggestions (depend on Ticket)
+		&models.AISuggestion{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -410,6 +413,9 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		// Outbound webhook delivery
 		&models.Webhook{},
 		&models.WebhookDelivery{},
+
+		// AI advisory team suggestions (depend on Ticket)
+		&models.AISuggestion{},
 	}
 
 	// Run GORM AutoMigrate

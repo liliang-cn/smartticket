@@ -620,6 +620,22 @@ type WebhookDelivery struct {
 func (Webhook) TableName() string         { return "webhooks" }
 func (WebhookDelivery) TableName() string { return "webhook_deliveries" }
 
+// AISuggestion is one advisory output from an AI team agent on a ticket, shown
+// in the Copilot panel. Payload is the agent's structured JSON; the human adopts
+// or dismisses it. Status: pending|done|adopted|dismissed|failed.
+type AISuggestion struct {
+	BaseModel
+	TicketID   uint    `gorm:"index;not null" json:"ticket_id"`
+	AgentName  string  `gorm:"size:32;index" json:"agent_name"` // Triage|Sentinel|Researcher|Reviewer|Drafter
+	Status     string  `gorm:"size:16;index;default:'pending'" json:"status"`
+	Confidence float64 `json:"confidence"`
+	Payload    string  `gorm:"type:text" json:"payload"`
+	AdoptedBy  *uint   `json:"adopted_by"`
+	ResolvedAt *int64  `json:"resolved_at"`
+}
+
+func (AISuggestion) TableName() string { return "ai_suggestions" }
+
 // Table name overrides.
 func (User) TableName() string             { return "users" }
 func (Ticket) TableName() string           { return "tickets" }
