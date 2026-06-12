@@ -31,6 +31,17 @@ type createReq struct {
 }
 
 // Create handles POST /admin/departments.
+// @Summary Create department
+// @Description Create a new department node in the org reporting tree.
+// @Tags departments
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body createReq true "Department creation parameters"
+// @Success 201 {object} map[string]interface{} "department object"
+// @Failure 400 {object} map[string]interface{} "Invalid request or cycle detected"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/departments [post]
 func (h *Handlers) Create(c *gin.Context) {
 	var req createReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -54,6 +65,14 @@ func (h *Handlers) Create(c *gin.Context) {
 }
 
 // List handles GET /admin/departments.
+// @Summary List departments
+// @Description Return all departments ordered by parent_id, id.
+// @Tags departments
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{} "departments array"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/departments [get]
 func (h *Handlers) List(c *gin.Context) {
 	depts, err := h.svc.List()
 	if err != nil {
@@ -70,6 +89,18 @@ type updateReq struct {
 }
 
 // Update handles PUT /admin/departments/:id.
+// @Summary Update department
+// @Description Update a department's name, parent, or manager. Returns an error if the new parent would create a cycle.
+// @Tags departments
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Department ID"
+// @Param request body updateReq true "Department update parameters"
+// @Success 200 {object} map[string]interface{} "updated: true"
+// @Failure 400 {object} map[string]interface{} "Invalid id, request, or cycle detected"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/departments/{id} [put]
 func (h *Handlers) Update(c *gin.Context) {
 	id, ok := parseID(c)
 	if !ok {
@@ -97,6 +128,16 @@ func (h *Handlers) Update(c *gin.Context) {
 }
 
 // Delete handles DELETE /admin/departments/:id.
+// @Summary Delete department
+// @Description Delete a department by ID.
+// @Tags departments
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Department ID"
+// @Success 200 {object} map[string]interface{} "deleted: true"
+// @Failure 400 {object} map[string]interface{} "Invalid id"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/departments/{id} [delete]
 func (h *Handlers) Delete(c *gin.Context) {
 	id, ok := parseID(c)
 	if !ok {
