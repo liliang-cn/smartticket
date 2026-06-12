@@ -20,9 +20,11 @@ import (
 
 	smartticketweb "github.com/company/smartticket/web"
 
-	"github.com/company/smartticket/internal/api/handlers"
 	"github.com/company/smartticket/internal/aiassist"
+	"github.com/company/smartticket/internal/analytics"
+	"github.com/company/smartticket/internal/api/handlers"
 	"github.com/company/smartticket/internal/api/middleware"
+	"github.com/company/smartticket/internal/apikey"
 	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
@@ -37,8 +39,8 @@ import (
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/knowledgebase"
 	"github.com/company/smartticket/internal/llm"
-	"github.com/company/smartticket/internal/macro"
 	"github.com/company/smartticket/internal/logger"
+	"github.com/company/smartticket/internal/macro"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/notification"
 	"github.com/company/smartticket/internal/product"
@@ -47,10 +49,10 @@ import (
 	"github.com/company/smartticket/internal/services"
 	"github.com/company/smartticket/internal/sla"
 	"github.com/company/smartticket/internal/subscription"
+	"github.com/company/smartticket/internal/survey"
 	"github.com/company/smartticket/internal/team"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
-	"github.com/company/smartticket/internal/survey"
 	"github.com/company/smartticket/internal/widget"
 )
 
@@ -60,6 +62,7 @@ type Server struct {
 	router               *gin.Engine
 	server               *http.Server
 	db                   *database.Database
+	apiKeyService        *apikey.Service
 	authService          *auth.Service
 	permissionMiddleware *middleware.PermissionMiddleware
 	kbStore              *knowledgebase.Store
@@ -195,6 +198,7 @@ func (s *Server) setupRoutes() {
 	// Initialize services and handlers
 	authRepo := auth.NewRepository(s.db.DB)
 	userService := user.NewService(s.db.DB, authRepo, s.authService)
+	s.apiKeyService = apikey.NewService(s.db.DB)
 
 	// Initialize permission service
 	permissionService := services.NewPermissionService(s.db.DB)
@@ -263,6 +267,7 @@ func (s *Server) setupRoutes() {
 	teamService := team.NewService(s.db.DB)
 	macroService := macro.NewService(s.db.DB)
 	surveyService := survey.NewService(s.db.DB)
+	analyticsService := analytics.NewService(s.db.DB, s.config.JWT.Secret)
 
 	authHandlers := auth.NewHandlers(s.authService)
 	userHandlers := user.NewHandlers(userService)
@@ -278,6 +283,7 @@ func (s *Server) setupRoutes() {
 	teamHandlers := team.NewHandlers(teamService)
 	macroHandlers := macro.NewHandlers(macroService)
 	surveyHandlers := survey.NewHandlers(surveyService)
+	analyticsHandlers := analytics.NewHandlers(analyticsService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
 
@@ -608,6 +614,10 @@ func (s *Server) setupRoutes() {
 			// survey link; no authentication required.
 			public.GET("/survey/:token", surveyHandlers.GetSurvey)
 			public.POST("/survey/:token", surveyHandlers.SubmitSurvey)
+
+			// Public website analytics collector. Stores privacy-preserving events
+			// for the operator's own deployment dashboard.
+			public.POST("/analytics/events", analyticsHandlers.Record)
 		}
 
 		// Protected endpoints (auth required)
@@ -747,6 +757,13 @@ func (s *Server) setupRoutes() {
 
 			// CSAT survey stats (any authenticated team/agent user).
 			protected.GET("/survey/stats", surveyHandlers.GetStats)
+
+			// Website analytics are deployment-wide operator data; admin-only.
+			analyticsAdmin := protected.Group("/analytics")
+			analyticsAdmin.Use(s.adminMiddleware())
+			{
+				analyticsAdmin.GET("/summary", analyticsHandlers.Summary)
+			}
 
 			// Branding / white-label settings (admin-only writes; reads are
 			// public, registered above).
