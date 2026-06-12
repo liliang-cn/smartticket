@@ -49,6 +49,11 @@ var memberDefs = []struct {
 	},
 }
 
+// SimilarTicketSearcher finds past tickets similar to a query (Task 5 impl).
+type SimilarTicketSearcher interface {
+	SearchSimilar(ctx context.Context, query string, topK int) ([]SimilarTicket, error)
+}
+
 // Team wraps an agent-go TeamManager (member roster) plus the BYO-LLM generator
 // and KB tool used for structured inference by the agent run methods.
 type Team struct {
@@ -57,7 +62,11 @@ type Team struct {
 	kb       aiassist.KBSearcher
 	settings *aiassist.SettingsStore
 	db       *gorm.DB
+	similar  SimilarTicketSearcher
 }
+
+// SetSimilarSearcher wires a SimilarTicketSearcher (Task 5 impl) into the Team.
+func (t *Team) SetSimilarSearcher(s SimilarTicketSearcher) { t.similar = s }
 
 // NewTeam builds the agent-go team and registers the 5 specialists (idempotent).
 // dbPath is agent-go's own SQLite store (e.g. "./data/agentgo-team.db").

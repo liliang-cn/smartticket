@@ -198,6 +198,343 @@ func (t *Team) RunTriage(ctx context.Context, tc TicketContext) (*TriageResult, 
 	return &out, nil
 }
 
+// Snippet is a knowledge-base snippet returned as a citation.
+type Snippet struct {
+	Title   string `json:"title"`
+	Snippet string `json:"snippet"`
+}
+
+// SimilarTicket is a past ticket found by the SimilarTicketSearcher.
+type SimilarTicket struct {
+	ID             uint    `json:"id"`
+	Title          string  `json:"title"`
+	Resolution     string  `json:"resolution"`
+	MergeCandidate bool    `json:"merge_candidate"`
+	Score          float64 `json:"score"`
+}
+
+// ResearcherResult holds the structured output of the Researcher agent.
+type ResearcherResult struct {
+	KBCitations         []Snippet       `json:"kb_citations"`
+	SimilarTickets      []SimilarTicket `json:"similar_tickets"`
+	SuggestedResolution string          `json:"suggested_resolution"`
+	Confidence          float64         `json:"confidence"`
+}
+
+// ReviewIssue is a single issue flagged by the Reviewer agent.
+type ReviewIssue struct {
+	Type     string `json:"type"`     // tone|accuracy|policy|missing_info
+	Severity string `json:"severity"` // low|medium|high
+	Note     string `json:"note"`
+}
+
+// ReviewerResult holds the structured output of the Reviewer agent.
+type ReviewerResult struct {
+	Issues       []ReviewIssue `json:"issues"`
+	RevisedDraft string        `json:"revised_draft"`
+	Approve      bool          `json:"approve"`
+	Confidence   float64       `json:"confidence"`
+}
+
+// DrafterResult holds the structured output of the Drafter agent.
+type DrafterResult struct {
+	Reply      string  `json:"reply"`
+	Confidence float64 `json:"confidence"`
+}
+
+// researcherSchema is the JSON schema for the LLM-generated part of ResearcherResult.
+// kb_citations and similar_tickets are attached in Go code, not produced by the LLM.
+var researcherSchema = map[string]interface{}{
+	"type": "object",
+	"properties": map[string]interface{}{
+		"suggested_resolution": map[string]interface{}{
+			"type":        "string",
+			"description": "Proposed resolution for the ticket based on provided KB snippets and similar tickets context.",
+		},
+		"confidence": map[string]interface{}{
+			"type":        "number",
+			"description": "0 to 1. How confident you are in the proposed resolution.",
+		},
+	},
+	"required": []string{"suggested_resolution", "confidence"},
+}
+
+// reviewerSchema is the JSON schema for ReviewerResult.
+var reviewerSchema = map[string]interface{}{
+	"type": "object",
+	"properties": map[string]interface{}{
+		"issues": map[string]interface{}{
+			"type": "array",
+			"items": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"type": map[string]interface{}{
+						"type":        "string",
+						"description": "Issue type: tone, accuracy, policy, or missing_info.",
+					},
+					"severity": map[string]interface{}{
+						"type":        "string",
+						"description": "Issue severity: low, medium, or high.",
+					},
+					"note": map[string]interface{}{
+						"type":        "string",
+						"description": "Brief explanation of the issue.",
+					},
+				},
+				"required": []string{"type", "severity", "note"},
+			},
+			"description": "List of issues found in the draft reply.",
+		},
+		"revised_draft": map[string]interface{}{
+			"type":        "string",
+			"description": "Revised version of the draft with issues addressed. Empty if no revision needed.",
+		},
+		"approve": map[string]interface{}{
+			"type":        "boolean",
+			"description": "true if the draft is acceptable to send as-is (or after minor edits).",
+		},
+		"confidence": map[string]interface{}{
+			"type":        "number",
+			"description": "0 to 1. How confident you are in this review.",
+		},
+	},
+	"required": []string{"issues", "revised_draft", "approve", "confidence"},
+}
+
+// drafterSchema is the JSON schema for DrafterResult.
+var drafterSchema = map[string]interface{}{
+	"type": "object",
+	"properties": map[string]interface{}{
+		"reply": map[string]interface{}{
+			"type":        "string",
+			"description": "The drafted reply body to send to the customer. Friendly, professional, no placeholders, never invent facts.",
+		},
+		"confidence": map[string]interface{}{
+			"type":        "number",
+			"description": "0 to 1. How confident you are this reply fully resolves the ticket.",
+		},
+	},
+	"required": []string{"reply", "confidence"},
+}
+
+// RunResearcher runs the Researcher specialist for the given ticket context. It
+// gathers KB snippets and similar tickets, attaches them to the result in Go,
+// and asks the LLM to propose a resolution. Returns aiassist.ErrNotConfigured
+// when no generator is wired, aiassist.ErrDisabled when the AI feature toggle is
+// off. Gracefully handles nil KB / nil SimilarTicketSearcher (returns empty lists).
+func (t *Team) RunResearcher(ctx context.Context, tc TicketContext) (*ResearcherResult, error) {
+	if t.gen == nil {
+		return nil, aiassist.ErrNotConfigured
+	}
+	if t.settings != nil {
+		set, err := t.settings.Get()
+		if err != nil {
+			return nil, err
+		}
+		if !set.Enabled {
+			return nil, aiassist.ErrDisabled
+		}
+	}
+
+	// Gather KB snippets (nil-safe).
+	var kbSnippets []Snippet
+	if t.kb != nil {
+		raw := t.kb.SnippetsFor(ctx, tc.Title+" "+tc.Description, 4)
+		for _, s := range raw {
+			kbSnippets = append(kbSnippets, Snippet{Title: s, Snippet: s})
+		}
+	}
+	if kbSnippets == nil {
+		kbSnippets = []Snippet{}
+	}
+
+	// Gather similar tickets (nil-safe).
+	var similarTickets []SimilarTicket
+	if t.similar != nil {
+		found, err := t.similar.SearchSimilar(ctx, tc.Title+" "+tc.Description, 5)
+		if err == nil && len(found) > 0 {
+			similarTickets = found
+		}
+	}
+	if similarTickets == nil {
+		similarTickets = []SimilarTicket{}
+	}
+
+	// Build prompt with gathered context.
+	var b strings.Builder
+	b.WriteString(memberInstructions["Researcher"])
+	b.WriteString("\n\n")
+	b.WriteString(renderContext(tc))
+	b.WriteString("\nKnowledge base snippets:\n")
+	if len(kbSnippets) == 0 {
+		b.WriteString("(none)\n")
+	} else {
+		for _, s := range kbSnippets {
+			b.WriteString("- " + s.Snippet + "\n")
+		}
+	}
+	b.WriteString("\nSimilar past tickets:\n")
+	if len(similarTickets) == 0 {
+		b.WriteString("(none)\n")
+	} else {
+		for _, st := range similarTickets {
+			fmt.Fprintf(&b, "- #%d %s: %s\n", st.ID, st.Title, st.Resolution)
+		}
+	}
+
+	res, err := t.gen.GenerateStructured(ctx, b.String(), researcherSchema, &domain.GenerationOptions{Temperature: 0.3})
+	if err != nil {
+		return nil, err
+	}
+
+	out := &ResearcherResult{
+		KBCitations:    kbSnippets,
+		SimilarTickets: similarTickets,
+	}
+
+	if !res.Valid || res.Data == nil {
+		return out, nil
+	}
+
+	dataMap, ok := res.Data.(map[string]interface{})
+	if !ok {
+		return out, nil
+	}
+
+	if !mapToStruct(dataMap, out) {
+		// mapToStruct overwrites out; restore the gathered data.
+		out.KBCitations = kbSnippets
+		out.SimilarTickets = similarTickets
+		return out, nil
+	}
+	// mapToStruct may zero out the gathered slices since they're not in the LLM
+	// schema — re-attach them.
+	out.KBCitations = kbSnippets
+	out.SimilarTickets = similarTickets
+	out.Confidence = clampConfidence(out.Confidence)
+	return out, nil
+}
+
+// RunReviewer runs the Reviewer specialist for the given ticket context and a
+// draft reply. Returns aiassist.ErrNotConfigured when no generator is wired,
+// aiassist.ErrDisabled when the AI feature toggle is off.
+func (t *Team) RunReviewer(ctx context.Context, tc TicketContext, draft string) (*ReviewerResult, error) {
+	if t.gen == nil {
+		return nil, aiassist.ErrNotConfigured
+	}
+	if t.settings != nil {
+		set, err := t.settings.Get()
+		if err != nil {
+			return nil, err
+		}
+		if !set.Enabled {
+			return nil, aiassist.ErrDisabled
+		}
+	}
+
+	var b strings.Builder
+	b.WriteString(memberInstructions["Reviewer"])
+	b.WriteString("\n\n")
+	b.WriteString(renderContext(tc))
+	b.WriteString("\nDraft reply to review:\n")
+	b.WriteString(draft)
+	b.WriteString("\n")
+
+	if t.settings != nil {
+		set, err := t.settings.Get()
+		if err == nil {
+			if c := strings.TrimSpace(set.ReplyInstructions); c != "" {
+				b.WriteString("\nTeam reply guidelines:\n")
+				b.WriteString(c)
+				b.WriteString("\n")
+			}
+		}
+	}
+
+	res, err := t.gen.GenerateStructured(ctx, b.String(), reviewerSchema, &domain.GenerationOptions{Temperature: 0.3})
+	if err != nil {
+		return nil, err
+	}
+
+	if !res.Valid || res.Data == nil {
+		return &ReviewerResult{Issues: []ReviewIssue{}, Confidence: 0}, nil
+	}
+
+	dataMap, ok := res.Data.(map[string]interface{})
+	if !ok {
+		return &ReviewerResult{Issues: []ReviewIssue{}, Confidence: 0}, nil
+	}
+
+	var out ReviewerResult
+	if !mapToStruct(dataMap, &out) {
+		return &ReviewerResult{Issues: []ReviewIssue{}, Confidence: 0}, nil
+	}
+	if out.Issues == nil {
+		out.Issues = []ReviewIssue{}
+	}
+	out.Confidence = clampConfidence(out.Confidence)
+	return &out, nil
+}
+
+// RunDrafter runs the Drafter specialist for the given ticket context. It
+// gathers KB snippets to provide context and asks the LLM to draft a reply.
+// Returns aiassist.ErrNotConfigured when no generator is wired,
+// aiassist.ErrDisabled when the AI feature toggle is off.
+func (t *Team) RunDrafter(ctx context.Context, tc TicketContext) (*DrafterResult, error) {
+	if t.gen == nil {
+		return nil, aiassist.ErrNotConfigured
+	}
+	if t.settings != nil {
+		set, err := t.settings.Get()
+		if err != nil {
+			return nil, err
+		}
+		if !set.Enabled {
+			return nil, aiassist.ErrDisabled
+		}
+	}
+
+	// Gather KB snippets (nil-safe).
+	var kbSnippets []string
+	if t.kb != nil {
+		kbSnippets = t.kb.SnippetsFor(ctx, tc.Title+" "+tc.Description, 4)
+	}
+
+	var b strings.Builder
+	b.WriteString(memberInstructions["Drafter"])
+	b.WriteString("\n\n")
+	b.WriteString(renderContext(tc))
+	b.WriteString("\nKnowledge base context:\n")
+	if len(kbSnippets) == 0 {
+		b.WriteString("(no relevant articles)\n")
+	} else {
+		for _, s := range kbSnippets {
+			b.WriteString("- " + s + "\n")
+		}
+	}
+
+	res, err := t.gen.GenerateStructured(ctx, b.String(), drafterSchema, &domain.GenerationOptions{Temperature: 0.4})
+	if err != nil {
+		return nil, err
+	}
+
+	if !res.Valid || res.Data == nil {
+		return &DrafterResult{Confidence: 0}, nil
+	}
+
+	dataMap, ok := res.Data.(map[string]interface{})
+	if !ok {
+		return &DrafterResult{Confidence: 0}, nil
+	}
+
+	var out DrafterResult
+	if !mapToStruct(dataMap, &out) {
+		return &DrafterResult{Confidence: 0}, nil
+	}
+	out.Confidence = clampConfidence(out.Confidence)
+	return &out, nil
+}
+
 // RunSentinel runs the Sentinel specialist for the given ticket context. Returns
 // aiassist.ErrNotConfigured when no generator is wired, aiassist.ErrDisabled
 // when the AI feature toggle is off. On an unparseable model response it
