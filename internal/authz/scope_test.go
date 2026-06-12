@@ -30,9 +30,9 @@ func countScoped(t *testing.T, db *gorm.DB, actor Actor, opts ScopeOptions) int6
 func TestScopeCustomerIsolation(t *testing.T) {
 	db := scopeTestDB(t)
 	cid := uint(7)
-	require.NoError(t, db.Create(&models.Ticket{CustomerID: &cid, Title: "a"}).Error)
+	require.NoError(t, db.Create(&models.Ticket{TicketNumber: "TK-1", CustomerID: &cid, Title: "a"}).Error)
 	other := uint(8)
-	require.NoError(t, db.Create(&models.Ticket{CustomerID: &other, Title: "b"}).Error)
+	require.NoError(t, db.Create(&models.Ticket{TicketNumber: "TK-2", CustomerID: &other, Title: "b"}).Error)
 	opts := ScopeOptions{CustomerColumn: "customer_id", AssigneeColumn: "assigned_to"}
 
 	cust := Actor{UserID: 1, Role: RoleCustomer, CustomerID: &cid}
@@ -50,8 +50,8 @@ func TestScopeDepartmentIsolation(t *testing.T) {
 	u2 := models.User{Email: "u2@x", Username: "u2", PasswordHash: "-", Role: "engineer", DepartmentID: &d2}
 	require.NoError(t, db.Create(&u1).Error)
 	require.NoError(t, db.Create(&u2).Error)
-	require.NoError(t, db.Create(&models.Ticket{Title: "t1", AssignedTo: &u1.ID}).Error)
-	require.NoError(t, db.Create(&models.Ticket{Title: "t2", AssignedTo: &u2.ID}).Error)
+	require.NoError(t, db.Create(&models.Ticket{TicketNumber: "TK-1", Title: "t1", AssignedTo: &u1.ID}).Error)
+	require.NoError(t, db.Create(&models.Ticket{TicketNumber: "TK-2", Title: "t2", AssignedTo: &u2.ID}).Error)
 
 	mgr := Actor{UserID: 99, Role: RoleEngineer, DeptScope: []uint{d1}}
 
