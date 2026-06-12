@@ -1,0 +1,20 @@
+{
+  "eyebrow": "Analisi di lancio",
+  "title": "Traffico del sito web",
+  "subtitle": "Visualizzazioni, clic CTA, sorgenti e visite recenti degli ultimi 30 giorni nel rispetto della privacy.",
+  "pageviews": "Visualizzazioni",
+  "visitors": "Visitatori",
+  "clicks": "Clic",
+  "events": "Eventi",
+  "top_sources": "Sorgenti principali",
+  "top_referrers": "Referrer principali",
+  "top_pages": "Pagine principali",
+  "cta_clicks": "Clic CTA",
+  "no_data": "Ancora nessun dato.",
+  "recent_events": "Eventi recenti",
+  "no_visits": "Nessuna visita registrata.",
+  "col_type": "Tipo",
+  "col_source": "Sorgente",
+  "col_path": "Percorso",
+  "col_device": "Dispositivo"
+}

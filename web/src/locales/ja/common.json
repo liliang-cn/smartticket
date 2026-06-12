@@ -21,7 +21,13 @@
     "settings": "設定",
     "soon": "近日",
     "coming_soon": "近日公開",
-    "coming_soon_item": "{{label}}（近日公開）"
+    "coming_soon_item": "{{label}}（近日公開）",
+    "people": "顧客とユーザー",
+    "catalog": "カタログ",
+    "organization": "組織",
+    "automation": "自動化",
+    "integrations": "連携",
+    "analytics": "分析"
   },
   "topbar": {
     "sign_out": "ログアウト",

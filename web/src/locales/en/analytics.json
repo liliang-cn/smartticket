@@ -1,0 +1,20 @@
+{
+  "eyebrow": "Launch analytics",
+  "title": "Website traffic",
+  "subtitle": "Privacy-preserving pageviews, CTA clicks, sources, and recent visits for the last 30 days.",
+  "pageviews": "Pageviews",
+  "visitors": "Visitors",
+  "clicks": "Clicks",
+  "events": "Events",
+  "top_sources": "Top sources",
+  "top_referrers": "Top referrers",
+  "top_pages": "Top pages",
+  "cta_clicks": "CTA clicks",
+  "no_data": "No data yet.",
+  "recent_events": "Recent events",
+  "no_visits": "No visits recorded yet.",
+  "col_type": "Type",
+  "col_source": "Source",
+  "col_path": "Path",
+  "col_device": "Device"
+}

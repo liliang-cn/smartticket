@@ -1,0 +1,20 @@
+{
+  "eyebrow": "ローンチ分析",
+  "title": "サイトトラフィック",
+  "subtitle": "過去30日間のプライバシーに配慮したページビュー、CTAクリック、参照元、最近の訪問。",
+  "pageviews": "ページビュー",
+  "visitors": "訪問者",
+  "clicks": "クリック",
+  "events": "イベント",
+  "top_sources": "上位の参照元",
+  "top_referrers": "上位のリファラー",
+  "top_pages": "上位のページ",
+  "cta_clicks": "CTAクリック",
+  "no_data": "データがありません。",
+  "recent_events": "最近のイベント",
+  "no_visits": "訪問記録がありません。",
+  "col_type": "種別",
+  "col_source": "参照元",
+  "col_path": "パス",
+  "col_device": "デバイス"
+}

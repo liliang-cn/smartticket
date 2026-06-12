@@ -21,7 +21,13 @@
     "settings": "Einstellungen",
     "soon": "bald",
     "coming_soon": "Demnächst",
-    "coming_soon_item": "{{label}} (demnächst)"
+    "coming_soon_item": "{{label}} (demnächst)",
+    "people": "Kunden & Benutzer",
+    "catalog": "Katalog",
+    "organization": "Organisation",
+    "automation": "Automatisierung",
+    "integrations": "Integrationen",
+    "analytics": "Analysen"
   },
   "topbar": {
     "sign_out": "Abmelden",

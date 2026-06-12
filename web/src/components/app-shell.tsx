@@ -71,7 +71,7 @@ const NAV: NavItem[] = [
   { to: "/knowledge", labelKey: "nav.knowledge", icon: BookOpen },
   {
     groupKey: "people",
-    label: "Customers & Users",
+    labelKey: "nav.people",
     icon: Building2,
     team: true,
     children: [
@@ -81,7 +81,7 @@ const NAV: NavItem[] = [
   },
   {
     groupKey: "catalog",
-    label: "Catalog",
+    labelKey: "nav.catalog",
     icon: Package,
     team: true,
     children: [
@@ -91,24 +91,40 @@ const NAV: NavItem[] = [
       { to: "/sla", labelKey: "nav.sla", icon: Timer },
     ],
   },
-  { to: "/data", labelKey: "nav.data", icon: Database, team: true },
-  { to: "/rbac", labelKey: "nav.access", icon: ShieldCheck, team: true },
-  { to: "/llm", labelKey: "nav.ai_providers", icon: Sparkles, team: true },
-  { to: "/macros", labelKey: "nav.macros", icon: MessageSquareText, team: true },
   {
     groupKey: "organization",
-    label: "Organization",
+    labelKey: "nav.organization",
     icon: UsersRound,
     team: true,
     children: [
       { to: "/teams", labelKey: "nav.teams", icon: UsersRound },
       { to: "/departments", labelKey: "nav.departments", icon: Network, admin: true },
+      { to: "/rbac", labelKey: "nav.access", icon: ShieldCheck },
     ],
   },
-  { to: "/api-keys", labelKey: "nav.api_keys", icon: KeyRound, admin: true },
-  { to: "/webhooks", labelKey: "nav.webhooks", icon: Webhook, admin: true },
-  { to: "/analytics", label: "Analytics", icon: BarChart3, admin: true },
-  { to: "/automations", labelKey: "nav.automations", icon: Workflow, admin: true },
+  {
+    groupKey: "automation",
+    labelKey: "nav.automation",
+    icon: Workflow,
+    team: true,
+    children: [
+      { to: "/macros", labelKey: "nav.macros", icon: MessageSquareText },
+      { to: "/automations", labelKey: "nav.automations", icon: Workflow, admin: true },
+      { to: "/webhooks", labelKey: "nav.webhooks", icon: Webhook, admin: true },
+    ],
+  },
+  {
+    groupKey: "integrations",
+    labelKey: "nav.integrations",
+    icon: Sparkles,
+    team: true,
+    children: [
+      { to: "/llm", labelKey: "nav.ai_providers", icon: Sparkles },
+      { to: "/api-keys", labelKey: "nav.api_keys", icon: KeyRound, admin: true },
+    ],
+  },
+  { to: "/data", labelKey: "nav.data", icon: Database, team: true },
+  { to: "/analytics", labelKey: "nav.analytics", icon: BarChart3, admin: true },
   { to: "/settings", labelKey: "nav.settings", icon: Settings, admin: true },
 ];
 

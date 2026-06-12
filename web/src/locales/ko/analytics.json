@@ -1,0 +1,20 @@
+{
+  "eyebrow": "런치 분석",
+  "title": "웹사이트 트래픽",
+  "subtitle": "지난 30일간의 개인정보 보호 페이지뷰, CTA 클릭, 소스 및 최근 방문.",
+  "pageviews": "페이지뷰",
+  "visitors": "방문자",
+  "clicks": "클릭",
+  "events": "이벤트",
+  "top_sources": "상위 소스",
+  "top_referrers": "상위 리퍼러",
+  "top_pages": "상위 페이지",
+  "cta_clicks": "CTA 클릭",
+  "no_data": "아직 데이터가 없습니다.",
+  "recent_events": "최근 이벤트",
+  "no_visits": "아직 방문 기록이 없습니다.",
+  "col_type": "유형",
+  "col_source": "소스",
+  "col_path": "경로",
+  "col_device": "기기"
+}

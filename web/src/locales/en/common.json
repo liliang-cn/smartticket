@@ -21,7 +21,13 @@
     "settings": "Settings",
     "soon": "soon",
     "coming_soon": "Coming soon",
-    "coming_soon_item": "{{label}} (coming soon)"
+    "coming_soon_item": "{{label}} (coming soon)",
+    "people": "Customers & Users",
+    "catalog": "Catalog",
+    "organization": "Organization",
+    "automation": "Automation",
+    "integrations": "Integrations",
+    "analytics": "Analytics"
   },
   "topbar": {
     "sign_out": "Sign out",

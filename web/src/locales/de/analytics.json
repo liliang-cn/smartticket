@@ -1,0 +1,20 @@
+{
+  "eyebrow": "Launch-Analysen",
+  "title": "Website-Traffic",
+  "subtitle": "Datenschutzfreundliche Seitenaufrufe, CTA-Klicks, Quellen und letzte Besuche der letzten 30 Tage.",
+  "pageviews": "Seitenaufrufe",
+  "visitors": "Besucher",
+  "clicks": "Klicks",
+  "events": "Ereignisse",
+  "top_sources": "Top-Quellen",
+  "top_referrers": "Top-Verweise",
+  "top_pages": "Top-Seiten",
+  "cta_clicks": "CTA-Klicks",
+  "no_data": "Noch keine Daten.",
+  "recent_events": "Letzte Ereignisse",
+  "no_visits": "Noch keine Besuche erfasst.",
+  "col_type": "Typ",
+  "col_source": "Quelle",
+  "col_path": "Pfad",
+  "col_device": "Gerät"
+}

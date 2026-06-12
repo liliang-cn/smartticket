@@ -21,7 +21,13 @@
     "settings": "Impostazioni",
     "soon": "presto",
     "coming_soon": "Prossimamente",
-    "coming_soon_item": "{{label}} (prossimamente)"
+    "coming_soon_item": "{{label}} (prossimamente)",
+    "people": "Clienti e utenti",
+    "catalog": "Catalogo",
+    "organization": "Organizzazione",
+    "automation": "Automazione",
+    "integrations": "Integrazioni",
+    "analytics": "Analisi"
   },
   "topbar": {
     "sign_out": "Esci",

@@ -21,7 +21,13 @@
     "settings": "설정",
     "soon": "곧",
     "coming_soon": "출시 예정",
-    "coming_soon_item": "{{label}}(출시 예정)"
+    "coming_soon_item": "{{label}}(출시 예정)",
+    "people": "고객 및 사용자",
+    "catalog": "카탈로그",
+    "organization": "조직",
+    "automation": "자동화",
+    "integrations": "통합",
+    "analytics": "분석"
   },
   "topbar": {
     "sign_out": "로그아웃",
