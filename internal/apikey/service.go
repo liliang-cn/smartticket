@@ -63,8 +63,11 @@ func (s *Service) Authenticate(plaintext string) (*models.User, error) {
 	if key.ExpiresAt != nil && key.ExpiresAt.Before(time.Now()) {
 		return nil, ErrExpired
 	}
+	// Resolve the bound user, mirroring the JWT path which rejects inactive
+	// accounts on every request: a deactivated service account must not keep
+	// authenticating via its API keys.
 	var user models.User
-	if err := s.db.First(&user, key.UserID).Error; err != nil {
+	if err := s.db.Where("id = ? AND is_active = ?", key.UserID, true).First(&user).Error; err != nil {
 		return nil, ErrInvalid
 	}
 	now := time.Now()

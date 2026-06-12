@@ -61,3 +61,24 @@ func TestAuthenticateRejectsUnknownRevokedExpired(t *testing.T) {
 	_, err = svc.Authenticate(pt2)
 	require.ErrorIs(t, err, ErrExpired)
 }
+
+// A key bound to a deactivated user must stop authenticating, mirroring the
+// JWT path which rejects inactive accounts on every request.
+func TestAuthenticateRejectsDeactivatedUser(t *testing.T) {
+	db := newTestDB(t)
+	u := seedUser(t, db)
+	svc := NewService(db)
+
+	pt, _, err := svc.Create("k", u.ID, nil, 1)
+	require.NoError(t, err)
+
+	// Works while the user is active.
+	_, err = svc.Authenticate(pt)
+	require.NoError(t, err)
+
+	// Deactivate the bound service account.
+	require.NoError(t, db.Model(&models.User{}).Where("id = ?", u.ID).Update("is_active", false).Error)
+
+	_, err = svc.Authenticate(pt)
+	require.ErrorIs(t, err, ErrInvalid)
+}

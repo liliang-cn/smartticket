@@ -58,3 +58,25 @@ func TestWorkerMarksFailedAfterMaxAttempts(t *testing.T) {
 	require.Equal(t, "failed", d.Status)
 	require.Equal(t, maxAttempts, d.Attempts)
 }
+
+// A transport-level failure (connection refused) must increment Attempts
+// exactly once per pass — not twice — so the retry cap is honored precisely.
+func TestWorkerTransportFailureCountsOncePerPass(t *testing.T) {
+	db := newTestDB(t)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	deadURL := srv.URL
+	srv.Close() // now connections are refused
+
+	svc := NewService(db)
+	svc.Create(CreateInput{Name: "a", URL: deadURL, Events: []string{"e"}}, 1)
+	require.NoError(t, svc.Enqueue("e", `{}`))
+
+	w := NewWorker(db, WorkerOptions{BlockPrivateIPs: false})
+	for i := 0; i < maxAttempts+1; i++ {
+		w.processOnce()
+	}
+	var d models.WebhookDelivery
+	require.NoError(t, db.First(&d).Error)
+	require.Equal(t, "failed", d.Status)
+	require.Equal(t, maxAttempts, d.Attempts) // exactly maxAttempts, proving single increment
+}

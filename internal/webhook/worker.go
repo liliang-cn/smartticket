@@ -34,7 +34,15 @@ func NewWorker(db *gorm.DB, opts WorkerOptions) *Worker {
 	if opts.Interval == 0 {
 		opts.Interval = 5 * time.Second
 	}
-	return &Worker{db: db, opts: opts, cli: &http.Client{Timeout: 10 * time.Second}}
+	cli := &http.Client{Timeout: 10 * time.Second}
+	if opts.BlockPrivateIPs {
+		// Re-validate every redirect hop so a public URL cannot 30x-redirect to
+		// an internal address and bypass the pre-flight SSRF check.
+		cli.CheckRedirect = func(req *http.Request, _ []*http.Request) error {
+			return guardSSRF(req.URL.String())
+		}
+	}
+	return &Worker{db: db, opts: opts, cli: cli}
 }
 
 // Run loops until ctx is cancelled.
@@ -85,14 +93,16 @@ func (w *Worker) deliver(d *models.WebhookDelivery) {
 	req.Header.Set("X-SmartTicket-Signature", Sign(body, wh.Secret))
 
 	resp, err := w.cli.Do(req)
-	now := time.Now()
-	d.Attempts++
-	d.LastAttemptAt = &now
 	if err != nil {
+		// Transport-level failure (DNS, refused, redirect rejected). fail()
+		// records the attempt; do NOT increment here too (would double-count).
 		w.fail(d, 0, err.Error())
 		return
 	}
 	defer resp.Body.Close()
+	now := time.Now()
+	d.Attempts++
+	d.LastAttemptAt = &now
 	d.StatusCode = resp.StatusCode
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		d.Status = "success"
@@ -126,9 +136,16 @@ func guardSSRF(raw string) error {
 		return fmt.Errorf("dns: %w", err)
 	}
 	for _, ip := range ips {
-		if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() {
+		if ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() ||
+			ip.IsUnspecified() || ip.IsLinkLocalMulticast() || isCGNAT(ip) {
 			return errors.New("destination resolves to a private address")
 		}
 	}
 	return nil
 }
+
+// cgnatNet is the carrier-grade NAT range 100.64.0.0/10 (RFC 6598), which
+// net.IP.IsPrivate does not cover.
+var _, cgnatNet, _ = net.ParseCIDR("100.64.0.0/10")
+
+func isCGNAT(ip net.IP) bool { return cgnatNet != nil && cgnatNet.Contains(ip) }
