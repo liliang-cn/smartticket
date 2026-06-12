@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Ticket,
@@ -28,6 +28,7 @@ import {
   KeyRound,
   Webhook,
   Network,
+  ChevronDown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useBranding } from "@/lib/branding";
@@ -47,7 +48,8 @@ import { NotificationBell } from "@/components/notification-bell";
 import { LanguageToggle } from "@/components/language-toggle";
 
 interface NavItem {
-  to: string;
+  /** Leaf items link to a route; group items omit `to` and define `children`. */
+  to?: string;
   /** Translation key under the `common.nav` namespace. */
   labelKey?: string;
   label?: string;
@@ -57,24 +59,52 @@ interface NavItem {
   team?: boolean;
   /** Admin-only. Shown only to the admin role. */
   admin?: boolean;
+  /** A stable key for an expandable group (required when `children` is set). */
+  groupKey?: string;
+  /** Sub-items rendered under an expandable parent (second-level menu). */
+  children?: NavItem[];
 }
 
 const NAV: NavItem[] = [
   { to: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
   { to: "/tickets", labelKey: "nav.tickets", icon: Ticket },
   { to: "/knowledge", labelKey: "nav.knowledge", icon: BookOpen },
-  { to: "/customers", labelKey: "nav.customers", icon: Building2, team: true },
-  { to: "/users", labelKey: "nav.users", icon: Users, team: true },
-  { to: "/products", labelKey: "nav.products", icon: Package, team: true },
-  { to: "/services", labelKey: "nav.services", icon: Layers, team: true },
-  { to: "/subscriptions", labelKey: "nav.subscriptions", icon: CreditCard, team: true },
-  { to: "/sla", labelKey: "nav.sla", icon: Timer, team: true },
+  {
+    groupKey: "people",
+    label: "Customers & Users",
+    icon: Building2,
+    team: true,
+    children: [
+      { to: "/customers", labelKey: "nav.customers", icon: Building2 },
+      { to: "/users", labelKey: "nav.users", icon: Users },
+    ],
+  },
+  {
+    groupKey: "catalog",
+    label: "Catalog",
+    icon: Package,
+    team: true,
+    children: [
+      { to: "/products", labelKey: "nav.products", icon: Package },
+      { to: "/services", labelKey: "nav.services", icon: Layers },
+      { to: "/subscriptions", labelKey: "nav.subscriptions", icon: CreditCard },
+      { to: "/sla", labelKey: "nav.sla", icon: Timer },
+    ],
+  },
   { to: "/data", labelKey: "nav.data", icon: Database, team: true },
   { to: "/rbac", labelKey: "nav.access", icon: ShieldCheck, team: true },
   { to: "/llm", labelKey: "nav.ai_providers", icon: Sparkles, team: true },
   { to: "/macros", labelKey: "nav.macros", icon: MessageSquareText, team: true },
-  { to: "/teams", labelKey: "nav.teams", icon: UsersRound, team: true },
-  { to: "/departments", labelKey: "nav.departments", icon: Network, admin: true },
+  {
+    groupKey: "organization",
+    label: "Organization",
+    icon: UsersRound,
+    team: true,
+    children: [
+      { to: "/teams", labelKey: "nav.teams", icon: UsersRound },
+      { to: "/departments", labelKey: "nav.departments", icon: Network, admin: true },
+    ],
+  },
   { to: "/api-keys", labelKey: "nav.api_keys", icon: KeyRound, admin: true },
   { to: "/webhooks", labelKey: "nav.webhooks", icon: Webhook, admin: true },
   { to: "/analytics", label: "Analytics", icon: BarChart3, admin: true },
@@ -114,11 +144,26 @@ export function AppShell() {
   // Admin-only items (e.g. Settings) are gated to the admin role.
   const isTeam = user?.role !== "customer";
   const isAdmin = user?.role === "admin";
-  const navItems = NAV.filter((item) => {
-    if (item.admin) return isAdmin;
-    return isTeam || !item.team;
-  });
+  const visible = (item: NavItem) => (item.admin ? isAdmin : isTeam || !item.team);
+  const navItems = NAV.filter(visible)
+    .map((item) =>
+      item.children
+        ? { ...item, children: item.children.filter(visible) }
+        : item
+    )
+    .filter((item) => !item.children || item.children.length > 0);
   const navLabel = (item: NavItem) => item.label ?? t(item.labelKey ?? "");
+
+  // Second-level menu: track which groups are expanded. A group auto-expands
+  // when one of its children is the active route.
+  const location = useLocation();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const isChildActive = (item: NavItem) =>
+    !!item.children?.some((c) => c.to && location.pathname.startsWith(c.to));
+  const groupOpen = (item: NavItem) =>
+    openGroups[item.groupKey ?? ""] ?? isChildActive(item);
+  const toggleGroup = (key: string) =>
+    setOpenGroups((g) => ({ ...g, [key]: !(g[key] ?? false) }));
 
   const initials = (
     (user?.first_name?.[0] ?? user?.username?.[0] ?? user?.email?.[0] ?? "?") +
@@ -171,7 +216,77 @@ export function AppShell() {
           )}
         >
           {navItems.map((item) =>
-            item.soon ? (
+            item.children ? (
+              collapsed ? (
+                <NavLink
+                  key={item.groupKey}
+                  to={item.children[0].to!}
+                  data-reveal
+                  title={navLabel(item)}
+                  className={cn(
+                    "group relative flex items-center justify-center rounded-md py-2 text-sm font-medium transition-colors",
+                    isChildActive(item)
+                      ? "bg-primary/10 text-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="size-4 shrink-0" />
+                </NavLink>
+              ) : (
+                <div key={item.groupKey} data-reveal>
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(item.groupKey!)}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      isChildActive(item)
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="size-4 shrink-0" />
+                    <span>{navLabel(item)}</span>
+                    <ChevronDown
+                      className={cn(
+                        "ml-auto size-4 shrink-0 transition-transform",
+                        groupOpen(item) && "rotate-180"
+                      )}
+                    />
+                  </button>
+                  {groupOpen(item) && (
+                    <div className="mt-0.5 flex flex-col gap-0.5">
+                      {item.children.map((child) => (
+                        <NavLink
+                          key={child.to}
+                          to={child.to!}
+                          className={({ isActive }) =>
+                            cn(
+                              "relative flex items-center gap-2.5 rounded-md py-1.5 pl-9 pr-3 text-sm transition-colors",
+                              isActive
+                                ? "bg-primary/10 font-medium text-foreground"
+                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                            )
+                          }
+                        >
+                          {({ isActive }) => (
+                            <>
+                              <span
+                                className={cn(
+                                  "absolute left-3 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-full bg-primary transition-opacity",
+                                  isActive ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <child.icon className="size-3.5 shrink-0" />
+                              {navLabel(child)}
+                            </>
+                          )}
+                        </NavLink>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            ) : item.soon ? (
               <span
                 key={item.to}
                 data-reveal
@@ -198,7 +313,7 @@ export function AppShell() {
             ) : (
               <NavLink
                 key={item.to}
-                to={item.to}
+                to={item.to!}
                 data-reveal
                 title={collapsed ? navLabel(item) : undefined}
                 className={({ isActive }) =>
