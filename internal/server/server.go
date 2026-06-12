@@ -780,6 +780,15 @@ func (s *Server) setupRoutes() {
 				settings.DELETE("/branding/logo", brandingHandlers.DeleteLogo)
 			}
 
+			apiKeyHandlers := apikey.NewHandlers(s.apiKeyService)
+			adminKeys := protected.Group("/admin/api-keys")
+			adminKeys.Use(s.adminMiddleware())
+			{
+				adminKeys.GET("", apiKeyHandlers.List)
+				adminKeys.POST("", apiKeyHandlers.Create)
+				adminKeys.DELETE("/:id", apiKeyHandlers.Revoke)
+			}
+
 			// LLM provider management routes (admin-only).
 			if llmHandlers != nil {
 				llmGroup := protected.Group("/llm/providers")
