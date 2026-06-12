@@ -45,6 +45,34 @@ definitions:
       success:
         type: boolean
     type: object
+  github_com_company_smartticket_internal_models.AISuggestion:
+    properties:
+      adopted_by:
+        type: integer
+      agent_name:
+        description: Triage|Sentinel|Researcher|Reviewer|Drafter
+        type: string
+      confidence:
+        type: number
+      created_at:
+        type: string
+      created_by:
+        type: string
+      id:
+        type: integer
+      payload:
+        type: string
+      resolved_at:
+        type: integer
+      status:
+        type: string
+      ticket_id:
+        type: integer
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
   github_com_company_smartticket_internal_models.Attachment:
     properties:
       content_type:
@@ -588,6 +616,11 @@ definitions:
         $ref: '#/definitions/github_com_company_smartticket_internal_server.MetaInfo'
       success:
         type: boolean
+    type: object
+  internal_aiteam.reviewRequest:
+    properties:
+      draft:
+        type: string
     type: object
   internal_apikey.createReq:
     properties:
@@ -4516,6 +4549,221 @@ paths:
       summary: Update a ticket
       tags:
       - tickets
+  /api/v1/tickets/{id}/ai/draft:
+    post:
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_models.AISuggestion'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Run AI Drafter on a ticket
+      tags:
+      - ai
+  /api/v1/tickets/{id}/ai/research:
+    post:
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_models.AISuggestion'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Run AI Researcher on a ticket
+      tags:
+      - ai
+  /api/v1/tickets/{id}/ai/review:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Draft to review
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_aiteam.reviewRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_models.AISuggestion'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "503":
+          description: Service Unavailable
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Run AI Reviewer on a ticket draft
+      tags:
+      - ai
+  /api/v1/tickets/{id}/ai/suggestions:
+    get:
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List AI suggestions for a ticket
+      tags:
+      - ai
+  /api/v1/tickets/{id}/ai/suggestions/{sid}/adopt:
+    post:
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Suggestion ID
+        in: path
+        name: sid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Adopt an AI suggestion
+      tags:
+      - ai
+  /api/v1/tickets/{id}/ai/suggestions/{sid}/dismiss:
+    post:
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Suggestion ID
+        in: path
+        name: sid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Dismiss an AI suggestion
+      tags:
+      - ai
   /api/v1/tickets/{id}/assign:
     post:
       consumes:
