@@ -811,6 +811,17 @@ func (s *Server) setupRoutes() {
 				adminKeys.DELETE("/:id", apiKeyHandlers.Revoke)
 			}
 
+			webhookHandlers := webhook.NewHandlers(s.webhookSvc)
+			adminWebhooks := protected.Group("/admin/webhooks")
+			adminWebhooks.Use(s.adminMiddleware())
+			{
+				adminWebhooks.GET("", webhookHandlers.List)
+				adminWebhooks.POST("", webhookHandlers.Create)
+				adminWebhooks.DELETE("/:id", webhookHandlers.Delete)
+				adminWebhooks.GET("/:id/deliveries", webhookHandlers.Deliveries)
+				adminWebhooks.POST("/:id/test", webhookHandlers.Test)
+			}
+
 			// LLM provider management routes (admin-only).
 			if llmHandlers != nil {
 				llmGroup := protected.Group("/llm/providers")

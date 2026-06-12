@@ -82,3 +82,12 @@ func contains(xs []string, x string) bool {
 	}
 	return false
 }
+
+func jsonUnmarshal(s string, v any) error { return json.Unmarshal([]byte(s), v) }
+
+// EnqueueTo writes a pending delivery for a single webhook regardless of its
+// event subscription (used by the Test ping).
+func (s *Service) EnqueueTo(webhookID uint, eventType, payload string) error {
+	d := models.WebhookDelivery{WebhookID: webhookID, EventType: eventType, Payload: payload, Status: "pending"}
+	return s.db.Create(&d).Error
+}
