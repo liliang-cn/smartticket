@@ -25,6 +25,18 @@ type whView struct {
 	Active bool     `json:"active"`
 }
 
+// Create registers a new webhook endpoint.
+// @Summary Create webhook
+// @Description Register a new outbound webhook. Returns the webhook object and a one-time HMAC signing secret.
+// @Tags webhooks
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body createReq true "Webhook creation parameters"
+// @Success 201 {object} map[string]interface{} "webhook object and HMAC secret (shown once)"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/webhooks [post]
 func (h *Handlers) Create(c *gin.Context) {
 	var req createReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -42,6 +54,15 @@ func (h *Handlers) Create(c *gin.Context) {
 	})
 }
 
+// List returns all registered webhooks.
+// @Summary List webhooks
+// @Description List all registered outbound webhook endpoints.
+// @Tags webhooks
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{} "List of webhook views"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/webhooks [get]
 func (h *Handlers) List(c *gin.Context) {
 	whs, err := h.svc.List()
 	if err != nil {
@@ -57,6 +78,17 @@ func (h *Handlers) List(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"webhooks": out})
 }
 
+// Delete removes a webhook by ID.
+// @Summary Delete webhook
+// @Description Permanently delete a registered webhook endpoint. Pending deliveries are abandoned.
+// @Tags webhooks
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Webhook ID"
+// @Success 200 {object} map[string]interface{} "deleted: true"
+// @Failure 400 {object} map[string]interface{} "Invalid ID"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/webhooks/{id} [delete]
 func (h *Handlers) Delete(c *gin.Context) {
 	id := parseID(c.Param("id"))
 	if id == 0 {
@@ -70,6 +102,16 @@ func (h *Handlers) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"deleted": true})
 }
 
+// Deliveries returns recent delivery attempts for a webhook.
+// @Summary List webhook deliveries
+// @Description Return the most recent delivery attempts (up to 100) for a given webhook, including status codes and response bodies.
+// @Tags webhooks
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Webhook ID"
+// @Success 200 {object} map[string]interface{} "List of delivery records"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/webhooks/{id}/deliveries [get]
 func (h *Handlers) Deliveries(c *gin.Context) {
 	id := parseID(c.Param("id"))
 	ds, err := h.svc.Deliveries(id, 100)
@@ -81,6 +123,15 @@ func (h *Handlers) Deliveries(c *gin.Context) {
 }
 
 // Test enqueues a synthetic ping delivery so the admin can verify connectivity.
+// @Summary Test webhook
+// @Description Enqueue a synthetic "ping" event to the webhook so the admin can verify the endpoint is reachable.
+// @Tags webhooks
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Webhook ID"
+// @Success 200 {object} map[string]interface{} "queued: true"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/webhooks/{id}/test [post]
 func (h *Handlers) Test(c *gin.Context) {
 	id := parseID(c.Param("id"))
 	if err := h.svc.EnqueueTo(id, "ping", `{"event":"ping"}`); err != nil {

@@ -1,6 +1,8 @@
 definitions:
   github_com_company_smartticket_internal_auth.UserInfo:
     properties:
+      customer_id:
+        type: integer
       email:
         type: string
       first_name:
@@ -399,6 +401,8 @@ definitions:
     type: object
   github_com_company_smartticket_internal_models.Ticket:
     properties:
+      assigned_team_id:
+        type: integer
       assigned_to:
         type: integer
       assigned_user:
@@ -408,6 +412,11 @@ definitions:
           $ref: '#/definitions/github_com_company_smartticket_internal_models.Attachment'
         type: array
       category:
+        type: string
+      channel:
+        description: Parity fields — added together to avoid repeat migrations.
+        type: string
+      conversation_token:
         type: string
       created_at:
         type: string
@@ -428,6 +437,8 @@ definitions:
         type: integer
       is_deleted:
         type: boolean
+      merged_into_id:
+        type: integer
       messages:
         items:
           $ref: '#/definitions/github_com_company_smartticket_internal_models.Message'
@@ -459,6 +470,8 @@ definitions:
         type: string
       status:
         description: open, in_progress, resolved, closed, cancelled
+        type: string
+      summary:
         type: string
       tags:
         description: JSON array
@@ -572,6 +585,19 @@ definitions:
       success:
         type: boolean
     type: object
+  internal_apikey.createReq:
+    properties:
+      expires_at:
+        description: unix seconds, optional
+        type: integer
+      name:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - name
+    - user_id
+    type: object
   internal_auth.ChangePasswordRequest:
     properties:
       confirm_password:
@@ -634,6 +660,8 @@ definitions:
     type: object
   internal_auth.UserInfo:
     properties:
+      customer_id:
+        type: integer
       email:
         type: string
       first_name:
@@ -649,6 +677,21 @@ definitions:
       role:
         type: string
       username:
+        type: string
+    type: object
+  internal_branding.UpdateRequest:
+    properties:
+      app_name:
+        type: string
+      app_subtitle:
+        type: string
+      login_subtext:
+        type: string
+      login_tagline:
+        type: string
+      primary_color:
+        type: string
+      workspace_name:
         type: string
     type: object
   internal_customer.CreateCustomerRequest:
@@ -741,6 +784,13 @@ definitions:
       type:
         type: string
     type: object
+  internal_knowledge.AskRequest:
+    properties:
+      question:
+        type: string
+      top_k:
+        type: integer
+    type: object
   internal_knowledge.CreateKnowledgeArticleRequest:
     properties:
       category:
@@ -774,6 +824,12 @@ definitions:
       title:
         maxLength: 255
         minLength: 3
+        type: string
+      visibility:
+        enum:
+        - public
+        - internal
+        - private
         type: string
     required:
     - category
@@ -822,6 +878,8 @@ definitions:
         type: integer
       view_count:
         type: integer
+      visibility:
+        type: string
     type: object
   internal_knowledge.KnowledgeArticleStatsResponse:
     properties:
@@ -856,6 +914,13 @@ definitions:
       updated_at:
         type: string
     type: object
+  internal_knowledge.SearchRequest:
+    properties:
+      query:
+        type: string
+      top_k:
+        type: integer
+    type: object
   internal_knowledge.UpdateKnowledgeArticleRequest:
     properties:
       category:
@@ -888,6 +953,12 @@ definitions:
       title:
         maxLength: 255
         minLength: 3
+        type: string
+      visibility:
+        enum:
+        - public
+        - internal
+        - private
         type: string
     type: object
   internal_product.CreateProductRequest:
@@ -1339,6 +1410,9 @@ definitions:
       category:
         maxLength: 100
         type: string
+      channel:
+        description: e.g. web_widget; empty → default 'web'
+        type: string
       custom_fields:
         description: JSON object
         type: string
@@ -1404,6 +1478,10 @@ definitions:
       custom_fields:
         additionalProperties: true
         type: object
+      customer_id:
+        type: integer
+      customer_name:
+        type: string
       description:
         type: string
       due_date:
@@ -1523,7 +1601,7 @@ definitions:
       customer_id:
         description: |-
           CustomerID links the user to a customer organization. Required for the
-          "customer" role; forbidden for team roles (admin/engineer).
+          "customer" role; forbidden for every other (team) role.
         example: 1
         type: integer
       email:
@@ -1550,13 +1628,10 @@ definitions:
         example: '{"timezone": "UTC", "language": "en"}'
         type: string
       role:
-        enum:
-        - admin
-        - engineer
-        - support
-        - customer
-        - sales
-        example: customer
+        description: |-
+          Role must be one of the roles configured in RBAC (validated against the
+          roles table at create time); it is NOT a fixed enum.
+        example: engineer
         type: string
       username:
         example: johndoe
@@ -1604,13 +1679,7 @@ definitions:
         example: '{"timezone": "UTC", "language": "en"}'
         type: string
       role:
-        enum:
-        - admin
-        - engineer
-        - support
-        - customer
-        - sales
-        example: customer
+        example: engineer
         type: string
       username:
         example: johndoe
@@ -1629,9 +1698,114 @@ definitions:
       success:
         type: boolean
     type: object
+  internal_webhook.createReq:
+    properties:
+      events:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      url:
+        type: string
+    required:
+    - events
+    - name
+    - url
+    type: object
 info:
   contact: {}
 paths:
+  /api/v1/admin/api-keys:
+    get:
+      description: List all API keys. Returns metadata only; the plaintext key is
+        never included.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of API key views
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List API keys
+      tags:
+      - api-keys
+    post:
+      consumes:
+      - application/json
+      description: Issue a new API key for the given user. The plaintext key is returned
+        ONCE in the response and is not recoverable afterwards.
+      parameters:
+      - description: API key creation parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_apikey.createReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: key (plaintext, shown once) and api_key object
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create API key
+      tags:
+      - api-keys
+  /api/v1/admin/api-keys/{id}:
+    delete:
+      description: Permanently deactivate an API key. The key will no longer authenticate
+        requests.
+      parameters:
+      - description: API key ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'revoked: true'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Revoke API key
+      tags:
+      - api-keys
   /api/v1/admin/permissions:
     get:
       description: Retrieves a list of all available system permissions
@@ -1790,6 +1964,176 @@ paths:
       summary: Create a new role
       tags:
       - roles
+  /api/v1/admin/webhooks:
+    get:
+      description: List all registered outbound webhook endpoints.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of webhook views
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List webhooks
+      tags:
+      - webhooks
+    post:
+      consumes:
+      - application/json
+      description: Register a new outbound webhook. Returns the webhook object and
+        a one-time HMAC signing secret.
+      parameters:
+      - description: Webhook creation parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_webhook.createReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: webhook object and HMAC secret (shown once)
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create webhook
+      tags:
+      - webhooks
+  /api/v1/admin/webhooks/{id}:
+    delete:
+      description: Permanently delete a registered webhook endpoint. Pending deliveries
+        are abandoned.
+      parameters:
+      - description: Webhook ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'deleted: true'
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete webhook
+      tags:
+      - webhooks
+  /api/v1/admin/webhooks/{id}/deliveries:
+    get:
+      description: Return the most recent delivery attempts (up to 100) for a given
+        webhook, including status codes and response bodies.
+      parameters:
+      - description: Webhook ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of delivery records
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List webhook deliveries
+      tags:
+      - webhooks
+  /api/v1/admin/webhooks/{id}/test:
+    post:
+      description: Enqueue a synthetic "ping" event to the webhook so the admin can
+        verify the endpoint is reachable.
+      parameters:
+      - description: Webhook ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'queued: true'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Test webhook
+      tags:
+      - webhooks
+  /api/v1/attachments/{id}/download:
+    get:
+      description: Downloads an attachment's file. Customer-isolated.
+      parameters:
+      - description: Attachment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Download an attachment
+      tags:
+      - tickets
   /api/v1/auth/change-password:
     post:
       consumes:
@@ -1894,7 +2238,7 @@ paths:
       - auth
   /api/v1/auth/me:
     get:
-      description: Get basic information about the currently authenticated user
+      description: Get full information about the currently authenticated user
       parameters:
       - description: Bearer token
         in: header
@@ -1910,6 +2254,10 @@ paths:
             $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
       security:
@@ -2681,6 +3029,86 @@ paths:
       summary: Get knowledge article statistics
       tags:
       - knowledge
+  /api/v1/knowledge/ask:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Question
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_knowledge.AskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Ask the knowledge base assistant (RAG)
+      tags:
+      - knowledge
+  /api/v1/knowledge/reindex:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Re-index the knowledge base (admin)
+      tags:
+      - knowledge
+  /api/v1/knowledge/search:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Search query
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_knowledge.SearchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_server.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Semantic search over knowledge base
+      tags:
+      - knowledge
   /api/v1/products:
     get:
       description: Retrieves a paginated list of products with optional filtering
@@ -3382,6 +3810,90 @@ paths:
       summary: Deactivate a service
       tags:
       - services
+  /api/v1/settings/branding:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get branding configuration
+      tags:
+      - settings
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Branding fields
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_branding.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update branding configuration
+      tags:
+      - settings
+  /api/v1/settings/branding/logo:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete branding logo
+      tags:
+      - settings
+    get:
+      produces:
+      - image/png
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: Get branding logo image
+      tags:
+      - settings
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: Logo image
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload branding logo
+      tags:
+      - settings
   /api/v1/sla/rules:
     post:
       consumes:
@@ -3898,6 +4410,89 @@ paths:
       summary: Assign a ticket
       tags:
       - tickets
+  /api/v1/tickets/{id}/attachments:
+    get:
+      description: Lists attachments on a ticket. Customer-isolated.
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List ticket attachments
+      tags:
+      - tickets
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a file attachment to a ticket (multipart form field "file").
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_company_smartticket_internal_errors.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload a ticket attachment
+      tags:
+      - tickets
+  /api/v1/tickets/{id}/events:
+    get:
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a ticket's activity log
+      tags:
+      - tickets
   /api/v1/tickets/{id}/messages:
     get:
       description: Lists messages on a ticket. Customers see only their own customer's
@@ -3965,6 +4560,27 @@ paths:
       security:
       - BearerAuth: []
       summary: Add ticket message
+      tags:
+      - tickets
+  /api/v1/tickets/{id}/sla:
+    get:
+      parameters:
+      - description: Ticket ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get a ticket's SLA policy
       tags:
       - tickets
   /api/v1/tickets/my:

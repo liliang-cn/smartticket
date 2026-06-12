@@ -37,8 +37,18 @@ func toUnix(t *time.Time) *int64 {
 	return &u
 }
 
-// Create issues a key. The plaintext is in the response ONCE; it is never
-// retrievable again.
+// Create issues a new API key.
+// @Summary Create API key
+// @Description Issue a new API key for the given user. The plaintext key is returned ONCE in the response and is not recoverable afterwards.
+// @Tags api-keys
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body createReq true "API key creation parameters"
+// @Success 201 {object} map[string]interface{} "key (plaintext, shown once) and api_key object"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/api-keys [post]
 func (h *Handlers) Create(c *gin.Context) {
 	var req createReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -63,6 +73,15 @@ func (h *Handlers) Create(c *gin.Context) {
 	})
 }
 
+// List returns all active API keys (key prefix only — no secrets).
+// @Summary List API keys
+// @Description List all API keys. Returns metadata only; the plaintext key is never included.
+// @Tags api-keys
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{} "List of API key views"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/api-keys [get]
 func (h *Handlers) List(c *gin.Context) {
 	keys, err := h.svc.List()
 	if err != nil {
@@ -79,6 +98,17 @@ func (h *Handlers) List(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"api_keys": views})
 }
 
+// Revoke deactivates an API key by ID.
+// @Summary Revoke API key
+// @Description Permanently deactivate an API key. The key will no longer authenticate requests.
+// @Tags api-keys
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "API key ID"
+// @Success 200 {object} map[string]interface{} "revoked: true"
+// @Failure 400 {object} map[string]interface{} "Invalid ID"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/api-keys/{id} [delete]
 func (h *Handlers) Revoke(c *gin.Context) {
 	var id uint
 	if _, err := fmt.Sscanf(c.Param("id"), "%d", &id); err != nil || id == 0 {
