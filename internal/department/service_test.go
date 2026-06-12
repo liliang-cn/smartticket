@@ -3,6 +3,7 @@ package department
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	sqlite "github.com/company/smartticket/internal/database/moderncsqlite"
 	"github.com/company/smartticket/internal/models"
@@ -83,4 +84,31 @@ func TestDeptScopeForManagerSubtree(t *testing.T) {
 	scope2, err := svc.DeptScopeFor(plain.ID)
 	require.NoError(t, err)
 	require.Empty(t, scope2)
+}
+
+// A pre-existing parent cycle in the data (e.g. raw import bypassing the guard)
+// must not hang SupervisorOf — it must terminate and return nil.
+func TestSupervisorOfTerminatesOnCyclicData(t *testing.T) {
+	db := newTestDB(t)
+	svc := NewService(db)
+	a, _ := svc.Create(CreateInput{Name: "a"})
+	b, _ := svc.Create(CreateInput{Name: "b", ParentID: &a.ID})
+	// Force a cycle a->b->a directly in the DB (no manager anywhere).
+	require.NoError(t, db.Model(&models.Department{}).Where("id = ?", a.ID).Update("parent_id", b.ID).Error)
+
+	u := staff(t, db, "victim")
+	require.NoError(t, db.Model(&models.User{}).Where("id = ?", u.ID).Update("department_id", a.ID).Error)
+
+	done := make(chan struct{})
+	go func() {
+		sup, err := svc.SupervisorOf(u.ID)
+		require.NoError(t, err)
+		require.Nil(t, sup)
+		close(done)
+	}()
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("SupervisorOf hung on cyclic data")
+	}
 }

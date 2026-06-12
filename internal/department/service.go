@@ -79,11 +79,18 @@ func (s *Service) guardParent(id, parentID uint) error {
 	if id != 0 && parentID == id {
 		return ErrCycle
 	}
+	seen := map[uint]bool{}
 	cur := &parentID
 	for cur != nil {
 		if id != 0 && *cur == id {
 			return ErrCycle
 		}
+		if seen[*cur] {
+			// Pre-existing cycle in the ancestor chain (e.g. from raw/imported
+			// data). Treat as a cycle rather than looping forever.
+			return ErrCycle
+		}
+		seen[*cur] = true
 		var node models.Department
 		if err := s.db.Select("id", "parent_id").First(&node, *cur).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -108,7 +115,12 @@ func (s *Service) SupervisorOf(userID uint) (*models.User, error) {
 		return nil, nil
 	}
 	deptID := *u.DepartmentID
+	seen := map[uint]bool{}
 	for {
+		if seen[deptID] {
+			return nil, nil // cyclic data — stop rather than loop forever
+		}
+		seen[deptID] = true
 		var d models.Department
 		if err := s.db.First(&d, deptID).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {

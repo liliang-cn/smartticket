@@ -72,17 +72,44 @@ func (s *Service) departmentIsolation() bool {
 //   assigned to users within the manager's department subtree.
 // Manager DeptScope is enriched via deptScoper when not already set.
 func (s *Service) scopeToActor(q *gorm.DB, actor authz.Actor) *gorm.DB {
-	// Enrich a manager actor with their department subtree (best-effort).
-	if s.deptScoper != nil && actor.IsTeam() && !actor.IsAdmin() && len(actor.DeptScope) == 0 {
-		if scope, err := s.deptScoper.DeptScopeFor(actor.UserID); err == nil {
-			actor.DeptScope = scope
-		}
+	isolation := s.departmentIsolation()
+	// Under isolation, a non-admin staff actor's visible department set is their
+	// managed subtree (manager) UNION their own department (member) — so a plain
+	// member still sees their own department's tickets per spec, and a manager
+	// sees their subtree. Only computed when isolation is on (avoids extra queries).
+	if isolation && actor.IsTeam() && !actor.IsAdmin() {
+		actor.DeptScope = s.effectiveDeptScope(actor)
 	}
 	return authz.Scope(s.db, q, actor, authz.ScopeOptions{
 		CustomerColumn:      "customer_id",
 		AssigneeColumn:      "assigned_to",
-		DepartmentIsolation: s.departmentIsolation(),
+		DepartmentIsolation: isolation,
 	})
+}
+
+// effectiveDeptScope returns the deduped union of the actor's managed subtree
+// (via deptScoper) and their own department, used for department-isolation scoping.
+func (s *Service) effectiveDeptScope(actor authz.Actor) []uint {
+	set := map[uint]bool{}
+	for _, id := range actor.DeptScope {
+		set[id] = true
+	}
+	if s.deptScoper != nil {
+		if scope, err := s.deptScoper.DeptScopeFor(actor.UserID); err == nil {
+			for _, id := range scope {
+				set[id] = true
+			}
+		}
+	}
+	var u models.User
+	if err := s.db.Select("department_id").First(&u, actor.UserID).Error; err == nil && u.DepartmentID != nil {
+		set[*u.DepartmentID] = true
+	}
+	out := make([]uint, 0, len(set))
+	for id := range set {
+		out = append(out, id)
+	}
+	return out
 }
 
 // NewService creates a new ticket service.
@@ -376,12 +403,8 @@ func (s *Service) ListTicketsForDepartment(actor authz.Actor, page, pageSize int
 		pageSize = 100
 	}
 
-	// Enrich actor with their managed department subtree.
-	if s.deptScoper != nil && len(actor.DeptScope) == 0 {
-		if scope, err := s.deptScoper.DeptScopeFor(actor.UserID); err == nil {
-			actor.DeptScope = scope
-		}
-	}
+	// Enrich actor with their managed subtree UNION their own department.
+	actor.DeptScope = s.effectiveDeptScope(actor)
 
 	offset := (page - 1) * pageSize
 

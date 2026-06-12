@@ -227,6 +227,28 @@ func TestDeptScope_AdminSeesAll(t *testing.T) {
 	})
 }
 
+// (f) Under isolation, a plain member (manages no department) still sees their
+// OWN department's tickets — not nothing. Regression for the empty-DeptScope bug.
+func TestDeptScope_IsolationOn_MemberSeesOwnDepartment(t *testing.T) {
+	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
+		f := setupDeptFixture(t, db)
+		// agentA manages no department (deptScoper returns empty) but belongs to deptA.
+		f.service.SetDeptScoper(fakeDeptScoper{scope: nil})
+		f.service.SetDepartmentIsolation(func() bool { return true })
+
+		memberActor := authz.Actor{UserID: f.agentA, Role: "engineer"} // belongs to deptA
+		list, err := f.service.ListTickets(memberActor, 1, 100, map[string]interface{}{})
+		require.NoError(t, err)
+
+		ids := make(map[uint]bool)
+		for _, tr := range list.Data {
+			ids[tr.ID] = true
+		}
+		assert.True(t, ids[f.ticketA], "member should see their own department's tickets")
+		assert.False(t, ids[f.ticketB], "member must NOT see another department's tickets")
+	})
+}
+
 // (e) Customer isolation regression: customer actor sees only their customer's tickets.
 func TestDeptScope_CustomerIsolationRegression(t *testing.T) {
 	testutils.WithTestDatabase(t, func(t *testing.T, db *database.Database) {
