@@ -4,6 +4,7 @@ import (
 	"context"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/company/smartticket/internal/automation"
 	"github.com/company/smartticket/internal/database"
@@ -134,7 +135,7 @@ func TestOnMessageCreated_AutoReply(t *testing.T) {
 			u.AutoReplyConfidence = &conf
 		})
 
-		resolver.OnMessageCreated(automation.Event{
+		resolver.processMessageCreated(automation.Event{
 			Type:     automation.EventMessageCreated,
 			TicketID: 1,
 			Source:   "", // human origin
@@ -157,7 +158,7 @@ func TestOnMessageCreated_LowConfidenceSuggests(t *testing.T) {
 			u.AutoReplyConfidence = &conf
 		})
 
-		resolver.OnMessageCreated(automation.Event{
+		resolver.processMessageCreated(automation.Event{
 			Type:     automation.EventMessageCreated,
 			TicketID: 1,
 			Source:   "",
@@ -176,7 +177,7 @@ func TestOnMessageCreated_AutoReplyDisabledSuggests(t *testing.T) {
 		// yield a suggestion (not an auto-post).
 		resolver, actions := buildResolver(t, db, highConfidenceJSON, nil)
 
-		resolver.OnMessageCreated(automation.Event{
+		resolver.processMessageCreated(automation.Event{
 			Type:     automation.EventMessageCreated,
 			TicketID: 1,
 			Source:   "",
@@ -202,7 +203,7 @@ func TestOnMessageCreated_AtCapHandsToHuman(t *testing.T) {
 		// Simulate that 2 AI replies already exist (== cap).
 		actions.aiReplyCount = 2
 
-		resolver.OnMessageCreated(automation.Event{
+		resolver.processMessageCreated(automation.Event{
 			Type:     automation.EventMessageCreated,
 			TicketID: 1,
 			Source:   "",
@@ -222,7 +223,7 @@ func TestOnMessageCreated_GloballyDisabled(t *testing.T) {
 			u.Enabled = &off
 		})
 
-		resolver.OnMessageCreated(automation.Event{
+		resolver.processMessageCreated(automation.Event{
 			Type:     automation.EventMessageCreated,
 			TicketID: 1,
 			Source:   "",
@@ -244,7 +245,8 @@ func TestOnMessageCreated_LoopGuard(t *testing.T) {
 			u.AutoReplyConfidence = &conf
 		})
 
-		// Simulate an AI-originated event.
+		// Simulate an AI-originated event. The loop guard lives in OnMessageCreated
+		// (returns before spawning the async worker), so no reply is ever posted.
 		resolver.OnMessageCreated(automation.Event{
 			Type:     automation.EventMessageCreated,
 			TicketID: 1,
@@ -267,7 +269,7 @@ func TestOnMessageCreated_NeedsClarificationSuggests(t *testing.T) {
 			u.AutoReplyConfidence = &conf
 		})
 
-		resolver.OnMessageCreated(automation.Event{
+		resolver.processMessageCreated(automation.Event{
 			Type:     automation.EventMessageCreated,
 			TicketID: 1,
 			Source:   "",
@@ -293,7 +295,7 @@ func TestOnMessageCreated_NotCustomerWaiting(t *testing.T) {
 			return SuggestInput{Title: "test"}, false, nil
 		}
 
-		resolver.OnMessageCreated(automation.Event{
+		resolver.processMessageCreated(automation.Event{
 			Type:     automation.EventMessageCreated,
 			TicketID: 1,
 			Source:   "",
@@ -358,7 +360,7 @@ func TestOnTicketCreated_Classify(t *testing.T) {
 			u.AutoClassify = &on
 		})
 
-		resolver.OnTicketCreated(automation.Event{
+		resolver.processTicketCreated(automation.Event{
 			Type:     automation.EventTicketCreated,
 			TicketID: 10,
 		})
@@ -380,7 +382,7 @@ func TestOnTicketCreated_LoopSourceEmpty(t *testing.T) {
 			u.AutoReplyConfidence = &conf
 		})
 
-		resolver.OnTicketCreated(automation.Event{
+		resolver.processTicketCreated(automation.Event{
 			Type:     automation.EventTicketCreated,
 			TicketID: 5,
 			Source:   "",
@@ -412,7 +414,10 @@ func TestAutoResolver_Subscribe_WiresHandlers(t *testing.T) {
 			TicketID: 99,
 			Source:   "",
 		})
-		require.Len(t, actions.postedReplies, 1)
+		// Handlers now run async (AI must never block the request); wait for it.
+		require.Eventually(t, func() bool {
+			return len(actions.postedReplies) == 1
+		}, 2*time.Second, 10*time.Millisecond)
 	})
 }
 
@@ -437,7 +442,7 @@ func TestOnTicketCreated_SuggestRepliesFalse_NoAutoReply(t *testing.T) {
 			u.AutoClassify = &on     // classification should still fire
 		})
 
-		resolver.OnTicketCreated(automation.Event{
+		resolver.processTicketCreated(automation.Event{
 			Type:     automation.EventTicketCreated,
 			TicketID: 20,
 			Source:   "",

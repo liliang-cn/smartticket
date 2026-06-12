@@ -81,39 +81,45 @@ func (r *AutoResolver) Subscribe(bus *automation.Bus) {
 //   - AutoClassify is controlled solely by set.AutoClassify.
 //   - Auto-reply (handleCustomerMessage) requires set.SuggestReplies, keeping
 //     it consistent with the OnMessageCreated gate.
+// OnTicketCreated dispatches the AI work ASYNCHRONOUSLY so it never blocks the
+// ticket-create request: the event bus runs handlers synchronously in the
+// caller's goroutine, so a slow (or unreachable, timing-out) LLM call would
+// otherwise stall the HTTP response. recover() keeps a panic from crashing the
+// single-binary server. The synchronous core lives in processTicketCreated.
 func (r *AutoResolver) OnTicketCreated(e automation.Event) {
-	// AI runs ASYNCHRONOUSLY so it never blocks the ticket-create request: the
-	// event bus dispatches handlers synchronously in the caller's goroutine, so a
-	// slow (or unreachable, timing-out) LLM call would otherwise stall the HTTP
-	// response. recover() keeps a panic from crashing the single-binary server.
 	go func() {
 		defer func() { _ = recover() }()
-		set, err := r.settings.Get()
-		if err != nil || !set.Enabled {
-			return
-		}
-
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-		defer cancel()
-
-		if set.AutoClassify {
-			r.classifyTicket(ctx, e.TicketID)
-		}
-
-		// Auto-reply requires set.SuggestReplies; classification above is independent.
-		if !set.SuggestReplies {
-			return
-		}
-
-		// Treat ticket creation like a new customer message so auto-reply can
-		// respond to the opening description. Empty Source so the guard passes.
-		r.handleCustomerMessage(ctx, set, automation.Event{
-			Type:     automation.EventMessageCreated,
-			TicketID: e.TicketID,
-			ActorID:  e.ActorID,
-			Source:   "", // human-originated ticket creation
-		})
+		r.processTicketCreated(e)
 	}()
+}
+
+// processTicketCreated is the synchronous core (classify + optional auto-reply).
+func (r *AutoResolver) processTicketCreated(e automation.Event) {
+	set, err := r.settings.Get()
+	if err != nil || !set.Enabled {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	if set.AutoClassify {
+		r.classifyTicket(ctx, e.TicketID)
+	}
+
+	// Auto-reply requires set.SuggestReplies; classification above is independent.
+	if !set.SuggestReplies {
+		return
+	}
+
+	// Treat ticket creation like a new customer message so auto-reply can
+	// respond to the opening description. Empty Source so the guard passes.
+	r.handleCustomerMessage(ctx, set, automation.Event{
+		Type:     automation.EventMessageCreated,
+		TicketID: e.TicketID,
+		ActorID:  e.ActorID,
+		Source:   "", // human-originated ticket creation
+	})
 }
 
 // OnMessageCreated handles new-message events.
@@ -125,18 +131,22 @@ func (r *AutoResolver) OnMessageCreated(e automation.Event) {
 	if e.Source != "" {
 		return // AI/automation message — ignore to prevent loops
 	}
-
-	// Async (+recover, +timeout): never block the message-create request on AI.
+	// Async (+recover): never block the message-create request on AI.
 	go func() {
 		defer func() { _ = recover() }()
-		set, err := r.settings.Get()
-		if err != nil || !set.Enabled || !set.SuggestReplies {
-			return
-		}
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
-		defer cancel()
-		r.handleCustomerMessage(ctx, set, e)
+		r.processMessageCreated(e)
 	}()
+}
+
+// processMessageCreated is the synchronous core of OnMessageCreated.
+func (r *AutoResolver) processMessageCreated(e automation.Event) {
+	set, err := r.settings.Get()
+	if err != nil || !set.Enabled || !set.SuggestReplies {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	r.handleCustomerMessage(ctx, set, e)
 }
 
 // OnTicketResolved handles ticket-resolved events and optionally summarizes.
