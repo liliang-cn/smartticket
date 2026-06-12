@@ -269,6 +269,7 @@ func (s *Server) setupRoutes() {
 	brandingService := branding.NewService(s.db.DB, s.config.Storage.DataPath)
 	teamService := team.NewService(s.db.DB)
 	departmentService := department.NewService(s.db.DB)
+	ticketService.SetSupervisors(departmentService)
 	macroService := macro.NewService(s.db.DB)
 	surveyService := survey.NewService(s.db.DB)
 	analyticsService := analytics.NewService(s.db.DB, s.config.JWT.Secret)

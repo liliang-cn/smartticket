@@ -36,15 +36,21 @@ func scopeToActor(q *gorm.DB, actor authz.Actor) *gorm.DB {
 	return q
 }
 
+// SupervisorResolver resolves the manager a user reports to (see department svc).
+type SupervisorResolver interface {
+	SupervisorOf(userID uint) (*models.User, error)
+}
+
 // Service provides ticket management business logic.
 type Service struct {
 	db            *gorm.DB
 	slaCalculator *sla.Calculator
-	notifier      Notifier       // optional; nil = no-op (see SetNotifier)
-	mailer        Mailer         // optional; nil = no-op (see SetMailer)
-	suggester     ReplySuggester // optional; nil = AI suggestions unavailable
-	bus           *automation.Bus  // optional; nil = no domain events
-	hub           *realtime.Hub    // optional; nil = no ws broadcasts
+	notifier      Notifier          // optional; nil = no-op (see SetNotifier)
+	mailer        Mailer            // optional; nil = no-op (see SetMailer)
+	suggester     ReplySuggester    // optional; nil = AI suggestions unavailable
+	bus           *automation.Bus   // optional; nil = no domain events
+	hub           *realtime.Hub     // optional; nil = no ws broadcasts
+	supervisors   SupervisorResolver // optional; nil = no supervisor notifications
 }
 
 // SetBus wires the domain event bus. Safe to call after NewService.
@@ -52,6 +58,9 @@ func (s *Service) SetBus(b *automation.Bus) { s.bus = b }
 
 // SetHub wires the realtime hub for WebSocket broadcasts. Safe to call after NewService.
 func (s *Service) SetHub(h *realtime.Hub) { s.hub = h }
+
+// SetSupervisors injects the supervisor resolver used to notify a manager on escalation.
+func (s *Service) SetSupervisors(r SupervisorResolver) { s.supervisors = r }
 
 // NewService creates a new ticket service.
 func NewService(db *gorm.DB, slaCalculator *sla.Calculator) *Service {
@@ -1340,7 +1349,8 @@ func (s *Service) AssignAutomation(ticketID uint, userID, teamID *uint) error {
 	return nil
 }
 
-// EscalateAutomation bumps the ticket priority one rank (e.g. medium → high).
+// EscalateAutomation bumps the ticket priority one rank (e.g. medium → high) and
+// best-effort notifies the assignee's supervisor so escalation reaches a person.
 // Publishes EventTicketUpdated with Source:"automation".
 func (s *Service) EscalateAutomation(ticketID uint) error {
 	escalate := map[string]string{
@@ -1352,9 +1362,18 @@ func (s *Service) EscalateAutomation(ticketID uint) error {
 	if err := s.db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
 		return fmt.Errorf("EscalateAutomation: load: %w", err)
 	}
-	next, ok := escalate[tkt.Priority]
-	if !ok {
-		return nil // already critical or unknown — no-op
+	if next, ok := escalate[tkt.Priority]; ok {
+		if err := s.SetFieldAutomation(ticketID, "priority", next); err != nil {
+			return err
+		}
 	}
-	return s.SetFieldAutomation(ticketID, "priority", next)
+	// Best-effort: notify the assignee's supervisor so escalation reaches a person.
+	if s.supervisors != nil && tkt.AssignedTo != nil && s.notifier != nil {
+		if sup, err := s.supervisors.SupervisorOf(*tkt.AssignedTo); err == nil && sup != nil {
+			body := fmt.Sprintf("Ticket %s was escalated and needs your attention.", tkt.TicketNumber)
+			s.notifier.Notify(context.Background(), []uint{sup.ID}, "ticket_escalated",
+				"Ticket escalated", body, "ticket", tkt.ID)
+		}
+	}
+	return nil
 }
