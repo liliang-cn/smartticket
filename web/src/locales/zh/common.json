@@ -72,12 +72,13 @@
       "low": "低",
       "medium": "中",
       "high": "高",
-      "urgent": "紧急"
+      "critical": "紧急"
     },
     "severity": {
       "minor": "轻微",
       "major": "严重",
-      "critical": "致命"
+      "critical": "致命",
+      "trivial": "轻微"
     },
     "sla_status": {
       "within": "符合 SLA",

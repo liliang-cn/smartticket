@@ -72,12 +72,13 @@
       "low": "Niedrig",
       "medium": "Mittel",
       "high": "Hoch",
-      "urgent": "Dringend"
+      "critical": "Kritisch"
     },
     "severity": {
       "minor": "Gering",
       "major": "Hoch",
-      "critical": "Kritisch"
+      "critical": "Kritisch",
+      "trivial": "Geringfügig"
     },
     "sla_status": {
       "within": "Innerhalb SLA",

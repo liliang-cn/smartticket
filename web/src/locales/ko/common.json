@@ -72,12 +72,13 @@
       "low": "낮음",
       "medium": "보통",
       "high": "높음",
-      "urgent": "긴급"
+      "critical": "긴급"
     },
     "severity": {
       "minor": "경미",
       "major": "심각",
-      "critical": "치명적"
+      "critical": "치명적",
+      "trivial": "경미"
     },
     "sla_status": {
       "within": "SLA 준수",

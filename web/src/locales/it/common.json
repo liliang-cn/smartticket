@@ -72,12 +72,13 @@
       "low": "Bassa",
       "medium": "Media",
       "high": "Alta",
-      "urgent": "Urgente"
+      "critical": "Critica"
     },
     "severity": {
       "minor": "Lieve",
       "major": "Grave",
-      "critical": "Critica"
+      "critical": "Critica",
+      "trivial": "Banale"
     },
     "sla_status": {
       "within": "Entro SLA",

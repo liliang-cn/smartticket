@@ -48,7 +48,7 @@ import { relativeTime } from "@/lib/utils";
 import {
   STATUS_OPTIONS,
   PRIORITY_OPTIONS,
-  PriorityBadge,
+  SeverityBadge,
 } from "@/components/ticket-meta";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1154,7 +1154,7 @@ export function TicketDetailPage() {
           <Card className="p-5">
             <MetaRow
               label={t("detail.meta.label_severity")}
-              value={<PriorityBadge priority={ticket.severity as never} />}
+              value={<SeverityBadge severity={ticket.severity} />}
             />
             <Separator />
             <MetaRow

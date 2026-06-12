@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
-import type { TicketPriority, TicketStatus } from "@/lib/types";
+import type { TicketPriority, TicketSeverity, TicketStatus } from "@/lib/types";
 
 const STATUS_TONE: Record<TicketStatus, Parameters<typeof Badge>[0]["tone"]> = {
   open: "amber",
@@ -36,6 +36,22 @@ export function PriorityBadge({ priority }: { priority: TicketPriority }) {
   return (
     <Badge tone={PRIORITY_TONE[priority] ?? "neutral"} className="uppercase">
       {t(`enums.priority.${priority}`)}
+    </Badge>
+  );
+}
+
+const SEVERITY_TONE: Record<TicketSeverity, Parameters<typeof Badge>[0]["tone"]> = {
+  trivial: "slate",
+  minor: "blue",
+  major: "amber",
+  critical: "red",
+};
+
+export function SeverityBadge({ severity }: { severity: TicketSeverity }) {
+  const { t } = useTranslation("common");
+  return (
+    <Badge tone={SEVERITY_TONE[severity] ?? "neutral"} className="uppercase">
+      {t(`enums.severity.${severity}`)}
     </Badge>
   );
 }
