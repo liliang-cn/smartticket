@@ -1,6 +1,8 @@
 package models
 
 import (
+	"crypto/rand"
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -90,6 +92,21 @@ type Ticket struct {
 	MergedIntoID      *uint        `gorm:"index" json:"merged_into_id,omitempty"`
 	Messages          []Message    `gorm:"foreignKey:TicketID" json:"messages,omitempty"`
 	Attachments       []Attachment `gorm:"foreignKey:TicketID" json:"attachments,omitempty"`
+}
+
+// BeforeCreate auto-generates a unique TicketNumber if one is not already set.
+func (t *Ticket) BeforeCreate(_ *gorm.DB) error {
+	if t.TicketNumber == "" {
+		digits := make([]byte, 6)
+		if _, err := rand.Read(digits); err != nil {
+			return err
+		}
+		for i, b := range digits {
+			digits[i] = '0' + (b % 10)
+		}
+		t.TicketNumber = fmt.Sprintf("TKT-%s", string(digits))
+	}
+	return nil
 }
 
 // Message represents a ticket message.
