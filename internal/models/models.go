@@ -46,8 +46,9 @@ type User struct {
 	Preferences  string     `gorm:"type:text" json:"preferences"` // JSON string
 	// CustomerID links a customer-role user to the customer organization they
 	// belong to. Nil for team users (admin/engineer).
-	CustomerID *uint     `gorm:"index" json:"customer_id,omitempty"`
-	Customer   *Customer `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
+	CustomerID   *uint     `gorm:"index" json:"customer_id,omitempty"`
+	Customer     *Customer `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
+	DepartmentID *uint     `gorm:"index" json:"department_id,omitempty"`
 	Tickets    []Ticket  `gorm:"foreignKey:CreatedBy;references:ID" json:"tickets,omitempty"`
 	Messages   []Message `gorm:"foreignKey:UserID;references:ID" json:"messages,omitempty"`
 	Roles      []Role    `gorm:"many2many:user_roles;" json:"roles,omitempty"`
@@ -505,6 +506,20 @@ type TeamMember struct {
 
 func (Team) TableName() string       { return "teams" }
 func (TeamMember) TableName() string { return "team_members" }
+
+// Department is a node in the org reporting tree (orthogonal to Team). ParentID
+// nests it; ManagerID is the department's lead (a staff User). Used for "find
+// supervisor" escalation and manager subtree visibility.
+type Department struct {
+	BaseModel
+	Name      string      `gorm:"size:120;not null" json:"name"`
+	ParentID  *uint       `gorm:"index" json:"parent_id"`
+	Parent    *Department `gorm:"foreignKey:ParentID" json:"-"`
+	ManagerID *uint       `gorm:"index" json:"manager_id"`
+	Manager   *User       `gorm:"foreignKey:ManagerID" json:"manager,omitempty"`
+}
+
+func (Department) TableName() string { return "departments" }
 
 // SatisfactionSurvey captures a post-resolution CSAT survey for a ticket.
 // One survey per ticket: CreateForTicket is idempotent. Rating 0 means the

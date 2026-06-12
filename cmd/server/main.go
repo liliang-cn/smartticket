@@ -219,6 +219,9 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		&models.Team{},
 		&models.TeamMember{},
 
+		// Departments (org reporting tree; depends on User)
+		&models.Department{},
+
 		// Ticket relationships (merge + linking)
 		&models.TicketLink{},
 
@@ -397,6 +400,9 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		// Teams and membership (agent collaboration)
 		&models.Team{},
 		&models.TeamMember{},
+
+		// Departments (org reporting tree; depends on User)
+		&models.Department{},
 
 		// Ticket relationships (merge + linking)
 		&models.TicketLink{},
