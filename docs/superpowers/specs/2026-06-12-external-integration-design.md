@@ -25,20 +25,24 @@
 
 ### 数据模型 — `internal/models/models.go`
 
+> 实现发现:`models.APIKey` **已存在**且已注册 `AutoMigrate`,但全仓**无任何读写**(死壳),其字段偏向未选的选项 B(带 `Permissions` JSON,无 `UserID`)。本批**改形复用**它(不新建表,不考虑迁移):加 `UserID` 绑服务账号;**吊销沿用现有 `IsActive`**(置 false);`Permissions` 字段为选项 B 残留,选项 A 下不使用(留作 DB 列,代码忽略)。
+
 ```go
 type APIKey struct {
-    ID         uint
-    Name       string  // 人类可读标签,如 "Zapier 集成"
-    KeyPrefix  string  // 明文前 12 位,如 "stk_live_a1b2",用于列表展示
-    KeyHash    string  // SHA-256(完整密钥),库内只存哈希
-    UserID     uint    // 绑定的服务账号;认证后走 ActorFromUser 继承其 Role+权限
-    LastUsedAt *int64
-    ExpiresAt  *int64  // nil = 永不过期
-    RevokedAt  *int64  // 非 nil = 已吊销
-    CreatedBy  uint    // 创建该 key 的管理员 userID
-    CreatedAt  int64
+    BaseModel
+    Name        string     // 人类可读标签,如 "Zapier 集成"
+    KeyHash     string     `gorm:"uniqueIndex"` // SHA-256(完整密钥),库内只存哈希
+    KeyPrefix   string     // 明文前 12 位,如 "stk_live_a1b2",列表展示
+    UserID      uint       `gorm:"index"`       // 【新增】绑定的服务账号;认证后 ActorFromUser 继承其 Role+权限
+    User        *User      `gorm:"foreignKey:UserID"`
+    IsActive    bool       // 吊销 = 置 false
+    ExpiresAt   *time.Time // nil = 永不过期
+    LastUsedAt  *time.Time
+    CreatorID   uint       // 创建该 key 的管理员 userID(现有字段)
+    // Permissions string —— 选项 B 残留,本批不使用
 }
 ```
+密钥生成复用现有 `utils.GenerateAPIKey(prefix, length)`。
 
 ### 模块 — `internal/apikey/`
 
