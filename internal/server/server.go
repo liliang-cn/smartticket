@@ -53,6 +53,7 @@ import (
 	"github.com/company/smartticket/internal/team"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
+	"github.com/company/smartticket/internal/webhook"
 	"github.com/company/smartticket/internal/widget"
 )
 
@@ -68,6 +69,7 @@ type Server struct {
 	kbStore              *knowledgebase.Store
 	hub                  *realtime.Hub
 	bus                  *automation.Bus
+	webhookSvc           *webhook.Service
 	// cancelCtx stops background goroutines (e.g. the automation scheduler) on Shutdown.
 	cancelCtx context.CancelFunc
 	// uiFS is the embedded single-page frontend, served for non-API GET routes.
@@ -458,6 +460,26 @@ func (s *Server) setupRoutes() {
 					body,
 					"Support Team",
 				)
+			}
+		})
+	}
+
+	// Outbound webhooks: persist a delivery per subscribed endpoint on each
+	// ticket event; a background worker POSTs them (signed, retried). Declared
+	// here so the admin webhook routes (registered below) can reuse webhookSvc.
+	s.webhookSvc = webhook.NewService(s.db.DB)
+	webhookWorker := webhook.NewWorker(s.db.DB, webhook.WorkerOptions{BlockPrivateIPs: s.config.Webhook.BlockPrivateIPs})
+	go webhookWorker.Run(schedCtx)
+
+	for _, et := range []automation.EventType{
+		automation.EventTicketCreated, automation.EventTicketUpdated, automation.EventTicketResolved,
+		automation.EventMessageCreated, automation.EventSLAWarning,
+	} {
+		et := et
+		s.bus.Subscribe(et, func(ev automation.Event) {
+			payload := buildWebhookPayload(s.db.DB, ev)
+			if err := s.webhookSvc.Enqueue(string(et), payload); err != nil {
+				logger.Warn("webhook enqueue failed", zap.String("event", string(et)), zap.Error(err))
 			}
 		})
 	}
