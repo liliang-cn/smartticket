@@ -498,24 +498,19 @@ func (s *Server) setupRoutes() {
 		} {
 			evType := evType
 			s.bus.Subscribe(evType, func(ev automation.Event) {
-				go func() {
+				ticketID := ev.TicketID
+				aiSafeGo("ticket-index", func(ctx context.Context) {
 					var tkt models.Ticket
-					if err := indexDB.Where("id = ? AND is_deleted = ?", ev.TicketID, false).First(&tkt).Error; err != nil {
+					if err := indexDB.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
 						logger.Warn("ticket-index: failed to load ticket",
-							zap.Uint("ticket_id", ev.TicketID), zap.Error(err))
+							zap.Uint("ticket_id", ticketID), zap.Error(err))
 						return
 					}
-					if err := kbStoreRef.SaveTicket(
-						context.Background(),
-						tkt.ID,
-						tkt.Title,
-						tkt.Description,
-						"",
-					); err != nil {
+					if err := kbStoreRef.SaveTicket(ctx, tkt.ID, tkt.Title, tkt.Description, ""); err != nil {
 						logger.Warn("ticket-index: failed to index ticket",
 							zap.Uint("ticket_id", tkt.ID), zap.Error(err))
 					}
-				}()
+				})
 			})
 		}
 	}
@@ -546,22 +541,27 @@ func (s *Server) setupRoutes() {
 			aiteamOrch = aiteam.NewOrchestrator(advisoryTeam, suggestionStore, s.hub)
 			s.aiteamOrch = aiteamOrch
 
-			// Auto-trigger: Triage on new ticket.
+			// Auto-trigger: Triage on new ticket. Sentinel on new message / SLA
+			// warning. Each runs panic-isolated with a timeout so an AI failure
+			// can never crash the server or block the ticket pipeline.
+			orch := aiteamOrch
 			s.bus.Subscribe(automation.EventTicketCreated, func(ev automation.Event) {
-				go func() {
-					_, _ = aiteamOrch.Run(context.Background(), "Triage", buildAITicketContext(s.db.DB, ev.TicketID), "")
-				}()
+				id := ev.TicketID
+				aiSafeGo("triage", func(ctx context.Context) {
+					_, _ = orch.Run(ctx, "Triage", buildAITicketContext(s.db.DB, id), "")
+				})
 			})
-			// Auto-trigger: Sentinel on new message or SLA warning.
 			s.bus.Subscribe(automation.EventMessageCreated, func(ev automation.Event) {
-				go func() {
-					_, _ = aiteamOrch.Run(context.Background(), "Sentinel", buildAITicketContext(s.db.DB, ev.TicketID), "")
-				}()
+				id := ev.TicketID
+				aiSafeGo("sentinel", func(ctx context.Context) {
+					_, _ = orch.Run(ctx, "Sentinel", buildAITicketContext(s.db.DB, id), "")
+				})
 			})
 			s.bus.Subscribe(automation.EventSLAWarning, func(ev automation.Event) {
-				go func() {
-					_, _ = aiteamOrch.Run(context.Background(), "Sentinel", buildAITicketContext(s.db.DB, ev.TicketID), "")
-				}()
+				id := ev.TicketID
+				aiSafeGo("sentinel", func(ctx context.Context) {
+					_, _ = orch.Run(ctx, "Sentinel", buildAITicketContext(s.db.DB, id), "")
+				})
 			})
 		}
 	}
@@ -839,6 +839,29 @@ func (s *Server) setupRoutes() {
 						func(id uint) aiteam.TicketContext { return buildAITicketContext(s.db.DB, id) },
 					)
 					tai := tickets.Group("/:id/ai")
+					// Object-level authz: every AI sub-route must verify the caller
+					// can actually see this ticket (reuses GetTicket→scopeToActor:
+					// customer isolation + department scoping). Without this, any
+					// authenticated user could read suggestions / trigger LLM spend
+					// on tickets outside their access scope.
+					tai.Use(func(c *gin.Context) {
+						var tid uint
+						if _, err := fmt.Sscanf(c.Param("id"), "%d", &tid); err != nil || tid == 0 {
+							c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid ticket id"})
+							return
+						}
+						actor := authz.Actor{UserID: c.GetUint("user_id"), Role: c.GetString("user_role")}
+						if v, ok := c.Get("user_customer_id"); ok {
+							if cid, ok := v.(uint); ok {
+								actor.CustomerID = &cid
+							}
+						}
+						if _, err := ticketService.GetTicket(actor, tid); err != nil {
+							c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "ticket not found or access denied"})
+							return
+						}
+						c.Next()
+					})
 					{
 						tai.POST("/research", aiTeamHandlers.Research)
 						tai.POST("/review", aiTeamHandlers.Review)
@@ -1244,6 +1267,22 @@ func (a *aiSettingsAdapter) AutoResolveEnabled() bool {
 // buildAITicketContext loads the ticket and its messages from the DB and
 // assembles an aiteam.TicketContext ready for advisory agent dispatch.
 // Returns a minimal (title-only) context on any DB error so callers never block.
+// aiSafeGo runs fn in a panic-isolated goroutine with a bounded timeout. The
+// best-effort AI/index background work must never crash the single-binary
+// server (a panic in a bare goroutine would) nor hang on a slow LLM.
+func aiSafeGo(label string, fn func(ctx context.Context)) {
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Error("ai background task panicked", zap.String("task", label), zap.Any("panic", r))
+			}
+		}()
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
+		fn(ctx)
+	}()
+}
+
 func buildAITicketContext(db *gorm.DB, ticketID uint) aiteam.TicketContext {
 	var tkt models.Ticket
 	if err := db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {

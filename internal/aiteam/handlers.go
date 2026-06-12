@@ -172,12 +172,15 @@ func (h *Handlers) List(c *gin.Context) {
 // @Failure 500 {object} map[string]string
 // @Router /api/v1/tickets/{id}/ai/suggestions/{sid}/adopt [post]
 func (h *Handlers) Adopt(c *gin.Context) {
-	_, ok := parseTicketID(c)
+	ticketID, ok := parseTicketID(c)
 	if !ok {
 		return
 	}
 	sid, ok := parseSuggestionID(c)
 	if !ok {
+		return
+	}
+	if !h.suggestionBelongsToTicket(c, sid, ticketID) {
 		return
 	}
 	userID := c.GetUint("user_id")
@@ -200,7 +203,7 @@ func (h *Handlers) Adopt(c *gin.Context) {
 // @Failure 500 {object} map[string]string
 // @Router /api/v1/tickets/{id}/ai/suggestions/{sid}/dismiss [post]
 func (h *Handlers) Dismiss(c *gin.Context) {
-	_, ok := parseTicketID(c)
+	ticketID, ok := parseTicketID(c)
 	if !ok {
 		return
 	}
@@ -208,9 +211,24 @@ func (h *Handlers) Dismiss(c *gin.Context) {
 	if !ok {
 		return
 	}
+	if !h.suggestionBelongsToTicket(c, sid, ticketID) {
+		return
+	}
 	if err := h.store.Dismiss(sid); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"dismissed": true})
+}
+
+// suggestionBelongsToTicket verifies suggestion sid is attached to ticketID,
+// closing an IDOR where a caller authorized for one ticket could adopt/dismiss
+// a suggestion belonging to another. Writes the error response on failure.
+func (h *Handlers) suggestionBelongsToTicket(c *gin.Context, sid, ticketID uint) bool {
+	sug, err := h.store.Get(sid)
+	if err != nil || sug == nil || sug.TicketID != ticketID {
+		c.JSON(http.StatusNotFound, gin.H{"error": "suggestion not found"})
+		return false
+	}
+	return true
 }

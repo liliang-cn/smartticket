@@ -42,6 +42,34 @@ func setupHandlers(db *gorm.DB) (*Handlers, *gin.Engine) {
 	return h, r
 }
 
+// Adopting a suggestion that belongs to a DIFFERENT ticket than the path must
+// be rejected (IDOR guard), even though the caller is authorized for the path
+// ticket by the route middleware.
+func TestAdoptRejectsCrossTicketSuggestion(t *testing.T) {
+	db := newHandlerDB(t)
+	_, r := setupHandlers(db)
+	store := NewSuggestionStore(db)
+	// Suggestion belongs to ticket 7.
+	sug, err := store.Upsert(7, "Triage", "done", 0.8, "{}")
+	require.NoError(t, err)
+
+	// Attempt to adopt it under ticket 99 (a ticket the caller can access).
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/tickets/99/ai/suggestions/%d/adopt", sug.ID), nil)
+	r.ServeHTTP(w, req)
+	require.Equal(t, http.StatusNotFound, w.Code)
+
+	// The suggestion must remain un-adopted.
+	got, _ := store.Get(sug.ID)
+	require.Equal(t, "done", got.Status)
+
+	// Adopting under the CORRECT ticket succeeds.
+	w2 := httptest.NewRecorder()
+	req2 := httptest.NewRequest(http.MethodPost, fmt.Sprintf("/tickets/7/ai/suggestions/%d/adopt", sug.ID), nil)
+	r.ServeHTTP(w2, req2)
+	require.Equal(t, http.StatusOK, w2.Code)
+}
+
 // TestListEmpty ensures List returns {"suggestions":[]} when no rows exist.
 func TestHandlerListEmpty(t *testing.T) {
 	db := newHandlerDB(t)

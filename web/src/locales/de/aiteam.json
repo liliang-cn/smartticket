@@ -30,7 +30,9 @@
     "sentiment": "Stimmung",
     "churn_risk": "Abwanderungsrisiko",
     "sla_risk": "SLA-Risiko",
-    "escalate_badge": "Eskalation empfohlen"
+    "escalate_badge": "Eskalation empfohlen",
+    "yes": "Ja",
+    "no": "Nein"
   },
   "researcher": {
     "kb_label": "Wissensdatenbank",

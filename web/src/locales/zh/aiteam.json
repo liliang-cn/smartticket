@@ -30,7 +30,9 @@
     "sentiment": "情感",
     "churn_risk": "流失风险",
     "sla_risk": "SLA 风险",
-    "escalate_badge": "建议升级处理"
+    "escalate_badge": "建议升级处理",
+    "yes": "是",
+    "no": "否"
   },
   "researcher": {
     "kb_label": "知识库文章",

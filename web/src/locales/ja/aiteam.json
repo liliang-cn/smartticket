@@ -30,7 +30,9 @@
     "sentiment": "感情",
     "churn_risk": "解約リスク",
     "sla_risk": "SLA リスク",
-    "escalate_badge": "エスカレーションを推奨"
+    "escalate_badge": "エスカレーションを推奨",
+    "yes": "はい",
+    "no": "いいえ"
   },
   "researcher": {
     "kb_label": "KB 記事",

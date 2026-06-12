@@ -30,7 +30,9 @@
     "sentiment": "Sentiment",
     "churn_risk": "Rischio abbandono",
     "sla_risk": "Rischio SLA",
-    "escalate_badge": "Escalation consigliata"
+    "escalate_badge": "Escalation consigliata",
+    "yes": "Sì",
+    "no": "No"
   },
   "researcher": {
     "kb_label": "Articoli KB",

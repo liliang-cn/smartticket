@@ -38,7 +38,7 @@ export interface TriagePayload {
 export interface SentinelPayload {
   sentiment: string;
   churn_risk: string;
-  sla_breach_risk: string;
+  sla_breach_risk: boolean;
   escalate: boolean;
   reasoning: string;
   confidence: number;

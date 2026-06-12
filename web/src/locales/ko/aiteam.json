@@ -30,7 +30,9 @@
     "sentiment": "감정",
     "churn_risk": "이탈 위험",
     "sla_risk": "SLA 위험",
-    "escalate_badge": "에스컬레이션 권장"
+    "escalate_badge": "에스컬레이션 권장",
+    "yes": "예",
+    "no": "아니오"
   },
   "researcher": {
     "kb_label": "KB 문서",

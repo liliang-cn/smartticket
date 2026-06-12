@@ -185,7 +185,7 @@ function SentinelCard({
       <div className="flex flex-wrap gap-2 text-sm">
         <MetaChip label={t("sentinel.sentiment")} value={p.sentiment} />
         <MetaChip label={t("sentinel.churn_risk")} value={p.churn_risk} />
-        <MetaChip label={t("sentinel.sla_risk")} value={p.sla_breach_risk} />
+        <MetaChip label={t("sentinel.sla_risk")} value={p.sla_breach_risk ? t("sentinel.yes") : t("sentinel.no")} />
       </div>
       {p.escalate && (
         <div className="mt-2 flex items-center gap-1.5 rounded-md border border-red-500/30 bg-red-500/10 px-2 py-1.5 text-xs text-red-300">
