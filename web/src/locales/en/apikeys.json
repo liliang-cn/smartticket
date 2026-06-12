@@ -1,0 +1,58 @@
+{
+  "page": {
+    "eyebrow": "security",
+    "title": "API Keys"
+  },
+  "newKey": "New API key",
+  "table": {
+    "name": "Name",
+    "prefix": "Prefix",
+    "userId": "User ID",
+    "status": "Status",
+    "lastUsed": "Last used",
+    "created": "Created"
+  },
+  "badges": {
+    "active": "active",
+    "revoked": "revoked"
+  },
+  "empty": "No API keys yet. Create one to allow programmatic access.",
+  "actions": {
+    "revoke": "Revoke",
+    "revokeTitle": "Revoke this key"
+  },
+  "reveal": {
+    "title": "Copy your API key now",
+    "subtitle": "This key is shown only once and cannot be retrieved again.",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "close": "Dismiss",
+    "copyFailed": "Could not copy to clipboard"
+  },
+  "form": {
+    "title": "Create API key",
+    "description": "API keys allow external services to authenticate as a specific user. Choose a descriptive name and the user whose permissions the key will inherit.",
+    "name": "Key name",
+    "namePlaceholder": "CI deploy key",
+    "userId": "Service user ID",
+    "userIdHint": "The numeric ID of the user this key will act as.",
+    "submit": "Create key",
+    "creating": "Creating…"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "userIdRequired": "A valid numeric user ID is required"
+  },
+  "toast": {
+    "created": "API key created",
+    "createFailed": "Could not create API key",
+    "revoked": "API key revoked",
+    "revokeFailed": "Could not revoke API key"
+  },
+  "revokeDialog": {
+    "title": "Revoke API key?",
+    "description": "This permanently revokes \"{{name}}\". Any services using it will lose access immediately.",
+    "confirm": "Revoke",
+    "confirmPending": "Revoking…"
+  }
+}

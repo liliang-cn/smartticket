@@ -1,0 +1,58 @@
+{
+  "page": {
+    "eyebrow": "Sicherheit",
+    "title": "API-Schlüssel"
+  },
+  "newKey": "Neuer API-Schlüssel",
+  "table": {
+    "name": "Name",
+    "prefix": "Präfix",
+    "userId": "Benutzer-ID",
+    "status": "Status",
+    "lastUsed": "Zuletzt verwendet",
+    "created": "Erstellt"
+  },
+  "badges": {
+    "active": "aktiv",
+    "revoked": "widerrufen"
+  },
+  "empty": "Noch keine API-Schlüssel. Erstelle einen für programmatischen Zugriff.",
+  "actions": {
+    "revoke": "Widerrufen",
+    "revokeTitle": "Diesen Schlüssel widerrufen"
+  },
+  "reveal": {
+    "title": "Kopiere deinen API-Schlüssel jetzt",
+    "subtitle": "Dieser Schlüssel wird nur einmal angezeigt und kann nicht erneut abgerufen werden.",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "close": "Schließen",
+    "copyFailed": "Konnte nicht in die Zwischenablage kopiert werden"
+  },
+  "form": {
+    "title": "API-Schlüssel erstellen",
+    "description": "API-Schlüssel ermöglichen externen Diensten die Authentifizierung als bestimmter Benutzer. Wähle einen beschreibenden Namen und den Benutzer, dessen Berechtigungen der Schlüssel erbt.",
+    "name": "Schlüsselname",
+    "namePlaceholder": "CI-Deployment-Schlüssel",
+    "userId": "Service-Benutzer-ID",
+    "userIdHint": "Die numerische ID des Benutzers, als der dieser Schlüssel agiert.",
+    "submit": "Schlüssel erstellen",
+    "creating": "Wird erstellt…"
+  },
+  "validation": {
+    "nameRequired": "Name ist erforderlich",
+    "userIdRequired": "Eine gültige numerische Benutzer-ID ist erforderlich"
+  },
+  "toast": {
+    "created": "API-Schlüssel erstellt",
+    "createFailed": "API-Schlüssel konnte nicht erstellt werden",
+    "revoked": "API-Schlüssel widerrufen",
+    "revokeFailed": "API-Schlüssel konnte nicht widerrufen werden"
+  },
+  "revokeDialog": {
+    "title": "API-Schlüssel widerrufen?",
+    "description": "Dies widerruft \"{{name}}\" dauerhaft. Dienste, die ihn verwenden, verlieren sofort den Zugriff.",
+    "confirm": "Widerrufen",
+    "confirmPending": "Wird widerrufen…"
+  }
+}

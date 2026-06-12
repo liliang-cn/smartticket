@@ -24,6 +24,8 @@ import {
   Workflow,
   MessageSquareText,
   UsersRound,
+  BarChart3,
+  KeyRound,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useBranding } from "@/lib/branding";
@@ -45,7 +47,8 @@ import { LanguageToggle } from "@/components/language-toggle";
 interface NavItem {
   to: string;
   /** Translation key under the `common.nav` namespace. */
-  labelKey: string;
+  labelKey?: string;
+  label?: string;
   icon: typeof Ticket;
   soon?: boolean;
   /** Team-only (admin/engineer/...). Hidden from customer-role users. */
@@ -69,6 +72,8 @@ const NAV: NavItem[] = [
   { to: "/llm", labelKey: "nav.ai_providers", icon: Sparkles, team: true },
   { to: "/macros", labelKey: "nav.macros", icon: MessageSquareText, team: true },
   { to: "/teams", labelKey: "nav.teams", icon: UsersRound, team: true },
+  { to: "/api-keys", labelKey: "nav.api_keys", icon: KeyRound, admin: true },
+  { to: "/analytics", label: "Analytics", icon: BarChart3, admin: true },
   { to: "/automations", labelKey: "nav.automations", icon: Workflow, admin: true },
   { to: "/settings", labelKey: "nav.settings", icon: Settings, admin: true },
 ];
@@ -109,6 +114,7 @@ export function AppShell() {
     if (item.admin) return isAdmin;
     return isTeam || !item.team;
   });
+  const navLabel = (item: NavItem) => item.label ?? t(item.labelKey ?? "");
 
   const initials = (
     (user?.first_name?.[0] ?? user?.username?.[0] ?? user?.email?.[0] ?? "?") +
@@ -171,14 +177,14 @@ export function AppShell() {
                 )}
                 title={
                   collapsed
-                    ? t("nav.coming_soon_item", { label: t(item.labelKey) })
+                    ? t("nav.coming_soon_item", { label: navLabel(item) })
                     : t("nav.coming_soon")
                 }
               >
                 <item.icon className="size-4 shrink-0" />
                 {!collapsed && (
                   <>
-                    {t(item.labelKey)}
+                    {navLabel(item)}
                     <span className="ml-auto font-mono text-[9px] uppercase tracking-wider text-muted-foreground/40">
                       {t("nav.soon")}
                     </span>
@@ -190,7 +196,7 @@ export function AppShell() {
                 key={item.to}
                 to={item.to}
                 data-reveal
-                title={collapsed ? t(item.labelKey) : undefined}
+                title={collapsed ? navLabel(item) : undefined}
                 className={({ isActive }) =>
                   cn(
                     "group relative flex items-center gap-3 rounded-md py-2 text-sm font-medium transition-colors",
@@ -210,7 +216,7 @@ export function AppShell() {
                       )}
                     />
                     <item.icon className="size-4 shrink-0" />
-                    {!collapsed && t(item.labelKey)}
+                    {!collapsed && navLabel(item)}
                   </>
                 )}
               </NavLink>

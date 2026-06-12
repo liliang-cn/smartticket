@@ -1,0 +1,58 @@
+{
+  "page": {
+    "eyebrow": "安全",
+    "title": "API 密钥"
+  },
+  "newKey": "新建 API 密钥",
+  "table": {
+    "name": "名称",
+    "prefix": "前缀",
+    "userId": "用户 ID",
+    "status": "状态",
+    "lastUsed": "最后使用",
+    "created": "创建时间"
+  },
+  "badges": {
+    "active": "有效",
+    "revoked": "已撤销"
+  },
+  "empty": "暂无 API 密钥。创建一个以允许程序化访问。",
+  "actions": {
+    "revoke": "撤销",
+    "revokeTitle": "撤销此密钥"
+  },
+  "reveal": {
+    "title": "请立即复制您的 API 密钥",
+    "subtitle": "此密钥只显示一次，之后无法再次查看。",
+    "copy": "复制",
+    "copied": "已复制！",
+    "close": "关闭",
+    "copyFailed": "无法复制到剪贴板"
+  },
+  "form": {
+    "title": "创建 API 密钥",
+    "description": "API 密钥允许外部服务以指定用户身份进行身份验证。请填写描述性名称，并选择该密钥将继承权限的用户。",
+    "name": "密钥名称",
+    "namePlaceholder": "CI 部署密钥",
+    "userId": "服务用户 ID",
+    "userIdHint": "该密钥将作为的用户的数字 ID。",
+    "submit": "创建密钥",
+    "creating": "创建中…"
+  },
+  "validation": {
+    "nameRequired": "名称不能为空",
+    "userIdRequired": "需要提供有效的数字用户 ID"
+  },
+  "toast": {
+    "created": "API 密钥已创建",
+    "createFailed": "创建 API 密钥失败",
+    "revoked": "API 密钥已撤销",
+    "revokeFailed": "撤销 API 密钥失败"
+  },
+  "revokeDialog": {
+    "title": "撤销 API 密钥？",
+    "description": "此操作将永久撤销「{{name}}」密钥。所有使用该密钥的服务将立即失去访问权限。",
+    "confirm": "撤销",
+    "confirmPending": "撤销中…"
+  }
+}

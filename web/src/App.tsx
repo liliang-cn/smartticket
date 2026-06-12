@@ -26,6 +26,8 @@ import { AutomationsPage } from "@/pages/automations";
 import { MacrosPage } from "@/pages/macros";
 import { TeamsPage } from "@/pages/teams";
 import { SurveyPage } from "@/pages/survey";
+import { AnalyticsPage } from "@/pages/analytics";
+import { ApiKeysPage } from "@/pages/api-keys";
 import type { JSX } from "react";
 
 function FullScreenLoader() {
@@ -111,8 +113,10 @@ export default function App() {
         <Route path="/llm" element={<TeamOnly><LLMProvidersPage /></TeamOnly>} />
         <Route path="/macros" element={<TeamOnly><MacrosPage /></TeamOnly>} />
         <Route path="/teams" element={<TeamOnly><TeamsPage /></TeamOnly>} />
+        <Route path="/analytics" element={<AdminOnly><AnalyticsPage /></AdminOnly>} />
         <Route path="/automations" element={<AdminOnly><AutomationsPage /></AdminOnly>} />
         <Route path="/settings" element={<AdminOnly><SettingsPage /></AdminOnly>} />
+        <Route path="/api-keys" element={<AdminOnly><ApiKeysPage /></AdminOnly>} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

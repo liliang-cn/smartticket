@@ -1,0 +1,58 @@
+{
+  "page": {
+    "eyebrow": "seguridad",
+    "title": "Claves API"
+  },
+  "newKey": "Nueva clave API",
+  "table": {
+    "name": "Nombre",
+    "prefix": "Prefijo",
+    "userId": "ID de usuario",
+    "status": "Estado",
+    "lastUsed": "Último uso",
+    "created": "Creada"
+  },
+  "badges": {
+    "active": "activa",
+    "revoked": "revocada"
+  },
+  "empty": "Aún no hay claves API. Crea una para permitir el acceso programático.",
+  "actions": {
+    "revoke": "Revocar",
+    "revokeTitle": "Revocar esta clave"
+  },
+  "reveal": {
+    "title": "Copia tu clave API ahora",
+    "subtitle": "Esta clave se muestra solo una vez y no puede recuperarse después.",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "close": "Cerrar",
+    "copyFailed": "No se pudo copiar al portapapeles"
+  },
+  "form": {
+    "title": "Crear clave API",
+    "description": "Las claves API permiten que servicios externos se autentiquen como un usuario específico. Elige un nombre descriptivo y el usuario cujos permisos heredará la clave.",
+    "name": "Nombre de la clave",
+    "namePlaceholder": "Clave de despliegue CI",
+    "userId": "ID de usuario de servicio",
+    "userIdHint": "El ID numérico del usuario al que esta clave actuará como.",
+    "submit": "Crear clave",
+    "creating": "Creando…"
+  },
+  "validation": {
+    "nameRequired": "El nombre es obligatorio",
+    "userIdRequired": "Se requiere un ID de usuario numérico válido"
+  },
+  "toast": {
+    "created": "Clave API creada",
+    "createFailed": "No se pudo crear la clave API",
+    "revoked": "Clave API revocada",
+    "revokeFailed": "No se pudo revocar la clave API"
+  },
+  "revokeDialog": {
+    "title": "¿Revocar clave API?",
+    "description": "Esto revoca permanentemente \"{{name}}\". Los servicios que la usen perderán acceso inmediatamente.",
+    "confirm": "Revocar",
+    "confirmPending": "Revocando…"
+  }
+}
