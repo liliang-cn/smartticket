@@ -204,6 +204,7 @@ func runServe(cmd *cobra.Command, _ []string) error {
 		&models.AuditLog{},
 		&models.Notification{},
 		&models.TicketEvent{},
+		&models.AnalyticsEvent{},
 
 		// Automation engine rules (no FK dependencies beyond base tables)
 		&models.AutomationRule{},
@@ -220,6 +221,10 @@ func runServe(cmd *cobra.Command, _ []string) error {
 
 		// Ticket relationships (merge + linking)
 		&models.TicketLink{},
+
+		// Outbound webhook delivery
+		&models.Webhook{},
+		&models.WebhookDelivery{},
 	}
 
 	// Run GORM AutoMigrate for all models
@@ -378,6 +383,7 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 		&models.AuditLog{},
 		&models.Notification{},
 		&models.TicketEvent{},
+		&models.AnalyticsEvent{},
 
 		// Automation engine rules (no FK dependencies beyond base tables)
 		&models.AutomationRule{},
@@ -394,6 +400,10 @@ func runMigrate(cmd *cobra.Command, _ []string) error {
 
 		// Ticket relationships (merge + linking)
 		&models.TicketLink{},
+
+		// Outbound webhook delivery
+		&models.Webhook{},
+		&models.WebhookDelivery{},
 	}
 
 	// Run GORM AutoMigrate

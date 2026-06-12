@@ -574,6 +574,36 @@ type Macro struct {
 
 func (Macro) TableName() string { return "macros" }
 
+// Webhook is an admin-configured outbound endpoint that receives ticket domain
+// events as signed HTTP POSTs. Secret is the HMAC signing key (never exposed to
+// clients). Events is a JSON array of subscribed event-type strings.
+type Webhook struct {
+	BaseModel
+	Name      string `gorm:"size:255;not null" json:"name"`
+	URL       string `gorm:"size:1024;not null" json:"url"`
+	Secret    string `gorm:"size:255;not null" json:"-"`
+	Events    string `gorm:"type:text" json:"events"`
+	Active    bool   `gorm:"default:true" json:"active"`
+	CreatorID uint   `gorm:"index" json:"creator_id"`
+}
+
+// WebhookDelivery is one queued/attempted delivery of an event to a Webhook.
+// Status is pending/success/failed; the worker retries failed rows up to a cap.
+type WebhookDelivery struct {
+	BaseModel
+	WebhookID     uint       `gorm:"index;not null" json:"webhook_id"`
+	EventType     string     `gorm:"size:64;index" json:"event_type"`
+	Payload       string     `gorm:"type:text" json:"payload"`
+	Status        string     `gorm:"size:16;index;default:'pending'" json:"status"`
+	StatusCode    int        `json:"status_code"`
+	Attempts      int        `json:"attempts"`
+	LastAttemptAt *time.Time `json:"last_attempt_at"`
+	Error         string     `gorm:"type:text" json:"error"`
+}
+
+func (Webhook) TableName() string         { return "webhooks" }
+func (WebhookDelivery) TableName() string { return "webhook_deliveries" }
+
 // Table name overrides.
 func (User) TableName() string             { return "users" }
 func (Ticket) TableName() string           { return "tickets" }
