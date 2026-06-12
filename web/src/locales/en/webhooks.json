@@ -1,0 +1,76 @@
+{
+  "page": {
+    "eyebrow": "integrations",
+    "title": "Webhooks"
+  },
+  "newWebhook": "New webhook",
+  "table": {
+    "name": "Name",
+    "url": "URL",
+    "events": "Events",
+    "status": "Status"
+  },
+  "badges": {
+    "active": "active",
+    "inactive": "inactive"
+  },
+  "empty": "No webhooks yet. Create one to receive real-time event notifications.",
+  "actions": {
+    "test": "Test",
+    "testTitle": "Send a test delivery",
+    "deliveries": "Deliveries",
+    "deliveriesTitle": "View delivery log",
+    "delete": "Delete",
+    "deleteTitle": "Delete this webhook"
+  },
+  "reveal": {
+    "title": "Copy your signing secret now",
+    "subtitle": "This secret is shown only once and cannot be retrieved again. Use it to verify webhook payloads (HMAC-SHA256).",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "close": "Dismiss",
+    "copyFailed": "Could not copy to clipboard"
+  },
+  "form": {
+    "title": "Create webhook",
+    "description": "Add an endpoint to receive HTTP POST notifications for the events you select.",
+    "name": "Name",
+    "namePlaceholder": "My integration",
+    "url": "Endpoint URL",
+    "events": "Subscribe to events",
+    "submit": "Create webhook",
+    "creating": "Creating…"
+  },
+  "validation": {
+    "nameRequired": "Name is required",
+    "urlRequired": "Endpoint URL is required",
+    "eventsRequired": "Select at least one event"
+  },
+  "toast": {
+    "created": "Webhook created",
+    "createFailed": "Could not create webhook",
+    "deleted": "Webhook deleted",
+    "deleteFailed": "Could not delete webhook",
+    "testQueued": "Test delivery queued",
+    "testFailed": "Could not queue test delivery"
+  },
+  "deleteDialog": {
+    "title": "Delete webhook?",
+    "description": "This permanently deletes \"{{name}}\". No further deliveries will be sent.",
+    "confirm": "Delete",
+    "confirmPending": "Deleting…"
+  },
+  "deliveries": {
+    "title": "Deliveries — {{name}}",
+    "description": "Recent delivery attempts for this webhook endpoint.",
+    "empty": "No deliveries yet.",
+    "table": {
+      "event": "Event",
+      "status": "Status",
+      "code": "HTTP code",
+      "attempts": "Attempts",
+      "lastAttempt": "Last attempt",
+      "error": "Error"
+    }
+  }
+}

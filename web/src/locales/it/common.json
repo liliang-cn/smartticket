@@ -16,6 +16,7 @@
     "macros": "Macro",
     "teams": "Team",
     "api_keys": "Chiavi API",
+    "webhooks": "Webhook",
     "settings": "Impostazioni",
     "soon": "presto",
     "coming_soon": "Prossimamente",

@@ -1,0 +1,76 @@
+{
+  "page": {
+    "eyebrow": "集成",
+    "title": "Webhooks"
+  },
+  "newWebhook": "新建 Webhook",
+  "table": {
+    "name": "名称",
+    "url": "URL",
+    "events": "事件",
+    "status": "状态"
+  },
+  "badges": {
+    "active": "已启用",
+    "inactive": "已停用"
+  },
+  "empty": "暂无 Webhook。创建一个以接收实时事件通知。",
+  "actions": {
+    "test": "测试",
+    "testTitle": "发送测试请求",
+    "deliveries": "投递记录",
+    "deliveriesTitle": "查看投递日志",
+    "delete": "删除",
+    "deleteTitle": "删除此 Webhook"
+  },
+  "reveal": {
+    "title": "请立即复制签名密钥",
+    "subtitle": "此密钥只显示一次，之后无法再次查看。请用它来验证 Webhook 载荷（HMAC-SHA256）。",
+    "copy": "复制",
+    "copied": "已复制！",
+    "close": "关闭",
+    "copyFailed": "无法复制到剪贴板"
+  },
+  "form": {
+    "title": "创建 Webhook",
+    "description": "添加一个端点，以接收所选事件的 HTTP POST 通知。",
+    "name": "名称",
+    "namePlaceholder": "我的集成",
+    "url": "端点 URL",
+    "events": "订阅事件",
+    "submit": "创建 Webhook",
+    "creating": "创建中…"
+  },
+  "validation": {
+    "nameRequired": "名称不能为空",
+    "urlRequired": "端点 URL 不能为空",
+    "eventsRequired": "请至少选择一个事件"
+  },
+  "toast": {
+    "created": "Webhook 已创建",
+    "createFailed": "创建 Webhook 失败",
+    "deleted": "Webhook 已删除",
+    "deleteFailed": "删除 Webhook 失败",
+    "testQueued": "测试投递已加入队列",
+    "testFailed": "无法发送测试投递"
+  },
+  "deleteDialog": {
+    "title": "删除 Webhook？",
+    "description": "此操作将永久删除「{{name}}」，后续将不再发送任何投递。",
+    "confirm": "删除",
+    "confirmPending": "删除中…"
+  },
+  "deliveries": {
+    "title": "投递记录 — {{name}}",
+    "description": "该 Webhook 端点的近期投递尝试记录。",
+    "empty": "暂无投递记录。",
+    "table": {
+      "event": "事件",
+      "status": "状态",
+      "code": "HTTP 状态码",
+      "attempts": "尝试次数",
+      "lastAttempt": "最后尝试时间",
+      "error": "错误"
+    }
+  }
+}

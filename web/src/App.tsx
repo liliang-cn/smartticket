@@ -28,6 +28,7 @@ import { TeamsPage } from "@/pages/teams";
 import { SurveyPage } from "@/pages/survey";
 import { AnalyticsPage } from "@/pages/analytics";
 import { ApiKeysPage } from "@/pages/api-keys";
+import { WebhooksPage } from "@/pages/webhooks";
 import type { JSX } from "react";
 
 function FullScreenLoader() {
@@ -117,6 +118,7 @@ export default function App() {
         <Route path="/automations" element={<AdminOnly><AutomationsPage /></AdminOnly>} />
         <Route path="/settings" element={<AdminOnly><SettingsPage /></AdminOnly>} />
         <Route path="/api-keys" element={<AdminOnly><ApiKeysPage /></AdminOnly>} />
+        <Route path="/webhooks" element={<AdminOnly><WebhooksPage /></AdminOnly>} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

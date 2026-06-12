@@ -1,0 +1,76 @@
+{
+  "page": {
+    "eyebrow": "integraciones",
+    "title": "Webhooks"
+  },
+  "newWebhook": "Nuevo webhook",
+  "table": {
+    "name": "Nombre",
+    "url": "URL",
+    "events": "Eventos",
+    "status": "Estado"
+  },
+  "badges": {
+    "active": "activo",
+    "inactive": "inactivo"
+  },
+  "empty": "Aún no hay webhooks. Crea uno para recibir notificaciones de eventos en tiempo real.",
+  "actions": {
+    "test": "Probar",
+    "testTitle": "Enviar una entrega de prueba",
+    "deliveries": "Entregas",
+    "deliveriesTitle": "Ver registro de entregas",
+    "delete": "Eliminar",
+    "deleteTitle": "Eliminar este webhook"
+  },
+  "reveal": {
+    "title": "Copia tu secreto de firma ahora",
+    "subtitle": "Este secreto se muestra solo una vez y no puede recuperarse después. Úsalo para verificar las cargas útiles del webhook (HMAC-SHA256).",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "close": "Cerrar",
+    "copyFailed": "No se pudo copiar al portapapeles"
+  },
+  "form": {
+    "title": "Crear webhook",
+    "description": "Añade un endpoint para recibir notificaciones HTTP POST de los eventos que selecciones.",
+    "name": "Nombre",
+    "namePlaceholder": "Mi integración",
+    "url": "URL del endpoint",
+    "events": "Suscribirse a eventos",
+    "submit": "Crear webhook",
+    "creating": "Creando…"
+  },
+  "validation": {
+    "nameRequired": "El nombre es obligatorio",
+    "urlRequired": "La URL del endpoint es obligatoria",
+    "eventsRequired": "Selecciona al menos un evento"
+  },
+  "toast": {
+    "created": "Webhook creado",
+    "createFailed": "No se pudo crear el webhook",
+    "deleted": "Webhook eliminado",
+    "deleteFailed": "No se pudo eliminar el webhook",
+    "testQueued": "Entrega de prueba en cola",
+    "testFailed": "No se pudo encolar la entrega de prueba"
+  },
+  "deleteDialog": {
+    "title": "¿Eliminar webhook?",
+    "description": "Esto elimina permanentemente \"{{name}}\". No se enviarán más entregas.",
+    "confirm": "Eliminar",
+    "confirmPending": "Eliminando…"
+  },
+  "deliveries": {
+    "title": "Entregas — {{name}}",
+    "description": "Intentos de entrega recientes para este endpoint webhook.",
+    "empty": "Aún no hay entregas.",
+    "table": {
+      "event": "Evento",
+      "status": "Estado",
+      "code": "Código HTTP",
+      "attempts": "Intentos",
+      "lastAttempt": "Último intento",
+      "error": "Error"
+    }
+  }
+}
