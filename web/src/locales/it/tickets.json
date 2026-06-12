@@ -17,7 +17,8 @@
     "pagination_info": "{{total}} ticket · pagina {{page}}/{{totalPages}}",
     "pagination_syncing": " · sincronizzazione…",
     "btn_prev": "Precedente",
-    "btn_next": "Successivo"
+    "btn_next": "Successivo",
+    "filter_my_department": "Il mio reparto"
   },
   "detail": {
     "back_link": "Ticket",

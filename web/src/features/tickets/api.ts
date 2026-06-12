@@ -17,6 +17,7 @@ export interface TicketFilters {
   status?: string;
   priority?: string;
   search?: string;
+  scope?: string;
 }
 
 export interface TicketPage {
@@ -38,6 +39,7 @@ export function useTickets(filters: TicketFilters) {
           status: filters.status || undefined,
           priority: filters.priority || undefined,
           search: filters.search || undefined,
+          scope: filters.scope || undefined,
         },
       });
       // The list endpoint returns { success, data: Ticket[], meta: {...} }.

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Search, ChevronLeft, ChevronRight, Inbox } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, Inbox, Building2 } from "lucide-react";
 import { useTickets, type TicketFilters } from "@/features/tickets/api";
 import { CreateTicketDialog } from "@/features/tickets/create-ticket-dialog";
 import {
@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { relativeTime } from "@/lib/utils";
+import { relativeTime, cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 
 const ALL = "__all__";
@@ -99,6 +99,28 @@ export function TicketsListPage() {
             ))}
           </SelectContent>
         </Select>
+        {isTeam && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              set({
+                scope:
+                  filters.scope === "my_department"
+                    ? undefined
+                    : "my_department",
+              })
+            }
+            className={cn(
+              "h-9 gap-1.5 px-3 text-sm",
+              filters.scope === "my_department" &&
+                "border-primary bg-primary/10 text-primary hover:bg-primary/15"
+            )}
+          >
+            <Building2 className="size-4" />
+            {t("list.filter_my_department")}
+          </Button>
+        )}
       </div>
 
       <Card className="overflow-hidden">

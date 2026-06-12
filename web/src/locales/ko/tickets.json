@@ -17,7 +17,8 @@
     "pagination_info": "티켓 {{total}}개 · {{page}}/{{totalPages}} 페이지",
     "pagination_syncing": " · 동기화 중…",
     "btn_prev": "이전",
-    "btn_next": "다음"
+    "btn_next": "다음",
+    "filter_my_department": "내 부서"
   },
   "detail": {
     "back_link": "티켓",

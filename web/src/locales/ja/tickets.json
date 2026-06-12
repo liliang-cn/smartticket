@@ -17,7 +17,8 @@
     "pagination_info": "{{total}} 件 · {{page}}/{{totalPages}} ページ",
     "pagination_syncing": " · 同期中…",
     "btn_prev": "前へ",
-    "btn_next": "次へ"
+    "btn_next": "次へ",
+    "filter_my_department": "自分の部署"
   },
   "detail": {
     "back_link": "チケット",
