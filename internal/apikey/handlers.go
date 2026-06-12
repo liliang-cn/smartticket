@@ -3,7 +3,6 @@ package apikey
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -64,15 +63,6 @@ func (h *Handlers) Create(c *gin.Context) {
 	})
 }
 
-// safePrefix strips the well-known label from a stored key prefix so that the
-// List response never contains a usable key fragment. The DB stores the first
-// 12 chars (e.g. "stk_live_9ed"); we return only the unique trailing portion
-// (e.g. "9ed") as a visual hint for the user to identify their keys.
-func safePrefix(p string) string {
-	const label = keyPrefixLabel + "_" // "stk_live_"
-	return strings.TrimPrefix(p, label)
-}
-
 func (h *Handlers) List(c *gin.Context) {
 	keys, err := h.svc.List()
 	if err != nil {
@@ -81,7 +71,9 @@ func (h *Handlers) List(c *gin.Context) {
 	}
 	views := make([]keyView, 0, len(keys))
 	for _, k := range keys {
-		views = append(views, keyView{ID: k.ID, Name: k.Name, KeyPrefix: safePrefix(k.KeyPrefix), UserID: k.UserID,
+		// KeyPrefix is the first 12 chars (e.g. "stk_live_9ed") — a safe display
+		// hint, NOT the secret. The full plaintext is never recoverable from it.
+		views = append(views, keyView{ID: k.ID, Name: k.Name, KeyPrefix: k.KeyPrefix, UserID: k.UserID,
 			IsActive: k.IsActive, ExpiresAt: toUnix(k.ExpiresAt), LastUsedAt: toUnix(k.LastUsedAt), CreatedAt: k.CreatedAt.Unix()})
 	}
 	c.JSON(http.StatusOK, gin.H{"api_keys": views})

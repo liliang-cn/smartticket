@@ -29,11 +29,15 @@ func TestCreateHandlerReturnsPlaintextOnce(t *testing.T) {
 	require.Equal(t, http.StatusCreated, w.Code)
 	var resp map[string]any
 	require.NoError(t, json.Unmarshal(w.Body.Bytes(), &resp))
-	require.Contains(t, resp["key"].(string), "stk_live_")
+	plaintext := resp["key"].(string)
+	require.Contains(t, plaintext, "stk_live_")
 
+	// The list shows the safe 12-char KeyPrefix but MUST NOT leak the full
+	// plaintext secret. The short prefix substring is fine; the whole key is not.
 	r.GET("/admin/api-keys", h.List)
 	req2 := httptest.NewRequest(http.MethodGet, "/admin/api-keys", nil)
 	w2 := httptest.NewRecorder()
 	r.ServeHTTP(w2, req2)
-	require.NotContains(t, w2.Body.String(), "stk_live_")
+	require.NotContains(t, w2.Body.String(), plaintext)
+	require.Contains(t, w2.Body.String(), `"key_prefix":"stk_live_`) // safe display hint present
 }
