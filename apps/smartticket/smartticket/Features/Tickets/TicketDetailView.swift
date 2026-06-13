@@ -108,6 +108,11 @@ struct TicketDetailView: View {
                 if let t = model.ticket {
                     header(t)
                     if canManage { manageBar(t) }
+                    if canManage {
+                        CopilotPanel(ticketID: ticketID, currentDraft: reply) { text in
+                            reply = text
+                        }
+                    }
                     conversation
                 } else if let error = model.error {
                     InlineError(message: error) { Task { await model.load() } }

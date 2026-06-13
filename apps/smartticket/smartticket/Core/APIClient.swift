@@ -61,6 +61,17 @@ actor APIClient {
         return (items, meta)
     }
 
+    /// GET an endpoint that returns a bare JSON value (NOT the `{data,error}` envelope).
+    func getBare<T: Decodable>(_ path: String, query: [String: String?] = [:]) async throws -> T {
+        try await send(path: path, method: "GET", query: query, body: Optional<Data>.none, enveloped: false).0
+    }
+
+    /// POST to an endpoint that returns a bare JSON value (NOT the envelope).
+    @discardableResult
+    func postBare<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T {
+        try await send(path: path, method: "POST", query: [:], body: body, enveloped: false).0
+    }
+
     func post<T: Decodable, B: Encodable>(_ path: String, body: B) async throws -> T {
         try await send(path: path, method: "POST", query: [:], body: body).0
     }
@@ -90,7 +101,7 @@ actor APIClient {
 
     /// Returns (decoded data, meta). Decodes `Envelope<T>` and unwraps `.data`.
     private func send<T: Decodable, B: Encodable>(
-        path: String, method: String, query: [String: String?], body: B?, isRetry: Bool = false
+        path: String, method: String, query: [String: String?], body: B?, isRetry: Bool = false, enveloped: Bool = true
     ) async throws -> (T, PageMeta?) {
         let url = try makeURL(path: path, query: query)
         var req = URLRequest(url: url)
@@ -110,13 +121,20 @@ actor APIClient {
         if http.statusCode == 401 {
             // Try a single refresh, then retry the original request once.
             if !isRetry, await attemptRefresh() {
-                return try await send(path: path, method: method, query: query, body: body, isRetry: true)
+                return try await send(path: path, method: method, query: query, body: body, isRetry: true, enveloped: enveloped)
             }
             TokenStore.clear()
             await MainActor.run { NotificationCenter.default.post(name: .authExpired, object: nil) }
             throw APIError.unauthorized
         }
         guard (200..<300).contains(http.statusCode) else { throw decodeError(data, status: http.statusCode) }
+
+        // Bare endpoints (e.g. the AI advisory routes) return the value directly
+        // rather than wrapped in `{data,error}`.
+        if !enveloped {
+            do { return (try JSONDecoder().decode(T.self, from: data), nil) }
+            catch { throw APIError.decoding(String(describing: error)) }
+        }
 
         do {
             let env = try JSONDecoder().decode(Envelope<T>.self, from: data)
