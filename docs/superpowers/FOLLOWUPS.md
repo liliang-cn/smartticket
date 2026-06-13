@@ -6,34 +6,28 @@ by priority.
 
 ## AI
 
-### 1. AI async job queue (in-process, SQLite-backed) — HIGH for production
-Today every AI run (auto Triage/Sentinel + on-demand Research/Review/Draft +
-aiassist auto-classify/auto-reply) is a fire-and-forget goroutine (recover + 2min
-timeout). It works at small scale but has three gaps:
-- **No concurrency cap / backpressure** — a burst of tickets/messages spawns
-  unbounded goroutines, each holding an LLM + embedding call; can hit provider
-  rate limits / exhaust connections / spike memory.
-- **No crash/failover recovery** — on the DRBD HA cluster a failover kills
-  in-flight goroutines, leaving suggestions stuck in `pending` (orphaned). Seen
-  in testing.
-- **No retry** — transient LLM failures (timeout/5xx/rate-limit) just mark
-  `failed`.
+### 1. AI async job queue — MOSTLY RESOLVED (agent-go v2.81.0 task queue)
+The 5 advisory agents now execute through agent-go's **persistent TeamManager
+task queue** (`Tasks().Submit` + `OutputSchema`), which persists each run to
+SQLite. On top of that:
+- ✅ **Concurrency cap / backpressure** — a package-wide semaphore in
+  `Team.structured()` caps concurrent in-flight tasks at `min(NumCPU-2,4)` (>=2).
+  agent-go's own submit has no cap, so this is ours.
+- ✅ **Crash/failover recovery** — `Orchestrator.RecoverPending` (wired into
+  startup) re-runs suggestions left `pending` by a dead process: idempotent
+  re-run from the persisted ticket id. Reviewer (no persisted draft) is marked
+  `failed` for re-trigger.
+- ⚠️ **Retry** — partial. agent-go's StructuredOutput lint retries malformed
+  output (bounded); transient LLM/network failures still mark `failed` (the user
+  re-triggers, or the next auto-trigger / startup recovery re-runs). A real
+  backoff-retry loop is still a possible enhancement, but no longer urgent.
 
-**Recommended design (no new deps, single-binary-friendly):** mirror the existing
-webhook delivery worker (`internal/webhook/worker.go`) — a DB-backed queue + a
-bounded worker pool.
-- Add `attempts int` + `next_attempt_at *int64` to `models.AISuggestion` (and the
-  Reviewer draft input, since it isn't persisted today).
-- All AI triggers ENQUEUE (write a `pending` row) instead of spawning a goroutine.
-- `internal/aiteam/worker.go`: poll `pending`/retryable rows, run with
-  `min(NumCPU, 4)` concurrency, exponential-backoff retry, broadcast on done.
-- On startup, re-enqueue orphaned `pending` rows (failover/crash recovery).
-References: `internal/webhook/worker.go` (DB queue + worker pattern), agent-go
-TeamManager's own persistent Task queue.
+NOTE: `aiassist` auto-classify/auto-reply still uses fire-and-forget goroutines
+(it doesn't go through the team task queue). Lower volume; left as-is for now.
 
-### 2. RunReviewer loads AI settings twice
-`internal/aiteam/agents.go` `RunReviewer` calls `settings.Get()` twice — one
-redundant DB round-trip per Reviewer call. Minor; collapse to one.
+### 2. RunReviewer loads AI settings twice — RESOLVED
+Collapsed to a single `settings.Get()` (gate on Enabled + reuse for
+ReplyInstructions).
 
 ## Deployment / robustness
 

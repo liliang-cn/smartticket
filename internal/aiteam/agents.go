@@ -410,6 +410,8 @@ func (t *Team) RunReviewer(ctx context.Context, tc TicketContext, draft string) 
 	if t.gen == nil {
 		return nil, aiassist.ErrNotConfigured
 	}
+	// Load settings once: gate on Enabled and reuse for ReplyInstructions.
+	var replyGuidelines string
 	if t.settings != nil {
 		set, err := t.settings.Get()
 		if err != nil {
@@ -418,6 +420,7 @@ func (t *Team) RunReviewer(ctx context.Context, tc TicketContext, draft string) 
 		if !set.Enabled {
 			return nil, aiassist.ErrDisabled
 		}
+		replyGuidelines = strings.TrimSpace(set.ReplyInstructions)
 	}
 
 	var b strings.Builder
@@ -428,15 +431,10 @@ func (t *Team) RunReviewer(ctx context.Context, tc TicketContext, draft string) 
 	b.WriteString(draft)
 	b.WriteString("\n")
 
-	if t.settings != nil {
-		set, err := t.settings.Get()
-		if err == nil {
-			if c := strings.TrimSpace(set.ReplyInstructions); c != "" {
-				b.WriteString("\nTeam reply guidelines:\n")
-				b.WriteString(c)
-				b.WriteString("\n")
-			}
-		}
+	if replyGuidelines != "" {
+		b.WriteString("\nTeam reply guidelines:\n")
+		b.WriteString(replyGuidelines)
+		b.WriteString("\n")
 	}
 
 	dataMap, valid, err := t.structured(ctx, "Reviewer", b.String(), reviewerSpec)
