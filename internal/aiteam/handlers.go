@@ -60,12 +60,14 @@ func (h *Handlers) Research(c *gin.Context) {
 	if !ok {
 		return
 	}
-	sug, err := h.orch.Run(c.Request.Context(), "Researcher", h.buildCtx(id), "")
-	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+	// Async: return immediately with a pending suggestion; the result streams to
+	// the Copilot panel over the realtime hub when the agent finishes.
+	sug := h.orch.RunAsync("Researcher", h.buildCtx(id), "")
+	if sug == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "AI disabled"})
 		return
 	}
-	c.JSON(http.StatusOK, sug)
+	c.JSON(http.StatusAccepted, sug)
 }
 
 // reviewRequest is the body for the Review endpoint.
@@ -98,12 +100,12 @@ func (h *Handlers) Review(c *gin.Context) {
 	// Ignore bind error — draft is optional; an empty string is valid for the Reviewer.
 	_ = c.ShouldBindJSON(&body)
 
-	sug, err := h.orch.Run(c.Request.Context(), "Reviewer", h.buildCtx(id), body.Draft)
-	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+	sug := h.orch.RunAsync("Reviewer", h.buildCtx(id), body.Draft)
+	if sug == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "AI disabled"})
 		return
 	}
-	c.JSON(http.StatusOK, sug)
+	c.JSON(http.StatusAccepted, sug)
 }
 
 // Draft dispatches the Drafter advisory agent on demand.
@@ -125,12 +127,12 @@ func (h *Handlers) Draft(c *gin.Context) {
 	if !ok {
 		return
 	}
-	sug, err := h.orch.Run(c.Request.Context(), "Drafter", h.buildCtx(id), "")
-	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": err.Error()})
+	sug := h.orch.RunAsync("Drafter", h.buildCtx(id), "")
+	if sug == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "AI disabled"})
 		return
 	}
-	c.JSON(http.StatusOK, sug)
+	c.JSON(http.StatusAccepted, sug)
 }
 
 // List returns all AI suggestions for a ticket.

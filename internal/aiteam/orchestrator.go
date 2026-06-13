@@ -106,6 +106,31 @@ func (o *Orchestrator) Run(ctx context.Context, agentName string, tc TicketConte
 	return sug, nil
 }
 
+// RunAsync starts agentName in the background so the HTTP request returns
+// immediately — AI must never block a user action. It synchronously creates a
+// "pending" suggestion (returned to the caller so the UI can show "analyzing"),
+// then runs the agent in a panic-isolated, timeout-bounded goroutine; the
+// completed result is persisted and broadcast over the realtime hub on finish.
+// Returns nil when AI is globally disabled (no pending row is created).
+func (o *Orchestrator) RunAsync(agentName string, tc TicketContext, draft string) *models.AISuggestion {
+	if o.team.settings != nil {
+		if set, err := o.team.settings.Get(); err == nil && !set.Enabled {
+			return nil
+		}
+	}
+	pending, err := o.store.Upsert(tc.TicketID, agentName, "pending", 0, "")
+	if err != nil {
+		return nil
+	}
+	go func() {
+		defer func() { _ = recover() }()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		_, _ = o.Run(ctx, agentName, tc, draft)
+	}()
+	return pending
+}
+
 // dispatch calls the appropriate Team Run method and returns (jsonPayload,
 // confidence, error).
 func (o *Orchestrator) dispatch(ctx context.Context, agentName string, tc TicketContext, draft string) (string, float64, error) {
