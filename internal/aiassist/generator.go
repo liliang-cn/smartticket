@@ -20,6 +20,14 @@ type Chatter interface {
 	Chat(ctx context.Context, msgs []llm.ChatMessage) (string, error)
 }
 
+// jsonChatter is an optional Chatter capability: a chat completion that requests
+// a native JSON-object response_format. When the underlying provider supports it
+// (*llm.Service does), the Generator uses it for structured generations so the
+// model returns clean JSON the schema lint can parse on the first try.
+type jsonChatter interface {
+	ChatJSON(ctx context.Context, msgs []llm.ChatMessage) (string, error)
+}
+
 // Generator adapts a Chatter to agent-go's domain.Generator. The underlying
 // BYO-LLM path is text-only (no native tool-calling), so tool definitions are
 // accepted but not advertised to the model; the agent runtime still drives
@@ -33,8 +41,19 @@ func NewGenerator(chat Chatter) *Generator { return &Generator{chat: chat} }
 
 var _ domain.Generator = (*Generator)(nil)
 
-func (g *Generator) Generate(ctx context.Context, prompt string, _ *domain.GenerationOptions) (string, error) {
-	return g.chat.Chat(ctx, []llm.ChatMessage{{Role: "user", Content: prompt}})
+// complete runs a chat completion, using the native JSON-object response_format
+// when the runtime asked for structured output and the provider supports it.
+func (g *Generator) complete(ctx context.Context, msgs []llm.ChatMessage, opts *domain.GenerationOptions) (string, error) {
+	if opts != nil && opts.ResponseFormat != nil {
+		if jc, ok := g.chat.(jsonChatter); ok {
+			return jc.ChatJSON(ctx, msgs)
+		}
+	}
+	return g.chat.Chat(ctx, msgs)
+}
+
+func (g *Generator) Generate(ctx context.Context, prompt string, opts *domain.GenerationOptions) (string, error) {
+	return g.complete(ctx, []llm.ChatMessage{{Role: "user", Content: prompt}}, opts)
 }
 
 func (g *Generator) Stream(ctx context.Context, prompt string, opts *domain.GenerationOptions, cb func(string)) error {
@@ -46,8 +65,8 @@ func (g *Generator) Stream(ctx context.Context, prompt string, opts *domain.Gene
 	return nil
 }
 
-func (g *Generator) GenerateWithTools(ctx context.Context, msgs []domain.Message, _ []domain.ToolDefinition, _ *domain.GenerationOptions) (*domain.GenerationResult, error) {
-	out, err := g.chat.Chat(ctx, toChatMessages(msgs))
+func (g *Generator) GenerateWithTools(ctx context.Context, msgs []domain.Message, _ []domain.ToolDefinition, opts *domain.GenerationOptions) (*domain.GenerationResult, error) {
+	out, err := g.complete(ctx, toChatMessages(msgs), opts)
 	if err != nil {
 		return nil, err
 	}
