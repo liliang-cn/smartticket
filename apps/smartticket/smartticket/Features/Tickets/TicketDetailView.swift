@@ -95,6 +95,7 @@ struct TicketDetailView: View {
     @State private var model: TicketDetailModel
     @State private var reply = ""
     @State private var internalNote = false
+    @State private var showMacros = false
 
     init(ticketID: Int, canManage: Bool) {
         self.ticketID = ticketID
@@ -220,6 +221,13 @@ struct TicketDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             if canManage {
+                Button { showMacros = true } label: {
+                    Label("Macros", systemImage: "text.badge.checkmark")
+                        .font(.caption.weight(.semibold)).foregroundStyle(Brand.primary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            if canManage {
                 Toggle(isOn: $internalNote) {
                     Label("Internal note (hidden from customer)", systemImage: "lock")
                         .font(.caption)
@@ -249,6 +257,11 @@ struct TicketDetailView: View {
         }
         .padding(14)
         .background(.bar)
+        .sheet(isPresented: $showMacros) {
+            MacroPicker { body in
+                reply = reply.isEmpty ? body : reply + "\n\n" + body
+            }
+        }
     }
 
     private var canSend: Bool {
