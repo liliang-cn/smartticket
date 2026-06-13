@@ -1292,7 +1292,7 @@ func aiSafeGo(label string, fn func(ctx context.Context)) {
 				logger.Error("ai background task panicked", zap.String("task", label), zap.Any("panic", r))
 			}
 		}()
-		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 		defer cancel()
 		fn(ctx)
 	}()
