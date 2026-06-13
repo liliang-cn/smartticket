@@ -1,0 +1,63 @@
+{
+  "panel_title": "AI Copilot",
+  "loading": "Loading suggestions…",
+  "empty": "No AI suggestions yet. Agents will analyze this ticket automatically.",
+  "run_btn": "Re-run",
+  "adopt_btn": "Adopt",
+  "adopted_label": "Adopted",
+  "dismiss_btn": "Dismiss",
+  "dismissed_label": "Dismissed",
+  "reasoning_label": "Reasoning",
+  "confidence": {
+    "high": "High",
+    "med": "Med",
+    "low": "Low"
+  },
+  "agent": {
+    "Triage": "Triage",
+    "Sentinel": "Sentinel",
+    "Researcher": "Researcher",
+    "Reviewer": "Reviewer",
+    "Drafter": "Drafter"
+  },
+  "triage": {
+    "priority": "Priority",
+    "severity": "Severity",
+    "category": "Category",
+    "apply_btn": "Apply fields"
+  },
+  "sentinel": {
+    "sentiment": "Sentiment",
+    "churn_risk": "Churn risk",
+    "sla_risk": "SLA risk",
+    "escalate_badge": "Escalation recommended",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "researcher": {
+    "kb_label": "KB Articles",
+    "similar_label": "Similar tickets",
+    "merge_tag": "Merge candidate",
+    "resolution_label": "Suggested resolution",
+    "insert_btn": "Insert resolution",
+    "run_hint": "Run Researcher agent"
+  },
+  "reviewer": {
+    "approved_badge": "Draft approved",
+    "revised_draft_label": "Revised draft",
+    "use_draft_btn": "Use revised draft",
+    "run_needs_draft": "Write a draft reply first"
+  },
+  "drafter": {
+    "use_draft_btn": "Use draft",
+    "run_hint": "Run Drafter agent"
+  },
+  "toast": {
+    "adopt_error": "Could not adopt suggestion",
+    "dismiss_error": "Could not dismiss suggestion",
+    "run_error": "Could not run agent",
+    "research_done": "Research complete",
+    "review_done": "Review complete",
+    "draft_done": "Draft ready"
+  }
+}

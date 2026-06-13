@@ -15,10 +15,19 @@
     "automations": "自动化",
     "macros": "宏",
     "teams": "团队",
+    "departments": "部门管理",
+    "api_keys": "API 密钥",
+    "webhooks": "Webhooks",
     "settings": "设置",
     "soon": "即将",
     "coming_soon": "敬请期待",
-    "coming_soon_item": "{{label}}(敬请期待)"
+    "coming_soon_item": "{{label}}(敬请期待)",
+    "people": "客户与用户",
+    "catalog": "目录",
+    "organization": "组织",
+    "automation": "自动化",
+    "integrations": "集成",
+    "analytics": "分析"
   },
   "topbar": {
     "sign_out": "退出登录",
@@ -63,12 +72,13 @@
       "low": "低",
       "medium": "中",
       "high": "高",
-      "urgent": "紧急"
+      "critical": "紧急"
     },
     "severity": {
       "minor": "轻微",
       "major": "严重",
-      "critical": "致命"
+      "critical": "致命",
+      "trivial": "轻微"
     },
     "sla_status": {
       "within": "符合 SLA",

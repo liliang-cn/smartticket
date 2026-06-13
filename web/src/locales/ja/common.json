@@ -15,10 +15,19 @@
     "automations": "自動化",
     "macros": "マクロ",
     "teams": "チーム",
+    "departments": "部署管理",
+    "api_keys": "API キー",
+    "webhooks": "Webhook",
     "settings": "設定",
     "soon": "近日",
     "coming_soon": "近日公開",
-    "coming_soon_item": "{{label}}（近日公開）"
+    "coming_soon_item": "{{label}}（近日公開）",
+    "people": "顧客とユーザー",
+    "catalog": "カタログ",
+    "organization": "組織",
+    "automation": "自動化",
+    "integrations": "連携",
+    "analytics": "分析"
   },
   "topbar": {
     "sign_out": "ログアウト",
@@ -63,12 +72,13 @@
       "low": "低",
       "medium": "中",
       "high": "高",
-      "urgent": "緊急"
+      "critical": "緊急"
     },
     "severity": {
       "minor": "軽微",
       "major": "重大",
-      "critical": "致命的"
+      "critical": "致命的",
+      "trivial": "軽微"
     },
     "sla_status": {
       "within": "SLA 内",

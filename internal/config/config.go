@@ -22,6 +22,7 @@ type Config struct {
 	LLM         LLMConfig       `mapstructure:"llm"`
 	Storage     StorageConfig   `mapstructure:"storage"`
 	Email       EmailConfig     `mapstructure:"email"`
+	Webhook     WebhookConfig   `mapstructure:"webhook"`
 	// SecretKeyRaw is the raw encryption key (hex/base64) used for at-rest
 	// secrets such as LLM provider API keys. Bound from SMARTTICKET_SECRET_KEY.
 	SecretKeyRaw string `mapstructure:"secret_key"`
@@ -86,6 +87,13 @@ type SMTPConfig struct {
 type InboundConfig struct {
 	Enabled bool   `mapstructure:"enabled"`
 	Secret  string `mapstructure:"secret"`
+}
+
+// WebhookConfig guards outbound webhook delivery behavior.
+type WebhookConfig struct {
+	// BlockPrivateIPs rejects deliveries whose URL resolves to a private/loopback
+	// address (SSRF guard). Default false — self-hosted setups often target intranet.
+	BlockPrivateIPs bool `mapstructure:"block_private_ips"`
 }
 
 // IMAPConfig polls a mailbox over IMAP and turns new mail into tickets — the
@@ -345,6 +353,9 @@ func setDefaults(v *viper.Viper) {
 
 	// Application defaults
 	v.SetDefault("app.base_url", "http://localhost:6533")
+
+	// Webhook delivery defaults
+	v.SetDefault("webhook.block_private_ips", false)
 
 	// Storage (attachments) defaults
 	v.SetDefault("storage.data_path", "./data")

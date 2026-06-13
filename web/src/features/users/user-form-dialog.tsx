@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useCreateUser, type CreateUserInput } from "@/features/users/api";
 import { useCustomers } from "@/features/customers/api";
 import { useRoles } from "@/features/rbac/api";
+import { useDepartments } from "@/features/departments/api";
 import { apiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
   // Selectable roles come from the RBAC roles configuration, not a hardcoded
   // list — any role an admin creates under /rbac is assignable here.
   const { data: roles = [] } = useRoles();
+  const { data: departments = [] } = useDepartments();
 
   const schema = z
     .object({
@@ -85,6 +87,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
       role: z.string().min(1, t("form.validation.role_required")),
       is_active: z.boolean(),
       customer_id: z.string().optional(),
+      department_id: z.string().optional(),
     })
     .refine((v) => v.role !== CUSTOMER_ROLE || !!v.customer_id, {
       message: t("form.validation.customer_required"),
@@ -110,6 +113,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
       role: "engineer",
       is_active: true,
       customer_id: undefined,
+      department_id: undefined,
     },
   });
 
@@ -126,6 +130,7 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
         role: "engineer",
         is_active: true,
         customer_id: undefined,
+        department_id: undefined,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -145,6 +150,10 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
         values.role === CUSTOMER_ROLE && values.customer_id
           ? Number(values.customer_id)
           : undefined,
+      department_id:
+        values.department_id && values.department_id !== "__none__"
+          ? Number(values.department_id)
+          : null,
     };
     try {
       await create.mutateAsync(payload);
@@ -293,6 +302,27 @@ export function UserFormDialog({ trigger }: UserFormDialogProps) {
               )}
             </div>
           )}
+          <div className="space-y-1.5">
+            <Label>{t("form.fields.department")}</Label>
+            <Select
+              value={watch("department_id") ?? "__none__"}
+              onValueChange={(v) => setValue("department_id", v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t("form.placeholders.department")} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">
+                  {t("form.placeholders.department")}
+                </SelectItem>
+                {departments.map((d) => (
+                  <SelectItem key={d.id} value={String(d.id)}>
+                    {d.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="ghost">

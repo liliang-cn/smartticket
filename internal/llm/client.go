@@ -5,6 +5,7 @@ import (
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
+	"github.com/openai/openai-go/v3/shared"
 )
 
 // maxEmbeddingBatch is the per-request input cap (Aliyun text-embedding-v4 = 10).
@@ -31,8 +32,8 @@ func NewClient(baseURL, apiKey string) *Client {
 	}
 }
 
-// Chat sends messages and returns the assistant's text.
-func (c *Client) Chat(ctx context.Context, model string, msgs []ChatMessage) (string, error) {
+// toOpenAIMessages converts our ChatMessages to the OpenAI SDK shape.
+func toOpenAIMessages(msgs []ChatMessage) []openai.ChatCompletionMessageParamUnion {
 	oa := make([]openai.ChatCompletionMessageParamUnion, 0, len(msgs))
 	for _, m := range msgs {
 		switch m.Role {
@@ -44,9 +45,44 @@ func (c *Client) Chat(ctx context.Context, model string, msgs []ChatMessage) (st
 			oa = append(oa, openai.UserMessage(m.Content))
 		}
 	}
+	return oa
+}
+
+// Chat sends messages and returns the assistant's text.
+func (c *Client) Chat(ctx context.Context, model string, msgs []ChatMessage) (string, error) {
 	resp, err := c.api.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Model:    model,
-		Messages: oa,
+		Messages: toOpenAIMessages(msgs),
+	})
+	if err != nil {
+		return "", err
+	}
+	if len(resp.Choices) == 0 {
+		return "", nil
+	}
+	return resp.Choices[0].Message.Content, nil
+}
+
+// ChatJSON is like Chat but sets OpenAI response_format=json_object, instructing
+// the model to return a single well-formed JSON object (no prose, no code
+// fences). Used for native structured output so a downstream schema validator
+// sees clean JSON. Widely supported across OpenAI-compatible providers
+// (including DashScope/qwen).
+func (c *Client) ChatJSON(ctx context.Context, model string, msgs []ChatMessage) (string, error) {
+	// Some OpenAI-compatible providers (notably DashScope/qwen) reject
+	// response_format=json_object unless the word "json" appears in the
+	// messages. Prepend a system instruction that both satisfies that guard
+	// and reinforces the required output shape.
+	msgs = append([]ChatMessage{{
+		Role:    "system",
+		Content: "Respond with a single valid JSON object and nothing else — no prose, no markdown code fences.",
+	}}, msgs...)
+	resp, err := c.api.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
+		Model:    model,
+		Messages: toOpenAIMessages(msgs),
+		ResponseFormat: openai.ChatCompletionNewParamsResponseFormatUnion{
+			OfJSONObject: &shared.ResponseFormatJSONObjectParam{},
+		},
 	})
 	if err != nil {
 		return "", err

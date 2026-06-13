@@ -15,10 +15,19 @@
     "automations": "Automazioni",
     "macros": "Macro",
     "teams": "Team",
+    "departments": "Reparti",
+    "api_keys": "Chiavi API",
+    "webhooks": "Webhook",
     "settings": "Impostazioni",
     "soon": "presto",
     "coming_soon": "Prossimamente",
-    "coming_soon_item": "{{label}} (prossimamente)"
+    "coming_soon_item": "{{label}} (prossimamente)",
+    "people": "Clienti e utenti",
+    "catalog": "Catalogo",
+    "organization": "Organizzazione",
+    "automation": "Automazione",
+    "integrations": "Integrazioni",
+    "analytics": "Analisi"
   },
   "topbar": {
     "sign_out": "Esci",
@@ -63,12 +72,13 @@
       "low": "Bassa",
       "medium": "Media",
       "high": "Alta",
-      "urgent": "Urgente"
+      "critical": "Critica"
     },
     "severity": {
       "minor": "Lieve",
       "major": "Grave",
-      "critical": "Critica"
+      "critical": "Critica",
+      "trivial": "Banale"
     },
     "sla_status": {
       "within": "Entro SLA",

@@ -1,0 +1,54 @@
+{
+  "page": {
+    "eyebrow": "organizzazione",
+    "title": "Reparti"
+  },
+  "newDepartment": "Nuovo reparto",
+  "table": {
+    "name": "Nome",
+    "manager": "Responsabile"
+  },
+  "empty": "Nessun reparto ancora. Creane uno per organizzare il tuo team.",
+  "actions": {
+    "addChild": "Sottoreparto",
+    "addChildTitle": "Aggiungi sottoreparto",
+    "edit": "Modifica",
+    "editTitle": "Modifica questo reparto",
+    "delete": "Elimina",
+    "deleteTitle": "Elimina questo reparto"
+  },
+  "form": {
+    "createTitle": "Nuovo reparto",
+    "editTitle": "Modifica reparto",
+    "createDescription": "Crea un nuovo reparto o sottoreparto.",
+    "editDescription": "Aggiorna nome, reparto padre o responsabile.",
+    "name": "Nome",
+    "namePlaceholder": "Ingegneria",
+    "parent": "Reparto padre",
+    "parentNone": "(nessuno — radice)",
+    "manager": "Responsabile",
+    "managerNone": "(nessuno)",
+    "submitCreate": "Crea",
+    "submitEdit": "Salva",
+    "creating": "Creazione…",
+    "savingEdit": "Salvataggio…"
+  },
+  "deleteDialog": {
+    "title": "Eliminare il reparto?",
+    "description": "Eliminare \"{{name}}\"? I sottoreparti diventeranno radici.",
+    "confirm": "Elimina",
+    "confirmPending": "Eliminazione…"
+  },
+  "validation": {
+    "nameRequired": "Il nome è obbligatorio"
+  },
+  "toast": {
+    "created": "Reparto creato",
+    "updated": "Reparto aggiornato",
+    "deleted": "Reparto eliminato",
+    "createFailed": "Impossibile creare il reparto",
+    "updateFailed": "Impossibile aggiornare il reparto",
+    "deleteFailed": "Impossibile eliminare il reparto",
+    "cycleError": "Non è possibile spostare un reparto sotto un suo discendente"
+  }
+}

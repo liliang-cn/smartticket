@@ -151,6 +151,17 @@ func (s *Service) Chat(ctx context.Context, msgs []ChatMessage) (string, error) 
 	return NewClient(p.APIEndpoint, key).Chat(ctx, p.Model, msgs)
 }
 
+// ChatJSON is like Chat but requests a native JSON-object response_format from
+// the resolved chat provider — used for structured generations so the model
+// returns clean JSON (no prose/fences) that a schema validator can parse.
+func (s *Service) ChatJSON(ctx context.Context, msgs []ChatMessage) (string, error) {
+	p, key, err := s.ResolveChat()
+	if err != nil {
+		return "", err
+	}
+	return NewClient(p.APIEndpoint, key).ChatJSON(ctx, p.Model, msgs)
+}
+
 // TestResult reports the outcome of a provider self-test.
 type TestResult struct {
 	ChatOK      bool   `json:"chat_ok"`

@@ -1,0 +1,76 @@
+{
+  "page": {
+    "eyebrow": "integrazioni",
+    "title": "Webhook"
+  },
+  "newWebhook": "Nuovo webhook",
+  "table": {
+    "name": "Nome",
+    "url": "URL",
+    "events": "Eventi",
+    "status": "Stato"
+  },
+  "badges": {
+    "active": "attivo",
+    "inactive": "inattivo"
+  },
+  "empty": "Nessun webhook ancora. Creane uno per ricevere notifiche di eventi in tempo reale.",
+  "actions": {
+    "test": "Testa",
+    "testTitle": "Invia una consegna di prova",
+    "deliveries": "Consegne",
+    "deliveriesTitle": "Visualizza il registro delle consegne",
+    "delete": "Elimina",
+    "deleteTitle": "Elimina questo webhook"
+  },
+  "reveal": {
+    "title": "Copia il tuo segreto di firma adesso",
+    "subtitle": "Questo segreto viene mostrato una sola volta e non può essere recuperato in seguito. Usalo per verificare i payload del webhook (HMAC-SHA256).",
+    "copy": "Copia",
+    "copied": "Copiato!",
+    "close": "Chiudi",
+    "copyFailed": "Impossibile copiare negli appunti"
+  },
+  "form": {
+    "title": "Crea webhook",
+    "description": "Aggiungi un endpoint per ricevere notifiche HTTP POST per gli eventi selezionati.",
+    "name": "Nome",
+    "namePlaceholder": "La mia integrazione",
+    "url": "URL endpoint",
+    "events": "Iscriviti agli eventi",
+    "submit": "Crea webhook",
+    "creating": "Creazione in corso…"
+  },
+  "validation": {
+    "nameRequired": "Il nome è obbligatorio",
+    "urlRequired": "L'URL dell'endpoint è obbligatorio",
+    "eventsRequired": "Seleziona almeno un evento"
+  },
+  "toast": {
+    "created": "Webhook creato",
+    "createFailed": "Impossibile creare il webhook",
+    "deleted": "Webhook eliminato",
+    "deleteFailed": "Impossibile eliminare il webhook",
+    "testQueued": "Consegna di prova in coda",
+    "testFailed": "Impossibile accodare la consegna di prova"
+  },
+  "deleteDialog": {
+    "title": "Eliminare il webhook?",
+    "description": "Questo elimina definitivamente \"{{name}}\". Non verranno inviate ulteriori consegne.",
+    "confirm": "Elimina",
+    "confirmPending": "Eliminazione in corso…"
+  },
+  "deliveries": {
+    "title": "Consegne — {{name}}",
+    "description": "Tentativi di consegna recenti per questo endpoint webhook.",
+    "empty": "Nessuna consegna ancora.",
+    "table": {
+      "event": "Evento",
+      "status": "Stato",
+      "code": "Codice HTTP",
+      "attempts": "Tentativi",
+      "lastAttempt": "Ultimo tentativo",
+      "error": "Errore"
+    }
+  }
+}

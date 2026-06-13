@@ -46,15 +46,16 @@ type LoginResponse struct {
 
 // UserInfo represents safe user information for responses.
 type UserInfo struct {
-	ID          uint       `json:"id"`
-	Email       string     `json:"email"`
-	Username    string     `json:"username"`
-	FirstName   string     `json:"first_name"`
-	LastName    string     `json:"last_name"`
-	Role        string     `json:"role"`
-	CustomerID  *uint      `json:"customer_id,omitempty"`
-	IsActive    bool       `json:"is_active"`
-	LastLoginAt *time.Time `json:"last_login_at"`
+	ID           uint       `json:"id"`
+	Email        string     `json:"email"`
+	Username     string     `json:"username"`
+	FirstName    string     `json:"first_name"`
+	LastName     string     `json:"last_name"`
+	Role         string     `json:"role"`
+	CustomerID   *uint      `json:"customer_id,omitempty"`
+	DepartmentID *uint      `json:"department_id,omitempty"`
+	IsActive     bool       `json:"is_active"`
+	LastLoginAt  *time.Time `json:"last_login_at"`
 }
 
 // RefreshTokenRequest represents the refresh token request.
@@ -315,15 +316,16 @@ func (s *Service) verifyPassword(password, hash string) error {
 // createUserInfo creates safe user info for responses.
 func (s *Service) createUserInfo(user *models.User) *UserInfo {
 	info := &UserInfo{
-		ID:          user.ID,
-		Email:       user.Email,
-		Username:    user.Username,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Role:        user.Role,
-		CustomerID:  user.CustomerID,
-		IsActive:    user.IsActive,
-		LastLoginAt: user.LastLoginAt,
+		ID:           user.ID,
+		Email:        user.Email,
+		Username:     user.Username,
+		FirstName:    user.FirstName,
+		LastName:     user.LastName,
+		Role:         user.Role,
+		CustomerID:   user.CustomerID,
+		DepartmentID: user.DepartmentID,
+		IsActive:     user.IsActive,
+		LastLoginAt:  user.LastLoginAt,
 	}
 
 	return info

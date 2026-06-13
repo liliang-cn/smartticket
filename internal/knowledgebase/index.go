@@ -16,6 +16,10 @@ import (
 const (
 	collectionPublic   = "kb_public"
 	collectionInternal = "kb_internal"
+
+	// collectionTickets holds resolved/updated ticket records indexed for
+	// semantic similarity search by the AI Researcher agent.
+	collectionTickets = "tickets"
 )
 
 // maxContextChars bounds the combined RAG context returned by Search.
@@ -23,6 +27,9 @@ const maxContextChars = 6000
 
 // articleIDPrefix namespaces SmartTicket article IDs inside CortexDB.
 const articleIDPrefix = "article-"
+
+// ticketIDPrefix namespaces SmartTicket ticket IDs inside CortexDB.
+const ticketIDPrefix = "ticket-"
 
 // collectionFor maps an article visibility to its CortexDB collection.
 // internal and private articles are team-only; everything else is public.
@@ -295,4 +302,129 @@ func isNotFound(err error) bool {
 	}
 	msg := strings.ToLower(err.Error())
 	return strings.Contains(msg, "not found") || strings.Contains(msg, "no rows")
+}
+
+// ─── Ticket semantic index ────────────────────────────────────────────────────
+
+// TicketHit is a ticket search result returned by SearchTickets.
+type TicketHit struct {
+	TicketID   uint    `json:"ticket_id"`
+	Title      string  `json:"title"`
+	Resolution string  `json:"resolution"`
+	Score      float64 `json:"score"`
+}
+
+// ticketKnowledgeID maps a SmartTicket ticket ID to a CortexDB knowledge ID.
+func ticketKnowledgeID(id uint) string {
+	return fmt.Sprintf("%s%d", ticketIDPrefix, id)
+}
+
+// parseTicketID extracts the SmartTicket ticket ID from a CortexDB knowledge ID.
+// Returns 0 if kid is not a recognizable ticket knowledge ID.
+func parseTicketID(kid string) uint {
+	rest, ok := strings.CutPrefix(kid, ticketIDPrefix)
+	if !ok {
+		return 0
+	}
+	n, err := strconv.ParseUint(rest, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return uint(n)
+}
+
+// SaveTicket upserts a resolved/updated ticket into the dedicated "tickets"
+// cortexdb collection for later semantic retrieval.  The indexed text combines
+// title, body (description) and resolution so that queries about symptoms,
+// errors or solutions all match.  Title and resolution are also stored in the
+// record Metadata so that SearchTickets can reconstruct them without a separate
+// DB lookup.
+//
+// SaveTicket mirrors SaveArticle but uses the "tickets" collection and a
+// different metadata schema; article methods are left entirely untouched.
+func (s *Store) SaveTicket(ctx context.Context, id uint, title, body, resolution string) error {
+	if s == nil || s.db == nil {
+		return fmt.Errorf("knowledge store not available")
+	}
+	// Combine all text fields so the vector captures symptoms, body and fix.
+	content := title
+	if body != "" {
+		content += "\n\n" + body
+	}
+	if resolution != "" {
+		content += "\n\nResolution: " + resolution
+	}
+	_, err := s.db.SaveKnowledge(ctx, cortexdb.KnowledgeSaveRequest{
+		KnowledgeID: ticketKnowledgeID(id),
+		Title:       title,
+		Content:     content,
+		Collection:  collectionTickets,
+		// Smaller chunks than articles: tickets are shorter, single-topic texts.
+		ChunkSize:    120,
+		ChunkOverlap: 20,
+		// Store structured fields in metadata so SearchTickets can read them
+		// back without hitting the main DB.
+		Metadata: map[string]string{
+			"title":      title,
+			"resolution": resolution,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("save ticket %d to index: %w", id, err)
+	}
+	return nil
+}
+
+// SearchTickets runs a semantic search over the indexed ticket collection and
+// returns ranked TicketHit results.  It mirrors searchCollection but returns
+// TicketHit slices instead of article-shaped SearchResult.
+//
+// The collection-membership verification step (GetKnowledge) is applied here
+// too so that lexical-path results from other collections cannot bleed through.
+func (s *Store) SearchTickets(ctx context.Context, query string, topK int) (*SearchResult, error) {
+	if s == nil || s.db == nil {
+		return nil, fmt.Errorf("knowledge store not available")
+	}
+	if topK <= 0 {
+		topK = 5
+	}
+	resp, err := s.db.SearchKnowledge(ctx, cortexdb.KnowledgeSearchRequest{
+		Query:      query,
+		Collection: collectionTickets,
+		TopK:       topK,
+		// Graph expansion is disabled: cross-collection graph links must not
+		// surface article content through a ticket query.
+		DisableGraph: true,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("search tickets: %w", err)
+	}
+
+	hits := make([]SearchHit, 0, len(resp.Results))
+	for _, h := range resp.Results {
+		// Verify collection membership to close the lexical-path leak.
+		rec, gerr := s.db.GetKnowledge(ctx, cortexdb.KnowledgeGetRequest{KnowledgeID: h.KnowledgeID})
+		if gerr != nil || rec == nil || rec.Knowledge.Collection != collectionTickets {
+			continue
+		}
+		tid := parseTicketID(h.KnowledgeID)
+		if tid == 0 {
+			continue
+		}
+		resolution := ""
+		if rec.Knowledge.Metadata != nil {
+			resolution = rec.Knowledge.Metadata["resolution"]
+		}
+		title := h.Title
+		if rec.Knowledge.Metadata != nil && rec.Knowledge.Metadata["title"] != "" {
+			title = rec.Knowledge.Metadata["title"]
+		}
+		hits = append(hits, SearchHit{
+			ArticleID: tid, // reuse ArticleID field as ticket ID for the generic SearchResult
+			Title:     title,
+			Snippet:   resolution, // carry resolution in Snippet so callers can access it
+			Score:     h.Score,
+		})
+	}
+	return &SearchResult{Hits: hits}, nil
 }

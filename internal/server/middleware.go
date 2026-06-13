@@ -224,6 +224,26 @@ func (s *Server) authMiddleware() gin.HandlerFunc {
 
 		token := parts[1]
 
+		// API-key path: tokens prefixed stk_live_ resolve a bound service account.
+		if strings.HasPrefix(token, "stk_live_") {
+			user, err := s.apiKeyService.Authenticate(token)
+			if err != nil {
+				appErr := errors.NewUnauthorizedError("Invalid or expired API key").
+					WithRequestID(c.GetString("request_id"))
+				logger.LogSecurityEvent("apikey_invalid", "", clientIP, userAgent, false)
+				errors.ErrorHandler(c, appErr)
+				return
+			}
+			c.Set("user_id", user.ID)
+			c.Set("user_role", user.Role)
+			if user.CustomerID != nil {
+				c.Set("user_customer_id", *user.CustomerID)
+			}
+			logger.LogSecurityEvent("apikey_success", fmt.Sprintf("%d", user.ID), clientIP, userAgent, true)
+			c.Next()
+			return
+		}
+
 		// Validate JWT token with auth service
 		userID, userRole, customerID, err := s.validateJWTToken(token)
 		if err != nil {

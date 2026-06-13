@@ -18,6 +18,9 @@ var defaultSettings = models.AISettings{
 	AutoResolveEnabled:      false,
 	MaxAutoRepliesPerTicket: 2,
 	AutoSummarizeOnResolve:  false,
+	TriageEnabled:           true,
+	SentinelEnabled:         true,
+	SentinelThrottleSec:     60,
 }
 
 // SettingsStore manages the AI feature-toggle singleton.
@@ -56,6 +59,9 @@ type UpdateSettings struct {
 	AutoResolveEnabled      *bool    `json:"auto_resolve_enabled"`
 	MaxAutoRepliesPerTicket *int     `json:"max_auto_replies_per_ticket"`
 	AutoSummarizeOnResolve  *bool    `json:"auto_summarize_on_resolve"`
+	TriageEnabled           *bool    `json:"triage_enabled"`
+	SentinelEnabled         *bool    `json:"sentinel_enabled"`
+	SentinelThrottleSec     *int     `json:"sentinel_throttle_sec"`
 }
 
 // Update applies the provided fields to the singleton.
@@ -104,6 +110,19 @@ func (s *SettingsStore) Update(in UpdateSettings) (*models.AISettings, error) {
 	}
 	if in.AutoSummarizeOnResolve != nil {
 		a.AutoSummarizeOnResolve = *in.AutoSummarizeOnResolve
+	}
+	if in.TriageEnabled != nil {
+		a.TriageEnabled = *in.TriageEnabled
+	}
+	if in.SentinelEnabled != nil {
+		a.SentinelEnabled = *in.SentinelEnabled
+	}
+	if in.SentinelThrottleSec != nil {
+		sec := *in.SentinelThrottleSec
+		if sec < 0 {
+			sec = 0
+		}
+		a.SentinelThrottleSec = sec
 	}
 	if err := s.db.Save(a).Error; err != nil {
 		return nil, err

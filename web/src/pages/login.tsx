@@ -10,13 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LanguageToggle } from "@/components/language-toggle";
 
+const LIVE_DEMO_HOST = "smartticket.superleo.app";
+const DEMO_EMAIL = "visitor@smartticket.local";
+const DEMO_PASSWORD = "DemoPass123!";
+
 export function LoginPage() {
   const { t } = useTranslation("auth");
   const { login } = useAuth();
   const branding = useBranding();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const isLiveDemo = window.location.hostname === LIVE_DEMO_HOST;
+  const [email, setEmail] = useState(isLiveDemo ? DEMO_EMAIL : "");
+  const [password, setPassword] = useState(isLiveDemo ? DEMO_PASSWORD : "");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -77,6 +82,11 @@ export function LoginPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             {t("subtitle")}
           </p>
+          {isLiveDemo && (
+            <p className="mt-3 rounded-md border border-primary/25 bg-primary/10 px-3 py-2 text-sm text-muted-foreground">
+              Live demo credentials are pre-filled with a low-permission customer account.
+            </p>
+          )}
 
           <form onSubmit={onSubmit} className="mt-8 space-y-5">
             <div className="space-y-1.5">

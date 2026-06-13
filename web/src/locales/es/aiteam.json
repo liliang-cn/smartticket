@@ -1,0 +1,63 @@
+{
+  "panel_title": "Copiloto IA",
+  "loading": "Cargando sugerencias…",
+  "empty": "Aún no hay sugerencias de IA. Los agentes analizarán este ticket automáticamente.",
+  "run_btn": "Volver a ejecutar",
+  "adopt_btn": "Adoptar",
+  "adopted_label": "Adoptado",
+  "dismiss_btn": "Descartar",
+  "dismissed_label": "Descartado",
+  "reasoning_label": "Razonamiento",
+  "confidence": {
+    "high": "Alta",
+    "med": "Media",
+    "low": "Baja"
+  },
+  "agent": {
+    "Triage": "Triaje",
+    "Sentinel": "Centinela",
+    "Researcher": "Investigador",
+    "Reviewer": "Revisor",
+    "Drafter": "Redactor"
+  },
+  "triage": {
+    "priority": "Prioridad",
+    "severity": "Gravedad",
+    "category": "Categoría",
+    "apply_btn": "Aplicar campos"
+  },
+  "sentinel": {
+    "sentiment": "Sentimiento",
+    "churn_risk": "Riesgo de abandono",
+    "sla_risk": "Riesgo SLA",
+    "escalate_badge": "Se recomienda escalado",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "researcher": {
+    "kb_label": "Artículos de KB",
+    "similar_label": "Tickets similares",
+    "merge_tag": "Candidato a fusión",
+    "resolution_label": "Resolución sugerida",
+    "insert_btn": "Insertar resolución",
+    "run_hint": "Ejecutar agente Investigador"
+  },
+  "reviewer": {
+    "approved_badge": "Borrador aprobado",
+    "revised_draft_label": "Borrador revisado",
+    "use_draft_btn": "Usar borrador revisado",
+    "run_needs_draft": "Escribe primero un borrador de respuesta"
+  },
+  "drafter": {
+    "use_draft_btn": "Usar borrador",
+    "run_hint": "Ejecutar agente Redactor"
+  },
+  "toast": {
+    "adopt_error": "No se pudo adoptar la sugerencia",
+    "dismiss_error": "No se pudo descartar la sugerencia",
+    "run_error": "No se pudo ejecutar el agente",
+    "research_done": "Investigación completada",
+    "review_done": "Revisión completada",
+    "draft_done": "Borrador listo"
+  }
+}

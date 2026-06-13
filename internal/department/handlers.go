@@ -1,0 +1,151 @@
+package department
+
+import (
+	"errors"
+	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
+// Handlers holds HTTP handlers for the department admin API.
+type Handlers struct{ svc *Service }
+
+// NewHandlers constructs a Handlers wired to the given Service.
+func NewHandlers(svc *Service) *Handlers { return &Handlers{svc: svc} }
+
+// parseID extracts a non-zero uint ID from the ":id" path parameter.
+func parseID(c *gin.Context) (uint, bool) {
+	var id uint
+	if _, err := fmt.Sscanf(c.Param("id"), "%d", &id); err != nil || id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return 0, false
+	}
+	return id, true
+}
+
+type createReq struct {
+	Name      string `json:"name" binding:"required"`
+	ParentID  *uint  `json:"parent_id"`
+	ManagerID *uint  `json:"manager_id"`
+}
+
+// Create handles POST /admin/departments.
+// @Summary Create department
+// @Description Create a new department node in the org reporting tree.
+// @Tags departments
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body createReq true "Department creation parameters"
+// @Success 201 {object} map[string]interface{} "department object"
+// @Failure 400 {object} map[string]interface{} "Invalid request or cycle detected"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/departments [post]
+func (h *Handlers) Create(c *gin.Context) {
+	var req createReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	dept, err := h.svc.Create(CreateInput{
+		Name:      req.Name,
+		ParentID:  req.ParentID,
+		ManagerID: req.ManagerID,
+	})
+	if err != nil {
+		if errors.Is(err, ErrCycle) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "cycle"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create department"})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"department": dept})
+}
+
+// List handles GET /admin/departments.
+// @Summary List departments
+// @Description Return all departments ordered by parent_id, id.
+// @Tags departments
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{} "departments array"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/departments [get]
+func (h *Handlers) List(c *gin.Context) {
+	depts, err := h.svc.List()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list departments"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"departments": depts})
+}
+
+type updateReq struct {
+	Name      *string `json:"name"`
+	ParentID  *uint   `json:"parent_id"`
+	ManagerID *uint   `json:"manager_id"`
+}
+
+// Update handles PUT /admin/departments/:id.
+// @Summary Update department
+// @Description Update a department's name, parent, or manager. Returns an error if the new parent would create a cycle.
+// @Tags departments
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Department ID"
+// @Param request body updateReq true "Department update parameters"
+// @Success 200 {object} map[string]interface{} "updated: true"
+// @Failure 400 {object} map[string]interface{} "Invalid id, request, or cycle detected"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/departments/{id} [put]
+func (h *Handlers) Update(c *gin.Context) {
+	id, ok := parseID(c)
+	if !ok {
+		return
+	}
+	var req updateReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := h.svc.Update(id, UpdateInput{
+		Name:      req.Name,
+		ParentID:  req.ParentID,
+		ManagerID: req.ManagerID,
+	})
+	if err != nil {
+		if errors.Is(err, ErrCycle) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "cycle"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update department"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"updated": true})
+}
+
+// Delete handles DELETE /admin/departments/:id.
+// @Summary Delete department
+// @Description Delete a department by ID.
+// @Tags departments
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Department ID"
+// @Success 200 {object} map[string]interface{} "deleted: true"
+// @Failure 400 {object} map[string]interface{} "Invalid id"
+// @Failure 500 {object} map[string]interface{} "Internal server error"
+// @Router /api/v1/admin/departments/{id} [delete]
+func (h *Handlers) Delete(c *gin.Context) {
+	id, ok := parseID(c)
+	if !ok {
+		return
+	}
+	if err := h.svc.Delete(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete department"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"deleted": true})
+}

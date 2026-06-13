@@ -411,6 +411,7 @@
         Star on GitHub
       </a>
     </div>
+    <p class="capture-note">Live demo login: <code>visitor@smartticket.local</code> / <code>DemoPass123!</code></p>
     <form class="launch-capture" data-mailto="liliang.imut@gmail.com">
       <input type="email" name="email" placeholder="Get the launch email" aria-label="Email for SmartTicket launch updates" required />
       <button type="submit" class="btn btn-ghost">Join launch list</button>
@@ -744,6 +745,7 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
       <a href="https://github.com/liliang-cn/smartticket" target="_blank" rel="noopener" class="btn btn-primary">Get SmartTicket on GitHub</a>
       <a href="/app/" target="_blank" rel="noopener" class="btn btn-ghost">Try live demo</a>
     </div>
+    <p class="capture-note">Live demo login: <code>visitor@smartticket.local</code> / <code>DemoPass123!</code></p>
     <form class="launch-capture" data-mailto="liliang.imut@gmail.com" style="margin-left:auto;margin-right:auto;justify-content:center;">
       <input type="email" name="email" placeholder="Get launch updates" aria-label="Email for SmartTicket launch updates" required />
       <button type="submit" class="btn btn-ghost">Join launch list</button>
@@ -820,7 +822,9 @@ smartticket serve --config configs/config.prod.yaml'>Copy commands</button>
     });
   });
 </script>
+<script src="/analytics.js" defer></script>
 <!-- SmartTicket support widget (dogfood) -->
 <script src="https://smartticket.superleo.app/widget.js" data-key="smartticket-landing" async></script>
+<script>window.goatcounter={path:function(p){return location.host+p}}</script><script data-goatcounter="https://stats.superleo.app/count" async src="https://stats.superleo.app/count.js"></script>
 </body>
 </html>

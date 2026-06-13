@@ -1,0 +1,54 @@
+{
+  "page": {
+    "eyebrow": "organización",
+    "title": "Departamentos"
+  },
+  "newDepartment": "Nuevo departamento",
+  "table": {
+    "name": "Nombre",
+    "manager": "Responsable"
+  },
+  "empty": "Sin departamentos aún. Crea uno para organizar tu equipo.",
+  "actions": {
+    "addChild": "Subdepartamento",
+    "addChildTitle": "Añadir subdepartamento",
+    "edit": "Editar",
+    "editTitle": "Editar este departamento",
+    "delete": "Eliminar",
+    "deleteTitle": "Eliminar este departamento"
+  },
+  "form": {
+    "createTitle": "Nuevo departamento",
+    "editTitle": "Editar departamento",
+    "createDescription": "Crea un nuevo departamento o subdepartamento.",
+    "editDescription": "Actualiza el nombre, departamento padre o responsable.",
+    "name": "Nombre",
+    "namePlaceholder": "Ingeniería",
+    "parent": "Departamento padre",
+    "parentNone": "(ninguno — raíz)",
+    "manager": "Responsable",
+    "managerNone": "(ninguno)",
+    "submitCreate": "Crear",
+    "submitEdit": "Guardar",
+    "creating": "Creando…",
+    "savingEdit": "Guardando…"
+  },
+  "deleteDialog": {
+    "title": "¿Eliminar departamento?",
+    "description": "¿Eliminar \"{{name}}\"? Los subdepartamentos pasarán a ser raíces.",
+    "confirm": "Eliminar",
+    "confirmPending": "Eliminando…"
+  },
+  "validation": {
+    "nameRequired": "El nombre es obligatorio"
+  },
+  "toast": {
+    "created": "Departamento creado",
+    "updated": "Departamento actualizado",
+    "deleted": "Departamento eliminado",
+    "createFailed": "No se pudo crear el departamento",
+    "updateFailed": "No se pudo actualizar el departamento",
+    "deleteFailed": "No se pudo eliminar el departamento",
+    "cycleError": "No se puede mover un departamento bajo su propio descendiente"
+  }
+}

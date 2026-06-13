@@ -1,0 +1,58 @@
+{
+  "page": {
+    "eyebrow": "sicurezza",
+    "title": "Chiavi API"
+  },
+  "newKey": "Nuova chiave API",
+  "table": {
+    "name": "Nome",
+    "prefix": "Prefisso",
+    "userId": "ID utente",
+    "status": "Stato",
+    "lastUsed": "Ultimo utilizzo",
+    "created": "Creata"
+  },
+  "badges": {
+    "active": "attiva",
+    "revoked": "revocata"
+  },
+  "empty": "Nessuna chiave API ancora. Creane una per consentire l'accesso programmatico.",
+  "actions": {
+    "revoke": "Revocare",
+    "revokeTitle": "Revocare questa chiave"
+  },
+  "reveal": {
+    "title": "Copia la tua chiave API ora",
+    "subtitle": "Questa chiave viene mostrata una sola volta e non può essere recuperata in seguito.",
+    "copy": "Copia",
+    "copied": "Copiato!",
+    "close": "Chiudi",
+    "copyFailed": "Impossibile copiare negli appunti"
+  },
+  "form": {
+    "title": "Crea chiave API",
+    "description": "Le chiavi API consentono a servizi esterni di autenticarsi come un utente specifico. Scegli un nome descrittivo e l'utente di cui la chiave erediterà i permessi.",
+    "name": "Nome della chiave",
+    "namePlaceholder": "Chiave di deploy CI",
+    "userId": "ID utente di servizio",
+    "userIdHint": "L'ID numerico dell'utente per conto del quale agirà questa chiave.",
+    "submit": "Crea chiave",
+    "creating": "Creazione in corso…"
+  },
+  "validation": {
+    "nameRequired": "Il nome è obbligatorio",
+    "userIdRequired": "È richiesto un ID utente numerico valido"
+  },
+  "toast": {
+    "created": "Chiave API creata",
+    "createFailed": "Impossibile creare la chiave API",
+    "revoked": "Chiave API revocata",
+    "revokeFailed": "Impossibile revocare la chiave API"
+  },
+  "revokeDialog": {
+    "title": "Revocare la chiave API?",
+    "description": "Questo revoca permanentemente \"{{name}}\". I servizi che la utilizzano perderanno immediatamente l'accesso.",
+    "confirm": "Revocare",
+    "confirmPending": "Revoca in corso…"
+  }
+}

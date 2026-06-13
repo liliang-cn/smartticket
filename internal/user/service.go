@@ -69,17 +69,20 @@ type CreateUserRequest struct {
 	// CustomerID links the user to a customer organization. Required for the
 	// "customer" role; forbidden for every other (team) role.
 	CustomerID *uint `json:"customer_id,omitempty" example:"1"`
+	// DepartmentID optionally assigns the user to a department.
+	DepartmentID *uint `json:"department_id,omitempty" example:"2"`
 }
 
 // UpdateUserRequest represents user update request.
 type UpdateUserRequest struct {
-	Email       string `json:"email,omitempty" binding:"omitempty,email" example:"user@example.com"`
-	Username    string `json:"username,omitempty" binding:"omitempty,min=3,max=50" example:"johndoe"`
-	FirstName   string `json:"first_name,omitempty" binding:"omitempty,min=1,max=100" example:"John"`
-	LastName    string `json:"last_name,omitempty" binding:"omitempty,min=1,max=100" example:"Doe"`
-	Role        string `json:"role,omitempty" binding:"omitempty" example:"engineer"`
-	IsActive    *bool  `json:"is_active,omitempty" example:"true"`
-	Preferences string `json:"preferences,omitempty" example:"{\"timezone\": \"UTC\", \"language\": \"en\"}"`
+	Email        string `json:"email,omitempty" binding:"omitempty,email" example:"user@example.com"`
+	Username     string `json:"username,omitempty" binding:"omitempty,min=3,max=50" example:"johndoe"`
+	FirstName    string `json:"first_name,omitempty" binding:"omitempty,min=1,max=100" example:"John"`
+	LastName     string `json:"last_name,omitempty" binding:"omitempty,min=1,max=100" example:"Doe"`
+	Role         string `json:"role,omitempty" binding:"omitempty" example:"engineer"`
+	IsActive     *bool  `json:"is_active,omitempty" example:"true"`
+	Preferences  string `json:"preferences,omitempty" example:"{\"timezone\": \"UTC\", \"language\": \"en\"}"`
+	DepartmentID *uint  `json:"department_id,omitempty" example:"1"`
 }
 
 // UserListRequest represents user listing request with filters.
@@ -190,6 +193,7 @@ func (s *Service) CreateUser(req *CreateUserRequest) (*auth.UserInfo, error) {
 		Preferences:  req.Preferences,
 		Role:         req.Role,
 		CustomerID:   req.CustomerID,
+		DepartmentID: req.DepartmentID,
 	}
 
 	// Start transaction
@@ -301,6 +305,16 @@ func (s *Service) UpdateUser(userID uint, req *UpdateUserRequest) (*auth.UserInf
 
 	if req.Preferences != "" {
 		user.Preferences = req.Preferences
+	}
+
+	// Update department: a non-nil pointer (including &0) explicitly sets the value.
+	// Zero means "clear the department".
+	if req.DepartmentID != nil {
+		if *req.DepartmentID == 0 {
+			user.DepartmentID = nil
+		} else {
+			user.DepartmentID = req.DepartmentID
+		}
 	}
 
 	// Update user

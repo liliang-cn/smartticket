@@ -1,0 +1,76 @@
+{
+  "page": {
+    "eyebrow": "Integrationen",
+    "title": "Webhooks"
+  },
+  "newWebhook": "Neuer Webhook",
+  "table": {
+    "name": "Name",
+    "url": "URL",
+    "events": "Ereignisse",
+    "status": "Status"
+  },
+  "badges": {
+    "active": "aktiv",
+    "inactive": "inaktiv"
+  },
+  "empty": "Noch keine Webhooks. Erstelle einen, um Echtzeit-Ereignisbenachrichtigungen zu erhalten.",
+  "actions": {
+    "test": "Testen",
+    "testTitle": "Testzustellung senden",
+    "deliveries": "Zustellungen",
+    "deliveriesTitle": "Zustellungsprotokoll anzeigen",
+    "delete": "Löschen",
+    "deleteTitle": "Diesen Webhook löschen"
+  },
+  "reveal": {
+    "title": "Kopiere deinen Signaturschlüssel jetzt",
+    "subtitle": "Dieser Schlüssel wird nur einmal angezeigt und kann nicht erneut abgerufen werden. Verwende ihn zur Verifizierung der Webhook-Nutzlast (HMAC-SHA256).",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "close": "Schließen",
+    "copyFailed": "Konnte nicht in die Zwischenablage kopiert werden"
+  },
+  "form": {
+    "title": "Webhook erstellen",
+    "description": "Füge einen Endpunkt hinzu, um HTTP-POST-Benachrichtigungen für die gewählten Ereignisse zu erhalten.",
+    "name": "Name",
+    "namePlaceholder": "Meine Integration",
+    "url": "Endpunkt-URL",
+    "events": "Ereignisse abonnieren",
+    "submit": "Webhook erstellen",
+    "creating": "Wird erstellt…"
+  },
+  "validation": {
+    "nameRequired": "Name ist erforderlich",
+    "urlRequired": "Endpunkt-URL ist erforderlich",
+    "eventsRequired": "Mindestens ein Ereignis auswählen"
+  },
+  "toast": {
+    "created": "Webhook erstellt",
+    "createFailed": "Webhook konnte nicht erstellt werden",
+    "deleted": "Webhook gelöscht",
+    "deleteFailed": "Webhook konnte nicht gelöscht werden",
+    "testQueued": "Testzustellung eingeplant",
+    "testFailed": "Testzustellung konnte nicht eingeplant werden"
+  },
+  "deleteDialog": {
+    "title": "Webhook löschen?",
+    "description": "Dies löscht \"{{name}}\" dauerhaft. Es werden keine weiteren Zustellungen gesendet.",
+    "confirm": "Löschen",
+    "confirmPending": "Wird gelöscht…"
+  },
+  "deliveries": {
+    "title": "Zustellungen — {{name}}",
+    "description": "Aktuelle Zustellversuche für diesen Webhook-Endpunkt.",
+    "empty": "Noch keine Zustellungen.",
+    "table": {
+      "event": "Ereignis",
+      "status": "Status",
+      "code": "HTTP-Code",
+      "attempts": "Versuche",
+      "lastAttempt": "Letzter Versuch",
+      "error": "Fehler"
+    }
+  }
+}

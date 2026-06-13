@@ -94,11 +94,13 @@
       "password": "Contraseña",
       "role": "Rol",
       "status": "Estado",
-      "customer": "Cliente"
+      "customer": "Cliente",
+      "department": "Departamento"
     },
     "placeholders": {
       "role": "Seleccionar un rol",
-      "customer": "Seleccionar una organización cliente"
+      "customer": "Seleccionar una organización cliente",
+      "department": "(ninguno)"
     },
     "password_hint": "Al menos 8 caracteres, con una letra mayúscula, un dígito y un carácter especial.",
     "status_options": {

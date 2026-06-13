@@ -46,8 +46,9 @@ type User struct {
 	Preferences  string     `gorm:"type:text" json:"preferences"` // JSON string
 	// CustomerID links a customer-role user to the customer organization they
 	// belong to. Nil for team users (admin/engineer).
-	CustomerID *uint     `gorm:"index" json:"customer_id,omitempty"`
-	Customer   *Customer `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
+	CustomerID   *uint     `gorm:"index" json:"customer_id,omitempty"`
+	Customer     *Customer `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
+	DepartmentID *uint     `gorm:"index" json:"department_id,omitempty"`
 	Tickets    []Ticket  `gorm:"foreignKey:CreatedBy;references:ID" json:"tickets,omitempty"`
 	Messages   []Message `gorm:"foreignKey:UserID;references:ID" json:"messages,omitempty"`
 	Roles      []Role    `gorm:"many2many:user_roles;" json:"roles,omitempty"`
@@ -56,40 +57,41 @@ type User struct {
 // Ticket represents a support ticket.
 type Ticket struct {
 	BaseModel
-	TicketNumber   string       `gorm:"size:50;not null;uniqueIndex" json:"ticket_number"`
-	Title          string       `gorm:"size:255;not null" json:"title"`
-	Description    string       `gorm:"type:text" json:"description"`
-	Status         string       `gorm:"size:50;not null;default:'open'" json:"status"`     // open, in_progress, resolved, closed, cancelled
-	Priority       string       `gorm:"size:20;not null;default:'medium'" json:"priority"` // low, medium, high, critical
-	Severity       string       `gorm:"size:20;not null;default:'minor'" json:"severity"`  // trivial, minor, major, critical
-	Category       string       `gorm:"size:100" json:"category"`
-	Type           string       `gorm:"size:50" json:"type"`
-	ProductID      *uint        `gorm:"index" json:"product_id"`
-	Product        *Product     `gorm:"foreignKey:ProductID" json:"product,omitempty"`
-	ServiceID      *uint        `gorm:"index" json:"service_id"`
-	Service        *Service     `gorm:"foreignKey:ServiceID" json:"service,omitempty"`
-	CustomerID     *uint        `gorm:"index" json:"customer_id,omitempty"`
-	Customer       *Customer    `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
-	AssignedTo     *uint        `gorm:"index" json:"assigned_to"`
-	AssignedUser   *User        `gorm:"foreignKey:AssignedTo" json:"assigned_user,omitempty"`
-	RequesterName  string       `gorm:"size:255" json:"requester_name"`
-	RequesterEmail string       `gorm:"size:255" json:"requester_email"`
-	Tags           string       `gorm:"type:text" json:"tags"`          // JSON array
-	CustomFields   string       `gorm:"type:text" json:"custom_fields"` // JSON object
-	IsDeleted      bool         `gorm:"default:false;index" json:"is_deleted"`
-	ResolutionTime *time.Time   `json:"resolution_time"`
-	ResolvedAt     *time.Time   `json:"resolved_at"`
-	DueDate        *time.Time   `json:"due_date"`
-	SLAStatus      string       `gorm:"size:20;default:'within'" json:"sla_status"` // within, breached, warning
+	TicketNumber   string     `gorm:"size:50;not null;uniqueIndex" json:"ticket_number"`
+	Title          string     `gorm:"size:255;not null" json:"title"`
+	Description    string     `gorm:"type:text" json:"description"`
+	Status         string     `gorm:"size:50;not null;default:'open'" json:"status"`     // open, in_progress, resolved, closed, cancelled
+	Priority       string     `gorm:"size:20;not null;default:'medium'" json:"priority"` // low, medium, high, critical
+	Severity       string     `gorm:"size:20;not null;default:'minor'" json:"severity"`  // trivial, minor, major, critical
+	Category       string     `gorm:"size:100" json:"category"`
+	Type           string     `gorm:"size:50" json:"type"`
+	ProductID      *uint      `gorm:"index" json:"product_id"`
+	Product        *Product   `gorm:"foreignKey:ProductID" json:"product,omitempty"`
+	ServiceID      *uint      `gorm:"index" json:"service_id"`
+	Service        *Service   `gorm:"foreignKey:ServiceID" json:"service,omitempty"`
+	CustomerID     *uint      `gorm:"index" json:"customer_id,omitempty"`
+	Customer       *Customer  `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
+	AssignedTo     *uint      `gorm:"index" json:"assigned_to"`
+	AssignedUser   *User      `gorm:"foreignKey:AssignedTo" json:"assigned_user,omitempty"`
+	RequesterName  string     `gorm:"size:255" json:"requester_name"`
+	RequesterEmail string     `gorm:"size:255" json:"requester_email"`
+	Tags           string     `gorm:"type:text" json:"tags"`          // JSON array
+	CustomFields   string     `gorm:"type:text" json:"custom_fields"` // JSON object
+	IsDeleted      bool       `gorm:"default:false;index" json:"is_deleted"`
+	ResolutionTime *time.Time `json:"resolution_time"`
+	ResolvedAt     *time.Time `json:"resolved_at"`
+	DueDate        *time.Time `json:"due_date"`
+	SLAStatus      string     `gorm:"size:20;default:'within'" json:"sla_status"` // within, breached, warning
 	// Parity fields — added together to avoid repeat migrations.
-	Channel           string `gorm:"size:30;default:'web'" json:"channel"`                // web, email, web_widget
-	ConversationToken string `gorm:"type:text;index" json:"conversation_token,omitempty"`
-	Summary           string `gorm:"type:text" json:"summary,omitempty"`
-	AssignedTeamID    *uint  `gorm:"index" json:"assigned_team_id,omitempty"`
-	MergedIntoID      *uint  `gorm:"index" json:"merged_into_id,omitempty"`
-	Messages    []Message    `gorm:"foreignKey:TicketID" json:"messages,omitempty"`
-	Attachments []Attachment `gorm:"foreignKey:TicketID" json:"attachments,omitempty"`
+	Channel           string       `gorm:"size:30;default:'web'" json:"channel"` // web, email, web_widget
+	ConversationToken string       `gorm:"type:text;index" json:"conversation_token,omitempty"`
+	Summary           string       `gorm:"type:text" json:"summary,omitempty"`
+	AssignedTeamID    *uint        `gorm:"index" json:"assigned_team_id,omitempty"`
+	MergedIntoID      *uint        `gorm:"index" json:"merged_into_id,omitempty"`
+	Messages          []Message    `gorm:"foreignKey:TicketID" json:"messages,omitempty"`
+	Attachments       []Attachment `gorm:"foreignKey:TicketID" json:"attachments,omitempty"`
 }
+
 
 // Message represents a ticket message.
 type Message struct {
@@ -220,19 +222,36 @@ type AuditLog struct {
 	Hash         string `gorm:"size:64;index" json:"hash"` // SHA-256 hash for integrity
 }
 
-// APIKey represents an API key for external access.
+// AnalyticsEvent stores privacy-preserving website/demo analytics. It does not
+// store raw IP addresses; VisitorHash is a daily hash of IP + user agent.
+type AnalyticsEvent struct {
+	BaseModel
+	EventType   string `gorm:"size:30;not null;index" json:"event_type"` // pageview, click
+	Path        string `gorm:"size:500;index" json:"path"`
+	Title       string `gorm:"size:255" json:"title"`
+	Referrer    string `gorm:"size:500;index" json:"referrer"`
+	Source      string `gorm:"size:100;index" json:"source"`
+	Locale      string `gorm:"size:20;index" json:"locale"`
+	Target      string `gorm:"size:255;index" json:"target"`
+	UserAgent   string `gorm:"size:500" json:"user_agent"`
+	DeviceType  string `gorm:"size:30;index" json:"device_type"`
+	VisitorHash string `gorm:"size:64;index" json:"visitor_hash"`
+}
+
+// APIKey represents an API key bound to a service-account user for external access.
+// Authentication inherits the bound user's RBAC; revoke by setting IsActive=false.
 type APIKey struct {
 	BaseModel
-	Name        string     `gorm:"size:255;not null" json:"name"`
-	KeyHash     string     `gorm:"size:255;not null;uniqueIndex" json:"key_hash"`
-	KeyPrefix   string     `gorm:"size:20;not null" json:"key_prefix"`
-	Permissions string     `gorm:"type:text" json:"permissions"` // JSON array
-	IsActive    bool       `gorm:"default:true" json:"is_active"`
-	ExpiresAt   *time.Time `json:"expires_at"`
-	LastUsedAt  *time.Time `json:"last_used_at"`
-	UsageCount  int        `gorm:"default:0" json:"usage_count"`
-	CreatorID   uint       `gorm:"index" json:"creator_id"`
-	Creator     *User      `gorm:"foreignKey:CreatorID" json:"creator,omitempty"`
+	Name       string     `gorm:"size:255;not null" json:"name"`
+	KeyHash    string     `gorm:"size:255;not null;uniqueIndex" json:"-"`
+	KeyPrefix  string     `gorm:"size:20;not null" json:"key_prefix"`
+	UserID     uint       `gorm:"index;not null" json:"user_id"` // bound service account; inherits its RBAC
+	User       *User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	IsActive   bool       `gorm:"default:true" json:"is_active"` // revoke = set false
+	ExpiresAt  *time.Time `json:"expires_at"`                    // nil = never expires
+	LastUsedAt *time.Time `json:"last_used_at"`
+	CreatorID  uint       `gorm:"index" json:"creator_id"`
+	Creator    *User      `gorm:"foreignKey:CreatorID" json:"creator,omitempty"`
 }
 
 // SystemSetting represents system-wide settings.
@@ -297,6 +316,10 @@ type AISettings struct {
 	// AutoSummarizeOnResolve triggers an LLM summary of the conversation when a
 	// ticket transitions to resolved status.
 	AutoSummarizeOnResolve bool `gorm:"default:false" json:"auto_summarize_on_resolve"`
+	// Per-agent advisory toggles + Sentinel throttle.
+	TriageEnabled       bool `gorm:"default:true" json:"triage_enabled"`
+	SentinelEnabled     bool `gorm:"default:true" json:"sentinel_enabled"`
+	SentinelThrottleSec int  `gorm:"default:60" json:"sentinel_throttle_sec"`
 }
 
 // Product represents a product or service offering.
@@ -489,13 +512,27 @@ type TeamMember struct {
 func (Team) TableName() string       { return "teams" }
 func (TeamMember) TableName() string { return "team_members" }
 
+// Department is a node in the org reporting tree (orthogonal to Team). ParentID
+// nests it; ManagerID is the department's lead (a staff User). Used for "find
+// supervisor" escalation and manager subtree visibility.
+type Department struct {
+	BaseModel
+	Name      string      `gorm:"size:120;not null" json:"name"`
+	ParentID  *uint       `gorm:"index" json:"parent_id"`
+	Parent    *Department `gorm:"foreignKey:ParentID" json:"-"`
+	ManagerID *uint       `gorm:"index" json:"manager_id"`
+	Manager   *User       `gorm:"foreignKey:ManagerID" json:"manager,omitempty"`
+}
+
+func (Department) TableName() string { return "departments" }
+
 // SatisfactionSurvey captures a post-resolution CSAT survey for a ticket.
 // One survey per ticket: CreateForTicket is idempotent. Rating 0 means the
 // customer has not yet answered.
 type SatisfactionSurvey struct {
 	BaseModel
 	TicketID    uint       `gorm:"index;not null" json:"ticket_id"`
-	Rating      int        `json:"rating"`              // 1..5, 0 = not yet answered
+	Rating      int        `json:"rating"` // 1..5, 0 = not yet answered
 	Comment     string     `gorm:"type:text" json:"comment"`
 	Token       string     `gorm:"size:128;uniqueIndex" json:"-"` // public access token
 	SentAt      *time.Time `json:"sent_at"`
@@ -556,6 +593,52 @@ type Macro struct {
 }
 
 func (Macro) TableName() string { return "macros" }
+
+// Webhook is an admin-configured outbound endpoint that receives ticket domain
+// events as signed HTTP POSTs. Secret is the HMAC signing key (never exposed to
+// clients). Events is a JSON array of subscribed event-type strings.
+type Webhook struct {
+	BaseModel
+	Name      string `gorm:"size:255;not null" json:"name"`
+	URL       string `gorm:"size:1024;not null" json:"url"`
+	Secret    string `gorm:"size:255;not null" json:"-"`
+	Events    string `gorm:"type:text" json:"events"`
+	Active    bool   `gorm:"default:true" json:"active"`
+	CreatorID uint   `gorm:"index" json:"creator_id"`
+}
+
+// WebhookDelivery is one queued/attempted delivery of an event to a Webhook.
+// Status is pending/success/failed; the worker retries failed rows up to a cap.
+type WebhookDelivery struct {
+	BaseModel
+	WebhookID     uint       `gorm:"index;not null" json:"webhook_id"`
+	EventType     string     `gorm:"size:64;index" json:"event_type"`
+	Payload       string     `gorm:"type:text" json:"payload"`
+	Status        string     `gorm:"size:16;index;default:'pending'" json:"status"`
+	StatusCode    int        `json:"status_code"`
+	Attempts      int        `json:"attempts"`
+	LastAttemptAt *time.Time `json:"last_attempt_at"`
+	Error         string     `gorm:"type:text" json:"error"`
+}
+
+func (Webhook) TableName() string         { return "webhooks" }
+func (WebhookDelivery) TableName() string { return "webhook_deliveries" }
+
+// AISuggestion is one advisory output from an AI team agent on a ticket, shown
+// in the Copilot panel. Payload is the agent's structured JSON; the human adopts
+// or dismisses it. Status: pending|done|adopted|dismissed|failed.
+type AISuggestion struct {
+	BaseModel
+	TicketID   uint    `gorm:"index;not null" json:"ticket_id"`
+	AgentName  string  `gorm:"size:32;index" json:"agent_name"` // Triage|Sentinel|Researcher|Reviewer|Drafter
+	Status     string  `gorm:"size:16;index;default:'pending'" json:"status"`
+	Confidence float64 `json:"confidence"`
+	Payload    string  `gorm:"type:text" json:"payload"`
+	AdoptedBy  *uint   `json:"adopted_by"`
+	ResolvedAt *int64  `json:"resolved_at"`
+}
+
+func (AISuggestion) TableName() string { return "ai_suggestions" }
 
 // Table name overrides.
 func (User) TableName() string             { return "users" }

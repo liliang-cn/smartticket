@@ -17,12 +17,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 
 	smartticketweb "github.com/company/smartticket/web"
 
-	"github.com/company/smartticket/internal/api/handlers"
 	"github.com/company/smartticket/internal/aiassist"
+	"github.com/company/smartticket/internal/aiteam"
+	"github.com/company/smartticket/internal/analytics"
+	"github.com/company/smartticket/internal/api/handlers"
 	"github.com/company/smartticket/internal/api/middleware"
+	"github.com/company/smartticket/internal/apikey"
 	"github.com/company/smartticket/internal/attachment"
 	"github.com/company/smartticket/internal/auth"
 	"github.com/company/smartticket/internal/authz"
@@ -31,14 +35,15 @@ import (
 	"github.com/company/smartticket/internal/config"
 	"github.com/company/smartticket/internal/customer"
 	"github.com/company/smartticket/internal/database"
+	"github.com/company/smartticket/internal/department"
 	"github.com/company/smartticket/internal/email"
 	"github.com/company/smartticket/internal/errors"
 	"github.com/company/smartticket/internal/importexport"
 	"github.com/company/smartticket/internal/knowledge"
 	"github.com/company/smartticket/internal/knowledgebase"
 	"github.com/company/smartticket/internal/llm"
-	"github.com/company/smartticket/internal/macro"
 	"github.com/company/smartticket/internal/logger"
+	"github.com/company/smartticket/internal/macro"
 	"github.com/company/smartticket/internal/models"
 	"github.com/company/smartticket/internal/notification"
 	"github.com/company/smartticket/internal/product"
@@ -47,10 +52,11 @@ import (
 	"github.com/company/smartticket/internal/services"
 	"github.com/company/smartticket/internal/sla"
 	"github.com/company/smartticket/internal/subscription"
+	"github.com/company/smartticket/internal/survey"
 	"github.com/company/smartticket/internal/team"
 	"github.com/company/smartticket/internal/ticket"
 	"github.com/company/smartticket/internal/user"
-	"github.com/company/smartticket/internal/survey"
+	"github.com/company/smartticket/internal/webhook"
 	"github.com/company/smartticket/internal/widget"
 )
 
@@ -60,11 +66,14 @@ type Server struct {
 	router               *gin.Engine
 	server               *http.Server
 	db                   *database.Database
+	apiKeyService        *apikey.Service
 	authService          *auth.Service
 	permissionMiddleware *middleware.PermissionMiddleware
 	kbStore              *knowledgebase.Store
 	hub                  *realtime.Hub
 	bus                  *automation.Bus
+	webhookSvc           *webhook.Service
+	aiteamOrch           *aiteam.Orchestrator // nil when no LLM configured; used by Task 8 routes
 	// cancelCtx stops background goroutines (e.g. the automation scheduler) on Shutdown.
 	cancelCtx context.CancelFunc
 	// uiFS is the embedded single-page frontend, served for non-API GET routes.
@@ -195,6 +204,7 @@ func (s *Server) setupRoutes() {
 	// Initialize services and handlers
 	authRepo := auth.NewRepository(s.db.DB)
 	userService := user.NewService(s.db.DB, authRepo, s.authService)
+	s.apiKeyService = apikey.NewService(s.db.DB)
 
 	// Initialize permission service
 	permissionService := services.NewPermissionService(s.db.DB)
@@ -261,8 +271,19 @@ func (s *Server) setupRoutes() {
 	attachmentService := attachment.NewService(s.db.DB, s.config.Storage.DataPath, s.config.Storage.MaxFileSize, s.config.Storage.AllowedExtensions)
 	brandingService := branding.NewService(s.db.DB, s.config.Storage.DataPath)
 	teamService := team.NewService(s.db.DB)
+	departmentService := department.NewService(s.db.DB)
+	ticketService.SetSupervisors(departmentService)
+	ticketService.SetDeptScoper(departmentService)
+	ticketService.SetDepartmentIsolation(func() bool {
+		var st models.SystemSetting
+		if err := s.db.DB.Where("key = ?", "department_isolation").First(&st).Error; err != nil {
+			return false
+		}
+		return st.Value == "true"
+	})
 	macroService := macro.NewService(s.db.DB)
 	surveyService := survey.NewService(s.db.DB)
+	analyticsService := analytics.NewService(s.db.DB, s.config.JWT.Secret)
 
 	authHandlers := auth.NewHandlers(s.authService)
 	userHandlers := user.NewHandlers(userService)
@@ -278,6 +299,7 @@ func (s *Server) setupRoutes() {
 	teamHandlers := team.NewHandlers(teamService)
 	macroHandlers := macro.NewHandlers(macroService)
 	surveyHandlers := survey.NewHandlers(surveyService)
+	analyticsHandlers := analytics.NewHandlers(analyticsService)
 	permissionHandlers := handlers.NewPermissionHandler(permissionService)
 	roleHandlers := handlers.NewRoleHandler(permissionService)
 
@@ -306,7 +328,8 @@ func (s *Server) setupRoutes() {
 			}
 			return llm.NewClient(ep.APIEndpoint, key).Embed(ctx, ep.Model, ep.Dimensions, texts)
 		}, 1024)
-		kbStore, kerr2 := knowledgebase.Open("./data/cortex.db", embedder)
+		_ = os.MkdirAll("./data", 0o755) // ensure parent exists (agent-go stores self-mkdir; cortexdb does not)
+			kbStore, kerr2 := knowledgebase.Open("./data/cortex.db", embedder)
 		if kerr2 != nil {
 			logger.Warn("cortexdb unavailable", zap.Error(kerr2)) // non-fatal
 		} else {
@@ -452,6 +475,129 @@ func (s *Server) setupRoutes() {
 					body,
 					"Support Team",
 				)
+			}
+		})
+	}
+
+	// Async ticket indexing: on ticket resolved (or updated), upsert the ticket
+	// into the CortexDB "tickets" collection so the AI Researcher can find
+	// similar past tickets.  Best-effort only — failures are logged at warn and
+	// never block the ticket path.
+	var similarSearcher *aiteam.StoreSimilarSearcher
+	if s.kbStore != nil && s.kbStore.Healthy() {
+		if ss, ssErr := aiteam.NewStoreSimilarSearcher(s.kbStore); ssErr == nil {
+			similarSearcher = ss
+		} else {
+			logger.Warn("similar-ticket searcher unavailable", zap.Error(ssErr))
+		}
+
+		indexDB := s.db.DB
+		kbStoreRef := s.kbStore
+		for _, evType := range []automation.EventType{
+			automation.EventTicketResolved,
+			automation.EventTicketUpdated,
+		} {
+			evType := evType
+			s.bus.Subscribe(evType, func(ev automation.Event) {
+				ticketID := ev.TicketID
+				aiSafeGo("ticket-index", func(ctx context.Context) {
+					var tkt models.Ticket
+					if err := indexDB.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+						logger.Warn("ticket-index: failed to load ticket",
+							zap.Uint("ticket_id", ticketID), zap.Error(err))
+						return
+					}
+					if err := kbStoreRef.SaveTicket(ctx, tkt.ID, tkt.Title, tkt.Description, ""); err != nil {
+						logger.Warn("ticket-index: failed to index ticket",
+							zap.Uint("ticket_id", tkt.ID), zap.Error(err))
+					}
+				})
+			})
+		}
+	}
+
+	// AI advisory team + orchestrator. Constructed after similarSearcher so we
+	// can wire it into the team immediately. Nil when no LLM is configured.
+	var aiteamOrch *aiteam.Orchestrator
+	if llmServiceRef != nil {
+		teamKB := aiassist.KBSearcherFunc(func(ctx context.Context, q string, k int) []string {
+			hits, err := knowledgeService.Search(ctx, q, k, true)
+			if err != nil {
+				return nil
+			}
+			out := make([]string, 0, len(hits))
+			for _, h := range hits {
+				out = append(out, h.Title+": "+h.Snippet)
+			}
+			return out
+		})
+		advisoryTeam, terr := aiteam.NewTeam("./data/agentgo-team.db", aiassist.NewGenerator(llmServiceRef), teamKB, aiSettings, s.db.DB)
+		if terr != nil {
+			logger.Warn("AI advisory team unavailable", zap.Error(terr))
+		} else {
+			if similarSearcher != nil {
+				advisoryTeam.SetSimilarSearcher(similarSearcher)
+			}
+			suggestionStore := aiteam.NewSuggestionStore(s.db.DB)
+			aiteamOrch = aiteam.NewOrchestrator(advisoryTeam, suggestionStore, s.hub)
+			s.aiteamOrch = aiteamOrch
+
+			// Auto-trigger: Triage on new ticket. Sentinel on new message / SLA
+			// warning. Each runs panic-isolated with a timeout so an AI failure
+			// can never crash the server or block the ticket pipeline.
+			orch := aiteamOrch
+			s.bus.Subscribe(automation.EventTicketCreated, func(ev automation.Event) {
+				id := ev.TicketID
+				aiSafeGo("triage", func(ctx context.Context) {
+					_, _ = orch.Run(ctx, "Triage", buildAITicketContext(s.db.DB, id), "")
+				})
+			})
+			s.bus.Subscribe(automation.EventMessageCreated, func(ev automation.Event) {
+				id := ev.TicketID
+				aiSafeGo("sentinel", func(ctx context.Context) {
+					_, _ = orch.Run(ctx, "Sentinel", buildAITicketContext(s.db.DB, id), "")
+				})
+			})
+			s.bus.Subscribe(automation.EventSLAWarning, func(ev automation.Event) {
+				id := ev.TicketID
+				aiSafeGo("sentinel", func(ctx context.Context) {
+					_, _ = orch.Run(ctx, "Sentinel", buildAITicketContext(s.db.DB, id), "")
+				})
+			})
+
+			// Failover/crash recovery: re-run any suggestions left "pending" by a
+			// prior process (the agent-go task persists, but our finalizer goroutine
+			// dies with the process). Runs in the background so startup isn't blocked.
+			go func() {
+				defer func() { _ = recover() }()
+				if n, rerr := orch.RecoverPending(func(id uint) aiteam.TicketContext {
+					return buildAITicketContext(s.db.DB, id)
+				}); rerr != nil {
+					logger.Warn("AI suggestion recovery failed", zap.Error(rerr))
+				} else if n > 0 {
+					logger.Info("AI suggestion recovery: re-ran orphaned pending suggestions", zap.Int("count", n))
+				}
+			}()
+		}
+	}
+	_ = aiteamOrch // consumed by Task 8 on-demand API routes
+
+	// Outbound webhooks: persist a delivery per subscribed endpoint on each
+	// ticket event; a background worker POSTs them (signed, retried). Declared
+	// here so the admin webhook routes (registered below) can reuse webhookSvc.
+	s.webhookSvc = webhook.NewService(s.db.DB)
+	webhookWorker := webhook.NewWorker(s.db.DB, webhook.WorkerOptions{BlockPrivateIPs: s.config.Webhook.BlockPrivateIPs})
+	go webhookWorker.Run(schedCtx)
+
+	for _, et := range []automation.EventType{
+		automation.EventTicketCreated, automation.EventTicketUpdated, automation.EventTicketResolved,
+		automation.EventMessageCreated, automation.EventSLAWarning,
+	} {
+		et := et
+		s.bus.Subscribe(et, func(ev automation.Event) {
+			payload := buildWebhookPayload(s.db.DB, ev)
+			if err := s.webhookSvc.Enqueue(string(et), payload); err != nil {
+				logger.Warn("webhook enqueue failed", zap.String("event", string(et)), zap.Error(err))
 			}
 		})
 	}
@@ -608,6 +754,10 @@ func (s *Server) setupRoutes() {
 			// survey link; no authentication required.
 			public.GET("/survey/:token", surveyHandlers.GetSurvey)
 			public.POST("/survey/:token", surveyHandlers.SubmitSurvey)
+
+			// Public website analytics collector. Stores privacy-preserving events
+			// for the operator's own deployment dashboard.
+			public.POST("/analytics/events", analyticsHandlers.Record)
 		}
 
 		// Protected endpoints (auth required)
@@ -694,6 +844,48 @@ func (s *Server) setupRoutes() {
 				tickets.DELETE("/:id/links/:linkId", ticketHandlers.UnlinkTicket)
 				tickets.POST("/:id/attachments", attachmentHandlers.Upload)
 				tickets.GET("/:id/attachments", attachmentHandlers.List)
+
+				// AI advisory team on-demand endpoints. Only registered when an LLM
+				// provider is configured (s.aiteamOrch != nil).
+				if s.aiteamOrch != nil {
+					aiTeamHandlers := aiteam.NewHandlers(
+						s.aiteamOrch,
+						aiteam.NewSuggestionStore(s.db.DB),
+						func(id uint) aiteam.TicketContext { return buildAITicketContext(s.db.DB, id) },
+					)
+					tai := tickets.Group("/:id/ai")
+					// Object-level authz: every AI sub-route must verify the caller
+					// can actually see this ticket (reuses GetTicket→scopeToActor:
+					// customer isolation + department scoping). Without this, any
+					// authenticated user could read suggestions / trigger LLM spend
+					// on tickets outside their access scope.
+					tai.Use(func(c *gin.Context) {
+						var tid uint
+						if _, err := fmt.Sscanf(c.Param("id"), "%d", &tid); err != nil || tid == 0 {
+							c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "invalid ticket id"})
+							return
+						}
+						actor := authz.Actor{UserID: c.GetUint("user_id"), Role: c.GetString("user_role")}
+						if v, ok := c.Get("user_customer_id"); ok {
+							if cid, ok := v.(uint); ok {
+								actor.CustomerID = &cid
+							}
+						}
+						if _, err := ticketService.GetTicket(actor, tid); err != nil {
+							c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "ticket not found or access denied"})
+							return
+						}
+						c.Next()
+					})
+					{
+						tai.POST("/research", aiTeamHandlers.Research)
+						tai.POST("/review", aiTeamHandlers.Review)
+						tai.POST("/draft", aiTeamHandlers.Draft)
+						tai.GET("/suggestions", aiTeamHandlers.List)
+						tai.POST("/suggestions/:sid/adopt", aiTeamHandlers.Adopt)
+						tai.POST("/suggestions/:sid/dismiss", aiTeamHandlers.Dismiss)
+					}
+				}
 			}
 
 			// NOTE: the agent ticket WebSocket endpoint (/api/v1/ws/tickets/:id) is
@@ -748,6 +940,13 @@ func (s *Server) setupRoutes() {
 			// CSAT survey stats (any authenticated team/agent user).
 			protected.GET("/survey/stats", surveyHandlers.GetStats)
 
+			// Website analytics are deployment-wide operator data; admin-only.
+			analyticsAdmin := protected.Group("/analytics")
+			analyticsAdmin.Use(s.adminMiddleware())
+			{
+				analyticsAdmin.GET("/summary", analyticsHandlers.Summary)
+			}
+
 			// Branding / white-label settings (admin-only writes; reads are
 			// public, registered above).
 			// AI settings: read for any authenticated user (the agent UI needs to
@@ -761,6 +960,36 @@ func (s *Server) setupRoutes() {
 				settings.PUT("/branding", brandingHandlers.Update)
 				settings.POST("/branding/logo", brandingHandlers.UploadLogo)
 				settings.DELETE("/branding/logo", brandingHandlers.DeleteLogo)
+			}
+
+			apiKeyHandlers := apikey.NewHandlers(s.apiKeyService)
+			adminKeys := protected.Group("/admin/api-keys")
+			adminKeys.Use(s.adminMiddleware())
+			{
+				adminKeys.GET("", apiKeyHandlers.List)
+				adminKeys.POST("", apiKeyHandlers.Create)
+				adminKeys.DELETE("/:id", apiKeyHandlers.Revoke)
+			}
+
+			deptHandlers := department.NewHandlers(departmentService)
+			adminDepts := protected.Group("/admin/departments")
+			adminDepts.Use(s.adminMiddleware())
+			{
+				adminDepts.GET("", deptHandlers.List)
+				adminDepts.POST("", deptHandlers.Create)
+				adminDepts.PUT("/:id", deptHandlers.Update)
+				adminDepts.DELETE("/:id", deptHandlers.Delete)
+			}
+
+			webhookHandlers := webhook.NewHandlers(s.webhookSvc)
+			adminWebhooks := protected.Group("/admin/webhooks")
+			adminWebhooks.Use(s.adminMiddleware())
+			{
+				adminWebhooks.GET("", webhookHandlers.List)
+				adminWebhooks.POST("", webhookHandlers.Create)
+				adminWebhooks.DELETE("/:id", webhookHandlers.Delete)
+				adminWebhooks.GET("/:id/deliveries", webhookHandlers.Deliveries)
+				adminWebhooks.POST("/:id/test", webhookHandlers.Test)
 			}
 
 			// LLM provider management routes (admin-only).
@@ -1048,6 +1277,67 @@ func (a *aiSettingsAdapter) AutoResolveEnabled() bool {
 		return false
 	}
 	return s.AutoResolveEnabled
+}
+
+// buildAITicketContext loads the ticket and its messages from the DB and
+// assembles an aiteam.TicketContext ready for advisory agent dispatch.
+// Returns a minimal (title-only) context on any DB error so callers never block.
+// aiSafeGo runs fn in a panic-isolated goroutine with a bounded timeout. The
+// best-effort AI/index background work must never crash the single-binary
+// server (a panic in a bare goroutine would) nor hang on a slow LLM.
+func aiSafeGo(label string, fn func(ctx context.Context)) {
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				logger.Error("ai background task panicked", zap.String("task", label), zap.Any("panic", r))
+			}
+		}()
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
+		fn(ctx)
+	}()
+}
+
+func buildAITicketContext(db *gorm.DB, ticketID uint) aiteam.TicketContext {
+	var tkt models.Ticket
+	if err := db.Where("id = ? AND is_deleted = ?", ticketID, false).First(&tkt).Error; err != nil {
+		return aiteam.TicketContext{TicketID: ticketID}
+	}
+
+	var msgs []models.Message
+	_ = db.Where("ticket_id = ?", ticketID).Order("created_at asc").Find(&msgs)
+
+	var convBuf strings.Builder
+	for _, m := range msgs {
+		sender := "Agent"
+		if m.IsFromAI {
+			sender = "AI"
+		} else if m.UserID == 0 {
+			sender = tkt.RequesterName
+			if sender == "" {
+				sender = "Customer"
+			}
+		}
+		if !m.IsInternal {
+			fmt.Fprintf(&convBuf, "%s: %s\n", sender, m.Content)
+		}
+	}
+
+	slaState := ""
+	if tkt.SLAStatus == "warning" {
+		slaState = "warning: approaching SLA breach"
+	} else if tkt.SLAStatus == "breached" {
+		slaState = "breached"
+	}
+
+	return aiteam.TicketContext{
+		TicketID:     tkt.ID,
+		Title:        tkt.Title,
+		Description:  tkt.Description,
+		Conversation: strings.TrimSpace(convBuf.String()),
+		CustomerName: tkt.RequesterName,
+		SLAState:     slaState,
+	}
 }
 
 // handleNoRoute serves the embedded single-page app for unmatched non-API GET

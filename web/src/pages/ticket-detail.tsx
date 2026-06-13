@@ -42,13 +42,13 @@ import { useAISettings, useSuggestReply } from "@/features/ai/api";
 import { useMacros, useApplyMacro } from "@/features/macros/api";
 import { useAuth } from "@/lib/auth";
 import { tokenStore } from "@/lib/api";
-import type { Attachment, Ticket, UserInfo } from "@/lib/types";
+import type { Attachment, Ticket, TicketPriority, TicketSeverity, UserInfo } from "@/lib/types";
 import { apiError } from "@/lib/api";
 import { relativeTime } from "@/lib/utils";
 import {
   STATUS_OPTIONS,
   PRIORITY_OPTIONS,
-  PriorityBadge,
+  SeverityBadge,
 } from "@/components/ticket-meta";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,8 @@ import {
 } from "@/components/ui/select";
 import { useReveal } from "@/lib/use-reveal";
 import { useQueryClient } from "@tanstack/react-query";
+import { CopilotPanel } from "@/features/aiteam/copilot-panel";
+import { suggestionsKey } from "@/features/aiteam/api";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -715,6 +717,11 @@ export function TicketDetailPage() {
             presenceTimerRef.current = setTimeout(() => setPresenceName(null), 8000);
           }
         }
+
+        // AI suggestion broadcast — invalidate suggestions so panel auto-refreshes.
+        if (frame.type === "ai_suggestion") {
+          qc.invalidateQueries({ queryKey: suggestionsKey(ticketId) });
+        }
       } catch {
         // Non-JSON ping frames — ignore.
       }
@@ -801,6 +808,29 @@ export function TicketDetailPage() {
     try {
       await update.mutateAsync({ [field]: value });
       toast.success(t("detail.toast_updated_field", { field }));
+    } catch (err) {
+      toast.error(apiError(err));
+    }
+  }
+
+  // ── Copilot panel callbacks ─────────────────────────────────────────────
+
+  function onCopilotInsertReply(text: string) {
+    setDraft((prev) => (prev ? prev + "\n\n" + text : text));
+  }
+
+  async function onCopilotApplyFields(fields: {
+    priority?: string;
+    severity?: string;
+    category?: string;
+  }) {
+    try {
+      const patch: Partial<Ticket> = {};
+      if (fields.priority) patch.priority = fields.priority as TicketPriority;
+      if (fields.severity) patch.severity = fields.severity as TicketSeverity;
+      if (fields.category) patch.category = fields.category;
+      await update.mutateAsync(patch);
+      toast.success(t("detail.toast_updated_field", { field: "triage" }));
     } catch (err) {
       toast.error(apiError(err));
     }
@@ -1124,7 +1154,7 @@ export function TicketDetailPage() {
           <Card className="p-5">
             <MetaRow
               label={t("detail.meta.label_severity")}
-              value={<PriorityBadge priority={ticket.severity as never} />}
+              value={<SeverityBadge severity={ticket.severity} />}
             />
             <Separator />
             <MetaRow
@@ -1171,6 +1201,16 @@ export function TicketDetailPage() {
           </Card>
 
           <SlaCard ticketId={ticket.id} />
+
+          {/* AI Copilot panel — team agents only */}
+          {isTeam && (
+            <CopilotPanel
+              ticketId={ticket.id}
+              currentDraft={draft}
+              onInsertReply={onCopilotInsertReply}
+              onApplyFields={onCopilotApplyFields}
+            />
+          )}
         </aside>
       </div>
     </div>

@@ -68,6 +68,7 @@ func WithTestDatabase(t *testing.T, testFunc func(t *testing.T, db *database.Dat
 		&models.Team{},
 		&models.TeamMember{},
 		&models.TicketLink{},
+		&models.Department{},
 	); err != nil {
 		t.Fatalf("Failed to run migrations: %v", err)
 	}

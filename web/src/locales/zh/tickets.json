@@ -17,7 +17,8 @@
     "pagination_info": "{{total}} 条工单 · 第 {{page}}/{{totalPages}} 页",
     "pagination_syncing": " · 同步中…",
     "btn_prev": "上一页",
-    "btn_next": "下一页"
+    "btn_next": "下一页",
+    "filter_my_department": "我的部门"
   },
   "detail": {
     "back_link": "工单",

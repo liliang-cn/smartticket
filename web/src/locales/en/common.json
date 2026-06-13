@@ -15,10 +15,19 @@
     "automations": "Automations",
     "macros": "Macros",
     "teams": "Teams",
+    "departments": "Departments",
+    "api_keys": "API Keys",
+    "webhooks": "Webhooks",
     "settings": "Settings",
     "soon": "soon",
     "coming_soon": "Coming soon",
-    "coming_soon_item": "{{label}} (coming soon)"
+    "coming_soon_item": "{{label}} (coming soon)",
+    "people": "Customers & Users",
+    "catalog": "Catalog",
+    "organization": "Organization",
+    "automation": "Automation",
+    "integrations": "Integrations",
+    "analytics": "Analytics"
   },
   "topbar": {
     "sign_out": "Sign out",
@@ -63,12 +72,13 @@
       "low": "Low",
       "medium": "Medium",
       "high": "High",
-      "urgent": "Urgent"
+      "critical": "Critical"
     },
     "severity": {
       "minor": "Minor",
       "major": "Major",
-      "critical": "Critical"
+      "critical": "Critical",
+      "trivial": "Trivial"
     },
     "sla_status": {
       "within": "Within SLA",

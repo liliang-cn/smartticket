@@ -22,6 +22,9 @@ type Actor struct {
 	UserID     uint
 	Role       string
 	CustomerID *uint
+	// DeptScope is the set of department IDs a manager oversees (their subtree).
+	// Empty for non-managers. Filled by callers that have department data.
+	DeptScope []uint
 }
 
 // IsTeam reports whether the actor is operator-side staff, who may see and

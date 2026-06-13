@@ -1,0 +1,58 @@
+{
+  "page": {
+    "eyebrow": "セキュリティ",
+    "title": "API キー"
+  },
+  "newKey": "新しい API キー",
+  "table": {
+    "name": "名前",
+    "prefix": "プレフィックス",
+    "userId": "ユーザー ID",
+    "status": "ステータス",
+    "lastUsed": "最終使用",
+    "created": "作成日時"
+  },
+  "badges": {
+    "active": "有効",
+    "revoked": "失効済み"
+  },
+  "empty": "API キーがまだありません。プログラムによるアクセスを許可するには作成してください。",
+  "actions": {
+    "revoke": "失効",
+    "revokeTitle": "このキーを失効させる"
+  },
+  "reveal": {
+    "title": "今すぐ API キーをコピーしてください",
+    "subtitle": "このキーは一度だけ表示され、後から取得することはできません。",
+    "copy": "コピー",
+    "copied": "コピーしました！",
+    "close": "閉じる",
+    "copyFailed": "クリップボードへのコピーに失敗しました"
+  },
+  "form": {
+    "title": "API キーの作成",
+    "description": "API キーを使用すると、外部サービスが特定のユーザーとして認証できます。わかりやすい名前と、このキーが権限を継承するユーザーを選択してください。",
+    "name": "キー名",
+    "namePlaceholder": "CI デプロイキー",
+    "userId": "サービスユーザー ID",
+    "userIdHint": "このキーが代理で動作するユーザーの数値 ID。",
+    "submit": "キーを作成",
+    "creating": "作成中…"
+  },
+  "validation": {
+    "nameRequired": "名前は必須です",
+    "userIdRequired": "有効な数値ユーザー ID が必要です"
+  },
+  "toast": {
+    "created": "API キーを作成しました",
+    "createFailed": "API キーの作成に失敗しました",
+    "revoked": "API キーを失効させました",
+    "revokeFailed": "API キーの失効に失敗しました"
+  },
+  "revokeDialog": {
+    "title": "API キーを失効させますか？",
+    "description": "「{{name}}」を永久に失効させます。このキーを使用しているサービスはすぐにアクセスを失います。",
+    "confirm": "失効させる",
+    "confirmPending": "失効中…"
+  }
+}

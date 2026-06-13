@@ -1,0 +1,63 @@
+{
+  "panel_title": "Copilota IA",
+  "loading": "Caricamento suggerimenti…",
+  "empty": "Nessun suggerimento IA per ora. Gli agenti analizzeranno automaticamente il ticket.",
+  "run_btn": "Riesegui",
+  "adopt_btn": "Adotta",
+  "adopted_label": "Adottato",
+  "dismiss_btn": "Ignora",
+  "dismissed_label": "Ignorato",
+  "reasoning_label": "Ragionamento",
+  "confidence": {
+    "high": "Alta",
+    "med": "Media",
+    "low": "Bassa"
+  },
+  "agent": {
+    "Triage": "Triage",
+    "Sentinel": "Sentinella",
+    "Researcher": "Ricercatore",
+    "Reviewer": "Revisore",
+    "Drafter": "Redattore"
+  },
+  "triage": {
+    "priority": "Priorità",
+    "severity": "Gravità",
+    "category": "Categoria",
+    "apply_btn": "Applica campi"
+  },
+  "sentinel": {
+    "sentiment": "Sentiment",
+    "churn_risk": "Rischio abbandono",
+    "sla_risk": "Rischio SLA",
+    "escalate_badge": "Escalation consigliata",
+    "yes": "Sì",
+    "no": "No"
+  },
+  "researcher": {
+    "kb_label": "Articoli KB",
+    "similar_label": "Ticket simili",
+    "merge_tag": "Candidato unione",
+    "resolution_label": "Risoluzione suggerita",
+    "insert_btn": "Inserisci risoluzione",
+    "run_hint": "Esegui agente Ricercatore"
+  },
+  "reviewer": {
+    "approved_badge": "Bozza approvata",
+    "revised_draft_label": "Bozza rivista",
+    "use_draft_btn": "Usa bozza rivista",
+    "run_needs_draft": "Scrivi prima una bozza di risposta"
+  },
+  "drafter": {
+    "use_draft_btn": "Usa bozza",
+    "run_hint": "Esegui agente Redattore"
+  },
+  "toast": {
+    "adopt_error": "Impossibile adottare il suggerimento",
+    "dismiss_error": "Impossibile ignorare il suggerimento",
+    "run_error": "Impossibile eseguire l'agente",
+    "research_done": "Ricerca completata",
+    "review_done": "Revisione completata",
+    "draft_done": "Bozza pronta"
+  }
+}

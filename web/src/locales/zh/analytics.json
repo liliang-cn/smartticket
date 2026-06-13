@@ -1,0 +1,20 @@
+{
+  "eyebrow": "发布分析",
+  "title": "网站流量",
+  "subtitle": "近 30 天的隐私友好型页面浏览、CTA 点击、来源和最近访问。",
+  "pageviews": "页面浏览",
+  "visitors": "访客",
+  "clicks": "点击",
+  "events": "事件",
+  "top_sources": "热门来源",
+  "top_referrers": "热门引荐",
+  "top_pages": "热门页面",
+  "cta_clicks": "CTA 点击",
+  "no_data": "暂无数据。",
+  "recent_events": "最近事件",
+  "no_visits": "暂无访问记录。",
+  "col_type": "类型",
+  "col_source": "来源",
+  "col_path": "路径",
+  "col_device": "设备"
+}

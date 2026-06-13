@@ -25,6 +25,9 @@ struct TeamPortal: View {
             Tab("Queue", systemImage: "tray.full") {
                 TicketListView(title: "Queue", canManage: true, canCreate: true)
             }
+            Tab("Customers", systemImage: "building.2") {
+                CustomersView()
+            }
             Tab("Knowledge", systemImage: "book") {
                 KnowledgeView()
             }
@@ -45,6 +48,9 @@ struct AdminPortal: View {
             }
             Tab("Tickets", systemImage: "tray.full", value: "tickets") {
                 TicketListView(title: "Tickets", canManage: true, canCreate: true)
+            }
+            Tab("Customers", systemImage: "building.2", value: "customers") {
+                CustomersView()
             }
             Tab("Knowledge", systemImage: "book", value: "knowledge") {
                 KnowledgeView()

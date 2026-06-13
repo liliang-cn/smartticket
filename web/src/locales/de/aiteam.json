@@ -1,0 +1,63 @@
+{
+  "panel_title": "KI-Copilot",
+  "loading": "Vorschläge werden geladen…",
+  "empty": "Noch keine KI-Vorschläge. Die Agenten analysieren das Ticket automatisch.",
+  "run_btn": "Erneut ausführen",
+  "adopt_btn": "Übernehmen",
+  "adopted_label": "Übernommen",
+  "dismiss_btn": "Verwerfen",
+  "dismissed_label": "Verworfen",
+  "reasoning_label": "Begründung",
+  "confidence": {
+    "high": "Hoch",
+    "med": "Mittel",
+    "low": "Niedrig"
+  },
+  "agent": {
+    "Triage": "Triage",
+    "Sentinel": "Sentinel",
+    "Researcher": "Rechercheur",
+    "Reviewer": "Prüfer",
+    "Drafter": "Verfasser"
+  },
+  "triage": {
+    "priority": "Priorität",
+    "severity": "Schweregrad",
+    "category": "Kategorie",
+    "apply_btn": "Felder übernehmen"
+  },
+  "sentinel": {
+    "sentiment": "Stimmung",
+    "churn_risk": "Abwanderungsrisiko",
+    "sla_risk": "SLA-Risiko",
+    "escalate_badge": "Eskalation empfohlen",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "researcher": {
+    "kb_label": "Wissensdatenbank",
+    "similar_label": "Ähnliche Tickets",
+    "merge_tag": "Zusammenführen",
+    "resolution_label": "Vorgeschlagene Lösung",
+    "insert_btn": "Lösung einfügen",
+    "run_hint": "Rechercheur-Agent ausführen"
+  },
+  "reviewer": {
+    "approved_badge": "Entwurf genehmigt",
+    "revised_draft_label": "Überarbeiteter Entwurf",
+    "use_draft_btn": "Überarbeiteten Entwurf verwenden",
+    "run_needs_draft": "Bitte zuerst einen Antwortentwurf verfassen"
+  },
+  "drafter": {
+    "use_draft_btn": "Entwurf verwenden",
+    "run_hint": "Verfasser-Agent ausführen"
+  },
+  "toast": {
+    "adopt_error": "Vorschlag konnte nicht übernommen werden",
+    "dismiss_error": "Vorschlag konnte nicht verworfen werden",
+    "run_error": "Agent konnte nicht ausgeführt werden",
+    "research_done": "Recherche abgeschlossen",
+    "review_done": "Überprüfung abgeschlossen",
+    "draft_done": "Entwurf fertig"
+  }
+}

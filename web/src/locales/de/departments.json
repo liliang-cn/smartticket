@@ -1,0 +1,54 @@
+{
+  "page": {
+    "eyebrow": "organisation",
+    "title": "Abteilungen"
+  },
+  "newDepartment": "Neue Abteilung",
+  "table": {
+    "name": "Name",
+    "manager": "Manager"
+  },
+  "empty": "Noch keine Abteilungen. Erstellen Sie eine, um Ihr Team zu organisieren.",
+  "actions": {
+    "addChild": "Unterabteilung",
+    "addChildTitle": "Unterabteilung hinzufügen",
+    "edit": "Bearbeiten",
+    "editTitle": "Diese Abteilung bearbeiten",
+    "delete": "Löschen",
+    "deleteTitle": "Diese Abteilung löschen"
+  },
+  "form": {
+    "createTitle": "Neue Abteilung",
+    "editTitle": "Abteilung bearbeiten",
+    "createDescription": "Neue Abteilung oder Unterabteilung erstellen.",
+    "editDescription": "Name, übergeordnete Abteilung oder Manager ändern.",
+    "name": "Name",
+    "namePlaceholder": "Engineering",
+    "parent": "Übergeordnete Abteilung",
+    "parentNone": "(keine — Stammebene)",
+    "manager": "Manager",
+    "managerNone": "(keiner)",
+    "submitCreate": "Erstellen",
+    "submitEdit": "Speichern",
+    "creating": "Wird erstellt…",
+    "savingEdit": "Wird gespeichert…"
+  },
+  "deleteDialog": {
+    "title": "Abteilung löschen?",
+    "description": "\"{{name}}\" löschen? Unterabteilungen werden zu Stammebenen.",
+    "confirm": "Löschen",
+    "confirmPending": "Wird gelöscht…"
+  },
+  "validation": {
+    "nameRequired": "Name ist erforderlich"
+  },
+  "toast": {
+    "created": "Abteilung erstellt",
+    "updated": "Abteilung aktualisiert",
+    "deleted": "Abteilung gelöscht",
+    "createFailed": "Abteilung konnte nicht erstellt werden",
+    "updateFailed": "Abteilung konnte nicht aktualisiert werden",
+    "deleteFailed": "Abteilung konnte nicht gelöscht werden",
+    "cycleError": "Eine Abteilung kann nicht unter eine ihrer eigenen Unterabteilungen verschoben werden"
+  }
+}

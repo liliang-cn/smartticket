@@ -1,0 +1,76 @@
+{
+  "page": {
+    "eyebrow": "インテグレーション",
+    "title": "Webhook"
+  },
+  "newWebhook": "新しい Webhook",
+  "table": {
+    "name": "名前",
+    "url": "URL",
+    "events": "イベント",
+    "status": "ステータス"
+  },
+  "badges": {
+    "active": "有効",
+    "inactive": "無効"
+  },
+  "empty": "Webhook がまだありません。リアルタイムのイベント通知を受け取るために作成してください。",
+  "actions": {
+    "test": "テスト",
+    "testTitle": "テスト配信を送信",
+    "deliveries": "配信履歴",
+    "deliveriesTitle": "配信ログを表示",
+    "delete": "削除",
+    "deleteTitle": "この Webhook を削除"
+  },
+  "reveal": {
+    "title": "今すぐ署名シークレットをコピーしてください",
+    "subtitle": "このシークレットは一度だけ表示され、後から取得することはできません。Webhook ペイロードの検証に使用してください（HMAC-SHA256）。",
+    "copy": "コピー",
+    "copied": "コピーしました！",
+    "close": "閉じる",
+    "copyFailed": "クリップボードへのコピーに失敗しました"
+  },
+  "form": {
+    "title": "Webhook を作成",
+    "description": "選択したイベントの HTTP POST 通知を受け取るエンドポイントを追加します。",
+    "name": "名前",
+    "namePlaceholder": "マイインテグレーション",
+    "url": "エンドポイント URL",
+    "events": "イベントをサブスクライブ",
+    "submit": "Webhook を作成",
+    "creating": "作成中…"
+  },
+  "validation": {
+    "nameRequired": "名前は必須です",
+    "urlRequired": "エンドポイント URL は必須です",
+    "eventsRequired": "少なくとも 1 つのイベントを選択してください"
+  },
+  "toast": {
+    "created": "Webhook を作成しました",
+    "createFailed": "Webhook の作成に失敗しました",
+    "deleted": "Webhook を削除しました",
+    "deleteFailed": "Webhook の削除に失敗しました",
+    "testQueued": "テスト配信をキューに追加しました",
+    "testFailed": "テスト配信のキュー追加に失敗しました"
+  },
+  "deleteDialog": {
+    "title": "Webhook を削除しますか？",
+    "description": "「{{name}}」を完全に削除します。以降は配信が行われなくなります。",
+    "confirm": "削除する",
+    "confirmPending": "削除中…"
+  },
+  "deliveries": {
+    "title": "配信履歴 — {{name}}",
+    "description": "この Webhook エンドポイントへの最近の配信試行。",
+    "empty": "まだ配信はありません。",
+    "table": {
+      "event": "イベント",
+      "status": "ステータス",
+      "code": "HTTP コード",
+      "attempts": "試行回数",
+      "lastAttempt": "最終試行",
+      "error": "エラー"
+    }
+  }
+}

@@ -1545,8 +1545,10 @@ func TestJSONSerialization(t *testing.T) {
 			case *APIKey:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*APIKey)
-				assert.Equal(t, original, *unmarshaledTyped)
+				// KeyHash has json:"-" so it intentionally does not survive a JSON round-trip.
 				assert.Equal(t, original.Name, unmarshaledTyped.Name)
+				assert.Equal(t, original.KeyPrefix, unmarshaledTyped.KeyPrefix)
+				assert.Equal(t, original.IsActive, unmarshaledTyped.IsActive)
 			case *SystemSetting:
 				original := *v
 				unmarshaledTyped := unmarshaled.(*SystemSetting)

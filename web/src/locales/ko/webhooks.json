@@ -1,0 +1,76 @@
+{
+  "page": {
+    "eyebrow": "통합",
+    "title": "Webhook"
+  },
+  "newWebhook": "새 Webhook",
+  "table": {
+    "name": "이름",
+    "url": "URL",
+    "events": "이벤트",
+    "status": "상태"
+  },
+  "badges": {
+    "active": "활성",
+    "inactive": "비활성"
+  },
+  "empty": "아직 Webhook이 없습니다. 실시간 이벤트 알림을 받으려면 하나를 만드세요.",
+  "actions": {
+    "test": "테스트",
+    "testTitle": "테스트 전송",
+    "deliveries": "전달 내역",
+    "deliveriesTitle": "전달 로그 보기",
+    "delete": "삭제",
+    "deleteTitle": "이 Webhook 삭제"
+  },
+  "reveal": {
+    "title": "지금 서명 시크릿을 복사하세요",
+    "subtitle": "이 시크릿은 한 번만 표시되며 이후에 다시 확인할 수 없습니다. Webhook 페이로드 검증에 사용하세요(HMAC-SHA256).",
+    "copy": "복사",
+    "copied": "복사됨!",
+    "close": "닫기",
+    "copyFailed": "클립보드에 복사하지 못했습니다"
+  },
+  "form": {
+    "title": "Webhook 만들기",
+    "description": "선택한 이벤트에 대한 HTTP POST 알림을 받을 엔드포인트를 추가합니다.",
+    "name": "이름",
+    "namePlaceholder": "내 통합",
+    "url": "엔드포인트 URL",
+    "events": "이벤트 구독",
+    "submit": "Webhook 만들기",
+    "creating": "생성 중…"
+  },
+  "validation": {
+    "nameRequired": "이름은 필수입니다",
+    "urlRequired": "엔드포인트 URL은 필수입니다",
+    "eventsRequired": "이벤트를 하나 이상 선택하세요"
+  },
+  "toast": {
+    "created": "Webhook이 생성되었습니다",
+    "createFailed": "Webhook을 생성하지 못했습니다",
+    "deleted": "Webhook이 삭제되었습니다",
+    "deleteFailed": "Webhook을 삭제하지 못했습니다",
+    "testQueued": "테스트 전송이 대기열에 추가되었습니다",
+    "testFailed": "테스트 전송을 대기열에 추가하지 못했습니다"
+  },
+  "deleteDialog": {
+    "title": "Webhook을 삭제하시겠습니까?",
+    "description": "\"{{name}}\"을(를) 영구적으로 삭제합니다. 더 이상 전송되지 않습니다.",
+    "confirm": "삭제",
+    "confirmPending": "삭제 중…"
+  },
+  "deliveries": {
+    "title": "전달 내역 — {{name}}",
+    "description": "이 Webhook 엔드포인트의 최근 전달 시도.",
+    "empty": "아직 전달 내역이 없습니다.",
+    "table": {
+      "event": "이벤트",
+      "status": "상태",
+      "code": "HTTP 코드",
+      "attempts": "시도 횟수",
+      "lastAttempt": "마지막 시도",
+      "error": "오류"
+    }
+  }
+}

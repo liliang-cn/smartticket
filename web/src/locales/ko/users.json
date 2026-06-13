@@ -94,11 +94,13 @@
       "password": "비밀번호",
       "role": "역할",
       "status": "상태",
-      "customer": "고객"
+      "customer": "고객",
+      "department": "부서"
     },
     "placeholders": {
       "role": "역할 선택",
-      "customer": "고객 조직 선택"
+      "customer": "고객 조직 선택",
+      "department": "(없음)"
     },
     "password_hint": "8자 이상, 대문자·숫자·특수문자를 포함해야 합니다.",
     "status_options": {

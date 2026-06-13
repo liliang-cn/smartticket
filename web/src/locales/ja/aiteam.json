@@ -1,0 +1,63 @@
+{
+  "panel_title": "AI コパイロット",
+  "loading": "提案を読み込んでいます…",
+  "empty": "AI 提案はまだありません。エージェントが自動的にチケットを分析します。",
+  "run_btn": "再実行",
+  "adopt_btn": "採用",
+  "adopted_label": "採用済み",
+  "dismiss_btn": "却下",
+  "dismissed_label": "却下済み",
+  "reasoning_label": "推論",
+  "confidence": {
+    "high": "高",
+    "med": "中",
+    "low": "低"
+  },
+  "agent": {
+    "Triage": "トリアージ",
+    "Sentinel": "センチネル",
+    "Researcher": "リサーチャー",
+    "Reviewer": "レビュアー",
+    "Drafter": "ドラフター"
+  },
+  "triage": {
+    "priority": "優先度",
+    "severity": "重大度",
+    "category": "カテゴリ",
+    "apply_btn": "フィールドを適用"
+  },
+  "sentinel": {
+    "sentiment": "感情",
+    "churn_risk": "解約リスク",
+    "sla_risk": "SLA リスク",
+    "escalate_badge": "エスカレーションを推奨",
+    "yes": "はい",
+    "no": "いいえ"
+  },
+  "researcher": {
+    "kb_label": "KB 記事",
+    "similar_label": "類似チケット",
+    "merge_tag": "マージ候補",
+    "resolution_label": "推奨解決策",
+    "insert_btn": "解決策を挿入",
+    "run_hint": "リサーチャーエージェントを実行"
+  },
+  "reviewer": {
+    "approved_badge": "草稿承認済み",
+    "revised_draft_label": "修正草稿",
+    "use_draft_btn": "修正草稿を使用",
+    "run_needs_draft": "最初に返信草稿を作成してください"
+  },
+  "drafter": {
+    "use_draft_btn": "草稿を使用",
+    "run_hint": "ドラフターエージェントを実行"
+  },
+  "toast": {
+    "adopt_error": "提案を採用できませんでした",
+    "dismiss_error": "提案を却下できませんでした",
+    "run_error": "エージェントを実行できませんでした",
+    "research_done": "リサーチ完了",
+    "review_done": "レビュー完了",
+    "draft_done": "草稿の準備ができました"
+  }
+}

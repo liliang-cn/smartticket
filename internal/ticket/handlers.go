@@ -221,7 +221,16 @@ func (h *Handlers) ListTickets(c *gin.Context) {
 		filters["search"] = search
 	}
 
-	tickets, err := h.service.ListTickets(actorFromContext(c), page, pageSize, filters)
+	actor := actorFromContext(c)
+	scope := c.Query("scope")
+
+	var tickets *TicketListResponse
+	var err error
+	if scope == "my_department" && actor.IsTeam() {
+		tickets, err = h.service.ListTicketsForDepartment(actor, page, pageSize, filters)
+	} else {
+		tickets, err = h.service.ListTickets(actor, page, pageSize, filters)
+	}
 	if err != nil {
 		errors.ErrorHandler(c, err)
 		return
