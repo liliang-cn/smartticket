@@ -564,6 +564,20 @@ func (s *Server) setupRoutes() {
 					_, _ = orch.Run(ctx, "Sentinel", buildAITicketContext(s.db.DB, id), "")
 				})
 			})
+
+			// Failover/crash recovery: re-run any suggestions left "pending" by a
+			// prior process (the agent-go task persists, but our finalizer goroutine
+			// dies with the process). Runs in the background so startup isn't blocked.
+			go func() {
+				defer func() { _ = recover() }()
+				if n, rerr := orch.RecoverPending(func(id uint) aiteam.TicketContext {
+					return buildAITicketContext(s.db.DB, id)
+				}); rerr != nil {
+					logger.Warn("AI suggestion recovery failed", zap.Error(rerr))
+				} else if n > 0 {
+					logger.Info("AI suggestion recovery: re-ran orphaned pending suggestions", zap.Int("count", n))
+				}
+			}()
 		}
 	}
 	_ = aiteamOrch // consumed by Task 8 on-demand API routes

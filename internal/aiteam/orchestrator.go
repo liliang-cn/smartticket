@@ -131,6 +131,35 @@ func (o *Orchestrator) RunAsync(agentName string, tc TicketContext, draft string
 	return pending
 }
 
+// RecoverPending re-runs advisory suggestions left in "pending" by a crash or HA
+// failover, so no ticket is stuck showing "analyzing…" forever. It is meant to
+// be called once on startup (in a background goroutine).
+//
+// agent-go persists each task, but the in-process goroutine that finalizes our
+// AISuggestion dies with the process; rather than resume the agent-go task and
+// re-thread its id, we simply re-run the agent from the persisted ticket id —
+// idempotent (Upsert overwrites the row) and cheap. Reviewer is the exception:
+// its draft input isn't persisted, so an orphaned Reviewer run is marked failed
+// for the user to re-trigger. Returns the number of suggestions acted on.
+func (o *Orchestrator) RecoverPending(buildCtx func(uint) TicketContext) (int, error) {
+	pend, err := o.store.ListByStatus("pending")
+	if err != nil {
+		return 0, err
+	}
+	n := 0
+	for _, sug := range pend {
+		if sug.AgentName == "Reviewer" {
+			// Can't reconstruct the draft — fail it so the UI stops spinning.
+			_, _ = o.store.Upsert(sug.TicketID, "Reviewer", "failed", 0, "")
+			n++
+			continue
+		}
+		o.RunAsync(sug.AgentName, buildCtx(sug.TicketID), "")
+		n++
+	}
+	return n, nil
+}
+
 // dispatch calls the appropriate Team Run method and returns (jsonPayload,
 // confidence, error).
 func (o *Orchestrator) dispatch(ctx context.Context, agentName string, tc TicketContext, draft string) (string, float64, error) {

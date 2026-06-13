@@ -43,6 +43,14 @@ func (s *SuggestionStore) List(ticketID uint) ([]models.AISuggestion, error) {
 	return out, err
 }
 
+// ListByStatus returns all suggestions in the given status (e.g. "pending"),
+// oldest first. Used by failover recovery to find orphaned runs.
+func (s *SuggestionStore) ListByStatus(status string) ([]models.AISuggestion, error) {
+	var out []models.AISuggestion
+	err := s.db.Where("status = ?", status).Order("id").Find(&out).Error
+	return out, err
+}
+
 func (s *SuggestionStore) Get(id uint) (*models.AISuggestion, error) {
 	var sug models.AISuggestion
 	if err := s.db.First(&sug, id).Error; err != nil {

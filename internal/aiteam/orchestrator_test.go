@@ -300,3 +300,36 @@ func TestOrchestrator_NilSettings_RunsUnguarded(t *testing.T) {
 	require.NotNil(t, result)
 	require.Equal(t, "done", result.Status)
 }
+
+func TestOrchestrator_RecoverPending(t *testing.T) {
+	db := newOrchDB(t)
+	upsertSettings(t, db, models.AISettings{Enabled: true, TriageEnabled: true, SentinelEnabled: true})
+	store := NewSuggestionStore(db)
+
+	// Seed orphaned "pending" rows as a crash/failover would leave them.
+	_, err := store.Upsert(101, "Triage", "pending", 0, "")
+	require.NoError(t, err)
+	_, err = store.Upsert(102, "Reviewer", "pending", 0, "")
+	require.NoError(t, err)
+
+	team, err := NewTeam(filepath.Join(t.TempDir(), "team.db"), successGen{}, nil, aiassist.NewSettingsStore(db), db)
+	require.NoError(t, err)
+	orch := NewOrchestrator(team, store, &captureBroadcaster{})
+
+	n, err := orch.RecoverPending(func(id uint) TicketContext {
+		return TicketContext{TicketID: id, Title: "Recovered ticket"}
+	})
+	require.NoError(t, err)
+	require.Equal(t, 2, n)
+
+	// Reviewer (no persisted draft) is marked failed immediately.
+	rev, err := store.GetByTicketAgent(102, "Reviewer")
+	require.NoError(t, err)
+	require.Equal(t, "failed", rev.Status)
+
+	// Triage is re-run asynchronously through the durable queue → eventually done.
+	require.Eventually(t, func() bool {
+		s, e := store.GetByTicketAgent(101, "Triage")
+		return e == nil && s != nil && s.Status == "done"
+	}, 30*time.Second, 200*time.Millisecond, "orphaned Triage should be re-run to done")
+}

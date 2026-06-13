@@ -4,11 +4,30 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/liliang-cn/agent-go/v2/pkg/agent"
 	taskpkg "github.com/liliang-cn/agent-go/v2/pkg/task"
 )
+
+// aiTaskConcurrency bounds how many advisory-agent tasks run at once. agent-go's
+// task queue spawns a goroutine per submit with no cap, so a burst of tickets or
+// messages could otherwise fan out into unbounded concurrent LLM + embedding
+// calls (provider rate limits / memory). Kept small (single-tenant workload).
+func aiTaskConcurrency() int {
+	n := runtime.NumCPU() - 2
+	if n < 2 {
+		return 2
+	}
+	if n > 4 {
+		return 4
+	}
+	return n
+}
+
+// aiTaskSlots is the package-wide semaphore enforcing aiTaskConcurrency().
+var aiTaskSlots = make(chan struct{}, aiTaskConcurrency())
 
 // specFromSchema builds an agent-go StructuredOutputSpec from one of our existing
 // JSON-schema maps. The schema is reused verbatim so behaviour matches the old
@@ -51,6 +70,14 @@ var (
 // fall back to a zero-value result with Confidence 0 (graceful degradation),
 // mirroring the previous GenerateStructured behaviour.
 func (t *Team) structured(ctx context.Context, agentName, prompt string, spec *agent.StructuredOutputSpec) (map[string]interface{}, bool, error) {
+	// Backpressure: wait for a concurrency slot (or ctx cancellation).
+	select {
+	case aiTaskSlots <- struct{}{}:
+		defer func() { <-aiTaskSlots }()
+	case <-ctx.Done():
+		return nil, false, ctx.Err()
+	}
+
 	submitted, err := t.mgr.Tasks().Submit(ctx, agent.TaskSubmitOptions{
 		SessionID:    "aiteam-" + strings.ToLower(agentName),
 		AgentName:    agentName,
