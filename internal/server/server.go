@@ -542,23 +542,33 @@ func (s *Server) setupRoutes() {
 			aiteamOrch = aiteam.NewOrchestrator(advisoryTeam, suggestionStore, s.hub)
 			s.aiteamOrch = aiteamOrch
 
-			// Auto-trigger: Triage on new ticket. Sentinel on new message / SLA
-			// warning. Each runs panic-isolated with a timeout so an AI failure
-			// can never crash the server or block the ticket pipeline.
+			// Auto-trigger: Triage on new ticket; Sentinel on a new *human* message.
+			// Each runs panic-isolated with a timeout so an AI failure can never
+			// crash the server or block the ticket pipeline.
+			//
+			// COST SAFETY: AI auto-triggers fire only on discrete, user-driven
+			// events (a ticket is created, a person posts a message) — never on a
+			// recurring timer. We deliberately do NOT subscribe Sentinel to
+			// EventSLAWarning: the scheduler re-emits that every 60s for *every*
+			// overdue ticket, which previously fanned out into one LLM call per
+			// overdue ticket per minute (a runaway that burned millions of tokens).
+			// SLA handling stays with the (non-LLM) automation rule engine. We also
+			// skip ai/automation-sourced messages so an AI auto-reply can't trigger
+			// Sentinel on itself.
 			orch := aiteamOrch
 			s.bus.Subscribe(automation.EventTicketCreated, func(ev automation.Event) {
+				if ev.Source == "ai" || ev.Source == "automation" {
+					return
+				}
 				id := ev.TicketID
 				aiSafeGo("triage", func(ctx context.Context) {
 					_, _ = orch.Run(ctx, "Triage", buildAITicketContext(s.db.DB, id), "")
 				})
 			})
 			s.bus.Subscribe(automation.EventMessageCreated, func(ev automation.Event) {
-				id := ev.TicketID
-				aiSafeGo("sentinel", func(ctx context.Context) {
-					_, _ = orch.Run(ctx, "Sentinel", buildAITicketContext(s.db.DB, id), "")
-				})
-			})
-			s.bus.Subscribe(automation.EventSLAWarning, func(ev automation.Event) {
+				if ev.Source == "ai" || ev.Source == "automation" {
+					return
+				}
 				id := ev.TicketID
 				aiSafeGo("sentinel", func(ctx context.Context) {
 					_, _ = orch.Run(ctx, "Sentinel", buildAITicketContext(s.db.DB, id), "")
