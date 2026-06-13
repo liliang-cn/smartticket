@@ -328,7 +328,8 @@ func (s *Server) setupRoutes() {
 			}
 			return llm.NewClient(ep.APIEndpoint, key).Embed(ctx, ep.Model, ep.Dimensions, texts)
 		}, 1024)
-		kbStore, kerr2 := knowledgebase.Open("./data/cortex.db", embedder)
+		_ = os.MkdirAll("./data", 0o755) // ensure parent exists (agent-go stores self-mkdir; cortexdb does not)
+			kbStore, kerr2 := knowledgebase.Open("./data/cortex.db", embedder)
 		if kerr2 != nil {
 			logger.Warn("cortexdb unavailable", zap.Error(kerr2)) // non-fatal
 		} else {

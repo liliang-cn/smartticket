@@ -37,14 +37,21 @@ redundant DB round-trip per Reviewer call. Minor; collapse to one.
 
 ## Deployment / robustness
 
-### 3. Store paths should `mkdir -p` their parent dir
-cortex (`./data/cortex.db`), aiassist (`./data/agentgo.db`), and aiteam
+### 3. Store paths should `mkdir -p` their parent dir — RESOLVED (agent-go v2.81.0)
+~~cortex (`./data/cortex.db`), aiassist (`./data/agentgo.db`), and aiteam
 (`./data/agentgo-team.db`) open relative `./data/...` paths but don't create the
-`data/` dir. On the HA deploy this CANTOPEN'd ("out of memory (14)") until
-`/var/lib/smartticket/data` was created by hand. Add `os.MkdirAll(dir, 0o755)`
-before opening these stores so a fresh deployment just works.
-NOTE: agent-go requires CGO at runtime (the no-CGO build compiles but CANTOPENs).
-Linux builds must use a CGO cross-compile (we use `zig cc`).
+`data/` dir.~~
+- agent-go v2.81.0 `NewAgentGoDB` now `os.MkdirAll`s the parent — covers
+  `agentgo.db` + `agentgo-team.db`.
+- cortexdb still does not self-mkdir, so `server.go` now `os.MkdirAll("./data")`
+  before `knowledgebase.Open`.
+
+**CGO requirement also RESOLVED.** agent-go v2.81.0 switched its store to
+`modernc.org/sqlite` (pure Go) — no more mattn/CGO. The whole binary now builds
+and runs under `CGO_ENABLED=0` (verified: build + aiteam/aiassist tests pass with
+CGO disabled). The `zig cc` CGO cross-compile is no longer needed; the standard
+`CGO_ENABLED=0 GOOS=linux go build` (Makefile + Dockerfile already use it) just
+works.
 
 ## Departments (spec D review — non-blocking)
 
