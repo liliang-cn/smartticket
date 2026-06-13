@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/company/smartticket/internal/aiassist"
-	"github.com/liliang-cn/agent-go/v2/pkg/domain"
 )
 
 // memberInstructions maps specialist name → system prompt text. Built at init
@@ -176,17 +175,11 @@ func (t *Team) RunTriage(ctx context.Context, tc TicketContext) (*TriageResult, 
 	}
 
 	prompt := memberInstructions["Triage"] + "\n\n" + renderContext(tc)
-	res, err := t.gen.GenerateStructured(ctx, prompt, triageSchema, &domain.GenerationOptions{Temperature: 0.3})
+	dataMap, valid, err := t.structured(ctx, "Triage", prompt, triageSpec)
 	if err != nil {
 		return nil, err
 	}
-
-	if !res.Valid || res.Data == nil {
-		return &TriageResult{Confidence: 0}, nil
-	}
-
-	dataMap, ok := res.Data.(map[string]interface{})
-	if !ok {
+	if !valid || dataMap == nil {
 		return &TriageResult{Confidence: 0}, nil
 	}
 
@@ -382,7 +375,7 @@ func (t *Team) RunResearcher(ctx context.Context, tc TicketContext) (*Researcher
 		}
 	}
 
-	res, err := t.gen.GenerateStructured(ctx, b.String(), researcherSchema, &domain.GenerationOptions{Temperature: 0.3})
+	dataMap, valid, err := t.structured(ctx, "Researcher", b.String(), researcherSpec)
 	if err != nil {
 		return nil, err
 	}
@@ -392,12 +385,7 @@ func (t *Team) RunResearcher(ctx context.Context, tc TicketContext) (*Researcher
 		SimilarTickets: similarTickets,
 	}
 
-	if !res.Valid || res.Data == nil {
-		return out, nil
-	}
-
-	dataMap, ok := res.Data.(map[string]interface{})
-	if !ok {
+	if !valid || dataMap == nil {
 		return out, nil
 	}
 
@@ -451,17 +439,11 @@ func (t *Team) RunReviewer(ctx context.Context, tc TicketContext, draft string) 
 		}
 	}
 
-	res, err := t.gen.GenerateStructured(ctx, b.String(), reviewerSchema, &domain.GenerationOptions{Temperature: 0.3})
+	dataMap, valid, err := t.structured(ctx, "Reviewer", b.String(), reviewerSpec)
 	if err != nil {
 		return nil, err
 	}
-
-	if !res.Valid || res.Data == nil {
-		return &ReviewerResult{Issues: []ReviewIssue{}, Confidence: 0}, nil
-	}
-
-	dataMap, ok := res.Data.(map[string]interface{})
-	if !ok {
+	if !valid || dataMap == nil {
 		return &ReviewerResult{Issues: []ReviewIssue{}, Confidence: 0}, nil
 	}
 
@@ -513,17 +495,11 @@ func (t *Team) RunDrafter(ctx context.Context, tc TicketContext) (*DrafterResult
 		}
 	}
 
-	res, err := t.gen.GenerateStructured(ctx, b.String(), drafterSchema, &domain.GenerationOptions{Temperature: 0.4})
+	dataMap, valid, err := t.structured(ctx, "Drafter", b.String(), drafterSpec)
 	if err != nil {
 		return nil, err
 	}
-
-	if !res.Valid || res.Data == nil {
-		return &DrafterResult{Confidence: 0}, nil
-	}
-
-	dataMap, ok := res.Data.(map[string]interface{})
-	if !ok {
+	if !valid || dataMap == nil {
 		return &DrafterResult{Confidence: 0}, nil
 	}
 
@@ -554,17 +530,11 @@ func (t *Team) RunSentinel(ctx context.Context, tc TicketContext) (*SentinelResu
 	}
 
 	prompt := memberInstructions["Sentinel"] + "\n\n" + renderContext(tc)
-	res, err := t.gen.GenerateStructured(ctx, prompt, sentinelSchema, &domain.GenerationOptions{Temperature: 0.3})
+	dataMap, valid, err := t.structured(ctx, "Sentinel", prompt, sentinelSpec)
 	if err != nil {
 		return nil, err
 	}
-
-	if !res.Valid || res.Data == nil {
-		return &SentinelResult{Confidence: 0}, nil
-	}
-
-	dataMap, ok := res.Data.(map[string]interface{})
-	if !ok {
+	if !valid || dataMap == nil {
 		return &SentinelResult{Confidence: 0}, nil
 	}
 

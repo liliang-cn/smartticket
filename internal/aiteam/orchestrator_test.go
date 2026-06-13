@@ -2,7 +2,9 @@ package aiteam
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"sync"
 	"testing"
 	"time"
@@ -50,43 +52,49 @@ func (c *captureBroadcaster) last() *broadcastMsg {
 	return &m
 }
 
-// successGen returns a valid Triage result.
+// successData is a single map that satisfies every specialist schema — fields
+// not present in a given schema are simply ignored by that agent's parser.
+var successData = map[string]interface{}{
+	"priority":             "high",
+	"severity":             "major",
+	"category":             "account",
+	"reasoning":            "test",
+	"confidence":           0.75,
+	"sentiment":            "neutral",
+	"churn_risk":           "none",
+	"sla_breach_risk":      false,
+	"escalate":             false,
+	"suggested_resolution": "test resolution",
+	"issues":               []interface{}{},
+	"revised_draft":        "",
+	"approve":              true,
+	"reply":                "test reply",
+}
+
+func successText() string {
+	b, _ := json.Marshal(successData)
+	return string(b)
+}
+
+// successGen drives the agent-go task path: every generation method emits the
+// combined successData JSON so the StructuredOutput lint validates first try.
 type successGen struct{}
 
 func (successGen) Generate(_ context.Context, _ string, _ *domain.GenerationOptions) (string, error) {
-	return "", nil
+	return successText(), nil
 }
 func (successGen) Stream(_ context.Context, _ string, _ *domain.GenerationOptions, cb func(string)) error {
-	cb(""); return nil
+	cb(successText())
+	return nil
 }
 func (successGen) GenerateWithTools(_ context.Context, _ []domain.Message, _ []domain.ToolDefinition, _ *domain.GenerationOptions) (*domain.GenerationResult, error) {
-	return &domain.GenerationResult{Content: "", Finished: true, FinishReason: "stop"}, nil
+	return &domain.GenerationResult{Content: successText(), Finished: true, FinishReason: "stop"}, nil
 }
 func (successGen) StreamWithTools(_ context.Context, _ []domain.Message, _ []domain.ToolDefinition, _ *domain.GenerationOptions, cb domain.ToolCallCallback) error {
-	return cb(&domain.GenerationResult{Content: "", Finished: true, FinishReason: "stop"})
+	return cb(&domain.GenerationResult{Content: successText(), Finished: true, FinishReason: "stop"})
 }
 func (successGen) GenerateStructured(_ context.Context, _ string, _ interface{}, _ *domain.GenerationOptions) (*domain.StructuredResult, error) {
-	return &domain.StructuredResult{
-		Valid: true,
-		Data: map[string]interface{}{
-			// Works for Triage, Sentinel, Researcher, Reviewer, Drafter
-			// — fields not present in a given schema are simply ignored.
-			"priority":             "high",
-			"severity":             "major",
-			"category":             "account",
-			"reasoning":            "test",
-			"confidence":           0.75,
-			"sentiment":            "neutral",
-			"churn_risk":           "none",
-			"sla_breach_risk":      false,
-			"escalate":             false,
-			"suggested_resolution": "test resolution",
-			"issues":               []interface{}{},
-			"revised_draft":        "",
-			"approve":              true,
-			"reply":                "test reply",
-		},
-	}, nil
+	return &domain.StructuredResult{Valid: true, Data: successData}, nil
 }
 func (successGen) RecognizeIntent(_ context.Context, _ string) (*domain.IntentResult, error) {
 	return &domain.IntentResult{Intent: domain.IntentAction, Confidence: 0.5}, nil
@@ -123,7 +131,8 @@ func upsertSettings(t *testing.T, db *gorm.DB, s models.AISettings) {
 func buildOrchestrator(t *testing.T, gen domain.Generator, db *gorm.DB, bc Broadcaster) (*Orchestrator, *SuggestionStore) {
 	t.Helper()
 	settings := aiassist.NewSettingsStore(db)
-	team := &Team{gen: gen, settings: settings}
+	team, err := NewTeam(filepath.Join(t.TempDir(), "team.db"), gen, nil, settings, db)
+	require.NoError(t, err)
 	store := NewSuggestionStore(db)
 	orch := NewOrchestrator(team, store, bc)
 	return orch, store
@@ -280,7 +289,8 @@ func TestOrchestrator_NilSettings_RunsUnguarded(t *testing.T) {
 	db := newOrchDB(t)
 	store := NewSuggestionStore(db)
 	// Construct team WITHOUT a settings store.
-	team := &Team{gen: successGen{}, settings: nil}
+	team, err := NewTeam(filepath.Join(t.TempDir(), "team.db"), successGen{}, nil, nil, db)
+	require.NoError(t, err)
 	bc := &captureBroadcaster{}
 	orch := NewOrchestrator(team, store, bc)
 

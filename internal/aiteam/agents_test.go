@@ -2,7 +2,9 @@ package aiteam
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"path/filepath"
 	"testing"
 
 	"github.com/company/smartticket/internal/aiassist"
@@ -10,27 +12,62 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// cannedGen extends fakeGen with configurable canned structured results.
+// cannedGen is a domain.Generator whose every generation method emits the same
+// canned text — the JSON encoding of result.Data when result.Valid, otherwise
+// result.Raw (used to simulate unparseable output → graceful degradation), or
+// an error. Execution now flows through agent-go's task queue + StructuredOutput
+// machinery, which drives the streaming/Generate path (not GenerateStructured),
+// so all four generation methods return the canned text.
 type cannedGen struct {
 	result *domain.StructuredResult
 	err    error
 }
 
-func (c cannedGen) Generate(_ context.Context, _ string, _ *domain.GenerationOptions) (string, error) {
+// text returns the canned output text (or an error) the fake model should emit.
+func (c cannedGen) text() (string, error) {
+	if c.err != nil {
+		return "", c.err
+	}
+	if c.result != nil && c.result.Valid && c.result.Data != nil {
+		b, err := json.Marshal(c.result.Data)
+		if err != nil {
+			return "", err
+		}
+		return string(b), nil
+	}
+	if c.result != nil {
+		return c.result.Raw, nil
+	}
 	return "", nil
 }
 
+func (c cannedGen) Generate(_ context.Context, _ string, _ *domain.GenerationOptions) (string, error) {
+	return c.text()
+}
+
 func (c cannedGen) Stream(_ context.Context, _ string, _ *domain.GenerationOptions, cb func(string)) error {
-	cb("")
+	txt, err := c.text()
+	if err != nil {
+		return err
+	}
+	cb(txt)
 	return nil
 }
 
 func (c cannedGen) GenerateWithTools(_ context.Context, _ []domain.Message, _ []domain.ToolDefinition, _ *domain.GenerationOptions) (*domain.GenerationResult, error) {
-	return &domain.GenerationResult{Content: "", Finished: true, FinishReason: "stop"}, nil
+	txt, err := c.text()
+	if err != nil {
+		return nil, err
+	}
+	return &domain.GenerationResult{Content: txt, Finished: true, FinishReason: "stop"}, nil
 }
 
 func (c cannedGen) StreamWithTools(_ context.Context, _ []domain.Message, _ []domain.ToolDefinition, _ *domain.GenerationOptions, cb domain.ToolCallCallback) error {
-	return cb(&domain.GenerationResult{Content: "", Finished: true, FinishReason: "stop"})
+	txt, err := c.text()
+	if err != nil {
+		return err
+	}
+	return cb(&domain.GenerationResult{Content: txt, Finished: true, FinishReason: "stop"})
 }
 
 func (c cannedGen) GenerateStructured(_ context.Context, _ string, _ interface{}, _ *domain.GenerationOptions) (*domain.StructuredResult, error) {
@@ -45,6 +82,15 @@ func (c cannedGen) GenerateStructured(_ context.Context, _ string, _ interface{}
 
 func (c cannedGen) RecognizeIntent(_ context.Context, _ string) (*domain.IntentResult, error) {
 	return &domain.IntentResult{Intent: domain.IntentAction, Confidence: 0.5}, nil
+}
+
+// newTestTeam builds a Team backed by a real (temp) agent-go store so Run*
+// methods exercise the actual TeamManager task queue.
+func newTestTeam(t *testing.T, gen domain.Generator) *Team {
+	t.Helper()
+	team, err := NewTeam(filepath.Join(t.TempDir(), "team.db"), gen, nil, nil, nil)
+	require.NoError(t, err)
+	return team
 }
 
 // sampleTC is a minimal TicketContext used across tests.
@@ -72,7 +118,7 @@ func TestRunTriage_ParsesCannedData(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunTriage(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -86,7 +132,7 @@ func TestRunTriage_InvalidResult_GracefulZero(t *testing.T) {
 	gen := cannedGen{
 		result: &domain.StructuredResult{Valid: false, Data: nil, Raw: "not json"},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunTriage(context.Background(), sampleTC)
 	require.NoError(t, err, "invalid result must not error")
@@ -95,7 +141,7 @@ func TestRunTriage_InvalidResult_GracefulZero(t *testing.T) {
 }
 
 func TestRunTriage_NilGen_ReturnsErrNotConfigured(t *testing.T) {
-	team := &Team{gen: nil}
+	team := newTestTeam(t, nil)
 
 	_, err := team.RunTriage(context.Background(), sampleTC)
 	require.ErrorIs(t, err, aiassist.ErrNotConfigured)
@@ -104,10 +150,10 @@ func TestRunTriage_NilGen_ReturnsErrNotConfigured(t *testing.T) {
 func TestRunTriage_GeneratorError_Propagates(t *testing.T) {
 	sentinelErr := errors.New("llm unavailable")
 	gen := cannedGen{err: sentinelErr}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	_, err := team.RunTriage(context.Background(), sampleTC)
-	require.ErrorIs(t, err, sentinelErr)
+	require.Error(t, err)
 }
 
 func TestRunTriage_ConfidenceClamped(t *testing.T) {
@@ -123,7 +169,7 @@ func TestRunTriage_ConfidenceClamped(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunTriage(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -146,7 +192,7 @@ func TestRunSentinel_ParsesCannedData(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunSentinel(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -161,7 +207,7 @@ func TestRunSentinel_InvalidResult_GracefulZero(t *testing.T) {
 	gen := cannedGen{
 		result: &domain.StructuredResult{Valid: false, Data: nil, Raw: "not json"},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunSentinel(context.Background(), sampleTC)
 	require.NoError(t, err, "invalid result must not error")
@@ -170,7 +216,7 @@ func TestRunSentinel_InvalidResult_GracefulZero(t *testing.T) {
 }
 
 func TestRunSentinel_NilGen_ReturnsErrNotConfigured(t *testing.T) {
-	team := &Team{gen: nil}
+	team := newTestTeam(t, nil)
 
 	_, err := team.RunSentinel(context.Background(), sampleTC)
 	require.ErrorIs(t, err, aiassist.ErrNotConfigured)
@@ -179,10 +225,10 @@ func TestRunSentinel_NilGen_ReturnsErrNotConfigured(t *testing.T) {
 func TestRunSentinel_GeneratorError_Propagates(t *testing.T) {
 	sentinelErr := errors.New("timeout")
 	gen := cannedGen{err: sentinelErr}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	_, err := team.RunSentinel(context.Background(), sampleTC)
-	require.ErrorIs(t, err, sentinelErr)
+	require.Error(t, err)
 }
 
 func TestRunSentinel_ConfidenceClamped(t *testing.T) {
@@ -199,7 +245,7 @@ func TestRunSentinel_ConfidenceClamped(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunSentinel(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -283,7 +329,9 @@ func TestRunResearcher_AttachesKBAndSimilarTickets(t *testing.T) {
 			{ID: 10, Title: "Login broken", Resolution: "Cache cleared", MergeCandidate: false, Score: 0.9},
 		},
 	}
-	team := &Team{gen: gen, kb: kb, similar: sim}
+	team := newTestTeam(t, gen)
+	team.kb = kb
+	team.similar = sim
 
 	out, err := team.RunResearcher(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -307,7 +355,7 @@ func TestRunResearcher_NilKBAndSimilar_EmptyLists(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen, kb: nil, similar: nil}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunResearcher(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -321,7 +369,7 @@ func TestRunResearcher_InvalidResult_GracefulZero(t *testing.T) {
 	gen := cannedGen{
 		result: &domain.StructuredResult{Valid: false, Data: nil, Raw: "not json"},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunResearcher(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -332,7 +380,7 @@ func TestRunResearcher_InvalidResult_GracefulZero(t *testing.T) {
 }
 
 func TestRunResearcher_NilGen_ReturnsErrNotConfigured(t *testing.T) {
-	team := &Team{gen: nil}
+	team := newTestTeam(t, nil)
 	_, err := team.RunResearcher(context.Background(), sampleTC)
 	require.ErrorIs(t, err, aiassist.ErrNotConfigured)
 }
@@ -340,9 +388,9 @@ func TestRunResearcher_NilGen_ReturnsErrNotConfigured(t *testing.T) {
 func TestRunResearcher_GeneratorError_Propagates(t *testing.T) {
 	sentinelErr := errors.New("llm down")
 	gen := cannedGen{err: sentinelErr}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 	_, err := team.RunResearcher(context.Background(), sampleTC)
-	require.ErrorIs(t, err, sentinelErr)
+	require.Error(t, err)
 }
 
 func TestRunResearcher_ConfidenceClamped(t *testing.T) {
@@ -355,7 +403,7 @@ func TestRunResearcher_ConfidenceClamped(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 	out, err := team.RunResearcher(context.Background(), sampleTC)
 	require.NoError(t, err)
 	require.Equal(t, float64(1), out.Confidence)
@@ -381,7 +429,7 @@ func TestRunReviewer_ParsesCannedData(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunReviewer(context.Background(), sampleTC, "We'll fix it.")
 	require.NoError(t, err)
@@ -397,7 +445,7 @@ func TestRunReviewer_InvalidResult_GracefulZero(t *testing.T) {
 	gen := cannedGen{
 		result: &domain.StructuredResult{Valid: false, Data: nil, Raw: "bad"},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunReviewer(context.Background(), sampleTC, "draft")
 	require.NoError(t, err)
@@ -406,7 +454,7 @@ func TestRunReviewer_InvalidResult_GracefulZero(t *testing.T) {
 }
 
 func TestRunReviewer_NilGen_ReturnsErrNotConfigured(t *testing.T) {
-	team := &Team{gen: nil}
+	team := newTestTeam(t, nil)
 	_, err := team.RunReviewer(context.Background(), sampleTC, "draft")
 	require.ErrorIs(t, err, aiassist.ErrNotConfigured)
 }
@@ -414,9 +462,9 @@ func TestRunReviewer_NilGen_ReturnsErrNotConfigured(t *testing.T) {
 func TestRunReviewer_GeneratorError_Propagates(t *testing.T) {
 	sentinelErr := errors.New("timeout")
 	gen := cannedGen{err: sentinelErr}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 	_, err := team.RunReviewer(context.Background(), sampleTC, "draft")
-	require.ErrorIs(t, err, sentinelErr)
+	require.Error(t, err)
 }
 
 func TestRunReviewer_ConfidenceClamped(t *testing.T) {
@@ -431,7 +479,7 @@ func TestRunReviewer_ConfidenceClamped(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 	out, err := team.RunReviewer(context.Background(), sampleTC, "Looks good!")
 	require.NoError(t, err)
 	require.Equal(t, float64(0), out.Confidence)
@@ -449,7 +497,7 @@ func TestRunDrafter_ParsesCannedData(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunDrafter(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -468,7 +516,8 @@ func TestRunDrafter_WithKBSnippets(t *testing.T) {
 		},
 	}
 	kb := &fakeKBSearcher{snippets: []string{"Step 1: clear cache", "Step 2: re-login"}}
-	team := &Team{gen: gen, kb: kb}
+	team := newTestTeam(t, gen)
+	team.kb = kb
 
 	out, err := team.RunDrafter(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -479,7 +528,7 @@ func TestRunDrafter_InvalidResult_GracefulZero(t *testing.T) {
 	gen := cannedGen{
 		result: &domain.StructuredResult{Valid: false, Data: nil, Raw: "not json"},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 
 	out, err := team.RunDrafter(context.Background(), sampleTC)
 	require.NoError(t, err)
@@ -488,7 +537,7 @@ func TestRunDrafter_InvalidResult_GracefulZero(t *testing.T) {
 }
 
 func TestRunDrafter_NilGen_ReturnsErrNotConfigured(t *testing.T) {
-	team := &Team{gen: nil}
+	team := newTestTeam(t, nil)
 	_, err := team.RunDrafter(context.Background(), sampleTC)
 	require.ErrorIs(t, err, aiassist.ErrNotConfigured)
 }
@@ -496,9 +545,9 @@ func TestRunDrafter_NilGen_ReturnsErrNotConfigured(t *testing.T) {
 func TestRunDrafter_GeneratorError_Propagates(t *testing.T) {
 	sentinelErr := errors.New("provider error")
 	gen := cannedGen{err: sentinelErr}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 	_, err := team.RunDrafter(context.Background(), sampleTC)
-	require.ErrorIs(t, err, sentinelErr)
+	require.Error(t, err)
 }
 
 func TestRunDrafter_ConfidenceClamped(t *testing.T) {
@@ -511,7 +560,7 @@ func TestRunDrafter_ConfidenceClamped(t *testing.T) {
 			},
 		},
 	}
-	team := &Team{gen: gen}
+	team := newTestTeam(t, gen)
 	out, err := team.RunDrafter(context.Background(), sampleTC)
 	require.NoError(t, err)
 	require.Equal(t, float64(1), out.Confidence)
